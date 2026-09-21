@@ -53,5 +53,5 @@
 
 ```bash
 pip install -e .
-swift-proxy-tray-win
+swift-proxy --tray
 ```

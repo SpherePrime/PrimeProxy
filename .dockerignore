@@ -13,7 +13,6 @@ venv/
 dist/
 build/
 packaging/
-windows.py
 icon.ico
 *.spec
 *.spec.bak

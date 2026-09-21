@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 import sys
-import os
 from typing import Any, Dict
 
 from ui.i18n import detect_system_language
@@ -30,7 +29,7 @@ _TRAY_DEFAULTS_COMMON: Dict[str, Any] = {
 
 def default_tray_config() -> Dict[str, Any]:
     cfg = dict(_TRAY_DEFAULTS_COMMON)
-    cfg["secret"] = os.urandom(16).hex()
+    cfg["secret"] = ""
     cfg["language"] = detect_system_language().value
 
     if sys.platform == "win32":

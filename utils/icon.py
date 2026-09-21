@@ -7,7 +7,10 @@ bottom vignette and a crisp light edge - all fully procedural (Pillow only).
 from __future__ import annotations
 
 import math
-from typing import List, Sequence, Tuple
+from typing import TYPE_CHECKING, List, Sequence, Tuple
+
+if TYPE_CHECKING:
+    from PIL import Image
 
 # Depth gradient (top-left light amber -> bottom-right deep orange).
 _BASE_STOPS = [

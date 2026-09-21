@@ -1,0 +1,85 @@
+# Preset: original_bolvan
+# BuiltinVersion: 1.3
+# IconColor: #60cdff
+# Description: Imported from bat/original_bolvan.txt
+
+--wf-tcp=80,100-25565,443
+--wf-udp=100-25565,443,50000-50099
+
+# === HTTP (порт 80) ===
+--filter-tcp=80
+--dpi-desync=fake,fakedsplit
+--dpi-desync-autottl=2
+--dpi-desync-fooling=md5sig
+
+# === TCP порт 100 ===
+
+--new
+
+--filter-tcp=100-25565
+--dpi-desync=fake
+--dpi-desync-repeats=6
+--dpi-desync-fake-tls-mod=none
+--dpi-desync-fooling=badseq
+
+# === UDP порт 100 ===
+
+--new
+
+--filter-udp=100-25565
+--dpi-desync=fake
+--dpi-desync-repeats=6
+
+# === HTTPS YouTube ===
+
+--new
+
+--comment=youtube.com (интерфейс)
+--filter-tcp=80,443
+--hostlist=lists/youtube.txt
+--dpi-desync=fake,multidisorder
+--dpi-desync-split-pos=1,midsld
+--dpi-desync-repeats=11
+--dpi-desync-fooling=md5sig
+--dpi-desync-fake-tls=bin/tls_clienthello_www_google_com.bin
+
+# === HTTPS ===
+
+--new
+
+--filter-tcp=443
+--dpi-desync=fake,multidisorder
+--dpi-desync-split-pos=midsld
+--dpi-desync-repeats=6
+--dpi-desync-fooling=badseq,md5sig
+
+# === QUIC YouTube ===
+
+--new
+
+--comment=youtube.com (QUIC)
+--filter-udp=443
+--hostlist=lists/youtube.txt
+--dpi-desync=fake
+--dpi-desync-repeats=11
+--dpi-desync-fake-quic=bin/quic_initial_www_google_com.bin
+
+# === QUIC ===
+
+--new
+
+--filter-udp=443
+--dpi-desync=fake
+--dpi-desync-repeats=11
+
+# === Discord Voice ===
+
+--new
+
+--comment=Discord UDP (обычно не нужно)
+--filter-udp=443-65535
+--ipset=lists/ipset-discord.txt
+--dpi-desync=fake
+--dpi-desync-repeats=6
+--dpi-desync-any-protocol
+--dpi-desync-cutoff=n4

@@ -54,5 +54,5 @@ Detailed instructions: [BuildFromSource.md](./BuildFromSource.md)
 
 ```bash
 pip install -e .
-swift-proxy-tray-win
+swift-proxy --tray
 ```

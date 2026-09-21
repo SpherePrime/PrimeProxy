@@ -28,5 +28,5 @@
 
 ```bash
 pip install -e .
-swift-proxy-tray-macos
+swift-proxy --tray
 ```

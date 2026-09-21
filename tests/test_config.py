@@ -1,5 +1,8 @@
 import unittest
+from unittest import mock
 
+import config.paths
+from config.paths import _migrate_legacy_configs
 from proxy.config import (
     CFPROXY_DEFAULT_DOMAINS,
     _is_valid_domain,
@@ -81,6 +84,75 @@ class DefaultDomainsTest(unittest.TestCase):
         self.assertEqual(
             len(set(CFPROXY_DEFAULT_DOMAINS)), len(CFPROXY_DEFAULT_DOMAINS)
         )
+
+
+class MigrateLegacyConfigsTest(unittest.TestCase):
+    """Regression coverage for _migrate_legacy_configs.
+
+    The documented behaviour: migration is **fill-only**. A legacy value is
+    applied only when the target section field is absent, so values already
+    saved in sectioned form (e.g. a MTProto port set in the new UI) survive a
+    legacy config on disk. Flat legacy keys successfully moved into sections
+    are dropped from the current config.
+    """
+
+    def tearDown(self):
+        mock.patch.stopall()
+
+    def _no_legacy_dirs(self):
+        mock.patch.object(
+            config.paths,
+            "_legacy_app_dir",
+            lambda name: mock.MagicMock(exists=lambda: False),
+        ).start()
+
+    def test_flat_legacy_keys_do_not_overwrite_sectioned_values(self):
+        self._no_legacy_dirs()
+        current = {
+            "proxy": {"port": 19999, "secret": "7e83fd8bdd26be253b30961290edd638"},
+            "port": 1443,
+            "secret": "7aed2dd13a0c4362d218e71acb299394",
+        }
+        result = _migrate_legacy_configs(current)
+        self.assertEqual(result["proxy"]["port"], 19999)
+        self.assertEqual(result["proxy"]["secret"], "7e83fd8bdd26be253b30961290edd638")
+        self.assertNotIn("port", result)
+        self.assertNotIn("secret", result)
+
+    def test_sectioned_values_win_over_legacy_appdir_values(self):
+        current = {"proxy": {"port": 19999}}
+        with mock.patch(
+            "config.paths._legacy_app_dir",
+            lambda name: mock.MagicMock(exists=lambda: True),
+        ), mock.patch(
+            "config.store.load_saved_json",
+            return_value={"port": 1443, "secret": "f8f21362f1f535920d764d3f9cb7826c"},
+        ):
+            result = _migrate_legacy_configs(current)
+        self.assertEqual(result["proxy"]["port"], 19999)
+        self.assertEqual(result["proxy"]["secret"], "f8f21362f1f535920d764d3f9cb7826c")
+
+    def test_fills_missing_fields_from_legacy_appdir(self):
+        current = {}
+        with mock.patch(
+            "config.paths._legacy_app_dir",
+            lambda name: mock.MagicMock(exists=lambda: True),
+        ), mock.patch(
+            "config.store.load_saved_json",
+            return_value={"port": 1443, "secret": "f8f21362f1f535920d764d3f9cb7826c"},
+        ):
+            result = _migrate_legacy_configs(current)
+        self.assertEqual(result["proxy"]["port"], 1443)
+        self.assertEqual(result["proxy"]["secret"], "f8f21362f1f535920d764d3f9cb7826c")
+
+    def test_flat_legacy_keys_move_into_section_when_field_missing(self):
+        self._no_legacy_dirs()
+        current = {"port": 1443, "secret": "f8f21362f1f535920d764d3f9cb7826c"}
+        result = _migrate_legacy_configs(current)
+        self.assertEqual(result["proxy"]["port"], 1443)
+        self.assertEqual(result["proxy"]["secret"], "f8f21362f1f535920d764d3f9cb7826c")
+        self.assertNotIn("port", result)
+        self.assertNotIn("secret", result)
 
 
 if __name__ == '__main__':

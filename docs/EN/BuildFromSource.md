@@ -15,7 +15,7 @@ swift-proxy
 
 ```bash
 pip install -e .
-swift-proxy-tray-win
+swift-proxy --tray
 ```
 
 ### macOS
@@ -24,14 +24,14 @@ Requires a Python build with Tk support. You can verify it with the command `pyt
 
 ```bash
 pip install -e .
-swift-proxy-tray-macos
+swift-proxy --tray
 ```
 
 ### Linux
 
 ```bash
 pip install -e .
-swift-proxy-tray-linux
+swift-proxy --tray
 ```
 
 ## Console Mode from Source

@@ -31,9 +31,7 @@ pip install -e .
 Запуск:
 
 - консольный режим: `swift-proxy`
-- Windows tray: `swift-proxy-tray-win`
-- macOS tray: `swift-proxy-tray-macos`
-- Linux tray: `swift-proxy-tray-linux`
+- GUI/трей режим: `swift-proxy` (единая точка входа)
 
 Подробности: `docs/BuildFromSource.md`.
 

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  body { width: 220px; font-family: system-ui, sans-serif; margin: 0; padding: 14px; color: #1c1c1e; }
+  h1 { font-size: 14px; margin: 0 0 10px; }
+  #status { font-size: 13px; margin-bottom: 12px; opacity: .7; }
+  button { width: 100%; padding: 9px 0; border: 0; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  #toggle.on { background: #0a84ff; color: #fff; }
+  #toggle.off { background: #e5e5ea; color: #1c1c1e; }
+  a { display: block; margin-top: 10px; font-size: 12px; color: #0a84ff; text-decoration: none; }
+</style>
+</head>
+<body>
+  <h1>SwiftProxy</h1>
+  <div id="status">Off</div>
+  <button id="toggle" class="off">Turn on proxy</button>
+  <a href="#" id="opts">Settings…</a>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -16,7 +16,7 @@ import psutil
 
 from proxy import __version__, get_link_host, parse_dc_ip_list, proxy_config, coerce_domain_list
 from proxy.utils import DomainCensorFilter
-from proxy.tg_ws_proxy import _run
+from proxy.server import _run
 from utils.default_config import default_tray_config
 from utils.diagnostics import diagnose_listen_error
 from utils.logging_setup import build_log_handler
@@ -347,7 +347,7 @@ def apply_proxy_config(cfg: dict) -> bool:
     pc = proxy_config
     pc.port = cfg.get("port", DEFAULT_CONFIG["port"])
     pc.host = cfg.get("host", DEFAULT_CONFIG["host"])
-    pc.secret = cfg.get("secret", DEFAULT_CONFIG["secret"])
+    pc.secret = cfg.get("secret", "")
     pc.dc_redirects = dc_redirects
     pc.buffer_size = max(4, cfg.get("buf_kb", DEFAULT_CONFIG["buf_kb"])) * 1024
     pc.pool_size = max(0, cfg.get("pool_size", DEFAULT_CONFIG["pool_size"]))

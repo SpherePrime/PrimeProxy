@@ -28,5 +28,5 @@ The interface requires Tk, CustomTkinter, and access to Cocoa via PyObjC. They a
 
 ```bash
 pip install -e .
-swift-proxy-tray-macos
+swift-proxy --tray
 ```

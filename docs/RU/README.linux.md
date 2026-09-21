@@ -47,5 +47,5 @@ chmod +x SwiftProxy_linux_amd64
 
 ```bash
 pip install -e .
-swift-proxy-tray-linux
+swift-proxy --tray
 ```

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 320px; margin: 40px auto; padding: 0 16px; color: #1c1c1e; }
+  h1 { font-size: 16px; }
+  label { display: block; margin: 12px 0 4px; font-size: 13px; }
+  input { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #c7c7cc; border-radius: 8px; font-size: 13px; }
+  button { margin-top: 16px; padding: 9px 18px; border: 0; border-radius: 9px; background: #0a84ff; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .hint { font-size: 12px; opacity: .6; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>SwiftProxy Browser</h1>
+  <label for="host">Proxy host</label>
+  <input id="host" autocomplete="off" spellcheck="false" />
+  <label for="port">Proxy port (SOCKS5)</label>
+  <input id="port" type="number" autocomplete="off" />
+  <button id="save">Save</button>
+  <div class="hint" id="saved" style="display:none">Saved</div>
+  <script src="options.js"></script>
+</body>
+</html>

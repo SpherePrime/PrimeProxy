@@ -1,0 +1,202 @@
+# Preset: ultazl
+# IconColor: #60cdff
+# Description: Imported from bat/ultazl.txt
+
+--wf-tcp=443
+--wf-udp=443,50000-50099
+
+# === QUIC YouTube ===
+--filter-udp=443
+--hostlist=lists/youtubeQ.txt
+--dpi-desync=fake
+--dpi-desync-fake-quic=bin/quic_1.bin
+--dpi-desync-repeats=4
+
+# === HTTPS YouTube ===
+
+--new
+
+--filter-tcp=443
+--hostlist=lists/youtubeGV.txt
+--dpi-desync=fakedsplit
+--dpi-desync-split-pos=1
+--dpi-desync-fooling=badseq
+--dpi-desync-repeats=10
+--dpi-desync-ttl=4
+
+# === HTTPS YouTube ===
+
+--new
+
+--comment=youtube.com (интерфейс)
+--filter-tcp=80,443
+--hostlist=lists/youtube.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=Мои сайты
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-all.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+--new
+
+--comment=discord.com
+--filter-tcp=80,443,1080,2053,2083,2087,2096,8443
+--hostlist=lists/discord.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=SoundCloud
+--filter-tcp=80,443
+--hostlist=lists/soundcloud.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=rutracker.org
+--filter-tcp=80,443
+--hostlist=lists/rutracker.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=rutor.info (.is)
+--filter-tcp=80,443
+--hostlist=lists/rutor.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=Roblox TCP
+--filter-tcp=80,443-65535
+--hostlist=lists/roblox.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=itch.io
+--filter-tcp=80,443
+--hostlist=lists/itch.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=Facebook
+--filter-tcp=80,443
+--hostlist=lists/facebook.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=Instagram
+--filter-tcp=80,443
+--hostlist=lists/instagram.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=Twitter/X
+--filter-tcp=80,443
+--hostlist=lists/twitter.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--comment=WhatsApp
+--filter-tcp=80,443
+--hostlist=lists/whatsapp.txt
+--dpi-desync=fake,multisplit
+--dpi-desync-split-seqovl=2
+--dpi-desync-split-pos=3
+--dpi-desync-fake-tls=bin/tls_clienthello_2.bin
+--dpi-desync-ttl=3
+
+# === HTTPS Discord ===
+
+--new
+
+--filter-udp=443
+--hostlist=lists/discord.txt
+--dpi-desync=fake
+--dpi-desync-udplen-increment=10
+--dpi-desync-udplen-pattern=0xDEADBEEF
+--dpi-desync-fake-quic=bin/quic_2.bin
+--dpi-desync-repeats=8
+--dpi-desync-cutoff=n2
+
+# === Discord Voice ===
+
+--new
+
+--filter-udp=50000-50099
+--dpi-desync=fake
+--dpi-desync-any-protocol
+--dpi-desync-cutoff=d2
+--dpi-desync-fake-quic=bin/quic_1.bin

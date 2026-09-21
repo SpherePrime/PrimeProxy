@@ -1,0 +1,60 @@
+# Preset: datanoackpadencapmidsldwssize
+# IconColor: #60cdff
+# Description: Imported from bat/datanoackpadencapmidsldwssize.txt
+
+--wf-tcp=443
+--wf-udp=443,50000-59000
+
+# === QUIC Discord ===
+--filter-udp=443
+--hostlist=lists/discord.txt
+--dpi-desync=fake
+--dpi-desync-udplen-increment=10
+--dpi-desync-repeats=6
+--dpi-desync-udplen-pattern=0xDEADBEEF
+--dpi-desync-fake-quic=bin/quic_initial_www_google_com.bin
+
+# === Discord Voice ===
+
+--new
+
+--filter-udp=50000-59000
+--dpi-desync=fake
+--dpi-desync-any-protocol
+--dpi-desync-cutoff=d3
+--dpi-desync-repeats=6
+--dpi-desync-fake-quic=bin/quic_initial_www_google_com.bin
+
+# === QUIC YouTube ===
+
+--new
+
+--filter-udp=443
+--hostlist=lists/youtubeQ.txt
+--dpi-desync=fake
+--dpi-desync-repeats=11
+--dpi-desync-fake-quic=bin/quic_initial_www_google_com.bin
+
+# === HTTPS YouTube ===
+
+--new
+
+--filter-tcp=443
+--hostlist-domains=youtube.com
+--dpi-desync=fake,multidisorder
+--dpi-desync-split-pos=1,midsld
+--dpi-desync-repeats=6
+--dpi-desync-fooling=badseq
+--dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com
+
+# === HTTPS ===
+
+--new
+
+--filter-tcp=443
+--dpi-desync=fake,multidisorder
+--dpi-desync-split-pos=1,midsld
+--dpi-desync-repeats=6
+--dpi-desync-fooling=badseq
+--dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com
+--wssize=1:6

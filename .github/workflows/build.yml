@@ -71,7 +71,7 @@ jobs:
           pip install (Get-ChildItem pyinstaller_src\*.tar.gz).FullName
 
       - name: Build EXE with PyInstaller
-        run: pyinstaller packaging/windows.spec --noconfirm
+        run: pyinstaller packaging/swiftproxy.spec --noconfirm
 
       - name: Strip Rich PE header
         shell: bash
@@ -146,7 +146,7 @@ jobs:
         run: pip install --find-links $env:ARM64_WHEELHOUSE . "pyinstaller==6.13.0"
 
       - name: Build EXE with PyInstaller
-        run: pyinstaller packaging/windows.spec --noconfirm
+        run: pyinstaller packaging/swiftproxy.spec --noconfirm
 
       - name: Strip Rich PE header
         shell: bash
@@ -202,7 +202,7 @@ jobs:
         run: pip install . "pyinstaller==5.13.2"
 
       - name: Build EXE with PyInstaller
-        run: pyinstaller packaging/windows.spec --noconfirm
+        run: pyinstaller packaging/swiftproxy.spec --noconfirm
 
       - name: Strip Rich PE header
         shell: bash
@@ -306,16 +306,13 @@ jobs:
       - name: Validate macOS GUI dependencies
         run: |
           python3.12 -m pip check
-          python3.12 -m py_compile macos.py
-          python3.12 -c "import AppKit, PySide6, macos, pystray, tkinter"
-
-      - name: Create macOS icon
-        run: |
-          set -euo pipefail
-          python3.12 macos.py --render-app-icon icon.icns
+          python3.12 -m py_compile main.py
+          python3.12 -c "import AppKit, pystray, webview"
 
       - name: Build app with PyInstaller
-        run: python3.12 -m PyInstaller packaging/macos.spec --noconfirm
+        run: python3.12 -m PyInstaller packaging/swiftproxy.spec --noconfirm
+        # TODO(Phase 5): swiftproxy.spec currently emits a COLLECT dir; for the
+        # .app/.dmg flow add a BUNDLE target (icon.icns exists in the repo).
 
       - name: Validate universal2 app bundle
         run: |
@@ -324,7 +321,6 @@ jobs:
             'dist/SwiftProxy.app/Contents/Info.plist')"
           test -n "$ICON_FILE"
           test -f "dist/SwiftProxy.app/Contents/Resources/$ICON_FILE"
-          test -d "dist/SwiftProxy.app/Contents/Resources/PySide6"
 
           found=0
           while IFS= read -r -d '' file; do
@@ -410,7 +406,7 @@ jobs:
           .venv/bin/pip install "pyinstaller==6.13.0"
 
       - name: Build binary with PyInstaller
-        run: .venv/bin/pyinstaller packaging/linux.spec --noconfirm
+        run: .venv/bin/pyinstaller packaging/swiftproxy.spec --noconfirm
 
       - name: Rename binary artifact
         run: mv dist/SwiftProxy dist/SwiftProxy_linux_amd64
@@ -525,7 +521,7 @@ jobs:
               -v ${VERSION} \
               --iteration 1 \
               --architecture x86_64 \
-              --license "MIT" \
+              --license "BUSL-1.1" \
               --vendor "LilKALINOV" \
               --maintainer "LilKALINOV" \
               --url "https://github.com/Lil-KALINOV/SwiftProxy" \

@@ -37,7 +37,7 @@ server {
 ## Запуск прокси за Nginx
 
 ```bash
-python3 proxy/tg_ws_proxy.py \
+python3 proxy/server.py \
   --port 8446 \
   --host 127.0.0.1 \
   --fake-tls-domain example.com \

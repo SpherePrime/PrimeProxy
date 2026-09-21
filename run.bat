@@ -4,7 +4,7 @@ title SwiftProxy Launcher
 chcp 65001 >nul 2>&1
 
 rem ============================================================
-rem  SwiftProxy - batch launcher for the GUI (tray) app
+rem  SwiftProxy - batch launcher for the GUI app
 rem  Checks Python and required libraries, installs what's
 rem  missing, then starts the application.
 rem ============================================================
@@ -33,7 +33,7 @@ for %%P in (python py) do (
 )
 if not defined PYEXE (
     echo   [ERROR] Python not found.
-    echo           Install Python 3.8+ from https://www.python.org/downloads/
+    echo           Install Python 3.9+ from https://www.python.org/downloads/
     echo           Check the "Add Python to PATH" option during install.
     pause
     exit /b 1
@@ -41,20 +41,19 @@ if not defined PYEXE (
 for /f "tokens=1,2 delims=. " %%A in ("!PYVER!") do set "PYMAJOR=%%B"
 for /f "tokens=2,3 delims=. " %%A in ("!PYVER!") do set "PYMINOR=%%B"
 if not defined PYMINOR set "PYMINOR=0"
-set "PYNUMCHECK=!PYMAJOR!!PYMINOR!"
 echo   Python found: !PYVER!
 if !PYMAJOR! LSS 3 goto PYOLD
-if !PYMAJOR! EQU 3 if !PYMINOR! LSS 8 goto PYOLD
+if !PYMAJOR! EQU 3 if !PYMINOR! LSS 9 goto PYOLD
 goto PYOK
 :PYOLD
-echo   [ERROR] Python 3.8+ is required, found !PYVER!
+echo   [ERROR] Python 3.9+ is required, found !PYVER!
 pause
 exit /b 1
 :PYOK
 
-rem ---------- 3. Check required libraries ----------
+rem ---------- 2. Check required libraries ----------
 set "MISSING="
-%PYEXE% -c "import PySide6" 2>nul || set "MISSING=!MISSING! PySide6"
+%PYEXE% -c "import webview" 2>nul || set "MISSING=!MISSING! pywebview"
 %PYEXE% -c "import pystray" 2>nul || set "MISSING=!MISSING! pystray"
 %PYEXE% -c "import PIL" 2>nul || set "MISSING=!MISSING! Pillow"
 %PYEXE% -c "import pyperclip" 2>nul || set "MISSING=!MISSING! pyperclip"
@@ -70,25 +69,18 @@ if defined MISSING (
     if errorlevel 1 (
         echo.
         echo   [ERROR] Failed to install dependencies.
-        echo           Try: %PYEXE% -m pip install PySide6 pystray Pillow pyperclip certifi psutil cryptography
+        echo           Try: %PYEXE% -m pip install pywebview pystray Pillow pyperclip certifi psutil cryptography
         pause
         exit /b 1
     )
     echo   Dependencies installed.
 )
 
-rem ---------- 4. Check icon ----------
-set "ICONPATH=%CD%\icon.ico"
-if not exist "%ICONPATH%" (
-    echo   [WARN] icon.ico not found next to launcher, using default icon.
-    set "ICONPATH="
-)
-
-rem ---------- 5. Launch ----------
+rem ---------- 3. Launch ----------
 echo.
 echo   Starting SwiftProxy...
 echo   Close this window: app keeps running in the system tray.
 echo.
-start "SwiftProxy" /min %PYEXE% windows.py
+start "SwiftProxy" /min %PYEXE% main.py
 
 endlocal

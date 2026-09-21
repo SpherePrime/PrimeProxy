@@ -12,6 +12,7 @@ LocaleInput = Union[str, "LocaleEnum"]
 
 class LocaleEnum(str, Enum):
     russian = "ru"
+    ukrainian = "uk"
     english = "en"
 
     @classmethod

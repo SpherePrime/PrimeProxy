@@ -31,9 +31,7 @@ pip install -e .
 Running:
 
 - console mode: `swift-proxy`
-- Windows tray: `swift-proxy-tray-win`
-- macOS tray: `swift-proxy-tray-macos`
-- Linux tray: `swift-proxy-tray-linux`
+- GUI/tray mode: `swift-proxy` (unified entry point)
 
 Details: `docs/BuildFromSource.md`.
 

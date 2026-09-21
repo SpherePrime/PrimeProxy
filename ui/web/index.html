@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SwiftProxy</title>
+  <link rel="stylesheet" href="theme/glass.css?v=50" />
+  <link rel="stylesheet" href="theme/dark.css?v=50" />
+  <link rel="stylesheet" href="theme/light.css?v=50" />
+</head>
+<body>
+  <div id="wallpaperBg" class="wp-standard"></div>
+  <div class="app">
+    <!-- Custom titlebar (frameless window) -->
+    <header class="titlebar pywebview-drag-region">
+      <button class="tb-btn" id="collapseBtn" data-icon="collapse" data-i18n-title="titlebar.collapse"></button>
+      <div class="tb-title">
+        <span class="tb-name" data-i18n="app.name">SwiftProxy</span>
+        <span class="tb-version" id="tbVersion"></span>
+      </div>
+      <div class="tb-controls">
+        <button class="tb-btn tb-control" id="tbMin" data-icon="minus" data-i18n-title="titlebar.minimize"></button>
+        <button class="tb-btn tb-control" id="tbFull" data-icon="fullscreen" data-i18n-title="titlebar.fullscreen"></button>
+        <button class="tb-btn tb-control" id="tbMax" data-icon="maximize" data-i18n-title="titlebar.maximize"></button>
+        <button class="tb-btn tb-control tb-close" id="tbClose" data-icon="close" data-i18n-title="titlebar.close"></button>
+      </div>
+    </header>
+
+    <div class="shell">
+      <!-- Sidebar navigation -->
+      <aside class="sidebar" id="sidebar">
+        <div class="logo">
+          <span class="logo-mark" data-icon="shield"></span>
+          <span class="logo-text" data-i18n="app.name">SwiftProxy</span>
+        </div>
+        <nav id="nav">
+          <div class="nav-group" data-i18n="nav.g_main">Main</div>
+          <a data-page="dashboard" class="active"><span class="nav-icon" data-icon="dashboard"></span><span data-i18n="nav.dashboard">Dashboard</span></a>
+          <a data-page="proxy"><span class="nav-icon" data-icon="mtproto"></span><span data-i18n="nav.proxy">Proxy</span></a>
+          <a data-page="profiles"><span class="nav-icon" data-icon="zapret"></span><span data-i18n="nav.profiles">Zapret</span></a>
+          <a data-page="internet"><span class="nav-icon" data-icon="internet"></span><span data-i18n="nav.internet">Internet</span></a>
+          <div class="nav-group" data-i18n="nav.g_tools">Tools</div>
+          <a data-page="tools"><span class="nav-icon" data-icon="tools"></span><span data-i18n="nav.tools">Tools</span></a>
+          <div class="nav-group" data-i18n="nav.g_sys">System</div>
+          <a data-page="updates"><span class="nav-icon" data-icon="updates"></span><span data-i18n="nav.updates">Updates</span></a>
+          <a data-page="logs"><span class="nav-icon" data-icon="logs"></span><span data-i18n="nav.logs">Logs</span></a>
+          <a data-page="help"><span class="nav-icon" data-icon="help"></span><span data-i18n="nav.help">Help</span></a>
+          <a data-page="settings"><span class="nav-icon" data-icon="settings"></span><span data-i18n="nav.settings">Settings</span></a>
+        </nav>
+      </aside>
+
+      <!-- Content area -->
+      <main class="content" id="content">
+
+        <!-- Dashboard -->
+        <section class="page active" data-page-view="dashboard">
+          <h1 class="page-title" data-i18n="dash.title">Главная</h1>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="nav.proxy">Прокси</div>
+            <div class="dash-grid">
+              <div class="dash-toggle-card">
+                <div class="dash-toggle-head">
+                  <span class="dash-toggle-name" data-i18n="pg.mode_mt">MTProto</span>
+                  <span class="status-badge off" id="dashMtBadge" data-i18n="status.mt_off">MTProto · off</span>
+                </div>
+                <label class="toggle"><input type="checkbox" id="dashMtToggle" /><span class="track"></span><span class="thumb"></span></label>
+              </div>
+              <div class="dash-toggle-card">
+                <div class="dash-toggle-head">
+                  <span class="dash-toggle-name" data-i18n="pg.mode_socks">SOCKS5</span>
+                  <span class="status-badge off" id="dashSocksBadge" data-i18n="status.socks_off">SOCKS5 · off</span>
+                </div>
+                <label class="toggle"><input type="checkbox" id="dashSocksToggle" /><span class="track"></span><span class="thumb"></span></label>
+              </div>
+            </div>
+            <div class="row" style="margin-top:14px">
+              <input class="input" style="flex:1" id="proxyLink" readonly />
+              <button class="btn btn-primary" data-icon-inline="link" id="dashConnect" data-i18n="dash.connect">Connect in Telegram</button>
+              <button class="btn btn-ghost" data-icon-inline="copy" id="copyLink" data-i18n="dash.copy_link">Copy</button>
+            </div>
+            <div class="hint" id="linkHint" data-i18n="dash.link_hint"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="nav.profiles">Обход Zapret</div>
+            <div class="row">
+              <div class="label">
+                <span id="dashDpiProfile">—</span>
+                <div class="hint" id="dashDpiState"></div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="dashDpiToggle" /><span class="track"></span><span class="thumb"></span></label>
+            </div>
+            <div class="row-gap">
+              <button class="btn btn-ghost" data-icon-inline="zapret" id="dashStrategyBtn" data-i18n="dash.strategy">Strategy</button>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="dash.stat_title">Statistics</div>
+            <div class="stat-grid">
+              <div class="stat-item"><div class="stat-num" id="statUptime">—</div><div class="stat-label" data-i18n="dash.stat_uptime">Uptime</div></div>
+              <div class="stat-item"><div class="stat-num" id="statChecked">—</div><div class="stat-label" data-i18n="dash.stat_checked">Checked sites</div></div>
+              <div class="stat-item"><div class="stat-num" id="statStrategies">—</div><div class="stat-label" data-i18n="dash.stat_strategies">Strategies</div></div>
+              <div class="stat-item"><div class="stat-num" id="statHosts">—</div><div class="stat-label" data-i18n="dash.stat_hosts">Hosts entries</div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Proxy (MTProto + Telegram WSS — один движок) -->
+        <section class="page" data-page-view="proxy">
+          <h1 class="page-title" data-i18n="mt.title">Proxy settings</h1>
+          <div class="glass-card">
+            <div class="card-subtitle" data-i18n="pg.mode_hint"></div>
+            <div class="row">
+              <div class="label" data-i18n="pg.mode_title">Proxy mode</div>
+              <div class="segmented-control" id="proxyMode">
+                <button data-val="mt" class="active" data-i18n="pg.mode_mt">MTProto</button>
+                <button data-val="socks5" data-i18n="pg.mode_socks">SOCKS5</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Share (works in both modes) -->
+          <div class="glass-card" id="shareCard">
+            <div class="card-title" data-i18n="pg.share_card_title">Share</div>
+            <div class="row">
+              <div class="label"><span data-i18n="pg.share_title">Share to phone</span>
+                <div class="hint" id="shareOnHint" data-i18n="pg.share_on_hint">Listen on all interfaces.</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="shareLan" /><span class="track"></span><span class="thumb"></span></label>
+            </div>
+            <div class="row" id="shareIntRow" style="display:none">
+              <div class="label"><span data-i18n="pg.share_int_title">Internet access</span>
+                <div class="hint" data-i18n="pg.share_int_hint">Open the port on the router (UPnP) — phone works from any network (5G).</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="shareInternet" /><span class="track"></span><span class="thumb"></span></label>
+            </div>
+            <div id="shareBox" style="display:none">
+              <div class="hint" id="shareHint" data-i18n="pg.share_hint"></div>
+              <div class="row">
+                <div class="label" data-i18n="pg.mode_mt">MTProto</div>
+                <div class="row-gap" style="flex:1; min-width:0">
+                  <input class="input" style="flex:1; min-width:0" id="shareLinkMt" readonly />
+                  <button class="btn btn-primary btn-sm" id="copyShareMt" data-i18n="pg.copy">Copy</button>
+                  <button class="btn btn-sm" id="connectShareMt" data-i18n="pg.connect">Connect</button>
+                </div>
+              </div>
+              <div class="row">
+                <div class="label" data-i18n="pg.mode_socks">SOCKS5</div>
+                <div class="row-gap" style="flex:1; min-width:0">
+                  <input class="input" style="flex:1; min-width:0" id="shareLinkSocks" readonly />
+                  <button class="btn btn-primary btn-sm" id="copyShareSocks" data-i18n="pg.copy">Copy</button>
+                  <button class="btn btn-sm" id="connectShareSocks" data-i18n="pg.connect">Connect</button>
+                </div>
+              </div>
+              <div class="hint" id="pubHint" style="display:none"></div>
+              <div class="row" id="pubRow" style="display:none">
+                <input class="input" style="flex:1" id="pubLink" readonly />
+                <button class="btn btn-primary btn-sm" data-icon-inline="copy" id="copyPub">Copy</button>
+                <button class="btn btn-sm" id="connectPub" data-i18n="pg.connect">Connect</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MTProto card -->
+          <div class="glass-card" id="mtCard">
+            <div class="card-title" data-i18n="mt.subtitle">Local MTProto proxy — a bridge to WS relays.</div>
+            <div class="row">
+              <div class="label"><span data-i18n="mt.enable">Enable</span>
+                <div class="hint" data-i18n="mt.enable_hint">Start with the app</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="mtEnable" /><span class="track"></span><span class="thumb"></span></label>
+            </div>
+            <div class="row">
+              <div class="label" data-i18n="mt.host">Bind host</div>
+              <input class="input" style="width:220px" id="mtHost" data-i18n-ph="mt.host" />
+            </div>
+            <div class="row">
+              <div class="label" data-i18n="mt.port">Port</div>
+              <input class="input" style="width:120px" id="mtPort" />
+            </div>
+            <div class="row">
+              <div class="label"><span data-i18n="mt.secret">Secret</span><span class="hint" data-i18n="mt.secret_hint">задаётся один раз и сохраняется</span></div>
+              <input class="input" style="width:220px" id="mtSecret" />
+              <button class="btn btn-ghost" id="mtSecretGen" data-i18n="mt.gen">Generate</button>
+            </div>
+            <div class="row">
+              <div class="label" data-i18n="mt.pool">WS pool size</div>
+              <input class="input" style="width:100px" id="mtPool" />
+            </div>
+            <div class="row-gap">
+              <button class="btn btn-ghost" data-icon-inline="refresh" id="restartFromMt" data-i18n="mt.restart">Restart proxy</button>
+            </div>
+          </div>
+
+          <!-- SOCKS5 card -->
+          <div class="glass-card" id="socksCard" style="display:none">
+            <div class="card-title" data-i18n="socks.subtitle"></div>
+            <div class="row">
+              <div class="label" data-i18n="tg.host">Bind host</div>
+              <input class="input" style="width:220px" id="tgHost" />
+            </div>
+            <div class="row">
+              <div class="label" data-i18n="tg.port">Port</div>
+              <input class="input" style="width:120px" id="tgPort" />
+            </div>
+            <div class="row-gap">
+              <button class="btn btn-warm" data-icon-inline="play" id="startTgBtn" data-i18n="tg.start_now">Start now</button>
+            </div>
+            <div class="hint" id="tgStatus"></div>
+          </div>
+
+          <!-- Bypass schemes (presets) -->
+          <div class="glass-card" id="presetCard">
+            <div class="card-title" data-i18n="pr.title">Bypass presets</div>
+            <div class="card-subtitle" data-i18n="pr.subtitle"></div>
+            <div id="presetList"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="pr.editor">Create your own preset</div>
+            <div class="card-subtitle" data-i18n="pr.editor_hint"></div>
+            <div class="row">
+              <div class="label" data-i18n="pr.ed_name">Name</div>
+              <input class="input" style="width:240px" id="presetName" />
+            </div>
+            <div class="row">
+              <div class="label" data-i18n="pr.ed_desc">Description</div>
+              <input class="input" style="flex:1" id="presetDesc" />
+            </div>
+            <div class="row" style="align-items:flex-start">
+              <div class="label" data-i18n="pr.ed_changes">Changes</div>
+              <textarea class="input textarea" id="presetChanges" data-i18n-ph="pr.ed_changes_ph" spellcheck="false"></textarea>
+            </div>
+            <div class="row-gap" style="margin-top:12px;">
+              <button class="btn btn-primary" data-icon-inline="save" id="savePresetBtn" data-i18n="pr.ed_save">Save preset</button>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="pr.lists">Lists (hostlists)</div>
+            <div class="card-subtitle" data-i18n="pr.lists_subtitle"></div>
+            <div class="list-status" id="listStatus"></div>
+            <textarea class="input textarea" id="userList" data-i18n-ph="pr.lists_editor" spellcheck="false"></textarea>
+            <div class="row-gap" style="margin-top:12px;">
+              <button class="btn btn-primary" data-icon-inline="save" id="saveUserListBtn" data-i18n="pr.lists_save">Save & rebuild</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Internet (DNS + Hosts) -->
+        <section class="page" data-page-view="internet">
+          <h1 class="page-title" data-i18n="net.title">Internet</h1>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="dns.title">DNS providers</div>
+            <div class="card-subtitle" data-i18n="dns.subtitle"></div>
+            <div class="row" style="gap:8px; margin-bottom:12px">
+              <span class="label" id="dnsSystemLabel" data-i18n="dns.system">System DNS</span>
+              <span class="hint" id="dnsSystemServers"></span>
+            </div>
+            <div id="dnsProviders" class="provider-grid"></div>
+            <div class="row-gap" style="margin-top:12px;">
+              <button class="btn btn-primary" data-icon-inline="check" id="dnsCheckBtn" data-i18n="dns.check">Run check</button>
+              <button class="btn btn-ghost" data-icon-inline="refresh" id="dnsFlushBtn" data-i18n="dns.flush">Flush cache</button>
+            </div>
+            <div class="row" style="gap:8px; margin-top:14px;">
+              <input class="input" id="dnsCustomInput" style="flex:1; min-width:0" placeholder="1.1.1.1, 8.8.8.8" data-i18n-ph="dns.custom_ph" />
+              <button class="btn btn-primary btn-sm" data-icon-inline="save" id="dnsForceBtn" data-i18n="dns.apply">Apply</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="restore" id="dnsRestoreBtn" data-i18n="dns.restore">Auto (DHCP)</button>
+            </div>
+            <div id="dnsResult"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="dns.poison_title">DNS poisoning check</div>
+            <div class="card-subtitle" data-i18n="dns.poison_subtitle"></div>
+            <div class="row" style="gap:8px; margin-bottom:10px;">
+              <span class="label" data-i18n="dns.adapter_title">Adapters</span>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="dnsAdaptersBtn" data-i18n="dns.refresh">Refresh</button>
+            </div>
+            <div id="dnsAdapters" class="hint"></div>
+            <div class="row-gap" style="margin-top:12px; margin-bottom:12px;">
+              <button class="btn btn-primary btn-sm" data-icon-inline="check" id="dnsQuickBtn" data-i18n="dns.quick">Quick check</button>
+              <button class="btn btn-primary btn-sm" data-icon-inline="zapret" id="dnsPoisonBtn" data-i18n="dns.poison">Poisoning check</button>
+              <button class="btn btn-danger btn-sm" data-icon-inline="stop" id="dnsPoisonStopBtn" data-i18n="dns.poison_stop" disabled>Stop</button>
+            </div>
+            <div id="dnsQuickResult"></div>
+            <div id="dnsPoisonResult"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="hosts.title">Hosts file</div>
+            <div class="card-subtitle" data-i18n="hosts.subtitle"></div>
+            <div id="hostServices"></div>
+            <div class="row-gap" style="margin-top:14px;">
+              <button class="btn btn-primary" data-icon-inline="check" id="applyHostsBtn" data-i18n="hosts.apply">Apply</button>
+              <button class="btn btn-danger" data-icon-inline="stop" id="clearHostsBtn" data-i18n="hosts.clear">Clear all</button>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="hosts.bypass_title">More</div>
+            <div class="hint" data-i18n="hosts.bypass_hint"></div>
+            <div class="row-gap" style="margin-top:12px;">
+              <button class="btn btn-ghost btn-sm" data-icon-inline="mtproto" data-href-page="proxy" data-i18n="nav.proxy">Proxy</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="zapret" data-href-page="profiles" data-i18n="nav.profiles">Zapret</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Zapret profiles (winws) -->
+        <section class="page" data-page-view="profiles">
+          <h1 class="page-title" data-i18n="pf.title">Zapret bypass</h1>
+          <div class="glass-card" data-manual-card>
+            <div class="card-title" data-i18n="pf.engine">Engine</div>
+            <div class="card-subtitle" data-i18n="pf.engine_hint"></div>
+            <div class="row" style="gap:8px" id="dpiStateRow">
+              <span class="status-dot" id="dpiStateDot"></span>
+              <span id="dpiEngineBadge" class="engine-badge"></span>
+              <span id="dpiStateText" class="label"></span>
+            </div>
+            <div class="notice" id="dpiNotice" style="display:none"></div>
+            <div class="row-gap" style="margin-top:10px">
+              <button class="btn btn-primary btn-sm" data-icon-inline="play" id="dpiStartBtn" data-i18n="pf.start">Start</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="stop" id="dpiStopBtn" data-i18n="pf.stop">Stop</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="dpiRestartBtn" data-i18n="pf.restart">Restart</button>
+            </div>
+            <div class="row" style="gap:14px; margin-top:12px">
+              <div class="label" data-i18n="pf.engine_select">Engine</div>
+              <div class="segmented-control" id="dpiModeSeg">
+                <button type="button" data-val="auto" data-i18n="pf.mode_auto">Auto</button>
+                <button type="button" data-val="winws2">winws2</button>
+                <button type="button" data-val="winws1">winws1</button>
+              </div>
+              <label class="toggle-line">
+                <input type="checkbox" id="dpiAutostartChk" />
+                <span data-i18n="pf.autostart">Autostart winws</span>
+              </label>
+            </div>
+            <div class="row" style="gap:8px; margin-top:12px">
+              <div class="card-subtitle" data-i18n="pf.log">winws log</div>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="dpiLogRefreshBtn" data-i18n="lg.refresh">Refresh</button>
+            </div>
+            <pre id="dpiLog" class="log-view" style="height:140px"></pre>
+          </div>
+          <div class="glass-card" data-auto-card>
+            <div class="card-title"><span data-icon="zapret" data-icon-size="16"></span>&nbsp;<span data-i18n="au.title">Auto-pilot</span><button class="btn btn-ghost btn-sm" id="autoModeBtn" style="margin-left:auto" onclick="window._autoModeToggle && window._autoModeToggle()" data-i18n="au.auto_mode">Auto mode</button></div>
+            <div class="card-subtitle" data-i18n="au.hint"></div>
+            <div class="row-gap">
+              <button class="btn btn-primary btn-sm" data-icon-inline="play" id="autoStartBtn" data-i18n="au.start">Start</button>
+              <button class="btn btn-warm btn-sm" data-icon-inline="stop" id="autoStopBtn" data-i18n="au.stop" disabled>Stop</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="autoResetBtn" data-i18n="au.reset">Reset</button>
+            </div>
+            <div class="notice" id="autoStatus" style="display:none; margin-top:8px"></div>
+            <div class="row" id="autoMeta" style="gap:14px; margin-top:10px; flex-wrap:wrap"></div>
+            <div id="autoRecommendations"></div>
+            <div class="card-subtitle" style="margin-top:12px" data-i18n="au.pick_title">Manual strategy pick</div>
+            <div class="row" style="gap:8px; flex-wrap:wrap">
+              <input class="input" id="pfOrSymptoms" data-i18n-ph="or.manual_ph" style="flex:1; min-width:200px" />
+              <button class="btn btn-primary btn-sm" data-icon-inline="zapret" id="pfOrRunBtn" data-i18n="or.recommend_btn">Pick strategy</button>
+            </div>
+            <div class="notice" id="pfOrStatus" style="display:none; margin-top:8px"></div>
+            <div id="pfOrRecommendations"></div>
+            <div class="card-subtitle" style="margin-top:10px" data-i18n="au.journal_title">Auto-pilot journal</div>
+            <pre id="autoJournal" class="log-view" style="height:160px"></pre>
+          </div>
+          <div class="glass-card" data-manual-card>
+            <div class="card-subtitle" data-i18n="pf.subtitle"></div>
+            <div class="row" id="pfGroups"></div>
+            <div class="row" style="gap:8px">
+              <input class="input" style="width:260px" id="pfSearch" data-i18n-ph="pf.search" />
+              <div class="hint" id="pfTags"></div>
+            </div>
+            <div class="row" style="gap:8px; margin-top:8px">
+              <button class="btn btn-primary btn-sm" data-icon-inline="plus" id="pfCreateBtn" data-i18n="pf.create_profile">Create profile</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="edit" id="pfListEditBtn" data-i18n="pr.edit">Edit</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="pfListRefreshBtn" data-i18n="pr.refresh">Refresh list</button>
+            </div>
+            <div class="row" id="pfCreateRow" style="display:none; margin-top:8px; gap:8px">
+              <input class="input" id="pfCreateName" data-i18n-ph="pf.new_name_ph" style="flex:1; min-width:0" />
+              <select class="input" id="pfCreateTemplate" style="flex:1.2; min-width:0"></select>
+              <button class="btn btn-primary btn-sm" id="pfCreateOkBtn" data-i18n="pf.create_btn">Create</button>
+              <button class="btn btn-ghost btn-sm" id="pfCreateCancelBtn" data-i18n="pf.drawer_cancel">Cancel</button>
+            </div>
+            <div id="pfList"></div>
+          </div>
+          <div class="glass-card" id="pfDetailCard" style="display:none" data-manual-card>
+            <div class="row">
+              <div class="card-title" id="pfDetailTitle"></div>
+            </div>
+            <div class="row-gap" style="margin-bottom:8px">
+              <button class="btn btn-primary btn-sm" data-icon-inline="play" id="pfApplyBtn" data-i18n="pf.apply">Apply</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="edit" id="pfEditBtn" data-i18n="pf.edit">Edit</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="copy" id="pfCopy" data-i18n="pf.copy">Copy command</button>
+            </div>
+            <pre id="pfDetailPre" class="mono-block"></pre>
+          </div>
+          <div class="drawer-backdrop" id="pfDrawerBackdrop" data-manual-card></div>
+          <div class="drawer-panel" id="pfDrawer" role="dialog" aria-label="profile editor" data-manual-card>
+            <div class="drawer-head">
+              <div class="drawer-title" id="pfDrawerTitle"></div>
+              <button type="button" class="btn btn-ghost btn-sm" data-icon-inline="close" id="pfDrawerCloseBtn"></button>
+            </div>
+            <div class="drawer-body">
+              <div class="notice" id="pfRecNote" style="display:none; margin-bottom:10px" data-i18n="pr.recommended_note"></div>
+              <div class="row" style="gap:8px">
+                <input class="input" id="pfEditorName" data-i18n-ph="pr.name_hint" style="flex:1; min-width:0" />
+              </div>
+              <div class="row-gap" style="margin-bottom:4px">
+                <button class="btn btn-primary btn-sm" data-icon-inline="save" id="pfSaveBtn" data-i18n="pf.drawer_save">Save</button>
+                <button class="btn btn-ghost btn-sm" data-icon-inline="check" id="pfValidateBtn" data-i18n="pf.drawer_validate">Validate</button>
+                <button class="btn btn-ghost btn-sm" id="pfEditorCancelBtn" data-i18n="pf.drawer_cancel">Cancel</button>
+                <button class="btn btn-warm btn-sm" data-icon-inline="refresh" id="pfResetBtn" data-i18n="pr.reset" style="display:none">Reset</button>
+                <button class="btn btn-warm btn-sm" data-icon-inline="close" id="pfDeleteBtn" data-i18n="pr.delete" style="display:none">Delete</button>
+              </div>
+              <div id="pfDrawerParams" class="pf-drawer-params"></div>
+              <div class="pf-add-form" id="pfAddParamRow" style="display:none">
+                <select class="input" id="pfAddParamKey" style="flex:1.2; min-width:0"></select>
+                <input class="input" id="pfAddParamValue" spellcheck="false" placeholder="value" style="flex:1; min-width:0" />
+                <button class="btn btn-primary btn-sm" data-icon-inline="check" id="pfAddParamOkBtn" data-i18n="pr.add_param_add">Add</button>
+                <button class="btn btn-ghost btn-sm" id="pfAddParamCancelBtn" data-i18n="pr.cancel">Cancel</button>
+              </div>
+              <div class="row-gap" style="margin-top:10px">
+                <button class="btn btn-ghost btn-sm" data-icon-inline="edit" id="pfAddParamBtn" data-i18n="pf.drawer_add_param">Add parameter</button>
+              </div>
+              <div id="pfCustomStrategies" class="pf-custom-strategies" style="display:none"></div>
+              <div id="pfVerdict" class="mono-block" style="display:none; border-top:1px solid var(--border); padding-top:8px"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tools (diagnostics & Windows features) -->
+        <section class="page" data-page-view="tools">
+          <h1 class="page-title" data-i18n="tl.title">Tools</h1>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="tl.diag_title">Diagnostics</div>
+            <div class="card-subtitle" data-i18n="tl.diag_hint"></div>
+            <div class="row-gap">
+              <button class="btn btn-primary" data-icon-inline="play" id="runDiagBtn" data-i18n="tl.run_diag">Run diagnosis</button>
+            </div>
+            <div class="notice diag-verdict" id="diagVerdict" style="display:none"></div>
+            <div class="row-gap" id="diagActions" style="display:none"></div>
+            <div id="diagResult"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="bc.title">Проверка сайтов</div>
+            <div class="card-subtitle" data-i18n="bc.hint"></div>
+            <div class="row" style="gap:8px">
+              <input class="input" id="bcDomain" placeholder="example.com" style="width:260px" />
+              <button class="btn btn-primary" data-icon-inline="play" id="bcCheckBtn" data-i18n="bc.check">Проверить</button>
+              <button class="btn btn-ghost" data-icon-inline="check" id="bcAddBtn" data-i18n="bc.add">Добавить к списку</button>
+              <button class="btn btn-warm" data-icon-inline="stop" id="bcStopBtn" data-i18n="bc.stop" style="display:none">Остановить</button>
+            </div>
+            <div class="row" style="gap:8px; margin-top:8px; flex-wrap:wrap">
+              <span class="hint" data-i18n="bc.user_list">Ваш список:</span>
+              <span class="hint" id="bcUserList"></span>
+            </div>
+            <div class="notice" id="bcStatus" style="margin-top:8px; display:none"></div>
+            <div class="mono-block" id="bcResult" style="display:none"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="or.title">Авто-выбор стратегии</div>
+            <div class="card-subtitle" data-i18n="or.hint"></div>
+            <div class="row" style="gap:8px; flex-wrap:wrap">
+              <input class="input" id="orSymptoms" placeholder="dns poisoning, tls reset, quic" style="width:300px" />
+              <button class="btn btn-primary" data-icon-inline="zapret" id="orRunBtn" data-i18n="or.recommend_btn">Определить стратегию</button>
+            </div>
+            <div class="notice" id="orStatus" style="margin-top:8px; display:none"></div>
+            <div class="hint" id="orBackupNote" style="display:none"></div>
+            <div id="orResult"></div>
+            <div class="row" style="gap:8px; margin-top:12px">
+              <label class="toggle-line">
+                <input type="checkbox" id="orAutoLearning" />
+                <span data-i18n="or.auto_learning">Auto-learning mode</span>
+              </label>
+            </div>
+            <div class="row" style="gap:8px; flex-wrap:wrap">
+              <span class="status-badge" id="orLearningBadge">Idle</span>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="orLearningRefreshBtn" data-i18n="lg.refresh">Refresh</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="close" id="orClearLearningBtn" data-i18n="or.clear_learning">Reset learning</button>
+            </div>
+            <div class="card-subtitle" style="margin-bottom:6px" data-i18n="or.locked_strategies">Locked strategies</div>
+            <div id="orLockedList"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="tl.win_title">Windows tools</div>
+            <div class="card-subtitle" data-i18n="tl.win_hint"></div>
+            <div class="hint" id="winToolsStatus"></div>
+            <div class="row-gap">
+              <button class="btn btn-ghost" data-icon-inline="refresh" id="winCleanupBtn" data-i18n="tl.win_cleanup">Reset Windows network</button>
+              <button class="btn btn-ghost" data-icon-inline="check" id="winDefenderBtn" data-i18n="tl.win_defender">Add to Defender exclusions</button>
+              <button class="btn btn-ghost" data-icon-inline="refresh" id="winFlushBtn" data-i18n="tl.win_flush">Flush DNS cache</button>
+            </div>
+            <div class="hint" id="winToolsResult" style="margin-top:8px"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="wh.title">WinDivert</div>
+            <div class="card-subtitle" data-i18n="wh.hint"></div>
+            <div class="hint" id="winDivertStatus"></div>
+            <div class="row-gap">
+              <button class="btn btn-primary btn-sm" data-icon-inline="play" id="whDiagBtn" data-i18n="wh.diag">WinDivert diagnostics</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="whCleanupBtn" data-i18n="wh.cleanup">Cleanup</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="whCleanupAggBtn" data-i18n="wh.cleanup_agg">Aggressive cleanup</button>
+              <button class="btn btn-warm btn-sm" data-icon-inline="stop" id="whKillBtn" data-i18n="wh.kill_conflicts">Close conflicting programs</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="logs" id="whLogBtn" data-i18n="wh.log">winws diagnostic log</button>
+            </div>
+            <div class="mono-block" id="whResult" style="display:none"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="wl.title">winws log status</div>
+            <div class="card-subtitle" data-i18n="wl.hint"></div>
+            <div class="hint" id="wlStatus"></div>
+            <div class="row-gap">
+              <button class="btn btn-primary btn-sm" data-icon-inline="refresh" id="wlStatusBtn" data-i18n="wl.status_btn">Status by log</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="logs" id="wlShowBtn" data-i18n="wl.show_btn">Show log</button>
+            </div>
+            <div class="mono-block" id="wlResult" style="display:none"></div>
+          </div>
+        </section>
+
+        <!-- Updates -->
+        <section class="page" data-page-view="updates">
+          <h1 class="page-title" data-i18n="up.title">Updates</h1>
+          <div class="glass-card">
+            <div class="card-subtitle" data-i18n="up.subtitle"></div>
+            <div class="row"><div class="label" data-i18n="up.app_version"></div><div class="hint" id="upVersion">-</div></div>
+            <div class="row"><div class="label" data-i18n="up.engine"></div><div class="hint" id="upEngine">-</div></div>
+            <div class="row-gap">
+              <button class="btn btn-primary" data-icon-inline="refresh" id="upCheckBtn" data-i18n="up.check_btn">Check updates</button>
+              <button class="btn" data-icon-inline="shield" id="upIntegrityBtn" data-i18n="up.integrity_btn">Check engine integrity</button>
+            </div>
+            <div id="upCheckResult"></div>
+            <div class="row-gap" id="upCheckActions" style="margin-top:8px"></div>
+            <div id="upFpResult"></div>
+            <div class="row-gap" id="upFpActions"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="up.releases_title">Updates</div>
+            <div class="card-subtitle" data-i18n="up.releases_hint"></div>
+            <div id="upReleasesBox"></div>
+            <div id="upDownloadBox" style="display:none">
+              <div class="progress"><div class="progress-fill" id="upProgressFill" style="width:0%"></div></div>
+              <div class="hint" id="upProgressText" style="margin-top:6px"></div>
+            </div>
+            <div class="row-gap" id="upDownloadActions" style="margin-top:8px"></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="up.releases_history">Release history</div>
+            <div class="card-subtitle" data-i18n="up.releases_history_hint"></div>
+            <div id="releaseHistory"></div>
+          </div>
+        </section>
+
+        <!-- Help -->
+        <section class="page" data-page-view="help">
+          <h1 class="page-title" data-i18n="hp.title">Help</h1>
+          <div class="glass-card">
+            <div class="card-subtitle" data-i18n="hp.subtitle"></div>
+            <div id="helpBody"></div>
+          </div>
+        </section>
+
+        <!-- Logs -->
+        <section class="page" data-page-view="logs">
+          <h1 class="page-title" data-i18n="lg.title">Logs</h1>
+          <div class="glass-card">
+            <div class="row-gap" style="margin-bottom:10px;">
+              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="logRefreshBtn" data-i18n="lg.refresh">Refresh</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="folder" id="logOpenBtn" data-i18n="lg.open_dir">Open logs folder</button>
+              <label class="toggle-line"><input type="checkbox" id="logAuto" checked /><span data-i18n="lg.auto">Auto-refresh every 3 s</span></label>
+            </div>
+            <div class="segmented-control" id="logSeg" style="margin-bottom:12px">
+              <button type="button" data-val="all" class="active" data-i18n="lg.seg_all">All</button>
+              <button type="button" data-val="sessions" data-i18n="lg.seg_sessions">winws sessions</button>
+              <button type="button" data-val="errors" data-i18n="lg.seg_errors">Errors</button>
+              <button type="button" data-val="warnings" data-i18n="lg.seg_warnings">Warnings</button>
+              <button type="button" data-val="autopilot" data-i18n="lg.seg_autopilot">Auto-pilot</button>
+            </div>
+            <div id="logStatusBox" style="display:none"></div>
+            <div class="log-wrap" id="logWrap">
+              <pre id="logView" class="log-view"></pre>
+              <button class="log-bottom-btn" id="logBottomBtn" title="▼"></button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings -->
+        <section class="page" data-page-view="settings">
+          <h1 class="page-title" data-i18n="st.title">Settings</h1>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="st.appearance">Appearance</div>
+            <div class="row">
+              <div class="label" data-i18n="st.theme">Theme</div>
+              <div class="segmented-control" id="themeMode">
+                <button data-val="auto" data-i18n="st.auto" class="active">Auto</button>
+                <button data-val="light" data-i18n="st.light">Light</button>
+                <button data-val="dark" data-i18n="st.dark">Dark</button>
+              </div>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="st.app">Application</div>
+            <div class="row">
+              <div class="label" data-i18n="st.lang">Language</div>
+              <div class="custom-select" id="langSelectBox">
+                <button class="lang-btn" id="langBtn" type="button">
+                  <span id="langLabel">Auto</span>
+                  <span class="arrow">▾</span>
+                </button>
+                <div class="lang-menu" id="langMenu" style="display:none">
+                  <div class="lang-option" data-val="auto" data-i18n="st.lang_auto">Auto</div>
+                  <div class="lang-option" data-val="ru" data-i18n="st.lang_ru">Русский</div>
+                  <div class="lang-option" data-val="uk" data-i18n="st.lang_uk">Українська</div>
+                  <div class="lang-option" data-val="en" data-i18n="st.lang_en">English</div>
+                </div>
+              </div>
+              <input type="hidden" id="langValue" value="auto" />
+            </div>
+            <div class="row">
+              <div class="label"><span data-i18n="st.experimental">Experimental mode</span>
+                <div class="hint" data-i18n="st.experimental_hint">Run MTProto and SOCKS5 at the same time.</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="experimentalToggle" /><span class="track"></span><span class="thumb"></span></label>
+            </div>
+            <div class="row">
+              <div class="label"><span data-i18n="st.sys_proxy">System proxy</span>
+                <div class="hint" data-i18n="st.sys_proxy_hint">Route apps with forced traffic through the SOCKS5 server.</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="sysProxyToggle" /><span class="track"></span><span class="thumb"></span></label>
+            </div>
+            <div class="row">
+              <div class="label" data-i18n="st.min_tray">Minimize to tray</div>
+              <label class="toggle"><input type="checkbox" id="setTrayMin" /><span class="track"></span><span class="thumb"></span></label>
+            </div>
+            <div class="row">
+              <div class="label" data-i18n="st.start_min">Start minimized</div>
+              <label class="toggle"><input type="checkbox" id="setStartMin" /><span class="track"></span><span class="thumb"></span></label>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title"><span data-icon="autostart" data-icon-size="18"></span>&nbsp;<span data-i18n="as.title">Autostart</span></div>
+            <div class="row">
+              <div class="label" data-i18n="as.scope">What to start</div>
+              <div class="segmented-control" id="asScope">
+                <button data-val="app" data-i18n="as.scope_app" class="active">App</button>
+                <button data-val="winws" data-i18n="as.scope_winws">winws (DPI)</button>
+              </div>
+            </div>
+            <div class="hint" id="asHint"></div>
+            <div class="list" id="asList"></div>
+            <div class="row" style="gap:8px; margin-top:8px">
+              <button class="btn btn-primary btn-sm" data-icon-inline="play" id="asStartService" data-i18n="as.start">Start now</button>
+              <button class="btn btn-ghost btn-sm" data-icon-inline="stop" id="asStopService" data-i18n="as.stop">Stop</button>
+            </div>
+          </div>
+          <div class="glass-card">
+            <div class="card-title" data-i18n="st.about">About</div>
+            <div class="card-subtitle" id="aboutLine"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <div id="toastHost"></div>
+
+  <script src="js/i18n.js?v=50"></script>
+  <script src="js/icons.js?v=50"></script>
+  <script src="js/api.js?v=50"></script>
+  <script src="js/components.js?v=50"></script>
+  <script src="js/app.js?v=50"></script>
+</body>
+</html>

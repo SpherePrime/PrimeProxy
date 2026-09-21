@@ -14,15 +14,15 @@ dynamic=["version"]
 
 
 
-description = "SwiftProxy — local MTProto-WebSocket bridge proxy for Telegram Desktop"
+description = "SwiftProxy — unified MTProto/WSS proxy with iOS 26 UI for Telegram Desktop"
 
 readme = "docs/README.md"
 
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 
 
-license = { name = "MIT", file = "LICENSE" }
+license = { text = "BUSL-1.1" }
 
 
 
@@ -50,11 +50,15 @@ keywords = [
 
     "swiftproxy",
 
+    "wss",
+
+    "socks5",
+
 ]
 
 classifiers = [
 
-  "Development Status :: 5 - Production/Stable",
+  "Development Status :: 4 - Beta",
 
   "Environment :: Console",
 
@@ -62,7 +66,7 @@ classifiers = [
 
   "Programming Language :: Python :: 3",
 
-  "License :: OSI Approved :: MIT License",
+  "License :: Other/Proprietary License",
 
   "Operating System :: OS Independent",
 
@@ -74,35 +78,21 @@ classifiers = [
 
 dependencies = [
 
-    "pyperclip==1.9.0",
+    "pywebview>=4.0,<6",
+
+    "pyperclip>=1.9.0",
 
     "certifi",
 
+    "psutil>=7.0.0; platform_system != 'Windows' or python_version >= '3.9'",
 
+    "cryptography>=46.0.0",
 
-    "psutil==5.9.8; platform_system == 'Windows' and python_version < '3.9'",
+    "Pillow>=12.1.0",
 
-    "cryptography==41.0.7; platform_system == 'Windows' and python_version < '3.9'",
-
-    "Pillow==10.4.0; platform_system == 'Windows' and python_version < '3.9'",
-
-
-
-    "psutil==7.0.0; platform_system != 'Windows' or python_version >= '3.9'",
-
-    "cryptography==46.0.5; platform_system != 'Windows' or python_version >= '3.9'",
-
-    "Pillow==12.1.1; (platform_system != 'Windows' or python_version >= '3.9') and platform_system != 'Darwin'",
-
-"PySide6>=6.6.0; python_version >= '3.9'",
-
-
-
-    "pystray==0.19.5",
+    "pystray>=0.19.5",
 
     "pyobjc-framework-Cocoa>=9.0; platform_system == 'Darwin'",
-
-    "Pillow==12.1.0; platform_system == 'Darwin'",
 
 ]
 
@@ -110,13 +100,9 @@ dependencies = [
 
 [project.scripts]
 
-swift-proxy = "proxy.tg_ws_proxy:main"
+swift-proxy = "main:main"
 
-swift-proxy-tray-win = "windows:main"
-
-swift-proxy-tray-macos = "macos:main"
-
-swift-proxy-tray-linux = "linux:main"
+swift-proxy-gui = "main:main"
 
 
 
@@ -130,29 +116,26 @@ Issues = "https://github.com/Lil-KALINOV/SwiftProxy/issues"
 
 [tool.hatch.build.targets.wheel]
 
-packages = ["proxy", "ui", "utils"]
+packages = ["proxy", "config", "telegram", "dns", "hosts", "lists", "ui", "utils", "tray", "blockcheck"]
 
 
 
 [tool.hatch.build.force-include]
 
-"windows.py" = "windows.py"
-
-"macos.py" = "macos.py"
-
-"linux.py" = "linux.py"
+"main.py" = "main.py"
+"cli.py" = "cli.py"
 
 
 
 [tool.hatch.version]
 
-path = "proxy/__init__.py"
+path = "config/__init__.py"
 
 
 
 [tool.ruff]
 
-target-version = "py38"
+target-version = "py39"
 
 
 
@@ -161,10 +144,3 @@ target-version = "py38"
 select = ["E4", "E7", "E9", "F", "B", "C4"]
 
 ignore = ["F403", "F405", "B023"]
-
-
-
-[tool.ruff.lint.per-file-ignores]
-
-"macos.py" = ["E402"]
-

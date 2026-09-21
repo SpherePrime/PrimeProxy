@@ -15,7 +15,7 @@ swift-proxy
 
 ```bash
 pip install -e .
-swift-proxy-tray-win
+swift-proxy --tray
 ```
 
 ### macOS
@@ -24,14 +24,14 @@ swift-proxy-tray-win
 
 ```bash
 pip install -e .
-swift-proxy-tray-macos
+swift-proxy --tray
 ```
 
 ### Linux
 
 ```bash
 pip install -e .
-swift-proxy-tray-linux
+swift-proxy --tray
 ```
 
 ## Консольный режим из исходников

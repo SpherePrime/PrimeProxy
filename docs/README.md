@@ -123,7 +123,7 @@ Telegram Desktop → MTProto Proxy (127.0.0.1:1443) → WebSocket → Telegram D
 
 ## 🛠 Автоматическая сборка
 
-Проект содержит спецификации PyInstaller ([`packaging/windows.spec`](../packaging/windows.spec), [`packaging/macos.spec`](../packaging/macos.spec), [`packaging/linux.spec`](../packaging/linux.spec)) и GitHub Actions workflow ([`.github/workflows/build.yml`](../.github/workflows/build.yml)) для автоматической сборки.
+Проект содержит спецификацию PyInstaller ([`packaging/swiftproxy.spec`](../packaging/swiftproxy.spec)) и GitHub Actions workflow ([`.github/workflows/build.yml`](../.github/workflows/build.yml)) для автоматической сборки.
 
 Минимально поддерживаемые версии ОС для текущих бинарных сборок:
 
@@ -137,4 +137,4 @@ Telegram Desktop → MTProto Proxy (127.0.0.1:1443) → WebSocket → Telegram D
 
 ## 📄 Лицензия
 
-[MIT License](../LICENSE)
+[Business Source License 1.1](../LICENSE) — приложение бесплатно, код только для изучения; любое использование кода в production — только по коммерческой лицензии.
