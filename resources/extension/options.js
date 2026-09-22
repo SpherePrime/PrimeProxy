@@ -1,4 +1,4 @@
-// SwiftProxy Browser — options page.
+// PrimeProxy Browser — options page.
 
 const DEFAULTS = { host: "127.0.0.1", port: 1353 };
 

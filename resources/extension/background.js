@@ -1,4 +1,4 @@
-// SwiftProxy Browser — service worker (Manifest V3).
+// PrimeProxy Browser — service worker (Manifest V3).
 // Routes the whole browser through the local SOCKS5 proxy.
 
 const DEFAULTS = { host: "127.0.0.1", port: 1353 };
@@ -28,7 +28,7 @@ async function applyNow() {
   if (!enabled) {
     try {
       await chrome.proxy.settings.clear({ scope: "regular" });
-      chrome.action.setTitle({ title: "SwiftProxy \u2014 off" });
+      chrome.action.setTitle({ title: "PrimeProxy \u2014 off" });
     } catch (e) {
       /* ignored */
     }
@@ -44,7 +44,7 @@ async function applyNow() {
   };
   try {
     await chrome.proxy.settings.set({ value: config, scope: "regular" });
-    chrome.action.setTitle({ title: "SwiftProxy \u2014 on (" + c.host + ":" + c.port + ")" });
+    chrome.action.setTitle({ title: "PrimeProxy \u2014 on (" + c.host + ":" + c.port + ")" });
   } catch (e) {
     setBadge(false);
   }

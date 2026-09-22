@@ -1,5 +1,5 @@
 """
-pywebview window management for the SwiftProxy UI.
+pywebview window management for the PrimeProxy UI.
 
 Launches a native window with HTML/CSS/JS frontend and a Python API bridge.
 Supports window + tray mode on all platforms.
@@ -25,7 +25,7 @@ def _entry_html() -> str:
     return os.path.join(_web_path, "index.html")
 
 
-def _find_window_handle(title: str = "SwiftProxy"):
+def _find_window_handle(title: str = "PrimeProxy"):
     try:
         import ctypes
         hwnd = ctypes.windll.user32.FindWindowW(None, title)
@@ -118,7 +118,7 @@ def create_window(
     url: Optional[str] = None,
     width: int = 960,
     height: int = 680,
-    title: str = "SwiftProxy",
+    title: str = "PrimeProxy",
     js_api=None,
     transparent: bool = False,
 ):
@@ -164,7 +164,7 @@ def _get_tray_icon():
 
 
 def start_app(
-    title: str = "SwiftProxy",
+    title: str = "PrimeProxy",
     width: int = 960,
     height: int = 680,
     api=None,
@@ -212,7 +212,7 @@ def start_app(
     if tray:
         _start_tray(window, api, title)
 
-    log.info("Starting SwiftProxy UI (pywebview)...")
+    log.info("Starting PrimeProxy UI (pywebview)...")
     try:
         webview.settings["OPEN_DEVTOOLS_IN_DEBUG"] = False
     except Exception:

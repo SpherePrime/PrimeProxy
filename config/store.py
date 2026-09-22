@@ -1,8 +1,8 @@
 """
-Unified settings store for the merged SwiftProxy.
+Unified settings store for the merged PrimeProxy.
 
 Backed by a single JSON document (config/PATH from config.paths). Sections:
-- proxy:       MTProto->WS bridge engine settings (SwiftProxy)
+- proxy:       MTProto->WS bridge engine settings (PrimeProxy)
 - telegram:    Telegram WSS/SOCKS5 proxy settings (ZapretGUI)
 - dns:         DNS providers & checks
 - hosts:       hosts-file unblock catalog selections

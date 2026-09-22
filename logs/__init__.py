@@ -1,1 +1,1 @@
-"""Log analysis helpers for SwiftProxy."""
+"""Log analysis helpers for PrimeProxy."""

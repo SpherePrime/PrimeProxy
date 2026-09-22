@@ -16,7 +16,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request
 from proxy.utils import build_github_opener
 
-REPO = "Lil-KALINOV/SwiftProxy"
+REPO = "SpherePrime/PrimeProxy"
 RELEASES_LATEST_API = f"https://api.github.com/repos/{REPO}/releases/latest"
 RELEASES_BY_TAG_API = f"https://api.github.com/repos/{REPO}/releases/tags/{{tag}}?t={{timestamp}}"
 RELEASES_PAGE_URL = f"https://github.com/{REPO}/releases/latest"
@@ -121,7 +121,7 @@ def fetch_latest_release(
     """
     headers = {
         "Accept": "application/vnd.github+json",
-        "User-Agent": "swift-proxy-update-check",
+        "User-Agent": "prime-proxy-update-check",
     }
     if etag:
         headers["If-None-Match"] = etag
@@ -231,7 +231,7 @@ def fetch_release_by_tag(
         return None, 0
     headers = {
         "Accept": "application/vnd.github+json",
-        "User-Agent": "swift-proxy-update-check",
+        "User-Agent": "prime-proxy-update-check",
     }
     req = Request(
         RELEASES_BY_TAG_API.format(tag=tag, timestamp=int(time.time())),
@@ -309,13 +309,13 @@ def get_update_asset(exe_path: Path, current_version: str) -> Optional[Tuple[str
             is_modern = True
 
         if is_arm64:
-            target_name = "SwiftProxy_windows_arm64.exe"
+            target_name = "PrimeProxy_windows_arm64.exe"
         elif is_modern:
-            target_name = "SwiftProxy_windows.exe"
+            target_name = "PrimeProxy_windows.exe"
         elif is_64:
-            target_name = "SwiftProxy_windows_7_64bit.exe"
+            target_name = "PrimeProxy_windows_7_64bit.exe"
         else:
-            target_name = "SwiftProxy_windows_7_32bit.exe"
+            target_name = "PrimeProxy_windows_7_32bit.exe"
 
     for a in new_assets:
         if a.get("name") == target_name:

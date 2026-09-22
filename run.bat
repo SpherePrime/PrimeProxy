@@ -1,10 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
-title SwiftProxy Launcher
+title PrimeProxy Launcher
 chcp 65001 >nul 2>&1
 
 rem ============================================================
-rem  SwiftProxy - batch launcher for the GUI app
+rem  PrimeProxy - batch launcher for the GUI app
 rem  Checks Python and required libraries, installs what's
 rem  missing, then starts the application.
 rem ============================================================
@@ -13,7 +13,7 @@ cd /d "%~dp0"
 
 echo.
 echo   ============================================
-echo     SwiftProxy - launcher
+echo     PrimeProxy - launcher
 echo   ============================================
 echo.
 
@@ -78,9 +78,9 @@ if defined MISSING (
 
 rem ---------- 3. Launch ----------
 echo.
-echo   Starting SwiftProxy...
+echo   Starting PrimeProxy...
 echo   Close this window: app keeps running in the system tray.
 echo.
-start "SwiftProxy" /min %PYEXE% main.py
+start "PrimeProxy" /min %PYEXE% main.py
 
 endlocal

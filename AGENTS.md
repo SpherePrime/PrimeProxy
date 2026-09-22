@@ -1,4 +1,4 @@
-# SwiftProxy — AGENTS.md (карта проекта)
+# PrimeProxy — AGENTS.md (карта проекта)
 
 > Быстрый навигатор. Читай каждый раз. Обновляй при добавлении модулей.
 
@@ -18,7 +18,7 @@
 ## Запуск
 
 ```
-cd D:\GitHub\SwiftProxy
+cd D:\GitHub\PrimeProxy
 python main.py            # GUI (pywebview, порт 1443)
 python main.py --headless # только прокси-движки, без UI
 python main.py --cli      # консольный режим
@@ -38,7 +38,7 @@ Cache-bust: в `index.html` все ссылки на `.css`/`.js`都有 `?v=N` �
 ## Структура каталогов
 
 ```
-D:\GitHub\SwiftProxy
+D:\GitHub\PrimeProxy
 ├── main.py                  # точка входа (pywebview + tray)
 ├── ui/
 │   ├── api.py               # SwiftAPI — все методы bridge (JS ↔ Python)
@@ -375,10 +375,10 @@ get_autostart_status / autostart_install / autostart_remove
   `autostart.is_admin()` ДО запуска потока — без прав админа winws всё равно
   не поднимется (WinDivert), скан отменяется мгновенно с понятным сообщением.
 - Запуск приложения: `Start-Process 'C:\Users\kiril\AppData\Local\Programs\
-  Python\Python312\python.exe' -ArgumentList 'D:\GitHub\SwiftProxy\main.py'
-  -WorkingDirectory 'D:\GitHub\SwiftProxy'` (.venv в репо нет). UI-порт
+  Python\Python312\python.exe' -ArgumentList 'D:\GitHub\PrimeProxy\main.py'
+  -WorkingDirectory 'D:\GitHub\PrimeProxy'` (.venv в репо нет). UI-порт
   фактически 26824 (не 1443). JS-ошибки искать в
-  `C:\Users\kiril\AppData\Roaming\SwiftProxy\proxy.log` (`[ui:console]`) —
+  `C:\Users\kiril\AppData\Roaming\PrimeProxy\proxy.log` (`[ui:console]`) —
   ОБЯЗАТЕЛЬНО читать при фиксах ([как просил пользователь]).
 - **Self-elevation**: `main.py` при старте сам запрашивает права админа через
   UAC (`tools.windows_tools.ensure_elevated` → `ShellExecuteW("runas")`),

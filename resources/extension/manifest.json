@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "SwiftProxy Browser",
+  "name": "PrimeProxy Browser",
   "version": "0.1.0",
-  "description": "Route the entire browser through the local SwiftProxy SOCKS5 proxy. Toggle on/off from the toolbar.",
+  "description": "Route the entire browser through the local PrimeProxy SOCKS5 proxy. Toggle on/off from the toolbar.",
   "permissions": ["proxy", "storage"],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "SwiftProxy \u2014 off",
+    "default_title": "PrimeProxy \u2014 off",
     "default_popup": "popup.html"
   },
   "options_page": "options.html"

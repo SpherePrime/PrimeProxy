@@ -8,13 +8,13 @@ build-backend = "hatchling.build"
 
 [project]
 
-name = "swift-proxy"
+name = "prime-proxy"
 
 dynamic=["version"]
 
 
 
-description = "SwiftProxy — unified MTProto/WSS proxy with iOS 26 UI for Telegram Desktop"
+description = "PrimeProxy — unified MTProto/WSS proxy with iOS 26 UI for Telegram Desktop"
 
 readme = "docs/README.md"
 
@@ -48,7 +48,7 @@ keywords = [
 
     "mtproto",
 
-    "swiftproxy",
+    "primeproxy",
 
     "wss",
 
@@ -100,17 +100,17 @@ dependencies = [
 
 [project.scripts]
 
-swift-proxy = "main:main"
+prime-proxy = "main:main"
 
-swift-proxy-gui = "main:main"
+prime-proxy-gui = "main:main"
 
 
 
 [project.urls]
 
-Source = "https://github.com/Lil-KALINOV/SwiftProxy"
+Source = "https://github.com/SpherePrime/PrimeProxy"
 
-Issues = "https://github.com/Lil-KALINOV/SwiftProxy/issues"
+Issues = "https://github.com/SpherePrime/PrimeProxy/issues"
 
 
 

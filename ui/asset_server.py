@@ -23,7 +23,7 @@ _MIME = {
 
 
 class _Handler(BaseHTTPRequestHandler):
-    server_version = "SwiftProxy/1.0"
+    server_version = "PrimeProxy/1.0"
 
     def log_message(self, fmt, *args):
         return

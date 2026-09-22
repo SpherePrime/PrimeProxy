@@ -31,7 +31,7 @@ from .pool import ws_pool, cf_worker_pool
 from ._aes import Cipher, algorithms, modes
 
 
-log = logging.getLogger('swift-proxy')
+log = logging.getLogger('prime-proxy')
 
 IP_FAIL_COOLDOWN = 3600.0
 DC_FAIL_COOLDOWN = 60.0

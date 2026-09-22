@@ -9,7 +9,7 @@ import socket as _socket
 from typing import List, Optional, Tuple
 from .config import proxy_config
 
-log = logging.getLogger('swift-proxy')
+log = logging.getLogger('prime-proxy')
 
 
 _st_BB = struct.Struct('>BB')

@@ -15,7 +15,7 @@ is forcibly routed to test DCs (production accounts will stop working through th
 To force this behavior, use the `--force-test-dc` flag in CLI:
 
 ```bash
-swift-proxy --force-test-dc      # + your --secret / --port
+prime-proxy --force-test-dc      # + your --secret / --port
 ```
 
 ## Limitations

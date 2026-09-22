@@ -1,7 +1,7 @@
 """
 Cross-platform application paths & directory resolution (single source of truth).
 
-Replaces SwiftProxy utils/tray_common APP_DIR/CONFIG_FILE/LOG_FILE resolution
+Replaces PrimeProxy utils/tray_common APP_DIR/CONFIG_FILE/LOG_FILE resolution
 (portable + standard) and ZapretGUI config/runtime_layout ApplicationPaths.
 """
 from __future__ import annotations
@@ -11,8 +11,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-APP_NAME = "SwiftProxy"
-PORTABLE_DIR_NAME = "SwiftProxy_data"
+APP_NAME = "PrimeProxy"
+PORTABLE_DIR_NAME = "PrimeProxy_data"
 LEGACY_APP_NAMES = ("TgWsProxy", "ZapretUI")
 
 IS_FROZEN = bool(getattr(sys, "frozen", False))
@@ -88,9 +88,9 @@ def resources_dir() -> Path:
 
 
 def _migrate_legacy_configs(current: dict, target: Optional[Path] = None) -> dict:
-    """Import settings from legacy SwiftProxy / Zapret UI config files.
+    """Import settings from legacy PrimeProxy / Zapret UI config files.
 
-    Legacy configs use flat keys (old SwiftProxy root-level keys, Zapret UI
+    Legacy configs use flat keys (old PrimeProxy root-level keys, Zapret UI
     "telegram_proxy" section). This merges them into the unified schema.
 
     Migration is **fill-only**: a legacy value is applied only when the target
@@ -140,7 +140,7 @@ def _migrate_legacy_configs(current: dict, target: Optional[Path] = None) -> dic
         return changed
 
     # 1) Current config's own flat legacy keys (files written by the pre-section
-    #    SwiftProxy / migrated wholesale by tray_common) — move into sections
+    #    PrimeProxy / migrated wholesale by tray_common) — move into sections
     #    and drop them so the document matches the unified schema.
     _import_flat(current)
     for key in list(current):

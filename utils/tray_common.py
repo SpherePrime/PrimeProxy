@@ -23,8 +23,8 @@ from utils.logging_setup import build_log_handler
 
 log = logging.getLogger("swift-tray")
 
-APP_NAME = "SwiftProxy"
-PORTABLE_DIR_NAME = "SwiftProxy_data"
+APP_NAME = "PrimeProxy"
+PORTABLE_DIR_NAME = "PrimeProxy_data"
 LEGACY_APP_NAME = "TgWsProxy"
 
 
@@ -500,6 +500,6 @@ def bootstrap(cfg: dict) -> None:
         cfg.get("verbose", False),
         log_max_mb=cfg.get("log_max_mb", DEFAULT_CONFIG["log_max_mb"]),
     )
-    log.info("SwiftProxy версия %s starting", __version__)
+    log.info("PrimeProxy версия %s starting", __version__)
     log.info("Config: %s", cfg)
     log.info("Log file: %s", LOG_FILE)

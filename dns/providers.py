@@ -1,5 +1,5 @@
 """
-DNS providers catalog for the SwiftProxy UI.
+DNS providers catalog for the PrimeProxy UI.
 
 Ported from ZapretGUI dns/dns_providers.py (data only, fully portable).
 """

@@ -1,30 +1,30 @@
 # cli.py
-"""Command-line interface for SwiftProxy (headless / Docker).
+"""Command-line interface for PrimeProxy (headless / Docker).
 
 Применение:
-    swift-proxy --cli status [--json]
-    swift-proxy --cli start [--port N] [--host H]
-    swift-proxy --cli stop
-    swift-proxy --cli restart
-    swift-proxy --cli server [--json]            # foreground (Docker)
-    swift-proxy --cli config list
-    swift-proxy --cli config get <proxy.port>
-    swift-proxy --cli config set <proxy.port> 20001
-    swift-proxy --cli link
-    swift-proxy --cli dns list
-    swift-proxy --cli dns check <id|all>
-    swift-proxy --cli dns flush
-    swift-proxy --cli hosts list
-    swift-proxy --cli hosts apply <id> [id...] [--no-adobe]
-    swift-proxy --cli hosts clear
-    swift-proxy --cli presets list
-    swift-proxy --cli presets apply <id> [--no-restart]
-    swift-proxy --cli lists status
-    swift-proxy --cli update check [--force]
-    swift-proxy --cli update download
-    swift-proxy --cli update list
-    swift-proxy --cli update rollback <tag>
-    swift-proxy --cli update apply-pending
+    prime-proxy --cli status [--json]
+    prime-proxy --cli start [--port N] [--host H]
+    prime-proxy --cli stop
+    prime-proxy --cli restart
+    prime-proxy --cli server [--json]            # foreground (Docker)
+    prime-proxy --cli config list
+    prime-proxy --cli config get <proxy.port>
+    prime-proxy --cli config set <proxy.port> 20001
+    prime-proxy --cli link
+    prime-proxy --cli dns list
+    prime-proxy --cli dns check <id|all>
+    prime-proxy --cli dns flush
+    prime-proxy --cli hosts list
+    prime-proxy --cli hosts apply <id> [id...] [--no-adobe]
+    prime-proxy --cli hosts clear
+    prime-proxy --cli presets list
+    prime-proxy --cli presets apply <id> [--no-restart]
+    prime-proxy --cli lists status
+    prime-proxy --cli update check [--force]
+    prime-proxy --cli update download
+    prime-proxy --cli update list
+    prime-proxy --cli update rollback <tag>
+    prime-proxy --cli update apply-pending
 """
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ from config import __version__, get_store
 
 log = logging.getLogger("swift-cli")
 
-PID_FILE_NAME = ".swiftproxy-cli.pid"
+PID_FILE_NAME = ".primeproxy-cli.pid"
 
 
 def _pid_file() -> "object":
@@ -242,7 +242,7 @@ def cmd_server(args) -> Dict[str, Any]:
         from ui.api import SwiftAPI
         SwiftAPI().start_tg_proxy()
 
-    print(f"swiftproxy v{__version__} serving  (pid {os.getpid()})", flush=True)
+    print(f"primeproxy v{__version__} serving  (pid {os.getpid()})", flush=True)
     print(f"MTProto: {cfg.get('proxy', {}).get('host')}:{cfg.get('proxy', {}).get('port')}", flush=True)
     if args.json:
         import json as _j
@@ -409,7 +409,7 @@ def cmd_update_apply_pending(args) -> Dict[str, Any]:
 # ── argument parsing ───────────────────────────────────────────────────────
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="swift-proxy --cli")
+    parser = argparse.ArgumentParser(prog="prime-proxy --cli")
     sub = parser.add_subparsers(dest="command")
 
     def add_common(p):

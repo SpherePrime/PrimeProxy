@@ -14,7 +14,7 @@ from .pool import cf_worker_pool
 from ._aes import Cipher, algorithms, modes
 
 
-log = logging.getLogger('swift-proxy')
+log = logging.getLogger('prime-proxy')
 _st_I_le = struct.Struct('<I')
 
 ZERO_64 = b'\x00' * 64

@@ -1,8 +1,8 @@
-# SwiftProxy для Linux
+# PrimeProxy для Linux
 
 ## Готовые сборки
 
-Для Debian/Ubuntu скачайте со [страницы релизов](https://github.com/Lil-KALINOV/SwiftProxy/releases) пакет `SwiftProxy_linux_amd64.deb`.
+Для Debian/Ubuntu скачайте со [страницы релизов](https://github.com/SpherePrime/PrimeProxy/releases) пакет `PrimeProxy_linux_amd64.deb`.
 
 Для Arch и основанных на Arch дистрибутивов подготовлены пакеты в AUR:
 
@@ -23,11 +23,11 @@ paru -S tg-ws-proxy-bin
 sudo systemctl start tg-ws-proxy@8888:3075abe65830f0325116bb0416cadf9f
 ```
 
-Для остальных дистрибутивов можно использовать `SwiftProxy_linux_amd64` (бинарный файл для x86_64).
+Для остальных дистрибутивов можно использовать `PrimeProxy_linux_amd64` (бинарный файл для x86_64).
 
 ```bash
-chmod +x SwiftProxy_linux_amd64
-./SwiftProxy_linux_amd64
+chmod +x PrimeProxy_linux_amd64
+./PrimeProxy_linux_amd64
 ```
 
 При первом запуске откроется окно с инструкцией. Приложение работает в системном трее (требуется AppIndicator).
@@ -47,5 +47,5 @@ chmod +x SwiftProxy_linux_amd64
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```

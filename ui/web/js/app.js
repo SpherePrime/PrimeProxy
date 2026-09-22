@@ -1,4 +1,4 @@
-// SwiftProxy — app shell: navigation, theming, i18n, page wiring, auto-save.
+// PrimeProxy — app shell: navigation, theming, i18n, page wiring, auto-save.
 (async () => {
   const $ = (id) => document.getElementById(id);
   const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));

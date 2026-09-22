@@ -2,9 +2,9 @@
 
 The tray application stores data in:
 
-- **Windows:** `%APPDATA%/SwiftProxy`
-- **macOS:** `~/Library/Application Support/SwiftProxy`
-- **Linux:** `~/.config/SwiftProxy` (or `$XDG_CONFIG_HOME/SwiftProxy`)
+- **Windows:** `%APPDATA%/PrimeProxy`
+- **macOS:** `~/Library/Application Support/PrimeProxy`
+- **Linux:** `~/.config/PrimeProxy` (or `$XDG_CONFIG_HOME/PrimeProxy`)
 
 ```json
 {

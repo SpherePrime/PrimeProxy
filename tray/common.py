@@ -1,5 +1,5 @@
 """
-Cross-platform system tray for SwiftProxy (pystray-based).
+Cross-platform system tray for PrimeProxy (pystray-based).
 
 One entry point on all OSes:
 - Windows: anonymous tray icon (Win32)
@@ -126,7 +126,7 @@ def start_tray(
     callbacks["get_state"] = get_state
 
     _icon = pystray.Icon(
-        "SwiftProxy",
+        "PrimeProxy",
         that,
         title,
         menu=_build_menu(callbacks),

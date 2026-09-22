@@ -1,6 +1,6 @@
 # CONTRIBUTING
 
-Thank you for wanting to help the `swift-proxy` project.
+Thank you for wanting to help the `prime-proxy` project.
 
 ## Before Creating an Issue
 
@@ -30,8 +30,8 @@ pip install -e .
 
 Running:
 
-- console mode: `swift-proxy`
-- GUI/tray mode: `swift-proxy` (unified entry point)
+- console mode: `prime-proxy`
+- GUI/tray mode: `prime-proxy` (unified entry point)
 
 Details: `docs/BuildFromSource.md`.
 

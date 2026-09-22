@@ -1,7 +1,7 @@
 """
 Canonical paths for layered lists, kept next to the app data directory.
 
-Adapted from ZapretGUI lists/core/paths.py to use the unified SwiftProxy
+Adapted from ZapretGUI lists/core/paths.py to use the unified PrimeProxy
 config.paths resolution instead of the old Zapret runtime layout.
 """
 from __future__ import annotations

@@ -1,4 +1,4 @@
-// SwiftProxy Browser — popup toggle.
+// PrimeProxy Browser — popup toggle.
 
 (function () {
   const status = document.getElementById("status");

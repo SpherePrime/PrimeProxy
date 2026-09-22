@@ -32,5 +32,5 @@ def diagnose_listen_error(exc: BaseException) -> Tuple[Optional[str], Optional[C
         return t("diagnostics.permission"), None
     if (winerror in (_WSA_EFAULT, _WSA_EADDRNOTAVAIL)
             or err in (errno.EADDRNOTAVAIL, errno.EFAULT)):
-        return t("diagnostics.bad_address"), lambda : webbrowser.open("https://github.com/Lil-KALINOV/SwiftProxy/issues/903#issuecomment-4726752103")
+        return t("diagnostics.bad_address"), lambda : webbrowser.open("https://github.com/SpherePrime/PrimeProxy/issues/903#issuecomment-4726752103")
     return None, None

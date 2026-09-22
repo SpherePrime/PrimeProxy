@@ -1,4 +1,4 @@
-# SwiftProxy for Docker
+# PrimeProxy for Docker
 
 
 
@@ -14,19 +14,19 @@ Enter the commands sequentially, one by one:
 
 # Clone the repository
 
-git clone https://github.com/Lil-KALINOV/SwiftProxy.git
+git clone https://github.com/SpherePrime/PrimeProxy.git
 
 
 
 # Navigate to the project folder
 
-cd SwiftProxy
+cd PrimeProxy
 
 
 
 # Build the image
 
-docker build -t swift-proxy .
+docker build -t prime-proxy .
 
 
 
@@ -34,19 +34,19 @@ docker build -t swift-proxy .
 
 docker run -d \
 
-  --name swift-proxy \
+  --name prime-proxy \
 
   --restart=always \
 
   -p 1443:1443 \
 
-  swift-proxy:latest
+  prime-proxy:latest
 
 
 
 # Get the connection link
 
-docker logs swift-proxy 2>&1 | grep 'tg://proxy'
+docker logs prime-proxy 2>&1 | grep 'tg://proxy'
 
 ```
 
@@ -96,7 +96,7 @@ Example with manually specified secret:
 
 docker run -d \
 
-  --name swift-proxy \
+  --name prime-proxy \
 
   --restart=always \
 
@@ -104,7 +104,7 @@ docker run -d \
 
   -e TG_WS_PROXY_SECRET="your_secret" \
 
-  swift-proxy:latest
+  prime-proxy:latest
 
 ```
 

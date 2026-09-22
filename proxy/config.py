@@ -12,10 +12,10 @@ from urllib.request import Request
 from .balancer import balancer
 from .utils import build_github_opener
 
-log = logging.getLogger('swift-proxy')
+log = logging.getLogger('prime-proxy')
 
 CFPROXY_DOMAINS_URL = (
-    "https://raw.githubusercontent.com/Lil-KALINOV/SwiftProxy/main"
+    "https://raw.githubusercontent.com/SpherePrime/PrimeProxy/main"
     "/.github/cfproxy-domains.txt"
 )
 
@@ -105,7 +105,7 @@ def coerce_domain_list(value) -> List[str]:
 def _fetch_cfproxy_domain_list() -> List[str]:
     try:
         req = Request(CFPROXY_DOMAINS_URL + "?" + "".join(random.choices(string.ascii_letters, k=7)),
-                       headers={'User-Agent': 'swift-proxy'})
+                       headers={'User-Agent': 'prime-proxy'})
         with build_github_opener().open(req, timeout=10) as resp:
             text = resp.read().decode('utf-8', errors='replace')
         encoded = [

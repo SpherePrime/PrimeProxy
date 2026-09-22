@@ -38,12 +38,12 @@ class VersionGtTest(unittest.TestCase):
 class ExtractAssetsTest(unittest.TestCase):
     def test_keeps_name_url_and_digest(self):
         data = {'assets': [{
-            'name': 'SwiftProxy_windows.exe',
+            'name': 'PrimeProxy_windows.exe',
             'browser_download_url': 'https://example.invalid/a.exe',
             'digest': 'sha256:abc',
         }]}
         self.assertEqual(_extract_assets(data), [{
-            'name': 'SwiftProxy_windows.exe',
+            'name': 'PrimeProxy_windows.exe',
             'url': 'https://example.invalid/a.exe',
             'digest': 'sha256:abc',
         }])

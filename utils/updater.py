@@ -1,5 +1,5 @@
 # utils/updater.py
-"""Скачивание и установка обновлений SwiftProxy.
+"""Скачивание и установка обновлений PrimeProxy.
 
 Стратегия установки:
 - Windows (frozen/exe): свежий исполняемый файл скачивается рядом с текущим
@@ -28,7 +28,7 @@ from proxy.utils import build_github_opener
 
 log = logging.getLogger("swift-updater")
 
-REPO = "Lil-KALINOV/SwiftProxy"
+REPO = "SpherePrime/PrimeProxy"
 RELEASES_API = f"https://api.github.com/repos/{REPO}/releases"
 RELEASES_PAGE = f"https://github.com/{REPO}/releases"
 
@@ -78,8 +78,8 @@ def current_exe_name() -> str:
         try:
             return Path(sys.executable).name
         except OSError:
-            return "SwiftProxy.exe"
-    return "SwiftProxy"
+            return "PrimeProxy.exe"
+    return "PrimeProxy"
 
 
 # ── Выбор ассета под платформу ─────────────────────────────────────────────
@@ -95,16 +95,16 @@ def default_asset_name() -> str:
         is_arm64 = platform.machine().lower() in ("arm64", "aarch64")
         is_64 = struct.calcsize("P") * 8 == 64
         if is_arm64:
-            return "SwiftProxy_windows_arm64.exe"
+            return "PrimeProxy_windows_arm64.exe"
         if is_modern:
-            return "SwiftProxy_windows.exe"
+            return "PrimeProxy_windows.exe"
         if is_64:
-            return "SwiftProxy_windows_7_64bit.exe"
-        return "SwiftProxy_windows_7_32bit.exe"
+            return "PrimeProxy_windows_7_64bit.exe"
+        return "PrimeProxy_windows_7_32bit.exe"
     if platform_name.startswith("darwin"):
-        return "SwiftProxy_macos_universal.dmg"
+        return "PrimeProxy_macos_universal.dmg"
     if platform_name.startswith("linux"):
-        return "SwiftProxy_linux_amd64.deb"
+        return "PrimeProxy_linux_amd64.deb"
     return ""
 
 
@@ -113,7 +113,7 @@ def default_asset_name() -> str:
 def _api_request(url: str, timeout: float = 15.0):
     req = urllib.request.Request(
         url,
-        headers={"Accept": "application/vnd.github+json", "User-Agent": "swift-proxy-updater"},
+        headers={"Accept": "application/vnd.github+json", "User-Agent": "prime-proxy-updater"},
         method="GET",
     )
     return build_github_opener().open(req, timeout=timeout)
@@ -172,7 +172,7 @@ def find_asset(release: Dict[str, Any], asset_name: Optional[str] = None) -> Opt
 def download(url: str, dest: Path, on_progress: Optional[Callable[[float], None]] = None) -> bool:
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
-    req = urllib.request.Request(url, headers={"User-Agent": "swift-proxy-updater"})
+    req = urllib.request.Request(url, headers={"User-Agent": "prime-proxy-updater"})
     with build_github_opener().open(req, timeout=20.0) as resp:
         total = int(resp.headers.get("Content-Length") or 0)
         done = 0

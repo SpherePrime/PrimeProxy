@@ -1,13 +1,13 @@
-# SwiftProxy для Windows
+# PrimeProxy для Windows
 
-Перейдите на [страницу релизов](https://github.com/Lil-KALINOV/SwiftProxy/releases) и скачайте:
+Перейдите на [страницу релизов](https://github.com/SpherePrime/PrimeProxy/releases) и скачайте:
 
-- `SwiftProxy_windows.exe` (Windows 10+ x64)
-- `SwiftProxy_windows_arm64.exe` (Windows 10+ ARM64)
-- `SwiftProxy_windows_7_64bit.exe` (Windows 7 x64)
-- `SwiftProxy_windows_7_32bit.exe` (Windows 7 x32)
+- `PrimeProxy_windows.exe` (Windows 10+ x64)
+- `PrimeProxy_windows_arm64.exe` (Windows 10+ ARM64)
+- `PrimeProxy_windows_7_64bit.exe` (Windows 7 x64)
+- `PrimeProxy_windows_7_32bit.exe` (Windows 7 x32)
 
-Сборки публикуются автоматически через [GitHub Actions](https://github.com/Lil-KALINOV/SwiftProxy/actions) из открытого исходного кода.
+Сборки публикуются автоматически через [GitHub Actions](https://github.com/SpherePrime/PrimeProxy/actions) из открытого исходного кода.
 
 При первом запуске откроется окно с инструкцией по подключению Telegram Desktop. **Приложение сворачивается в системный трей.**
 
@@ -44,7 +44,7 @@
    - **Secret:** из настроек или логов
 
 ## Портативный режим
-Портативный режим автоматически включается, если рядом с исполняемым файлом есть папка с названием `SwiftProxy_data`.  
+Портативный режим автоматически включается, если рядом с исполняемым файлом есть папка с названием `PrimeProxy_data`.  
 Либо можно принудительно включить портативный режим (который сам создаст папку), запустив исполняемый файл с параметром `--portable`.
 
 ## Установка из исходников
@@ -53,5 +53,5 @@
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```

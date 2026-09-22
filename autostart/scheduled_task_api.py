@@ -17,7 +17,7 @@ from .model import StartEntry
 
 log = logging.getLogger("swift-autostart")
 
-AUTOSTART_TASK_NAME = "SwiftProxy Autostart"
+AUTOSTART_TASK_NAME = "PrimeProxy Autostart"
 _TASK_XML_NAMESPACE = "http://schemas.microsoft.com/windows/2004/02/mit/task"
 _NAME_SAM_COMPATIBLE = 2
 _NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
@@ -109,7 +109,7 @@ def _build_autostart_task_xml(entry: StartEntry, user_id: str) -> bytes:
     task_xml = f"""<?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="{_TASK_XML_NAMESPACE}">
   <RegistrationInfo>
-    <Author>SwiftProxy</Author>
+    <Author>PrimeProxy</Author>
     <Description>{escaped_description}</Description>
   </RegistrationInfo>
   <Triggers>
@@ -169,7 +169,7 @@ def create_or_update_autostart_task(
         with tempfile.NamedTemporaryFile(
             mode="wb",
             suffix=".xml",
-            prefix="swiftproxy-autostart-",
+            prefix="primeproxy-autostart-",
             delete=False,
         ) as temporary:
             temporary.write(task_xml)

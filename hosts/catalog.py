@@ -335,7 +335,7 @@ def invalidate_catalog_cache() -> None:
 
 
 def normalize_service_ids(service_ids: Optional[List[str]]) -> List[str]:
-    """Map old SwiftProxy service ids onto current catalog ids, de-duplicating."""
+    """Map old PrimeProxy service ids onto current catalog ids, de-duplicating."""
     result: List[str] = []
     for sid in service_ids or []:
         if not isinstance(sid, str):

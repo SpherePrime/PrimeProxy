@@ -1,11 +1,11 @@
-// SwiftProxy — frontend i18n (ru / uk / en).
+// PrimeProxy — frontend i18n (ru / uk / en).
 // Every user-visible string lives here; static HTML uses [data-i18n],
 // dynamic renderers call I18n.t().
 
 (function () {
   const catalogs = {
     ru: {
-      "app.name": "SwiftProxy",
+      "app.name": "PrimeProxy",
       "nav.g_main": "Основное",
       "nav.g_tools": "Диагностика",
       "nav.g_sys": "Система",
@@ -322,7 +322,7 @@
       "dns.recommended": "Рекомендуемый DNS: {dns}",
 
       "hosts.title": "Файл hosts",
-      "hosts.subtitle": "Управляемый блок SwiftProxy в hosts-файле. Требуются права администратора/root.",
+      "hosts.subtitle": "Управляемый блок PrimeProxy в hosts-файле. Требуются права администратора/root.",
       "hosts.apply": "Применить",
       "hosts.clear": "Очистить всё",
       "hosts.domains_count": "{count} доменов",
@@ -447,9 +447,9 @@
       "pr.w_duplicate_param": "{key}: параметр повторяется",
 
       "br.title": "Расширение для браузера",
-      "br.subtitle": "Проксирует весь браузер через локальный SOCKS5-прокси SwiftProxy.",
+      "br.subtitle": "Проксирует весь браузер через локальный SOCKS5-прокси PrimeProxy.",
       "br.proxy_label": "Прокси для браузера",
-      "br.proxy_hint": "Весь трафик браузера пойдёт через прокси. Включение/выключение — кнопкой прямо в панели браузера (значок SwiftProxy).",
+      "br.proxy_hint": "Весь трафик браузера пойдёт через прокси. Включение/выключение — кнопкой прямо в панели браузера (значок PrimeProxy).",
       "br.ready": "Готово к установке",
       "br.not_installed": "Не установлено",
       "br.launch_chrome": "Открыть в Chrome",
@@ -545,7 +545,7 @@
       "st.min_tray": "Сворачивать в трей",
       "st.start_min": "Запуск в свёрнутом виде",
       "st.about": "О программе",
-      "st.about_line": "SwiftProxy v{version} · движок {engine} · {platform}",
+      "st.about_line": "PrimeProxy v{version} · движок {engine} · {platform}",
 
       "as.title": "Автозапуск",
       "as.scope": "Что запускать",
@@ -576,7 +576,7 @@
 
       "hp.title": "Помощь",
       "hp.subtitle": "Что это за программа и как ей пользоваться.",
-      "hp.what_title": "Что такое SwiftProxy",
+      "hp.what_title": "Что такое PrimeProxy",
       "hp.what_text": "Прокси для Telegram (MTProto и SOCKS5), проверка DNS и управление hosts-файлом в одном окне. Цель — стабильная работа Telegram при блокировках провайдера.",
       "hp.mt_title": "MTProto прокси",
       "hp.mt_text": "Слушает локальный порт (по умолчанию 1443) и переводит трафик Telegram Desktop в WebSocket-соединения к реальным датацентрам Telegram, в том числе через Cloudflare. Скопируйте ссылку на вкладке «Обзор» и нажмите по ней в Telegram — клиент сам сохранит настройки.",
@@ -591,7 +591,7 @@
       "hp.updates_title": "Обновления",
       "hp.updates_text": "Приложение проверяет новые версии из GitHub Releases при запуске и предлагает обновиться. Скачивание и установка выполняются внутри, доступен откат к предыдущей версии.",
       "hp.cli_title": "CLI и Docker",
-      "hp.cli_text": "Программа полностью управляется из командной строки — пригодится в Docker и на серверах. Примеры: swift-proxy --cli status, swift-proxy --cli config set proxy.port 20001, swift-proxy --cli link.",
+      "hp.cli_text": "Программа полностью управляется из командной строки — пригодится в Docker и на серверах. Примеры: prime-proxy --cli status, prime-proxy --cli config set proxy.port 20001, prime-proxy --cli link.",
       "hp.share_title": "Раздача на телефон",
       "hp.share_text": "Прокси можно «раздать» по локальной сети: на вкладке «Прокси» включите переключатель раздачи, приложение начнёт слушать на всех интерфейсах и покажет ссылку с IP вашего ПК. Откройте её на телефоне (одна Wi-Fi сеть) — телефонный Telegram подключится к прокси ПК.",
       "hp.settings_title": "Настройки",
@@ -646,11 +646,11 @@
       "hp.router_text": "Включите MTProto-прокси на телефоне/ПК и откройте наружу порт из раздачи. Ниже — инструкции для популярных роутеров.",
       "hp.router_more": "Включите прокси и откройте наружу его порт пробросом на роутере:\n• ASUS: WAN → Port Forwarding → правило (Local Port = порт прокси, Local IP = IP ПК из раздачи, TCP/UDP). Нет белого IP — включите DDNS;\n• TP-Link: Advanced → NAT Forwarding → Virtual Servers → Add (внешний и внутренний порт = порт прокси);\n• Keenetic: UPnP уже включён — нажмите «Доступ из интернета». Вручную: Интернет → Firewall → Port Forwarding;\n• MikroTik: /ip firewall nat add chain=dstnat protocol=tcp dst-port=<порт> action=dst-nat to-addresses=<IP ПК> to-ports=<порт> (и udp);\n• OpenWrt: Network → Firewall → Port Forwards → Add (внешний порт = порт прокси).\n\nНужен «белый» IP: при CGNAT или без UPnP прямой доступ из интернета невозможен — тогда запустите пресет «Максимальный обход» на сервере.",
       "hp.server_title": "Настройка на сервере",
-      "hp.server_text": "Запустите SwiftProxy на VPS (вне РФ) и раздайте ссылку на телефон/ПК — сайты и Telegram работают без блокировок.",
+      "hp.server_text": "Запустите PrimeProxy на VPS (вне РФ) и раздайте ссылку на телефон/ПК — сайты и Telegram работают без блокировок.",
       "hp.server_more": "Минимум: VPS Ubuntu/Debian, 512 МБ ОЗУ, 1 ГБ диска.\n\n1. Скопируйте проект на сервер, установите Python 3.12+;\n2. pip install -r requirements.txt;\n3. Откройте порты: sudo ufw allow 1443/tcp и 1353/tcp;\n4. Запуск: python main.py --cli server — MTProto-прокси на всех интерфейсах; --tg добавит SOCKS5;\n5. На телефоне вставьте ссылку с дашборда (или из «Раздачи»).\n\nДля продакшена — systemd-юнит + пресет «Максимальный обход». Рекомендуем VPS вне РФ.",
       "hp.docker_title": "Docker",
       "hp.docker_text": "Контейнер запускается без интерфейса и поднимает MTProto-прокси (флаг добавляет SOCKS5).",
-      "hp.docker_more": "Запуск контейнера:\n\ndocker build -t swiftproxy .\ndocker run -d -p 1443:1443 -p 1353:1353 --restart unless-stopped swiftproxy\n\nОбязательно --cli server; --tg включает SOCKS5 (порт 1353). Логи: docker logs swiftproxy.",
+      "hp.docker_more": "Запуск контейнера:\n\ndocker build -t primeproxy .\ndocker run -d -p 1443:1443 -p 1353:1353 --restart unless-stopped primeproxy\n\nОбязательно --cli server; --tg включает SOCKS5 (порт 1353). Логи: docker logs primeproxy.",
 
       "wl.title": "Лог winws",
       "wl.hint": "Анализ журнала запусков winws: запуски, ошибки и вердикт последнего запуска.",
@@ -729,7 +729,7 @@
     },
 
     uk: {
-      "app.name": "SwiftProxy",
+      "app.name": "PrimeProxy",
       "nav.g_main": "Основне",
       "nav.g_tools": "Діагностика",
       "nav.g_sys": "Система",
@@ -1046,7 +1046,7 @@
       "dns.recommended": "Рекомендований DNS: {dns}",
 
       "hosts.title": "Файл hosts",
-      "hosts.subtitle": "Керований блок SwiftProxy у файлі hosts. Потрібні права адміністратора/root.",
+      "hosts.subtitle": "Керований блок PrimeProxy у файлі hosts. Потрібні права адміністратора/root.",
       "hosts.apply": "Застосувати",
       "hosts.clear": "Очистити все",
       "hosts.domains_count": "{count} доменів",
@@ -1171,9 +1171,9 @@
       "pr.w_duplicate_param": "{key}: параметр повторюється",
 
       "br.title": "Розширення для браузера",
-      "br.subtitle": "Проксує весь браузер через локальний SOCKS5-проксі SwiftProxy.",
+      "br.subtitle": "Проксує весь браузер через локальний SOCKS5-проксі PrimeProxy.",
       "br.proxy_label": "Проксі для браузера",
-      "br.proxy_hint": "Весь трафік браузера піде через проксі. Увімкнення/вимкнення — кнопкою прямо в панелі браузера (значок SwiftProxy).",
+      "br.proxy_hint": "Весь трафік браузера піде через проксі. Увімкнення/вимкнення — кнопкою прямо в панелі браузера (значок PrimeProxy).",
       "br.ready": "Готовий до встановлення",
       "br.not_installed": "Не встановлено",
       "br.launch_chrome": "Відкрити в Chrome",
@@ -1269,7 +1269,7 @@
       "st.min_tray": "Згортати в трей",
       "st.start_min": "Запуск у згорнутому вигляді",
       "st.about": "Про програму",
-      "st.about_line": "SwiftProxy v{version} · двигун {engine} · {platform}",
+      "st.about_line": "PrimeProxy v{version} · двигун {engine} · {platform}",
 
       "as.title": "Автозапуск",
       "as.scope": "Що запускати",
@@ -1300,8 +1300,8 @@
 
       "hp.title": "Допомога",
       "hp.subtitle": "Що це за програма і як нею користуватися.",
-      "hp.what_title": "Що таке SwiftProxy",
-      "hp.what_text": "SwiftProxy об'єднує два інструменти в одному вікні: MTProto-проксі (міст Telegram Desktop до WebSocket-релеїв) і WSS/SOCKS5-проксі другого контуру, а також перевірку DNS і керування hosts-файлом. Єдина мета — стабільний доступ до Telegram в умовах DPI-блокувань.",
+      "hp.what_title": "Що таке PrimeProxy",
+      "hp.what_text": "PrimeProxy об'єднує два інструменти в одному вікні: MTProto-проксі (міст Telegram Desktop до WebSocket-релеїв) і WSS/SOCKS5-проксі другого контуру, а також перевірку DNS і керування hosts-файлом. Єдина мета — стабільний доступ до Telegram в умовах DPI-блокувань.",
       "hp.mt_title": "MTProto проксі",
       "hp.mt_text": "Слухає локальний порт (за замовчуванням 1443) і переводить трафік Telegram Desktop у WebSocket-з'єднання до реальних датацентрів Telegram, зокрема через Cloudflare. Скопіюйте посилання на вкладці «Огляд» і натисніть на нього в Telegram — клієнт сам збереже налаштування.",
       "hp.tg_title": "Telegram WSS / SOCKS5",
@@ -1315,7 +1315,7 @@
       "hp.updates_title": "Оновлення",
       "hp.updates_text": "Застосунок перевіряє нові версії з GitHub Releases під час запуску і пропонує оновитися. Завантаження та встановлення виконуються всередині, доступний відкат до попередньої версії.",
       "hp.cli_title": "CLI та Docker",
-      "hp.cli_text": "Програма повністю керується з командного рядка — знадобиться в Docker і на серверах. Приклади: swift-proxy --cli status, swift-proxy --cli config set proxy.port 20001, swift-proxy --cli link.",
+      "hp.cli_text": "Програма повністю керується з командного рядка — знадобиться в Docker і на серверах. Приклади: prime-proxy --cli status, prime-proxy --cli config set proxy.port 20001, prime-proxy --cli link.",
       "hp.share_title": "Роздача на телефон",
       "hp.share_text": "Проксі можна «роздати» локальною мережею: на вкладці «Проксі» увімкніть перемикач роздачі — застосунок почне слухати на всіх інтерфейсах і покаже посилання з IP вашого ПК. Відкрийте його на телефоні (та сама Wi-Fi мережа) — телефонний Telegram підключиться до проксі ПК.",
       "hp.settings_title": "Налаштування",
@@ -1368,13 +1368,13 @@
       "hp.security_more": "Secret задається один раз і зберігається тільки в конфізі на цьому пристрої. Увімкнена «Роздача» відкриває порт у локальній мережі — не вмикайте її в публічних мережах без потреби.",
       "hp.router_title": "Налаштування на роутері",
       "hp.router_text": "Увімкніть MTProto-проксі на телефоні/ПК і відкрийте назовні порт із роздачі. Нижче — інструкції для популярних роутерів.",
-      "hp.router_more": "ASUS (стандартна прошивка/Merlin): Панель → WAN → Port Forwarding → Enable, додайте правило: Local Port = порт проксі, Local IP = IP ПК (з роздачі), Protocol = TCP/UDP. Якщо немає білого IP — увімкніть DDNS (WAN → DDNS).\n\nTP-Link (Archer тощо): Advanced → NAT Forwarding → Virtual Servers → Add. Зовнішній порт = внутрішній порт = порт проксі, IP-адреса = IP ПК, протокол TCP+UDP.\n\nKeenetic: UPnP увімкнено за замовчуванням — просто натисніть «Доступ з інтернету» у SwiftProxy. Вручну: Інтернет → Firewall → Port Forwarding → додати правило.\n\nMikroTik (RouterOS): /ip firewall nat add chain=dstnat protocol=tcp dst-port=<порт> action=dst-nat to-addresses=<IP ПК> to-ports=<порт>, те саме для udp.\n\nOpenWrt: LuCI → Network → Firewall → Port Forwards → Add: внутрішній IP = IP ПК, зовнішній порт = внутрішній = порт проксі, протокол TCP + UDP.\n\nВажливо: у провайдера має бути «білий» IP. При CGNAT або без UPnP прямий доступ з інтернету неможливий — тоді використовуйте пресет «Максимальний обхід» на сервері.",
+      "hp.router_more": "ASUS (стандартна прошивка/Merlin): Панель → WAN → Port Forwarding → Enable, додайте правило: Local Port = порт проксі, Local IP = IP ПК (з роздачі), Protocol = TCP/UDP. Якщо немає білого IP — увімкніть DDNS (WAN → DDNS).\n\nTP-Link (Archer тощо): Advanced → NAT Forwarding → Virtual Servers → Add. Зовнішній порт = внутрішній порт = порт проксі, IP-адреса = IP ПК, протокол TCP+UDP.\n\nKeenetic: UPnP увімкнено за замовчуванням — просто натисніть «Доступ з інтернету» у PrimeProxy. Вручну: Інтернет → Firewall → Port Forwarding → додати правило.\n\nMikroTik (RouterOS): /ip firewall nat add chain=dstnat protocol=tcp dst-port=<порт> action=dst-nat to-addresses=<IP ПК> to-ports=<порт>, те саме для udp.\n\nOpenWrt: LuCI → Network → Firewall → Port Forwards → Add: внутрішній IP = IP ПК, зовнішній порт = внутрішній = порт проксі, протокол TCP + UDP.\n\nВажливо: у провайдера має бути «білий» IP. При CGNAT або без UPnP прямий доступ з інтернету неможливий — тоді використовуйте пресет «Максимальний обхід» на сервері.",
       "hp.server_title": "Налаштування на сервері",
-      "hp.server_text": "Запустіть SwiftProxy на VPS (поза РФ) і роздайте посилання на телефон/ПК — сайти та Telegram працюють без блокувань.",
+      "hp.server_text": "Запустіть PrimeProxy на VPS (поза РФ) і роздайте посилання на телефон/ПК — сайти та Telegram працюють без блокувань.",
       "hp.server_more": "Мінімум: VPS Ubuntu/Debian, 512 МБ ОЗУ, 1 ГБ диска.\n\n1. Скопіюйте проєкт на сервер, встановіть Python 3.12+.\n2. pip install -r requirements.txt.\n3. Відкрийте порти: sudo ufw allow 1443/tcp і 1353/tcp.\n4. Запуск: python main.py --cli server — MTProto-проксі на всіх інтерфейсах; флаг --tg додасть SOCKS5.\n5. На телефоні вставте посилання з дашборду (або з «Роздачі»).\n\nДля продакшну — systemd-юніт + пресет «Максимальний обхід». Рекомендуємо VPS поза РФ.",
       "hp.docker_title": "Docker",
       "hp.docker_text": "Контейнер запускається без інтерфейсу і піднімає MTProto-проксі (флаг додає SOCKS5).",
-      "hp.docker_more": "Образ збирається з Dockerfile. Запуск:\n\ndocker build -t swiftproxy .\ndocker run -d -p 1443:1443 -p 1353:1353 --restart unless-stopped swiftproxy\n\nОбов’язково --cli server; флаг --tg вмикає SOCKS5 (порт 1353). Порты в контейнері фіксовані. Логи: docker logs swiftproxy.",
+      "hp.docker_more": "Образ збирається з Dockerfile. Запуск:\n\ndocker build -t primeproxy .\ndocker run -d -p 1443:1443 -p 1353:1353 --restart unless-stopped primeproxy\n\nОбов’язково --cli server; флаг --tg вмикає SOCKS5 (порт 1353). Порты в контейнері фіксовані. Логи: docker logs primeproxy.",
 
       "wl.title": "Журнал winws",
       "wl.hint": "Аналіз журналу запусків winws: запуски, помилки та вердикт останнього запуску.",
@@ -1453,7 +1453,7 @@
     },
 
     en: {
-      "app.name": "SwiftProxy",
+      "app.name": "PrimeProxy",
       "nav.g_main": "Main",
       "nav.g_tools": "Diagnostics",
       "nav.g_sys": "System",
@@ -1770,7 +1770,7 @@
       "dns.recommended": "Recommended DNS: {dns}",
 
       "hosts.title": "Hosts file",
-      "hosts.subtitle": "SwiftProxy-managed block in the hosts file. Admin/root rights required.",
+      "hosts.subtitle": "PrimeProxy-managed block in the hosts file. Admin/root rights required.",
       "hosts.apply": "Apply",
       "hosts.clear": "Clear all",
       "hosts.domains_count": "{count} domains",
@@ -1894,9 +1894,9 @@
       "pr.w_not_an_option": "Line {n} is not a --key=value option",
       "pr.w_duplicate_param": "{key}: parameter is duplicated",
       "br.title": "Browser extension",
-      "br.subtitle": "Routes the entire browser through the local SwiftProxy SOCKS5 proxy.",
+      "br.subtitle": "Routes the entire browser through the local PrimeProxy SOCKS5 proxy.",
       "br.proxy_label": "Proxy for the browser",
-      "br.proxy_hint": "The whole browser traffic goes through the proxy. Toggle on/off from the toolbar button (SwiftProxy icon).",
+      "br.proxy_hint": "The whole browser traffic goes through the proxy. Toggle on/off from the toolbar button (PrimeProxy icon).",
       "br.ready": "Ready to load",
       "br.not_installed": "Not installed",
       "br.launch_chrome": "Open in Chrome",
@@ -1992,7 +1992,7 @@
       "st.min_tray": "Minimize to tray",
       "st.start_min": "Start minimized",
       "st.about": "About",
-      "st.about_line": "SwiftProxy v{version} · engine {engine} · {platform}",
+      "st.about_line": "PrimeProxy v{version} · engine {engine} · {platform}",
 
       "as.title": "Autostart",
       "as.scope": "What to start",
@@ -2023,8 +2023,8 @@
 
       "hp.title": "Help",
       "hp.subtitle": "What this program does and how to use it.",
-      "hp.what_title": "What is SwiftProxy",
-      "hp.what_text": "SwiftProxy combines two tools in one window: an MTProto proxy (a bridge from Telegram Desktop to WebSocket relays) and a WSS/SOCKS5 second-channel proxy, plus DNS checks and hosts-file management. One goal — stable Telegram access under DPI blocking.",
+      "hp.what_title": "What is PrimeProxy",
+      "hp.what_text": "PrimeProxy combines two tools in one window: an MTProto proxy (a bridge from Telegram Desktop to WebSocket relays) and a WSS/SOCKS5 second-channel proxy, plus DNS checks and hosts-file management. One goal — stable Telegram access under DPI blocking.",
       "hp.mt_title": "MTProto proxy",
       "hp.mt_text": "Listens on a local port (default 1443) and tunnels Telegram Desktop traffic into WebSocket connections to the real Telegram data centers, including via Cloudflare. Copy the link on the Dashboard page and tap it in Telegram — the client saves it automatically.",
       "hp.tg_title": "Telegram WSS / SOCKS5",
@@ -2038,7 +2038,7 @@
       "hp.updates_title": "Updates",
       "hp.updates_text": "The app checks GitHub Releases for new versions on launch and offers to update. Downloading and installation happen in-app, and rolling back to a previous version is supported.",
       "hp.cli_title": "CLI & Docker",
-      "hp.cli_text": "The app is fully controllable from the command line — handy in Docker and on servers. Examples: swift-proxy --cli status, swift-proxy --cli config set proxy.port 20001, swift-proxy --cli link.",
+      "hp.cli_text": "The app is fully controllable from the command line — handy in Docker and on servers. Examples: prime-proxy --cli status, prime-proxy --cli config set proxy.port 20001, prime-proxy --cli link.",
       "hp.share_title": "Share to phone",
       "hp.share_text": "You can share the proxy over your local network: on the Proxy tab enable the share toggle — the app starts listening on all interfaces and shows a link with your PC's IP. Open it on the phone (same Wi-Fi) and the phone's Telegram will connect through the PC proxy.",
       "hp.settings_title": "Settings",
@@ -2091,13 +2091,13 @@
       "hp.security_more": "The proxy secret is set once and stored only in the config on this device. Enabling \"share\" opens a LAN port — don't enable it on public networks without reason.",
       "hp.router_title": "Router setup",
       "hp.router_text": "Enable the MTProto proxy on your phone/PC and expose the share port. Below are instructions for popular routers.",
-      "hp.router_more": "ASUS (stock/Merlin): Dashboard → WAN → Port Forwarding → Enable, add a rule: Local Port = proxy port, Local IP = PC IP (from share), Protocol = TCP/UDP. No public IP? Enable DDNS (WAN → DDNS).\n\nTP-Link (Archer, etc.): Advanced → NAT Forwarding → Virtual Servers → Add. External port = internal port = proxy port, IP address = PC IP, protocol TCP+UDP.\n\nKeenetic: UPnP is enabled by default — just press \"Internet access\" in SwiftProxy. Manually: Internet → Firewall → Port Forwarding → add a rule.\n\nMikroTik (RouterOS): /ip firewall nat add chain=dstnat protocol=tcp dst-port=<port> action=dst-nat to-addresses=<PC IP> to-ports=<port>, and the same for udp.\n\nOpenWrt: LuCI → Network → Firewall → Port Forwards → Add: internal IP = PC IP, external port = internal = proxy port, protocol TCP + UDP.\n\nImportant: your ISP must provide a public IP. Behind CGNAT or without UPnP direct internet access is impossible — run the \"Maximum bypass\" preset on a server instead.",
+      "hp.router_more": "ASUS (stock/Merlin): Dashboard → WAN → Port Forwarding → Enable, add a rule: Local Port = proxy port, Local IP = PC IP (from share), Protocol = TCP/UDP. No public IP? Enable DDNS (WAN → DDNS).\n\nTP-Link (Archer, etc.): Advanced → NAT Forwarding → Virtual Servers → Add. External port = internal port = proxy port, IP address = PC IP, protocol TCP+UDP.\n\nKeenetic: UPnP is enabled by default — just press \"Internet access\" in PrimeProxy. Manually: Internet → Firewall → Port Forwarding → add a rule.\n\nMikroTik (RouterOS): /ip firewall nat add chain=dstnat protocol=tcp dst-port=<port> action=dst-nat to-addresses=<PC IP> to-ports=<port>, and the same for udp.\n\nOpenWrt: LuCI → Network → Firewall → Port Forwards → Add: internal IP = PC IP, external port = internal = proxy port, protocol TCP + UDP.\n\nImportant: your ISP must provide a public IP. Behind CGNAT or without UPnP direct internet access is impossible — run the \"Maximum bypass\" preset on a server instead.",
       "hp.server_title": "Server setup",
-      "hp.server_text": "Run SwiftProxy on a VPS (outside RF) and share the link to your phone/PC — sites and Telegram work without restrictions.",
+      "hp.server_text": "Run PrimeProxy on a VPS (outside RF) and share the link to your phone/PC — sites and Telegram work without restrictions.",
       "hp.server_more": "Minimum: VPS Ubuntu/Debian, 512 MB RAM, 1 GB disk.\n\n1. Copy the project to the server, install Python 3.12+.\n2. pip install -r requirements.txt.\n3. Open the ports: sudo ufw allow 1443/tcp and 1353/tcp.\n4. Run: python main.py --cli server — MTProto proxy on all interfaces; add --tg for SOCKS5.\n5. On your phone, paste the link from the dashboard (or \"Share\").\n\nFor production — a systemd unit + the \"Maximum bypass\" preset. Prefer a VPS outside RF.",
       "hp.docker_title": "Docker",
       "hp.docker_text": "The container runs headless and starts an MTProto proxy (a flag adds SOCKS5).",
-      "hp.docker_more": "The image builds from the Dockerfile. Run:\n\ndocker build -t swiftproxy .\ndocker run -d -p 1443:1443 -p 1353:1353 --restart unless-stopped swiftproxy\n\n--cli server is mandatory; --tg enables SOCKS5 (port 1353). Container ports are fixed. Logs: docker logs swiftproxy.",
+      "hp.docker_more": "The image builds from the Dockerfile. Run:\n\ndocker build -t primeproxy .\ndocker run -d -p 1443:1443 -p 1353:1353 --restart unless-stopped primeproxy\n\n--cli server is mandatory; --tg enables SOCKS5 (port 1353). Container ports are fixed. Logs: docker logs primeproxy.",
 
       "wl.title": "winws log",
       "wl.hint": "Analysis of the winws launch journal: runs, errors and the verdict of the last run.",

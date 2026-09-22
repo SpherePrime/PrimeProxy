@@ -6,7 +6,7 @@
 
 ```bash
 pip install -e .
-swift-proxy
+prime-proxy
 ```
 
 ## Tray-приложение по ОС
@@ -15,7 +15,7 @@ swift-proxy
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```
 
 ### macOS
@@ -24,20 +24,20 @@ swift-proxy --tray
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```
 
 ### Linux
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```
 
 ## Консольный режим из исходников
 
 ```bash
-swift-proxy [--port PORT] [--host HOST] [--dc-ip DC:IP ...] [-v]
+prime-proxy [--port PORT] [--host HOST] [--dc-ip DC:IP ...] [-v]
 ```
 
 **Аргументы:**
@@ -64,14 +64,14 @@ swift-proxy [--port PORT] [--host HOST] [--dc-ip DC:IP ...] [-v]
 
 ```bash
 # Стандартный запуск
-swift-proxy
+prime-proxy
 
 # Другой порт и дополнительные DC
-swift-proxy --port 9050 --dc-ip 1:149.154.175.205 --dc-ip 2:149.154.167.220
+prime-proxy --port 9050 --dc-ip 1:149.154.175.205 --dc-ip 2:149.154.167.220
 
 # С подробным логированием
-swift-proxy -v
+prime-proxy -v
 
 # Fake TLS маскировка (ee-secret)
-swift-proxy --fake-tls-domain example.com
+prime-proxy --fake-tls-domain example.com
 ```

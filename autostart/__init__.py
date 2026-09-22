@@ -26,8 +26,8 @@ __all__ = [
 SCOPES = ("app", "winws")
 PROVIDERS = ("nssm", "task", "shortcut")
 
-DEFAULT_APP_NAME = "SwiftProxy Autostart"
-DEFAULT_WINWS_NAME = "SwiftProxy winws"
+DEFAULT_APP_NAME = "PrimeProxy Autostart"
+DEFAULT_WINWS_NAME = "PrimeProxy winws"
 
 
 def nssm_missing_result() -> Dict[str, Any]:
@@ -70,8 +70,8 @@ def build_entry_for(scope: str) -> StartEntry:
             args=[*base_args, "--no-tray"],
             working_dir=work_dir,
             run_level="highest",
-            display_name="SwiftProxy",
-            description="Автозапуск SwiftProxy при входе в Windows",
+            display_name="PrimeProxy",
+            description="Автозапуск PrimeProxy при входе в Windows",
         )
     return StartEntry(
         name=DEFAULT_WINWS_NAME,
@@ -79,7 +79,7 @@ def build_entry_for(scope: str) -> StartEntry:
         args=[*base_args, "--headless", "--autostart-winws"],
         working_dir=work_dir,
         run_level="highest",
-        display_name="SwiftProxy winws",
+        display_name="PrimeProxy winws",
         description="Запуск winws (обход DPI) при входе в Windows",
     )
 

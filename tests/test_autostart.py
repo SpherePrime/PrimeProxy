@@ -28,14 +28,14 @@ class _R:
 
 def test_build_entry_app():
     e = build_entry_for("app")
-    assert e.name == "SwiftProxy Autostart"
+    assert e.name == "PrimeProxy Autostart"
     assert "--no-tray" in e.args
     assert e.run_level == "highest"
 
 
 def test_build_entry_winws():
     e = build_entry_for("winws")
-    assert e.name == "SwiftProxy winws"
+    assert e.name == "PrimeProxy winws"
     assert "--headless" in e.args
     assert "--autostart-winws" in e.args
 
@@ -255,7 +255,7 @@ def test_shortcut_create_via_powershell(monkeypatch, tmp_path):
     from autostart import startup_shortcut_api as ssa
 
     monkeypatch.setattr(os, "name", "nt")
-    target = tmp_path / "SwiftProxy Autostart.lnk"
+    target = tmp_path / "PrimeProxy Autostart.lnk"
     monkeypatch.setattr(ssa, "_run_powershell", lambda script: 0)
     res = ssa.create_startup_shortcut(
         build_entry_for("app"), shortcut_path=str(target))

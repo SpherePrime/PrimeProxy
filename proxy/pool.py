@@ -13,7 +13,7 @@ from .stats import stats
 from .config import proxy_config
 from .utils import ws_domains, DC_DEFAULT_IPS
 
-log = logging.getLogger('swift-proxy')
+log = logging.getLogger('prime-proxy')
 
 # TODO: domains handling is broken: wrong is_media flag causes tcp_reset after handshake,
 # but initial connection is still established no matter what is is_media flag is set to

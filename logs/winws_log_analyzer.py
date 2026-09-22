@@ -1,7 +1,7 @@
 """winws log analyzer: сессии запусков, вердикт и ошибки из winws.log.
 
 Файл журнала winws (путь берётся из winws.paths.log_path) пишется двумя
-потоками: раннер SwiftProxy (маркеры ``Starting...``/``winws exited
+потоками: раннер PrimeProxy (маркеры ``Starting...``/``winws exited
 immediately``/``winws process exited``/``winws stopped``) и сам winws
 (вывод stdout/stderr). Модуль разбирает маркеры раннера, собирает сессии
 запусков, классифицирует последний запуск и возвращает вердикт.

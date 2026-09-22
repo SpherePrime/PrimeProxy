@@ -71,14 +71,14 @@ jobs:
           pip install (Get-ChildItem pyinstaller_src\*.tar.gz).FullName
 
       - name: Build EXE with PyInstaller
-        run: pyinstaller packaging/swiftproxy.spec --noconfirm
+        run: pyinstaller packaging/primeproxy.spec --noconfirm
 
       - name: Strip Rich PE header
         shell: bash
         run: |
           python -c "
           import struct, pathlib
-          exe = pathlib.Path('dist/SwiftProxy.exe')
+          exe = pathlib.Path('dist/PrimeProxy.exe')
           data = bytearray(exe.read_bytes())
           rich = data.find(b'Rich')
           if rich == -1:
@@ -94,13 +94,13 @@ jobs:
           "
 
       - name: Rename artifact
-        run: mv dist/SwiftProxy.exe dist/SwiftProxy_windows.exe
+        run: mv dist/PrimeProxy.exe dist/PrimeProxy_windows.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: SwiftProxy-windows-x64
-          path: dist/SwiftProxy_windows.exe
+          name: PrimeProxy-windows-x64
+          path: dist/PrimeProxy_windows.exe
 
   build-windows-arm64:
     runs-on: windows-11-arm
@@ -146,14 +146,14 @@ jobs:
         run: pip install --find-links $env:ARM64_WHEELHOUSE . "pyinstaller==6.13.0"
 
       - name: Build EXE with PyInstaller
-        run: pyinstaller packaging/swiftproxy.spec --noconfirm
+        run: pyinstaller packaging/primeproxy.spec --noconfirm
 
       - name: Strip Rich PE header
         shell: bash
         run: |
           python -c "
           import struct, pathlib
-          exe = pathlib.Path('dist/SwiftProxy.exe')
+          exe = pathlib.Path('dist/PrimeProxy.exe')
           data = bytearray(exe.read_bytes())
           rich = data.find(b'Rich')
           if rich == -1:
@@ -171,13 +171,13 @@ jobs:
           "
 
       - name: Rename artifact
-        run: mv dist/SwiftProxy.exe dist/SwiftProxy_windows_arm64.exe
+        run: mv dist/PrimeProxy.exe dist/PrimeProxy_windows_arm64.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: SwiftProxy-windows-arm64
-          path: dist/SwiftProxy_windows_arm64.exe
+          name: PrimeProxy-windows-arm64
+          path: dist/PrimeProxy_windows_arm64.exe
 
   build-win7:
     runs-on: windows-latest
@@ -202,14 +202,14 @@ jobs:
         run: pip install . "pyinstaller==5.13.2"
 
       - name: Build EXE with PyInstaller
-        run: pyinstaller packaging/swiftproxy.spec --noconfirm
+        run: pyinstaller packaging/primeproxy.spec --noconfirm
 
       - name: Strip Rich PE header
         shell: bash
         run: |
           python -c "
           import struct, pathlib
-          exe = pathlib.Path('dist/SwiftProxy.exe')
+          exe = pathlib.Path('dist/PrimeProxy.exe')
           data = bytearray(exe.read_bytes())
           rich = data.find(b'Rich')
           if rich == -1:
@@ -225,13 +225,13 @@ jobs:
           "
 
       - name: Rename artifact
-        run: mv dist/SwiftProxy.exe dist/SwiftProxy_windows_7_${{ matrix.suffix }}.exe
+        run: mv dist/PrimeProxy.exe dist/PrimeProxy_windows_7_${{ matrix.suffix }}.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: SwiftProxy-win7-${{ matrix.suffix }}
-          path: dist/SwiftProxy_windows_7_${{ matrix.suffix }}.exe
+          name: PrimeProxy-win7-${{ matrix.suffix }}
+          path: dist/PrimeProxy_windows_7_${{ matrix.suffix }}.exe
 
   build-macos:
     runs-on: macos-latest
@@ -310,17 +310,17 @@ jobs:
           python3.12 -c "import AppKit, pystray, webview"
 
       - name: Build app with PyInstaller
-        run: python3.12 -m PyInstaller packaging/swiftproxy.spec --noconfirm
-        # TODO(Phase 5): swiftproxy.spec currently emits a COLLECT dir; for the
+        run: python3.12 -m PyInstaller packaging/primeproxy.spec --noconfirm
+        # TODO(Phase 5): primeproxy.spec currently emits a COLLECT dir; for the
         # .app/.dmg flow add a BUNDLE target (icon.icns exists in the repo).
 
       - name: Validate universal2 app bundle
         run: |
           set -euo pipefail
           ICON_FILE="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIconFile' \
-            'dist/SwiftProxy.app/Contents/Info.plist')"
+            'dist/PrimeProxy.app/Contents/Info.plist')"
           test -n "$ICON_FILE"
-          test -f "dist/SwiftProxy.app/Contents/Resources/$ICON_FILE"
+          test -f "dist/PrimeProxy.app/Contents/Resources/$ICON_FILE"
 
           found=0
           while IFS= read -r -d '' file; do
@@ -335,7 +335,7 @@ jobs:
                   ;;
               esac
             fi
-          done < <(find "dist/SwiftProxy.app" -type f -print0)
+          done < <(find "dist/PrimeProxy.app" -type f -print0)
 
           if [ "$found" -eq 0 ]; then
             echo "No Mach-O files found in app bundle" >&2
@@ -346,14 +346,14 @@ jobs:
         run: |
           set -euo pipefail
           packaging/dmg/build_dmg.sh \
-            "dist/SwiftProxy.app" \
-            "SwiftProxy" \
-            "dist/SwiftProxy_macos_universal.dmg"
+            "dist/PrimeProxy.app" \
+            "PrimeProxy" \
+            "dist/PrimeProxy_macos_universal.dmg"
 
       - name: Validate DMG
         run: |
           set -euo pipefail
-          for DMG in "dist/SwiftProxy_macos_universal.dmg"; do
+          for DMG in "dist/PrimeProxy_macos_universal.dmg"; do
             MOUNT_DIR="$(mktemp -d)"
             DEVICE="$(hdiutil attach \
               -readonly \
@@ -362,7 +362,7 @@ jobs:
               "$DMG" \
               | awk '/^\/dev\// { print $1; exit }')"
 
-            test -d "$MOUNT_DIR/SwiftProxy.app"
+            test -d "$MOUNT_DIR/PrimeProxy.app"
             test -L "$MOUNT_DIR/Applications"
             test "$(readlink "$MOUNT_DIR/Applications")" = "/Applications"
             test -f "$MOUNT_DIR/.background/background.tiff"
@@ -374,8 +374,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: SwiftProxy-macOS
-          path: dist/SwiftProxy_macos_universal.dmg
+          name: PrimeProxy-macOS
+          path: dist/PrimeProxy_macos_universal.dmg
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -406,10 +406,10 @@ jobs:
           .venv/bin/pip install "pyinstaller==6.13.0"
 
       - name: Build binary with PyInstaller
-        run: .venv/bin/pyinstaller packaging/swiftproxy.spec --noconfirm
+        run: .venv/bin/pyinstaller packaging/primeproxy.spec --noconfirm
 
       - name: Rename binary artifact
-        run: mv dist/SwiftProxy dist/SwiftProxy_linux_amd64
+        run: mv dist/PrimeProxy dist/PrimeProxy_linux_amd64
 
       - name: Create .deb package
         run: |
@@ -425,25 +425,25 @@ jobs:
             "$PKG_ROOT/usr/share/applications" \
             "$PKG_ROOT/usr/share/icons/hicolor/256x256/apps"
 
-          install -m 755 dist/SwiftProxy_linux_amd64 "$PKG_ROOT/usr/bin/swift-proxy"
+          install -m 755 dist/PrimeProxy_linux_amd64 "$PKG_ROOT/usr/bin/prime-proxy"
 
           .venv/bin/python - <<PY
           from PIL import Image
 
           Image.open("icon.ico").save(
-              "${PKG_ROOT}/usr/share/icons/hicolor/256x256/apps/swift-proxy.png",
+              "${PKG_ROOT}/usr/share/icons/hicolor/256x256/apps/prime-proxy.png",
               "PNG",
           )
           PY
 
-          cat > "$PKG_ROOT/usr/share/applications/swift-proxy.desktop" <<EOF
+          cat > "$PKG_ROOT/usr/share/applications/prime-proxy.desktop" <<EOF
           [Desktop Entry]
           Type=Application
-          Name=SwiftProxy
+          Name=PrimeProxy
           GenericName=Telegram Proxy
           Comment=Telegram Desktop WebSocket Bridge Proxy
-          Exec=swift-proxy
-          Icon=swift-proxy
+          Exec=prime-proxy
+          Icon=prime-proxy
           Terminal=false
           Categories=Network;
           StartupNotify=true
@@ -451,7 +451,7 @@ jobs:
           EOF
 
           cat > "$PKG_ROOT/DEBIAN/control" <<EOF
-          Package: swift-proxy
+          Package: prime-proxy
           Version: ${VERSION}
           Section: net
           Priority: optional
@@ -464,7 +464,7 @@ jobs:
 
           dpkg-deb --build --root-owner-group \
             "$PKG_ROOT" \
-            "dist/SwiftProxy_linux_amd64.deb"
+            "dist/PrimeProxy_linux_amd64.deb"
             
       - name: Create .rpm package with fpm
         run: |
@@ -478,25 +478,25 @@ jobs:
           mkdir -p rpm_package/usr/share/applications
           mkdir -p rpm_package/usr/share/icons/hicolor/256x256/apps
           
-          cp dist/SwiftProxy_linux_amd64 rpm_package/usr/bin/swift-proxy
-          chmod 755 rpm_package/usr/bin/swift-proxy
+          cp dist/PrimeProxy_linux_amd64 rpm_package/usr/bin/prime-proxy
+          chmod 755 rpm_package/usr/bin/prime-proxy
           
           .venv/bin/python - <<PY
           from PIL import Image
           Image.open("icon.ico").save(
-              "rpm_package/usr/share/icons/hicolor/256x256/apps/swift-proxy.png",
+              "rpm_package/usr/share/icons/hicolor/256x256/apps/prime-proxy.png",
               "PNG",
           )
           PY
           
-          cat > rpm_package/usr/share/applications/swift-proxy.desktop <<EOF
+          cat > rpm_package/usr/share/applications/prime-proxy.desktop <<EOF
           [Desktop Entry]
           Type=Application
-          Name=SwiftProxy
+          Name=PrimeProxy
           GenericName=Telegram Proxy
           Comment=Telegram Desktop WebSocket Bridge Proxy
-          Exec=swift-proxy
-          Icon=swift-proxy
+          Exec=prime-proxy
+          Icon=prime-proxy
           Terminal=false
           Categories=Network;
           StartupNotify=true
@@ -517,14 +517,14 @@ jobs:
           
           fpm -s dir \
               -t rpm \
-              -n swift-proxy \
+              -n prime-proxy \
               -v ${VERSION} \
               --iteration 1 \
               --architecture x86_64 \
               --license "BUSL-1.1" \
               --vendor "LilKALINOV" \
               --maintainer "LilKALINOV" \
-              --url "https://github.com/Lil-KALINOV/SwiftProxy" \
+              --url "https://github.com/SpherePrime/PrimeProxy" \
               --description "MTProto/WebSocket bridge proxy for Telegram Desktop with tray UI." \
               --depends "libgtk-3.so.0()(64bit)" \
               --depends "libayatana-appindicator3.so.1()(64bit)" \
@@ -534,16 +534,16 @@ jobs:
               -C rpm_package \
               .
           
-          mv swift-proxy-${VERSION}-1.x86_64.rpm dist/SwiftProxy_linux_amd64.rpm
+          mv prime-proxy-${VERSION}-1.x86_64.rpm dist/PrimeProxy_linux_amd64.rpm
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: SwiftProxy-linux
+          name: PrimeProxy-linux
           path: |
-            dist/SwiftProxy_linux_amd64
-            dist/SwiftProxy_linux_amd64.deb
-            dist/SwiftProxy_linux_amd64.rpm
+            dist/PrimeProxy_linux_amd64
+            dist/PrimeProxy_linux_amd64.deb
+            dist/PrimeProxy_linux_amd64.rpm
 
   release:
     needs: [build-windows-x64, build-windows-arm64, build-win7, build-macos, build-linux]
@@ -558,7 +558,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v8
         with:
-          pattern: SwiftProxy*
+          pattern: PrimeProxy*
           path: dist
           merge-multiple: true
 
@@ -566,23 +566,23 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.version }}
-          name: "SwiftProxy ${{ github.event.inputs.version }}"
+          name: "PrimeProxy ${{ github.event.inputs.version }}"
           body: |
             --- 
-            ### [❤️ Поддержать развитие проекта](https://github.com/Lil-KALINOV/SwiftProxy/blob/main/docs/Funding.md)
+            ### [❤️ Поддержать развитие проекта](https://github.com/SpherePrime/PrimeProxy/blob/main/docs/Funding.md)
 
             > [!TIP]
             > Не можете скачать?
             > Добавьте `185.199.109.133 release-assets.githubusercontent.com` в hosts или воспользуйтесь зеркалом: https://sourceforge.net/projects/tg-ws-proxy.mirror/files/
           files: |
-            dist/SwiftProxy_windows.exe
-            dist/SwiftProxy_windows_arm64.exe
-            dist/SwiftProxy_windows_7_64bit.exe
-            dist/SwiftProxy_windows_7_32bit.exe
-            dist/SwiftProxy_macos_universal.dmg
-            dist/SwiftProxy_linux_amd64
-            dist/SwiftProxy_linux_amd64.deb
-            dist/SwiftProxy_linux_amd64.rpm
+            dist/PrimeProxy_windows.exe
+            dist/PrimeProxy_windows_arm64.exe
+            dist/PrimeProxy_windows_7_64bit.exe
+            dist/PrimeProxy_windows_7_32bit.exe
+            dist/PrimeProxy_macos_universal.dmg
+            dist/PrimeProxy_linux_amd64
+            dist/PrimeProxy_linux_amd64.deb
+            dist/PrimeProxy_linux_amd64.rpm
           draft: false
           prerelease: false
         env:

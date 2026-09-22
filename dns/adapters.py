@@ -1,4 +1,4 @@
-"""Network adapter enumeration for SwiftProxy (PowerShell, with fallbacks)."""
+"""Network adapter enumeration for PrimeProxy (PowerShell, with fallbacks)."""
 
 from __future__ import annotations
 

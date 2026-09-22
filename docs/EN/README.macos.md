@@ -1,9 +1,9 @@
-# SwiftProxy for macOS
+# PrimeProxy for macOS
 
-Go to the [releases page](https://github.com/Lil-KALINOV/SwiftProxy/releases) and download `SwiftProxy_macos_universal.dmg` (universal build for Apple Silicon and Intel).
+Go to the [releases page](https://github.com/SpherePrime/PrimeProxy/releases) and download `PrimeProxy_macos_universal.dmg` (universal build for Apple Silicon and Intel).
 
 1. Open the image
-2. Drag `SwiftProxy.app` to the `Applications` folder
+2. Drag `PrimeProxy.app` to the `Applications` folder
 3. On first launch, macOS may ask for confirmation: **System Settings → Privacy & Security → Open Anyway**
 
 Minimum supported versions:
@@ -28,5 +28,5 @@ The interface requires Tk, CustomTkinter, and access to Cocoa via PyObjC. They a
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```

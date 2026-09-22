@@ -68,7 +68,7 @@ def _msearch() -> List[str]:
 
 def _fetch_xml(url: str) -> Optional[ET.Element]:
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "swift-proxy/1.0"})
+        req = urllib.request.Request(url, headers={"User-Agent": "prime-proxy/1.0"})
         with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
             data = resp.read(1_000_000)
         return ET.fromstring(data)
@@ -112,7 +112,7 @@ def _soap(control_url: str, service_type: str, action: str, args: Dict[str, str]
             headers={
                 "Content-Type": 'text/xml; charset="utf-8"',
                 "SOAPAction": f'"{service_type}#{action}"',
-                "User-Agent": "swift-proxy/1.0",
+                "User-Agent": "prime-proxy/1.0",
             },
             method="POST",
         )
@@ -147,7 +147,7 @@ def add_port_mapping(port: int, external_ip: str = "0.0.0.0") -> Dict[str, objec
         "NewInternalPort": str(port),
         "NewInternalClient": external_ip,
         "NewEnabled": "1",
-        "NewPortMappingDescription": "SwiftProxy",
+        "NewPortMappingDescription": "PrimeProxy",
         "NewLeaseDuration": "0",
     }
     ok = _soap(control_url, service_type, "AddPortMapping", args)

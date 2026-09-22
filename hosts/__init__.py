@@ -1,5 +1,5 @@
 """
-Hosts-file unblock management for SwiftProxy.
+Hosts-file unblock management for PrimeProxy.
 
 Cross-platform hosts file manager + built-in service catalog
 (replaces the Windows-only ZapretGUI hosts module).

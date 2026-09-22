@@ -155,7 +155,7 @@ def _tcp_key(res: Dict[str, Any]) -> str:
 def _public_ip() -> str:
     try:
         req = urllib.request.Request("https://api.ipify.org",
-                                     headers={"User-Agent": "SwiftProxy"})
+                                     headers={"User-Agent": "PrimeProxy"})
         with urllib.request.urlopen(req, timeout=5) as resp:
             text = resp.read(64).decode("utf-8", errors="replace").strip()
         return text if text and all(c.isdigit() or c == "." for c in text) else ""

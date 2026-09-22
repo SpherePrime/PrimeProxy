@@ -1,4 +1,4 @@
-// SwiftProxy — reusable UI components (iOS 26 Liquid Glass).
+// PrimeProxy — reusable UI components (iOS 26 Liquid Glass).
 
 (function () {
   const Components = {

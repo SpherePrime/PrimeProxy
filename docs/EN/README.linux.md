@@ -1,8 +1,8 @@
-# SwiftProxy for Linux
+# PrimeProxy for Linux
 
 ## Prebuilt Packages
 
-For Debian/Ubuntu, download the `SwiftProxy_linux_amd64.deb` package from the [releases page](https://github.com/Lil-KALINOV/SwiftProxy/releases).
+For Debian/Ubuntu, download the `PrimeProxy_linux_amd64.deb` package from the [releases page](https://github.com/SpherePrime/PrimeProxy/releases).
 
 For Arch and Arch-based distributions, packages are available in AUR:
 
@@ -23,11 +23,11 @@ paru -S tg-ws-proxy-bin
 sudo systemctl start tg-ws-proxy@8888:3075abe65830f0325116bb0416cadf9f
 ```
 
-For other distributions, you can use `SwiftProxy_linux_amd64` (binary for x86_64).
+For other distributions, you can use `PrimeProxy_linux_amd64` (binary for x86_64).
 
 ```bash
-chmod +x SwiftProxy_linux_amd64
-./SwiftProxy_linux_amd64
+chmod +x PrimeProxy_linux_amd64
+./PrimeProxy_linux_amd64
 ```
 
 On first launch, a window will open with instructions. The application runs in the system tray (AppIndicator required).
@@ -47,5 +47,5 @@ Detailed instructions: [BuildFromSource.md](./BuildFromSource.md)
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```

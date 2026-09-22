@@ -10,7 +10,7 @@ from urllib.request import Request, urlopen
 
 from .hardened_file_ops import _atomic_write_bytes
 
-USER_AGENT = "swift-proxy"
+USER_AGENT = "prime-proxy"
 READ_CHUNK = 1024 * 1024
 DEFAULT_TIMEOUT = (10, 30)
 DEFAULT_ATTEMPTS = 2

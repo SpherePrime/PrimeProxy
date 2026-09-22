@@ -13,7 +13,7 @@ from typing import Optional, Tuple
 from .stats import stats
 
 
-log = logging.getLogger('swift-proxy')
+log = logging.getLogger('prime-proxy')
 
 TLS_RECORD_HANDSHAKE = 0x16
 TLS_RECORD_CCS = 0x14

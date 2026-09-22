@@ -1,5 +1,5 @@
 """
-Cross-platform DNS management for SwiftProxy.
+Cross-platform DNS management for PrimeProxy.
 
 Includes:
 - system DNS provider list (data only)

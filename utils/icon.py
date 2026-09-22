@@ -1,4 +1,4 @@
-"""SwiftProxy app icon rendering (shared across platforms).
+"""PrimeProxy app icon rendering (shared across platforms).
 
 Modern flat/glass design: deep diagonal gradient on a rounded "squircle"
 tile, soft-lit lightning bolt with glow and shadow, diagonal glass sheen,
@@ -121,7 +121,7 @@ def _radial(
 
 
 def render_icon(size: int) -> "Image.Image":
-    """Render the modern SwiftProxy icon at the given size (anti-aliased)."""
+    """Render the modern PrimeProxy icon at the given size (anti-aliased)."""
     from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
     scale = 8 if size <= 48 else 4

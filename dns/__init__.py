@@ -1,5 +1,5 @@
 """
-DNS provider catalog and cross-platform DNS checks for SwiftProxy.
+DNS provider catalog and cross-platform DNS checks for PrimeProxy.
 
 Combines ZapretGUI's DNS provider data with a fresh platform-aware
 check/force implementation (works on Windows, macOS and Linux).

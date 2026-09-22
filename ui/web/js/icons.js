@@ -1,4 +1,4 @@
-// SwiftProxy — inline SVG icons (stroke style, currentColor).
+// PrimeProxy — inline SVG icons (stroke style, currentColor).
 // Icon(name, size) -> svg string. All icons are 24x24 "feather"-like paths.
 
 (function () {

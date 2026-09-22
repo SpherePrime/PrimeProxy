@@ -1,4 +1,4 @@
-"""Read-only repository for the shipped SwiftProxy Hosts SQLite catalog.
+"""Read-only repository for the shipped PrimeProxy Hosts SQLite catalog.
 
 Ported from ZapretGUI ``hosts/catalog_repository.py``. The database is a
 ready application resource bundled into ``resources/hosts/``; runtime code

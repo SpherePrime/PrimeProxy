@@ -15,7 +15,7 @@
 работать перестанут). Для принудительной работы используйте флаг `--force-test-dc` в CLI:
 
 ```bash
-swift-proxy --force-test-dc      # + ваши --secret / --port
+prime-proxy --force-test-dc      # + ваши --secret / --port
 ```
 
 ## Ограничения

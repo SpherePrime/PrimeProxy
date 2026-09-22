@@ -2,9 +2,9 @@
 
 Tray-приложение хранит данные в:
 
-- **Windows:** `%APPDATA%/SwiftProxy`
-- **macOS:** `~/Library/Application Support/SwiftProxy`
-- **Linux:** `~/.config/SwiftProxy` (или `$XDG_CONFIG_HOME/SwiftProxy`)
+- **Windows:** `%APPDATA%/PrimeProxy`
+- **macOS:** `~/Library/Application Support/PrimeProxy`
+- **Linux:** `~/.config/PrimeProxy` (или `$XDG_CONFIG_HOME/PrimeProxy`)
 
 ```json
 {

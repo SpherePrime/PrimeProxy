@@ -1,9 +1,9 @@
 # utils/zapret_profiles.py
 """Каталог winws-профилей, импортированный из ZapretGUI (resources/zapret).
 
-Раздел «Профили» в SwiftProxy — справочник: список стратегий winws1/winws2
+Раздел «Профили» в PrimeProxy — справочник: список стратегий winws1/winws2
 с фильтрами и просмотром полной команды профиля. Профили не выполняются
-движком SwiftProxy, а показываются как источник параметров.
+движком PrimeProxy, а показываются как источник параметров.
 """
 from __future__ import annotations
 

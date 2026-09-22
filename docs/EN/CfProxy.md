@@ -24,7 +24,7 @@ Cloudflare limits the number of simultaneous WebSocket (WS) connections. The def
 
 4. **Add your domain to [zapret](https://github.com/LilKALINOV/zapret-discord-youtube/) or any other DPI bypass software, as the Cloudflare subnet may be blocked (e.g., in Russia).**
 
-5. In the `SwiftProxy` settings, replace the default domain with your own.
+5. In the `PrimeProxy` settings, replace the default domain with your own.
 
 ## Credits / Acknowledgments
 

@@ -1,5 +1,5 @@
 """
-Tray integration for SwiftProxy.
+Tray integration for PrimeProxy.
 """
 from .common import refresh_menu, start_tray, stop_tray
 

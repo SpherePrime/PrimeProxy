@@ -1,4 +1,4 @@
-// SwiftProxy — JS bridge to Python via window.pywebview.api.
+// PrimeProxy — JS bridge to Python via window.pywebview.api.
 // Waits for the pywebview API to be fully injected before calling, so
 // calls made at page-load time resolve once the bridge is ready.
 

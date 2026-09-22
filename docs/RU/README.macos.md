@@ -1,9 +1,9 @@
-# SwiftProxy для macOS
+# PrimeProxy для macOS
 
-Перейдите на [страницу релизов](https://github.com/Lil-KALINOV/SwiftProxy/releases) и скачайте `SwiftProxy_macos_universal.dmg` (универсальная сборка для Apple Silicon и Intel).
+Перейдите на [страницу релизов](https://github.com/SpherePrime/PrimeProxy/releases) и скачайте `PrimeProxy_macos_universal.dmg` (универсальная сборка для Apple Silicon и Intel).
 
 1. Откройте образ
-2. Перенесите `SwiftProxy.app` в папку `Applications`
+2. Перенесите `PrimeProxy.app` в папку `Applications`
 3. При первом запуске macOS может попросить подтвердить открытие: **Системные настройки → Конфиденциальность и безопасность → Всё равно открыть**
 
 Минимально поддерживаемые версии:
@@ -28,5 +28,5 @@
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```

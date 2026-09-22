@@ -1,8 +1,8 @@
 {
-  "app.name": "SwiftProxy",
-  "app.error_title": "SwiftProxy — Error",
-  "app.settings_title": "SwiftProxy — Settings",
-  "app.update_title": "SwiftProxy — Update",
+  "app.name": "PrimeProxy",
+  "app.error_title": "PrimeProxy — Error",
+  "app.settings_title": "PrimeProxy — Settings",
+  "app.update_title": "PrimeProxy — Update",
 
   "language.ru": "Русский",
   "language.en": "English",
@@ -47,7 +47,7 @@
   "tip.buf_kb": "Receive/send buffer size in kilobytes.\nA larger value allocates more memory per socket",
   "tip.pool": "How many parallel WebSocket sessions per data center can be kept open.\nIncreasing may help under high load",
   "tip.log_mb": "Maximum log file size; the file is overwritten when the limit is reached",
-  "tip.autostart": "Launch SwiftProxy on Windows login. If you move the app to another folder, autostart will reset",
+  "tip.autostart": "Launch PrimeProxy on Windows login. If you move the app to another folder, autostart will reset",
   "tip.check_updates": "Check for updates on startup",
   "tip.cfproxy": "Use Cloudflare proxy for unreachable data centers",
   "tip.cfproxy_domain": "Your own domains proxied through Cloudflare for WS connections.\nSeparate multiple domains with commas.\nIf empty — chosen automatically from supported domains",

@@ -1,6 +1,6 @@
 # CONTRIBUTING
 
-Спасибо за желание помочь проекту `swift-proxy`.
+Спасибо за желание помочь проекту `prime-proxy`.
 
 ## Перед созданием issue
 
@@ -30,8 +30,8 @@ pip install -e .
 
 Запуск:
 
-- консольный режим: `swift-proxy`
-- GUI/трей режим: `swift-proxy` (единая точка входа)
+- консольный режим: `prime-proxy`
+- GUI/трей режим: `prime-proxy` (единая точка входа)
 
 Подробности: `docs/BuildFromSource.md`.
 

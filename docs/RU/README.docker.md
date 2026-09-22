@@ -1,4 +1,4 @@
-# SwiftProxy для Docker
+# PrimeProxy для Docker
 
 ## Установка из исходников
 
@@ -6,23 +6,23 @@
 
 ```bash
 # Скачиваем репозиторий
-git clone https://github.com/Lil-KALINOV/SwiftProxy.git
+git clone https://github.com/SpherePrime/PrimeProxy.git
 
 # Переходим в папку с проектом
-cd SwiftProxy
+cd PrimeProxy
 
 # Собираем образ
-docker build -t swift-proxy .
+docker build -t prime-proxy .
 
 # Запускаем контейнер
 docker run -d \
-  --name swift-proxy \
+  --name prime-proxy \
   --restart=always \
   -p 1443:1443 \
-  swift-proxy:latest
+  prime-proxy:latest
 
 # Получаем ссылку для подключения
-docker logs swift-proxy 2>&1 | grep 'tg://proxy'
+docker logs prime-proxy 2>&1 | grep 'tg://proxy'
 ```
 
 После выполнения последней команды вы увидите ссылку вида:
@@ -47,11 +47,11 @@ tg://proxy?server=172.17.0.2&port=1443&secret=dd68f127db1d...
 
 ```bash
 docker run -d \
-  --name swift-proxy \
+  --name prime-proxy \
   --restart=always \
   -p 1443:1443 \
   -e TG_WS_PROXY_SECRET="ваш_секрет" \
-  swift-proxy:latest
+  prime-proxy:latest
 ```
 
 Для генерации секрета можно использовать:

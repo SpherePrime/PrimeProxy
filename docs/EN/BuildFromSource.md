@@ -6,7 +6,7 @@ To run only the proxy without the system tray interface, basic installation is s
 
 ```bash
 pip install -e .
-swift-proxy
+prime-proxy
 ```
 
 ## Tray Application by OS
@@ -15,7 +15,7 @@ swift-proxy
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```
 
 ### macOS
@@ -24,20 +24,20 @@ Requires a Python build with Tk support. You can verify it with the command `pyt
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```
 
 ### Linux
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```
 
 ## Console Mode from Source
 
 ```bash
-swift-proxy [--port PORT] [--host HOST] [--dc-ip DC:IP ...] [-v]
+prime-proxy [--port PORT] [--host HOST] [--dc-ip DC:IP ...] [-v]
 ```
 
 **Arguments:**
@@ -64,14 +64,14 @@ swift-proxy [--port PORT] [--host HOST] [--dc-ip DC:IP ...] [-v]
 
 ```bash
 # Standard startup
-swift-proxy
+prime-proxy
 
 # Different port and additional DCs
-swift-proxy --port 9050 --dc-ip 1:149.154.175.205 --dc-ip 2:149.154.167.220
+prime-proxy --port 9050 --dc-ip 1:149.154.175.205 --dc-ip 2:149.154.167.220
 
 # With verbose logging
-swift-proxy -v
+prime-proxy -v
 
 # Fake TLS masquerading (ee-secret)
-swift-proxy --fake-tls-domain example.com
+prime-proxy --fake-tls-domain example.com
 ```

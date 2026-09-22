@@ -1,13 +1,13 @@
-# SwiftProxy for Windows
+# PrimeProxy for Windows
 
-Go to the [releases page](https://github.com/Lil-KALINOV/SwiftProxy/releases) and download:
+Go to the [releases page](https://github.com/SpherePrime/PrimeProxy/releases) and download:
 
-- `SwiftProxy_windows.exe` (Windows 10+ x64)
-- `SwiftProxy_windows_arm64.exe` (Windows 10+ ARM64)
-- `SwiftProxy_windows_7_64bit.exe` (Windows 7 x64)
-- `SwiftProxy_windows_7_32bit.exe` (Windows 7 x32)
+- `PrimeProxy_windows.exe` (Windows 10+ x64)
+- `PrimeProxy_windows_arm64.exe` (Windows 10+ ARM64)
+- `PrimeProxy_windows_7_64bit.exe` (Windows 7 x64)
+- `PrimeProxy_windows_7_32bit.exe` (Windows 7 x32)
 
-Builds are published automatically via [GitHub Actions](https://github.com/Lil-KALINOV/SwiftProxy/actions) from open source code.
+Builds are published automatically via [GitHub Actions](https://github.com/SpherePrime/PrimeProxy/actions) from open source code.
 
 On first launch, a window will open with instructions for connecting Telegram Desktop. **The application minimizes to system tray.**
 
@@ -45,7 +45,7 @@ If it doesn't work (Telegram doesn't open with proxy), follow these steps:
 
 ## Portable Mode
 
-Portable mode is automatically enabled if a folder named `SwiftProxy_data` exists next to the executable.  
+Portable mode is automatically enabled if a folder named `PrimeProxy_data` exists next to the executable.  
 You can also force portable mode by running the executable with the `--portable` parameter (it will create the folder).
 
 ## Building from Source
@@ -54,5 +54,5 @@ Detailed instructions: [BuildFromSource.md](./BuildFromSource.md)
 
 ```bash
 pip install -e .
-swift-proxy --tray
+prime-proxy --tray
 ```

@@ -18,8 +18,8 @@ jobs:
           issue-number: ${{ github.event.issue.number }}
           body: |
             ### Проверьте две вещи:
-            - вы на последней версии: [Releases](https://github.com/Lil-KALINOV/SwiftProxy/releases)
-            - запускали по инструкции для своей ОС: [Быстрый старт](https://github.com/Lil-KALINOV/SwiftProxy#навигация)
+            - вы на последней версии: [Releases](https://github.com/SpherePrime/PrimeProxy/releases)
+            - запускали по инструкции для своей ОС: [Быстрый старт](https://github.com/SpherePrime/PrimeProxy#навигация)
 
             ## Решение частых проблем:
 

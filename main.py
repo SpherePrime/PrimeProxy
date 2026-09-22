@@ -1,5 +1,5 @@
 """
-SwiftProxy — unified cross-platform desktop app entry point.
+PrimeProxy — unified cross-platform desktop app entry point.
 
 Starts:
 1. unified settings store (config/)
@@ -21,7 +21,7 @@ from typing import Optional
 
 
 def _parse_args(argv: Optional[list] = None):
-    parser = argparse.ArgumentParser(prog="swiftproxy")
+    parser = argparse.ArgumentParser(prog="primeproxy")
     parser.add_argument("--headless", action="store_true",
                         help="Run proxy engines only (no UI / no tray)")
     parser.add_argument("--cli", action="store_true",
@@ -115,7 +115,7 @@ def run_gui(args) -> None:
     sync_system_proxy_from_config()
 
     from ui.window import start_app
-    start_app(title="SwiftProxy", tray=not args.no_tray)
+    start_app(title="PrimeProxy", tray=not args.no_tray)
 
 
 def sync_system_proxy_from_config() -> None:
@@ -228,7 +228,7 @@ def main(argv: Optional[list] = None) -> None:
         from utils.tray_common import acquire_lock, release_lock
         single = acquire_lock()
         if single is False:
-            logging.getLogger("swift-main").info("Another SwiftProxy instance is already running")
+            logging.getLogger("swift-main").info("Another PrimeProxy instance is already running")
             return
     except Exception:
         single = None

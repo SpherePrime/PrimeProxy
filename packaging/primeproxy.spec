@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-# SwiftProxy — unified PyInstaller spec for Windows / macOS / Linux.
+# PrimeProxy — unified PyInstaller spec for Windows / macOS / Linux.
 
 import os
 import platform
@@ -58,7 +58,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='SwiftProxy',
+    name='PrimeProxy',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -75,5 +75,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='SwiftProxy',
+    name='PrimeProxy',
 )

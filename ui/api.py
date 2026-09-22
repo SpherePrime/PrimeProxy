@@ -100,7 +100,7 @@ def _pick_media_file(kind: str) -> Optional[str]:
         root.attributes("-topmost", True)
         try:
             path = filedialog.askopenfilename(
-                title="SwiftProxy — " + ("Wallpaper image" if kind == "image" else "Wallpaper video"),
+                title="PrimeProxy — " + ("Wallpaper image" if kind == "image" else "Wallpaper video"),
                 filetypes=[patterns, ("All files", "*.*")],
             )
             return path or None
@@ -307,7 +307,7 @@ class SwiftAPI:
             log.warning("set_setting failed: %s", repr(exc))
             return False
 
-    # ─── MTProto proxy (SwiftProxy engine) ─────────────────────────────
+    # ─── MTProto proxy (PrimeProxy engine) ─────────────────────────────
 
     def get_proxy_status(self) -> Dict[str, Any]:
         global _mtproto_proxy_thread
@@ -1828,7 +1828,7 @@ class SwiftAPI:
         ]
         for url in endpoints:
             try:
-                req = urllib.request.Request(url, headers={"User-Agent": "swift-proxy/1.0"})
+                req = urllib.request.Request(url, headers={"User-Agent": "prime-proxy/1.0"})
                 with urllib.request.urlopen(req, timeout=5) as resp:
                     ip = resp.read(256).decode("utf-8", "replace").strip()
                 if ip and not ip.startswith("127."):
@@ -1910,7 +1910,7 @@ def _noop_error(text: str, title: Optional[str] = None) -> None:
 
 
 def _running_thread():
-    """Return the current active 'swift-proxy' Thread object, if any."""
+    """Return the current active 'prime-proxy' Thread object, if any."""
     for t in threading.enumerate():
         if t.name == "proxy" and t.is_alive():
             return t

@@ -22,7 +22,7 @@ def get_user_startup_dir() -> str:
     return str(Path(root) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup")
 
 
-def get_startup_shortcut_path(*, shortcut_name: str = "SwiftProxy") -> str:
+def get_startup_shortcut_path(*, shortcut_name: str = "PrimeProxy") -> str:
     name = str(shortcut_name or "").strip() + ".lnk"
     startup = get_user_startup_dir()
     return str(Path(startup) / name)

@@ -5,16 +5,16 @@
 </div>
 
 <p align="center">
-  <a href="https://github.com/Lil-KALINOV/SwiftProxy/releases"><img src="https://img.shields.io/github/v/release/Lil-KALINOV/SwiftProxy?label=release&color=%23ff7b00" alt="Release"></a>
-  <a href="https://github.com/Lil-KALINOV/SwiftProxy/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/Lil-KALINOV/SwiftProxy/build.yml?label=build&color=%23ff7b00" alt="Build"></a>
-  <a href="https://github.com/Lil-KALINOV/SwiftProxy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Lil-KALINOV/SwiftProxy?color=%23ff7b00" alt="License"></a>
+  <a href="https://github.com/SpherePrime/PrimeProxy/releases"><img src="https://img.shields.io/github/v/release/SpherePrime/PrimeProxy?label=release&color=%23ff7b00" alt="Release"></a>
+  <a href="https://github.com/SpherePrime/PrimeProxy/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/SpherePrime/PrimeProxy/build.yml?label=build&color=%23ff7b00" alt="Build"></a>
+  <a href="https://github.com/SpherePrime/PrimeProxy/blob/main/LICENSE"><img src="https://img.shields.io/github/license/SpherePrime/PrimeProxy?color=%23ff7b00" alt="License"></a>
 </p>
 
 <div align="center">
-  <img width="180" alt="SwiftProxy" src="../images/swiftproxy-mark.png" />
+  <img width="180" alt="PrimeProxy" src="../images/primeproxy-mark.png" />
 </div>
 
-# SwiftProxy
+# PrimeProxy
 
 **Local MTProto proxy** for Telegram Desktop that **speeds up Telegram**, redirecting traffic through WebSocket connections. Data is transmitted in the same encrypted form, and no external servers are needed.
 
@@ -53,12 +53,12 @@
 
 ### Windows
 
-Go to the [releases page](https://github.com/Lil-KALINOV/SwiftProxy/releases) and download:
+Go to the [releases page](https://github.com/SpherePrime/PrimeProxy/releases) and download:
 
-- `SwiftProxy_windows.exe` (Windows 10+ x64)
-- `SwiftProxy_windows_arm64.exe` (Windows 10+ ARM64)
-- `SwiftProxy_windows_7_64bit.exe` (Windows 7 x64)
-- `SwiftProxy_windows_7_32bit.exe` (Windows 7 x32)
+- `PrimeProxy_windows.exe` (Windows 10+ x64)
+- `PrimeProxy_windows_arm64.exe` (Windows 10+ ARM64)
+- `PrimeProxy_windows_7_64bit.exe` (Windows 7 x64)
+- `PrimeProxy_windows_7_32bit.exe` (Windows 7 x32)
 
 On first launch, a window will open with instructions for connecting Telegram Desktop. **The application minimizes to system tray.**
 
@@ -123,14 +123,14 @@ Telegram Desktop → MTProto Proxy (127.0.0.1:1443) → WebSocket → Telegram D
 
 ## 🛠 Automatic Build
 
-The project contains a PyInstaller spec ([`packaging/swiftproxy.spec`](../../packaging/swiftproxy.spec)) and GitHub Actions workflow ([`.github/workflows/build.yml`](../../.github/workflows/build.yml)) for automated builds.
+The project contains a PyInstaller spec ([`packaging/primeproxy.spec`](../../packaging/primeproxy.spec)) and GitHub Actions workflow ([`.github/workflows/build.yml`](../../.github/workflows/build.yml)) for automated builds.
 
 Minimum supported OS versions for current binary builds:
 
-- Windows 10+ x64 for `SwiftProxy_windows.exe`
-- Windows 10+ ARM64 for `SwiftProxy_windows_arm64.exe`
-- Windows 7 (x64) for `SwiftProxy_windows_7_64bit.exe`
-- Windows 7 (x32) for `SwiftProxy_windows_7_32bit.exe`
+- Windows 10+ x64 for `PrimeProxy_windows.exe`
+- Windows 10+ ARM64 for `PrimeProxy_windows_arm64.exe`
+- Windows 7 (x64) for `PrimeProxy_windows_7_64bit.exe`
+- Windows 7 (x32) for `PrimeProxy_windows_7_32bit.exe`
 - Intel macOS 10.15+
 - Apple Silicon macOS 11.0+
 - Linux x86_64 (AppIndicator required for system tray)
