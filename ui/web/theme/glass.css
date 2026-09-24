@@ -663,6 +663,7 @@ body.sidebar-collapsed .sidebar .logo { justify-content: center; }
   gap: 12px; padding: 12px 10px; border-bottom: 1px solid var(--border);
   cursor: pointer; border-radius: 6px;
 }
+#pfList .pf-row:last-child { border-bottom: none; }
 .pf-row:hover { background: rgba(255,255,255,0.04); }
 .pf-row .hint { margin: 0; font-size: 11px; }
 .pf-row.active { background: rgba(0,122,255,0.08); }
@@ -795,7 +796,7 @@ body.sidebar-collapsed .sidebar .logo { justify-content: center; }
 }
 
 /* ── parameter rows ────────────────────────────────────────────── */
-.pf-drawer-params { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.pf-drawer-params { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; max-height: 40vh; overflow: auto; padding-right: 4px; }
 .pf-param-row {
   display: flex;
   align-items: center;
@@ -954,5 +955,33 @@ input[type="range"].input-range {
 }
 
 /* ── auto mode (Zapret tab) ─────────────────────────────────── */
-.auto-mode [data-manual-card] { display: none !important; }
+.auto-mode [data-manual-card]:not(#pfDrawerBackdrop):not(#pfDrawer) { display: none !important; }
+.auto-mode #pfDrawer.open, .auto-mode #pfDrawerBackdrop.open { display: flex !important; }
+.auto-mode #pfDrawerBackdrop.open { display: block !important; }
 #autoModeBtn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── autopilot card (Zapret tab) ───────────────────────────────── */
+.au-card { display: flex; flex-direction: column; gap: 12px; }
+.au-card .card-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }
+.au-main-btn {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 14px;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 12px rgba(0,122,255,0.25);
+  transition: all var(--dur-med) var(--ease-out);
+}
+.au-main-btn:active { transform: scale(0.98); }
+.au-main-btn.on { background: var(--accent-warm); color: #1a1a2e; box-shadow: 0 2px 12px rgba(255,159,10,0.3); }
+.au-progress { display: flex; align-items: center; gap: 10px; }
+.au-progress-bar { flex: 1; height: 8px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+.au-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-warm)); border-radius: 999px; transition: width var(--dur-med) var(--ease-out); }
+.au-progress .hint { flex: 0 0 auto; font-size: 11px; min-width: 60px; text-align: right; }
+.au-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.au-meta .hint { font-size: 11px; padding: 3px 10px; background: rgba(255,255,255,0.05); border-radius: 999px; }
+.au-details { margin-top: 4px; }
+.au-details summary { cursor: pointer; user-select: none; font-size: 12px; color: var(--text-dim); font-weight: 500; padding: 6px 0; }
+.au-details summary:hover { color: var(--text); }
+.au-details[open] summary { color: var(--accent); }

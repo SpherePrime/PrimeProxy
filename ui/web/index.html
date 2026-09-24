@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PrimeProxy</title>
-  <link rel="stylesheet" href="theme/glass.css?v=50" />
-  <link rel="stylesheet" href="theme/dark.css?v=50" />
-  <link rel="stylesheet" href="theme/light.css?v=50" />
+  <link rel="stylesheet" href="theme/glass.css?v=52" />
+  <link rel="stylesheet" href="theme/dark.css?v=52" />
+  <link rel="stylesheet" href="theme/light.css?v=52" />
 </head>
 <body>
   <div id="wallpaperBg" class="wp-standard"></div>
@@ -336,26 +336,31 @@
             </div>
             <pre id="dpiLog" class="log-view" style="height:140px"></pre>
           </div>
-          <div class="glass-card" data-auto-card>
-            <div class="card-title"><span data-icon="zapret" data-icon-size="16"></span>&nbsp;<span data-i18n="au.title">Auto-pilot</span><button class="btn btn-ghost btn-sm" id="autoModeBtn" style="margin-left:auto" onclick="window._autoModeToggle && window._autoModeToggle()" data-i18n="au.auto_mode">Auto mode</button></div>
-            <div class="card-subtitle" data-i18n="au.hint"></div>
-            <div class="row-gap">
-              <button class="btn btn-primary btn-sm" data-icon-inline="play" id="autoStartBtn" data-i18n="au.start">Start</button>
-              <button class="btn btn-warm btn-sm" data-icon-inline="stop" id="autoStopBtn" data-i18n="au.stop" disabled>Stop</button>
-              <button class="btn btn-ghost btn-sm" data-icon-inline="refresh" id="autoResetBtn" data-i18n="au.reset">Reset</button>
+          <div class="glass-card au-card" data-auto-card>
+            <div class="card-title au-head">
+              <span class="au-title-left"><span data-icon="zapret" data-icon-size="16"></span><span data-i18n="au.title">Auto-pilot</span><span class="status-badge" id="auBadge" style="display:none"></span></span>
+              <button class="btn btn-ghost btn-sm" id="autoModeBtn" data-i18n="au.auto_mode">Auto mode</button>
             </div>
-            <div class="notice" id="autoStatus" style="display:none; margin-top:8px"></div>
-            <div class="row" id="autoMeta" style="gap:14px; margin-top:10px; flex-wrap:wrap"></div>
-            <div id="autoRecommendations"></div>
-            <div class="card-subtitle" style="margin-top:12px" data-i18n="au.pick_title">Manual strategy pick</div>
-            <div class="row" style="gap:8px; flex-wrap:wrap">
-              <input class="input" id="pfOrSymptoms" data-i18n-ph="or.manual_ph" style="flex:1; min-width:200px" />
-              <button class="btn btn-primary btn-sm" data-icon-inline="zapret" id="pfOrRunBtn" data-i18n="or.recommend_btn">Pick strategy</button>
+            <button class="btn btn-primary au-main-btn" id="auMainBtn" data-i18n="au.toggle">Bypass</button>
+            <div class="au-progress" id="auProgressRow" style="display:none">
+              <div class="au-progress-bar"><div class="au-progress-fill" id="auProgressFill"></div></div>
+              <span class="hint" id="auProgressText"></span>
             </div>
-            <div class="notice" id="pfOrStatus" style="display:none; margin-top:8px"></div>
-            <div id="pfOrRecommendations"></div>
-            <div class="card-subtitle" style="margin-top:10px" data-i18n="au.journal_title">Auto-pilot journal</div>
-            <pre id="autoJournal" class="log-view" style="height:160px"></pre>
+            <div class="au-meta" id="autoMeta" style="display:none"></div>
+            <details class="au-details" id="auDetails">
+              <summary class="card-subtitle" data-i18n="au.details">Details</summary>
+              <div class="notice" id="autoStatus" style="display:none; margin-top:8px"></div>
+              <div id="autoRecommendations"></div>
+              <div class="card-subtitle" style="margin-top:12px" data-i18n="au.pick_title">Manual strategy pick</div>
+              <div class="row" style="gap:8px; flex-wrap:wrap">
+                <input class="input" id="pfOrSymptoms" data-i18n-ph="or.manual_ph" style="flex:1; min-width:200px" />
+                <button class="btn btn-primary btn-sm" data-icon-inline="zapret" id="pfOrRunBtn" data-i18n="or.recommend_btn">Pick strategy</button>
+              </div>
+              <div class="notice" id="pfOrStatus" style="display:none; margin-top:8px"></div>
+              <div id="pfOrRecommendations"></div>
+              <div class="card-subtitle" style="margin-top:10px" data-i18n="au.journal_title">Auto-pilot journal</div>
+              <pre id="autoJournal" class="log-view" style="height:160px"></pre>
+            </details>
           </div>
           <div class="glass-card" data-manual-card>
             <div class="card-subtitle" data-i18n="pf.subtitle"></div>
@@ -656,10 +661,10 @@
   </div>
   <div id="toastHost"></div>
 
-  <script src="js/i18n.js?v=50"></script>
-  <script src="js/icons.js?v=50"></script>
-  <script src="js/api.js?v=50"></script>
-  <script src="js/components.js?v=50"></script>
-  <script src="js/app.js?v=50"></script>
+  <script src="js/i18n.js?v=52"></script>
+  <script src="js/icons.js?v=52"></script>
+  <script src="js/api.js?v=52"></script>
+  <script src="js/components.js?v=52"></script>
+  <script src="js/app.js?v=52"></script>
 </body>
 </html>

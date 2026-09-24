@@ -98,7 +98,11 @@
     $$(".page").forEach((p) => p.classList.toggle("active", p.dataset.pageView === name));
     $$("#nav a").forEach((a) => a.classList.toggle("active", a.dataset.page === name));
     if (name === "logs") renderLogSeg();
-    if (name === "profiles") renderAutopilot();
+    if (name === "profiles") {
+      renderAutopilot();
+      renderDpiEngine();
+      renderProfiles();
+    }
     if (name === "proxy") refreshShare();
     if (name === "updates") refreshUpdates(true);
     window.scrollTo(0, 0);
@@ -706,12 +710,12 @@
     let rows;
     if (state.pfGroup === "strategies") {
       const st = (await bridge.get_zapret_strategies()) || [];
-      rows = st.map((s) => ({ id: s.id, file: s.title + ".txt", title: s.title, tags: ["strategy"], size: 0, text: s.text }));
+      rows = st.map((s) => ({ id: s.id, file: s.title + ".txt", title: s.title, tags: ["strategy"], size: 0, text: s.text, group: "strategies" }));
     } else if (state.pfGroup === "user") {
       const up = (await bridge.get_zapret_user_profiles()) || [];
-      rows = up.map((u) => ({ id: u.id, file: u.name + ".txt", title: u.name, tags: ["user"], size: u.size, text: null, user: true }));
+      rows = up.map((u) => ({ id: u.id, file: u.name + ".txt", title: u.name, tags: ["user"], size: u.size, text: null, user: true, group: "user" }));
     } else {
-      rows = (await bridge.get_zapret_profiles(state.pfGroup)) || [];
+      rows = ((await bridge.get_zapret_profiles(state.pfGroup)) || []).map((p) => Object.assign({ group: state.pfGroup }, p));
     }
     state.pfAll = rows;
     const groups = $("pfGroups");
@@ -723,7 +727,9 @@
       b.addEventListener("click", () => {
         state.pfGroup = g;
         state.pfTag = "all";
+        state.pfOpen = null;
         $("pfDetailCard").style.display = "none";
+        $("pfCreateRow").style.display = "none";
         renderProfiles();
       });
       groups.appendChild(b);
@@ -753,7 +759,7 @@
     $("pfListEditBtn").disabled = !(state.pfOpen || active.profile);
     const list = rows.filter((r) => {
       const tagsArr = r.tags || [];
-      if (sel !== "all" && !tagsArr.includes(sel) && !(sel === "strategy" && tagsArr.includes("strategy"))) return false;
+      if (sel !== "all" && !tagsArr.includes(sel)) return false;
       if (q && !((r.title || "") + " " + (r.tags || []).join(" ")).toLowerCase().includes(q)) return false;
       return true;
     });
@@ -786,7 +792,8 @@
       }
       const size = document.createElement("div");
       size.className = "hint";
-      size.textContent = (r.tags[0] === "strategy" || r.tags[0] === "user") ? (r.size ? Math.max(1, Math.round(r.size / 1024)) + " KB" : "") : Math.max(1, Math.round(r.size / 1024)) + " KB";
+      const kb = Math.max(1, Math.round((r.size || 0) / 1024));
+      size.textContent = r.size ? kb + " KB" : (r.group === "strategies" ? "" : kb + " KB");
       right.appendChild(size);
       row.append(left, right);
       row.addEventListener("click", () => openProfile(r));
@@ -1207,8 +1214,9 @@
     const res = await bridge.get_winws_log(8000);
     const el = $("dpiLog");
     if (!el) return;
+    const wasAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40;
     el.textContent = res && res.ok ? res.log : "";
-    if (el.scrollHeight > el.clientHeight) el.scrollTop = el.scrollHeight;
+    if (wasAtBottom && el.scrollHeight > el.clientHeight) el.scrollTop = el.scrollHeight;
   }
 
   // ── Autopilot «Обход Zapret» ────────────────────────────────────────────
@@ -1226,14 +1234,15 @@
   const AU_PHASE_WARN = { scanning: 1, planning: 1, dns_repair: 1, applying: 1, monitoring: 1 };
   const AU_ACTIVE = { scanning: 1, planning: 1, dns_repair: 1, applying: 1, starting: 1, monitoring: 1 };
 
-  function toggleAutoMode() {
-    state.autoMode = !state.autoMode;
+  function applyAutoMode() {
     document.body.classList.toggle("auto-mode", state.autoMode);
-    document.querySelectorAll("[data-manual-card]").forEach(el => {
-      el.style.display = state.autoMode ? "none" : "";
-    });
     const btn = $("autoModeBtn");
     if (btn) btn.classList.toggle("active", state.autoMode);
+  }
+
+  function toggleAutoMode() {
+    state.autoMode = !state.autoMode;
+    applyAutoMode();
   }
   window._autoModeToggle = toggleAutoMode;
 
@@ -1246,25 +1255,41 @@
   }
 
   async function renderAutopilot() {
-    const statusEl = $("autoStatus");
-    if (!statusEl) return;
+    const mainBtn = $("auMainBtn");
+    if (!mainBtn) return;
     const st = await bridge.auto_status();
     if (!st) return;
     const phase = st.phase || "idle";
     const active = !!st.active || !!AU_ACTIVE[phase];
-    $("autoStartBtn").disabled = active;
-    $("autoStopBtn").disabled = !active;
-    $("autoResetBtn").disabled = active;
 
-    if (phase === "idle") {
-      statusEl.style.display = "none";
+    mainBtn.textContent = active ? I18n.t("au.off") : I18n.t("au.on");
+    mainBtn.classList.toggle("on", active);
+
+    const badge = $("auBadge");
+    if (badge) {
+      if (active) {
+        badge.style.display = "";
+        badge.className = "status-badge" + (phase === "monitoring" ? " ok" : " warn");
+        badge.textContent = I18n.t("au.running") + (st.message ? " · " + st.message : "");
+      } else if (phase === "error") {
+        badge.style.display = "";
+        badge.className = "status-badge off";
+        badge.textContent = I18n.t("au.phase_error") + (st.last_error ? " · " + I18n.t("au.err_" + st.last_error) : "");
+      } else {
+        badge.style.display = "none";
+      }
+    }
+
+    const progRow = $("auProgressRow");
+    const progFill = $("auProgressFill");
+    const progText = $("auProgressText");
+    if (active && st.progress && st.progress.total) {
+      const pct = Math.min(100, Math.round((st.progress.tested / st.progress.total) * 100));
+      progRow.style.display = "";
+      progFill.style.width = pct + "%";
+      progText.textContent = st.progress.tested + " / " + st.progress.total + (st.progress.blocked ? " · " + I18n.t("au.blocked", { n: st.progress.blocked }) : "");
     } else {
-      statusEl.style.display = "";
-      statusEl.className = "notice" + (phase === "error" ? " error" : AU_PHASE_WARN[phase] ? " warn" : " ok");
-      let txt = I18n.t(AU_PHASE_KEYS[phase] || "au.phase_idle");
-      if (st.message) txt += " — " + st.message;
-      if (st.last_error) txt += " (" + st.last_error + ")";
-      statusEl.textContent = txt;
+      progRow.style.display = "none";
     }
 
     const meta = $("autoMeta");
@@ -1276,12 +1301,23 @@
       meta.appendChild(el);
     };
     if (st.attempt) addMeta("au.attempt", st.attempt + "/" + (st.max_attempts || 4));
-    if (st.progress && st.progress.tested) addMeta("au.domains", st.progress.tested);
-    if (st.progress && st.progress.blocked) addMeta("au.blocked", st.progress.blocked);
     if (st.mode) addMeta("au.engine", st.mode);
     if (st.profile) addMeta("au.profile", String(st.profile).replace(/\.txt$/, ""));
     if (st.chosen && st.chosen.strategy) addMeta("au.strategy", st.chosen.name || st.chosen.strategy);
     if (st.started_at) addMeta("au.started_at", st.started_at);
+    meta.style.display = meta.children.length ? "" : "none";
+
+    const statusEl = $("autoStatus");
+    if (phase === "idle") {
+      statusEl.style.display = "none";
+    } else {
+      statusEl.style.display = "";
+      statusEl.className = "notice" + (phase === "error" ? " error" : AU_PHASE_WARN[phase] ? " warn" : " ok");
+      let txt = I18n.t(AU_PHASE_KEYS[phase] || "au.phase_idle");
+      if (st.message) txt += " — " + st.message;
+      if (st.last_error) txt += " (" + I18n.t("au.err_" + st.last_error) + ")";
+      statusEl.textContent = txt;
+    }
 
     const recBox = $("autoRecommendations");
     recBox.innerHTML = "";
@@ -1292,6 +1328,12 @@
       t.textContent = I18n.t("au.recommendations");
       recBox.appendChild(t);
       st.recommendations.slice(0, 4).forEach((r) => recBox.appendChild(orRecommendation(r, autopilotStatus)));
+    } else if (phase !== "idle") {
+      const e = document.createElement("div");
+      e.className = "hint";
+      e.style.cssText = "margin-top:10px";
+      e.textContent = I18n.t("au.recs_empty");
+      recBox.appendChild(e);
     }
 
     const j = await bridge.auto_journal(400);
@@ -1315,13 +1357,16 @@
     try {
       const res = await bridge.orchestra_recommend(text);
       if (!res || !res.ok || !res.recommendations || !res.recommendations.length) {
-        statusEl.textContent = (res && res.error) || I18n.t("or.no_data");
+        statusEl.textContent = I18n.t("or.no_data");
+        statusEl.className = "notice";
         return;
       }
       statusEl.textContent = res.source === "text" ? I18n.t("or.source_manual") : I18n.t("or.source_report");
+      statusEl.className = "notice";
       res.recommendations.forEach((r) => box.appendChild(orRecommendation(r, autopilotStatus)));
     } catch (e) {
       statusEl.textContent = String((e && e.message) || e);
+      statusEl.className = "notice error";
     } finally {
       btn.disabled = false;
     }
@@ -1361,7 +1406,7 @@
 
   async function pfCreateOk() {
     const name = $("pfCreateName").value.trim();
-    if (!name || /[\\/]/.test(name)) {
+    if (!name || /[\\/:\"<>|?*]/.test(name)) {
       toast(I18n.t("pr.name_invalid"), "error");
       return;
     }
@@ -1370,9 +1415,9 @@
     try {
       if (tpl === "rec") {
         const rec = await bridge.profile_list();
-        const recName = rec && rec.recommended ? rec.recommended.replace(/\.txt$/, "") : "";
+        const recName = rec && rec.recommended ? rec.recommended : "";
         if (recName) {
-          const r = await bridge.get_zapret_user_profile(recName);
+          const r = await bridge.get_zapret_profile_text("winws2", recName);
           if (r && r.ok) content = r.text;
         }
       } else if (tpl.indexOf("winws2:") === 0) {
@@ -2059,13 +2104,14 @@
     const report = statusFn || orStatus;
     const profile = await bridge.profile_list();
     const active = profile && profile.active ? profile.active : {};
-    const activeName = active.group === "user" ? active.profile : "";
+    let activeName = active.group === "user" ? active.profile : "";
+    if (!activeName) activeName = "auto";
     if (!window.confirm(I18n.t("or.apply_confirm", { strategy: displayName, profile: activeName }))) {
       return;
     }
     report(I18n.t("bc.running_short"));
     try {
-      const res = await bridge.apply_strategy(strategyId, activeName);
+      const res = await bridge.apply_strategy(strategyId, activeName, "");
       if (!res || !res.ok) {
         const msg =
           res && res.error === "active_is_builtin"
@@ -2813,24 +2859,23 @@
       logSeg = b.dataset.val;
       renderLogSeg();
     });
-    on("autoStartBtn", "click", async () => {
-      const res = await bridge.auto_start();
-      if (!res || !res.ok) {
-        toast(I18n.t("au.err_start", { msg: ((res && res.detail) || (res && res.error)) || "" }), "error");
+    on("auMainBtn", "click", async () => {
+      const st = await bridge.auto_status();
+      const active = st && (!!st.active || !!AU_ACTIVE[st.phase]);
+      if (active) {
+        const res = await bridge.auto_stop();
+        if (res && res.ok) toast(I18n.t("au.stopped"));
+        renderDpiEngine();
+        refreshDashDpi();
+      } else {
+        const res = await bridge.auto_start();
+        if (!res || !res.ok) {
+          toast(I18n.t("au.err_start", { msg: ((res && res.detail) || (res && res.error)) || "" }), "error");
+        }
       }
       await renderAutopilot();
     });
-    on("autoStopBtn", "click", async () => {
-      const res = await bridge.auto_stop();
-      if (res && res.ok) toast(I18n.t("au.stopped"));
-      await renderAutopilot();
-      renderDpiEngine();
-      refreshDashDpi();
-    });
-    on("autoResetBtn", "click", async () => {
-      await bridge.auto_reset();
-      await renderAutopilot();
-    });
+    on("autoModeBtn", "click", toggleAutoMode);
     on("pfCreateBtn", "click", showPfCreate);
     on("pfCreateCancelBtn", "click", () => { $("pfCreateRow").style.display = "none"; });
     on("pfCreateOkBtn", "click", pfCreateOk);
@@ -3216,7 +3261,7 @@
     refreshProxyLink();
     refreshDashStats();
     loadLogs();
-    if (state.autoMode) toggleAutoMode();
+    if (state.autoMode) applyAutoMode();
   }
 
   async function loadData() {
@@ -3237,7 +3282,7 @@
       refreshProxyLink(),
       refreshDashStats(),
     ]);
-    if (state.autoMode) toggleAutoMode();
+    if (state.autoMode) applyAutoMode();
   }
 
   // ── bootstrap ──────────────────────────────────────────────────────────

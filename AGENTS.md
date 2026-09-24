@@ -429,6 +429,56 @@ get_autostart_status / autostart_install / autostart_remove
 - Тесты НЕ привязаны к строкам журнала автопилота (grep по tests/ — 0 совпадений),
   тексты можно править свободно.
 
+## 2026-09-23, Вкладка Zapret: фиксы багов аудита + UX (продолжение 2026-09-15)
+
+- `blockcheck/autopilot.py`:
+  - `_ACTIVE` включил `dns_repair` (фазу пропускали, UI «зависал»).
+  - `_write_profile` бэкапит профиль ОДИН раз за сессию (`_backed_up`-реестр,
+    чистится в `start()`), иначе 2-я попытка перезаписывала бэкап свежим
+    содержимым — оригинал терялся.
+  - `_start_winws`: `_state["mode"/"profile"]` пишутся под `_lock`.
+  - `chosen` в `_run` пишется под `_lock`.
+  - `next_attempt = attempt_index + 2` (старая арифметика `+= 1` давала двойной
+    шаг; теперь `attempt_index = next_attempt - 1`).
+  - `_monitor`: состояния `None`/`starting` не считаются «упало» — grace-контур
+    (4 полла) перед возвратом False.
+  - `_finish_stopped` чистит profile/chosen/progress/symptoms/
+    recommendations/last_error (старый статус не светится в UI после стопа).
+- `ui/web/js/app.js`:
+  - `showPage('profiles')` вызывает renderAutopilot + renderDpiEngine +
+    renderProfiles (карты движка и профилей больше не застывают).
+  - Строки профилей несли `group` (strategies/user/winws1/2) — бейдж «активен»
+    в `pfList` теперь реально ставится.
+  - Свойства-тайлы убраны (tautology `sel === 'strategy'`), size=0 у
+    стратегий/юзеров больше не показывает «1 KB».
+  - Смена группы: `state.pfOpen = null`, прячется pfCreateRow (stale-профиль
+    не светится в кнопке Edit).
+  - `pfCreateOk`: шаблон «На базе рекомендуемого» читает
+    `get_zapret_profile_text('winws2', recName)` (было
+    `get_zapret_user_profile` → пустой профиль); имя валидируется
+    `[\\/:\"<>|?*]` (Windows-illegal).
+  - `pfOrRun`: успех → `notice` (нейтральный), ошибка → `notice error`;
+    пустой результат показывает `or.no_data` без машинного кода.
+  - `loadWinwsLog`: автоскролл только если пользователь был у низа (40px).
+  - `renderAutopilot`: `#autoMeta` прячется когда пуст; `st.last_error`
+    локализует через `au.err_*`; рекомендации в idle-state показывают
+    `au.recs_empty`.
+  - `orchestraApply`: если активен встроенный профиль → применяет к `auto`
+    (авто-профиль автопилота), `apply_strategy` вызывается с 3 аргументами
+    (section_name="").
+  - auto-mode: вынесен `applyAutoMode()`, старт больше не инвертирует флаг
+    (было `if (state.autoMode) toggleAutoMode()` → авто-режим ОТКЛЮЧАЛСЯ при
+    запуске). CSS `.auto-mode` прячет `[data-manual-card]`, кроме открытых
+    drawer/backdrop.
+- `ui/web/theme/glass.css`: `#pfList .pf-row:last-child` без border-bottom;
+  `.pf-drawer-params` — max-height 40vh + overflow; `.auto-mode` исключения
+  для drawer.
+- `ui/web/js/i18n.js`: добавлено 9 ключей × 3 языка (`au.err_*`, `au.recs_empty`)
+  → 707 ключей во всех каталогах.
+- `index.html`: `?v=50` → `?v=51` (все 8 ссылок).
+- Верификация: py_compile (autopilot/ui), node --check (app.js/i18n.js),
+  pytest = 443 passed + 9 subtests, i18n-паритет (707×3) через VM-парсинг.
+
 ## 2026-09-15, Автопилот: составные стратегии + авто-DNS + авто-режим в UI
 
 - `blockcheck/autopilot.py` — новый `_run()` с тремя функциями:

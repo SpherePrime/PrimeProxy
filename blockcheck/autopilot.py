@@ -61,12 +61,13 @@ _IDLE: Dict[str, Any] = {
 }
 
 # Фазы, в которых поток живёт (нельзя запускать повторно, нужен stop).
-_ACTIVE = frozenset({"scanning", "planning", "applying", "starting", "monitoring"})
+_ACTIVE = frozenset({"scanning", "planning", "dns_repair", "applying", "starting", "monitoring"})
 
 _lock = threading.RLock()
 _thread: Optional[threading.Thread] = None
 _cancel = threading.Event()
 _state: Dict[str, Any] = dict(_IDLE)
+_backed_up: Dict[str, bool] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -237,8 +238,9 @@ def _write_profile(name: str, content: str) -> Dict[str, Any]:
     from winws import profiles as pfp
     try:
         existing = pfp.profile_read(name)
-        if existing.get("ok"):
+        if existing.get("ok") and not _backed_up.get(name):
             backup_profile(name)
+            _backed_up[name] = True
     except Exception:  # noqa: BLE001
         pass
     return pfp.profile_write(name, content)
@@ -276,8 +278,9 @@ def _start_winws(name: str) -> Dict[str, Any]:
             "profile": name,
             "mode": mode or "auto",
         })
-        _state["mode"] = mode or "auto"
-        _state["profile"] = name
+        with _lock:
+            _state["mode"] = mode or "auto"
+            _state["profile"] = name
     return result
 
 
@@ -425,11 +428,12 @@ def _run() -> None:
             if result.get("ok"):
                 content = result["content"]
                 applied_names = result.get("applied", [])
-                _state["chosen"] = {
-                    "strategy": "composite",
-                    "name": ", ".join(applied_names),
-                    "attempt": attempt_index + 1,
-                }
+                with _lock:
+                    _state["chosen"] = {
+                        "strategy": "composite",
+                        "name": ", ".join(applied_names),
+                        "attempt": attempt_index + 1,
+                    }
                 _journal("ok", f"Применено {len(applied_names)} стратегий (попытка {attempt_index + 1})")
             else:
                 _journal("warn", f"Ошибка применения стратегий: {result.get('error')}")
@@ -459,7 +463,6 @@ def _run() -> None:
 
         _journal("ok", f"winws запущен с профилем {profile_name}. Начинаю мониторинг...")
         _set_phase("monitoring", "winws работает. Наблюдаю за процессом...")
-        _state["status"] = "monitoring"
 
         monitor_ok = _monitor(profile_name)
         if monitor_ok:
@@ -469,7 +472,7 @@ def _run() -> None:
         # процесс упал — перебираем следующую стратегию
         next_attempt = attempt_index + 2
         _journal("warn", f"winws завершился. Повторная попытка {next_attempt} из {max_attempts}...")
-        attempt_index += 1
+        attempt_index = next_attempt - 1
 
     _finish_error("attempts_exhausted", f"Испробованы все стратегии ({max_attempts}). winws не запустился стабильно.")
 
@@ -477,14 +480,22 @@ def _run() -> None:
 def _monitor(profile_name: str) -> bool:
     """Следит за winws. Возвращает True, если остановлено пользователем."""
     from winws import runner
+    grace = 0
     while not _cancel.is_set():
         time.sleep(MONITOR_POLL_SECONDS)
         st = runner.status()
-        if st.get("state") != "running":
-            error = st.get("last_error") or (f"exit_{st.get('exit_code')}" if st.get("exit_code") is not None else "")
-            with _lock:
-                _state["last_error"] = error
-            return False
+        state_ = st.get("state")
+        if state_ == "running":
+            grace = 0
+            continue
+        if state_ in (None, "starting"):
+            grace += 1
+            if grace <= 4:
+                continue
+        error = st.get("last_error") or (f"exit_{st.get('exit_code')}" if st.get("exit_code") is not None else "")
+        with _lock:
+            _state["last_error"] = error
+        return False
     return True
 
 
@@ -517,6 +528,12 @@ def _finish_stopped() -> None:
             "phase": "stopped",
             "message": "Автопилот остановлен.",
             "mode": None,
+            "profile": None,
+            "chosen": None,
+            "progress": {"tested": 0, "total": 0, "blocked": 0},
+            "symptoms": [],
+            "recommendations": [],
+            "last_error": "",
         })
     _journal("warn", "Автопилот остановлен.")
 
@@ -578,6 +595,7 @@ def start() -> Dict[str, Any]:
         _state.update(dict(_IDLE))
         _state["engine_ok"] = True
         _state["journal"] = []
+        _backed_up.clear()
 
     _journal("info", "Запуск автопилота...")
     _thread = threading.Thread(target=_run, name="swift-autopilot", daemon=True)

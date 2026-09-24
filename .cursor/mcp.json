@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "world-model-mcp": {
+      "command": "world-model-mcp",
+      "args": [
+        "run"
+      ],
+      "env": {
+        "WORLD_MODEL_MCP_PROJECT": "primeproxy"
+      }
+    }
+  }
+}
