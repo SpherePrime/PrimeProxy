@@ -4,6 +4,7 @@
 //! models (структуры) и winws2 (разбор --lua-desync-стратегии).
 
 pub mod conditions_text;
+pub mod display_items;
 pub mod editable_settings;
 pub mod derived_cache;
 pub mod list_interpreter;
@@ -32,6 +33,7 @@ pub mod strategy_shape;
 pub mod strategy_visuals;
 pub mod winws1;
 pub mod winws2;
+pub mod winws2_preset_source;
 pub mod winws2_transport;
 
 pub use models::{
