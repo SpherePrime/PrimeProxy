@@ -647,6 +647,15 @@ pub fn live_items_from_display_items(
     live_items
 }
 
+/// python profile.ordering.resolve_profile_order_view: view на normalized
+/// состоянии папок и live_items из отображаемых item-ов.
+pub fn resolve_profile_order_view_from(items: &[(String, String, Vec<String>, i64, i64, String)], folder_state: &Value) -> FolderOrderView {
+    let live_items = live_items_from_display_items(items);
+    let defaults = super::folders::build_default_profile_folders();
+    let state = super::folder_store::normalize_folder_state(folder_state, &defaults);
+    resolve_folder_order(&state, &live_items)
+}
+
 /// python _live_item.
 pub fn live_item_map(
     persistent_key: &str,

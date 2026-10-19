@@ -11,6 +11,7 @@ pub mod list_interpreter;
 pub mod list_apply_signature;
 pub mod filter_switch;
 pub mod icons;
+pub mod list_view_state;
 pub mod fakes_names;
 pub mod identity;
 pub mod template_library;
