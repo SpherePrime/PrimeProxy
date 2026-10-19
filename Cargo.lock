@@ -873,6 +873,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "primecore-diagnostics"
+version = "0.1.0"
+dependencies = [
+ "fastrand",
+ "primecore-dnswire",
+ "primecore-lists",
+ "primecore-mode",
+ "primecore-netfailure",
+ "primecore-settings",
+ "primecore-socketcancel",
+ "regex",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "primecore-dnswire"
 version = "0.1.0"
 dependencies = [

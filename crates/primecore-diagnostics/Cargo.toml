@@ -1,0 +1,18 @@
+[package]
+name = "primecore-diagnostics"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/diagnostics — проверки BlockCheck и DNS-подмены."
+
+[dependencies]
+serde_json.workspace = true
+serde.workspace = true
+regex.workspace = true
+primecore-mode = { workspace = true }
+primecore-dnswire = { workspace = true }
+primecore-settings = { workspace = true }
+primecore-socketcancel = { workspace = true }
+primecore-netfailure = { workspace = true }
+primecore-lists = { workspace = true }
+fastrand.workspace = true

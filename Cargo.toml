@@ -14,6 +14,7 @@ members = [
     "crates/primecore-socketcancel",
     "crates/primecore-profile",
     "crates/primecore-lists",
+    "crates/primecore-diagnostics",
 ]
 
 [workspace.package]
@@ -49,6 +50,10 @@ webpki-roots = "0.26"
 tower-http = { version = "0.6", features = ["fs", "set-header"] }
 primecore-settings = { path = "crates/primecore-settings" }
 primecore-lists = { path = "crates/primecore-lists" }
+primecore-dnswire = { path = "crates/primecore-dnswire" }
+primecore-socketcancel = { path = "crates/primecore-socketcancel" }
+primecore-netfailure = { path = "crates/primecore-netfailure" }
+primecore-diagnostics = { path = "crates/primecore-diagnostics" }
 primecore-mode = { path = "crates/primecore-mode" }
 fastrand = "2.5"
 

@@ -1,0 +1,914 @@
+{
+ "dns": [
+  {
+   "args": {
+    "system_ips": [
+     "93.184.216.34"
+    ],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "",
+    "check_cert_problem": "",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "ok",
+    "reason": "адрес совпадает с эталоном"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "62.33.207.197"
+    ],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "",
+    "check_cert_problem": "",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "spoofed",
+    "reason": "DNS вернул адрес-заглушку 62.33.207.197 вместо настоящего сервера"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "127.0.0.1"
+    ],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "",
+    "check_cert_problem": "",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "spoofed",
+    "reason": "DNS вернул адрес-заглушку 127.0.0.1 вместо настоящего сервера"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "198.18.0.5"
+    ],
+    "system_status": 0,
+    "reference_ips": [],
+    "hosts_ips": [],
+    "check_kind": "ok",
+    "check_cert_problem": "",
+    "nxdomain_count": 0,
+    "attempts": 3,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "local",
+    "reason": "адрес 198.18.0.5 выдал VPN-клиент (режим fake-ip) — это не провайдер"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "192.168.5.10"
+    ],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "",
+    "check_cert_problem": "",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "local",
+    "reason": "DNS вернул адрес домашней сети 192.168.5.10 — так отвечают фильтры на роутере или компьютере (родительский контроль, Pi-hole, AdGuard Home), это не провайдер"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "77.88.99.1"
+    ],
+    "system_status": 9003,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "",
+    "check_cert_problem": "",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "unknown",
+    "reason": "адрес отличается от эталона (у CDN и видеосерверов так бывает), а сертификат проверить не удалось — соединение не установилось"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [],
+    "system_status": 0,
+    "reference_ips": [],
+    "hosts_ips": [
+     "93.184.216.34"
+    ],
+    "check_kind": "cert",
+    "check_cert_problem": "сертификат не принадлежит сайту",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "local",
+    "reason": "адрес задан в файле hosts (93.184.216.34), программы берут его оттуда, а не у DNS; сервер по этому адресу предъявил чужой сертификат — запись в hosts устарела или неверна"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "",
+    "check_cert_problem": "",
+    "nxdomain_count": 2,
+    "attempts": 3,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "spoofed",
+    "reason": "DNS не дал адрес, а в 2 из 3 попыток ответил «такого сайта нет», хотя сайт существует — сайт заблокирован через DNS"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "",
+    "check_cert_problem": "",
+    "nxdomain_count": 0,
+    "attempts": 3,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "unknown",
+    "reason": "DNS-сервер не дал адрес, сравнить не с чем"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "1.2.3.4"
+    ],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "ok",
+    "check_cert_problem": "",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "ok",
+    "reason": "адрес отличается от эталона, но сервер предъявил подлинный сертификат сайта — так работают CDN и DNS для обхода блокировок, это не подмена"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "1.2.3.4"
+    ],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "cert",
+    "check_cert_problem": "не совпадает имя",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "spoofed",
+    "reason": "по адресу из DNS отвечает чужой сервер: не совпадает имя"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "1.2.3.4"
+    ],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "cert",
+    "check_cert_problem": "не совпадает имя",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": "cert"
+   },
+   "out": {
+    "state": "unknown",
+    "reason": "чужой сертификат приходит и по адресу из DNS, и по настоящему адресу сайта — HTTPS подменяет программа на компьютере (антивирус, прокси) или сеть, а DNS тут ни при чём"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "1.2.3.4"
+    ],
+    "system_status": 0,
+    "reference_ips": [],
+    "hosts_ips": [],
+    "check_kind": "cert",
+    "check_cert_problem": "",
+    "nxdomain_count": 0,
+    "attempts": 1,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "unknown",
+    "reason": "по адресу из DNS отвечает чужой сервер (сертификат не прошёл проверку), но эталон недоступен — подмену DNS доказать нечем: так же выглядит антивирус или прокси, проверяющий HTTPS"
+   }
+  },
+  {
+   "args": {
+    "system_ips": [
+     "5.6.7.8"
+    ],
+    "system_status": 0,
+    "reference_ips": [
+     "93.184.216.34"
+    ],
+    "hosts_ips": [],
+    "check_kind": "",
+    "check_cert_problem": "",
+    "nxdomain_count": 1,
+    "attempts": 2,
+    "control_kind": ""
+   },
+   "out": {
+    "state": "spoofed",
+    "reason": "DNS отвечает то правильно, то «такого сайта нет» (1 из 2 раз) — провайдер перехватывает часть запросов"
+   }
+  }
+ ],
+ "reach": [
+  "no_address",
+  "ok",
+  "freeze",
+  "ok",
+  "cert",
+  "ip_block",
+  "dpi",
+  "dpi",
+  "dpi",
+  "unknown"
+ ],
+ "describe": [
+  "не удалось узнать адрес сервера",
+  "не удалось выполнить запрос",
+  "ответ оборвался на 15 КБ — так ТСПУ режет соединения с зарубежными серверами",
+  "чужой сертификат (не прошёл проверку) — трафик перехватывает антивирус, прокси или провайдер",
+  "не удалось соединиться с сервером",
+  "соединение рвётся при установке шифрования — так обычно режет фильтр провайдера",
+  "соединение сброшено — так обычно режет фильтр провайдера",
+  "подключение есть, но сервер не ответил за 0 с — похоже на блокировку провайдером",
+  "проверка прервана — не хватило времени или нажата «Стоп»",
+  "магия"
+ ],
+ "summarize": [
+  {
+   "label": "Discord",
+   "zapret": true,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ok",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "ok",
+    "headline": "Discord открывается",
+    "advice": [],
+    "dns_note": "",
+    "kind": ""
+   }
+  },
+  {
+   "label": "Discord",
+   "zapret": true,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ok",
+     "dns": "spoofed",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Discord открывается",
+    "advice": [
+     "Включите DNS с шифрованием (DoH) в разделе «Настройка DNS» — провайдер не сможет подменять ответы."
+    ],
+    "dns_note": "DNS подменяет адрес host.example — провайдер перехватывает обычные DNS-запросы. Браузер с защищённым DNS этого не замечает, а программы, которые спрашивают адрес у Windows, сайт не откроют.",
+    "kind": ""
+   }
+  },
+  {
+   "label": "Discord",
+   "zapret": true,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ok",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": true,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Discord: сам сайт доступен, но в файле hosts для него записан нерабочий адрес — браузер пойдёт на него и сайт не откроет",
+    "advice": [
+     "Откройте «Редактор hosts», выключите и снова включите этот сервис или выберите для него другой профиль — запишется рабочий адрес. Если сервис вам там не нужен, просто выключите его: сайт откроется по своему настоящему адресу."
+    ],
+    "dns_note": "",
+    "kind": ""
+   }
+  },
+  {
+   "label": "Discord",
+   "zapret": null,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ok",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": true,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Discord открывается через раз",
+    "advice": [
+     "Подберите другую стратегию: вкладка «Подбор стратегии» найдёт рабочую для вашего провайдера.",
+     "Так выглядит фильтр, который срабатывает не на каждое соединение, или линия, теряющая пакеты. Повторите проверку через несколько минут: если сайт снова «через раз» — это фильтр."
+    ],
+    "dns_note": "",
+    "kind": "unstable"
+   }
+  },
+  {
+   "label": "Discord",
+   "zapret": false,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ok",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": true,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Discord открывается через раз",
+    "advice": [
+     "Запустите Zapret на странице «Управление Zapret 2».",
+     "Так выглядит фильтр, который срабатывает не на каждое соединение, или линия, теряющая пакеты. Повторите проверку через несколько минут: если сайт снова «через раз» — это фильтр."
+    ],
+    "dns_note": "",
+    "kind": "unstable"
+   }
+  },
+  {
+   "label": "Discord",
+   "zapret": true,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ok",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": true
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Discord: сам сайт доступен, но DNS компьютера отвечает, что такого сайта нет — браузер без защищённого DNS и программы его не откроют",
+    "advice": [],
+    "dns_note": "",
+    "kind": ""
+   }
+  },
+  {
+   "label": "Discord",
+   "zapret": false,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ok",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    },
+    {
+     "host": "host.example",
+     "purpose": "видео",
+     "reach": "dpi",
+     "dns": "ok",
+     "main": false,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Discord открывается, но не работают видео: соединение блокирует провайдер",
+    "advice": [
+     "Запустите Zapret на странице «Управление Zapret 2»."
+    ],
+    "dns_note": "",
+    "kind": "unclear"
+   }
+  },
+  {
+   "label": "Discord",
+   "zapret": true,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ok",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    },
+    {
+     "host": "host.example",
+     "purpose": "картинки",
+     "reach": "cert",
+     "dns": "local",
+     "main": false,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Discord открывается, но не работают картинки: запись в файле hosts ведёт на чужой сервер",
+    "advice": [
+     "Удалите или исправьте запись этого сайта в файле hosts (страница «Редактор hosts») — адрес в ней устарел."
+    ],
+    "dns_note": "",
+    "kind": "cert"
+   }
+  },
+  {
+   "label": "Discord",
+   "zapret": true,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "dpi",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    },
+    {
+     "host": "host.example",
+     "purpose": "чат",
+     "reach": "freeze",
+     "dns": "ok",
+     "main": false,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "fail",
+    "headline": "Discord не открывается: соединение блокирует провайдер — Zapret запущен, но эту блокировку не обходит",
+    "advice": [
+     "Подберите другую стратегию: вкладка «Подбор стратегии» найдёт рабочую для вашего провайдера."
+    ],
+    "dns_note": "",
+    "kind": "unclear"
+   }
+  },
+  {
+   "label": "YouTube",
+   "zapret": true,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ip_block",
+     "dns": "ok",
+     "main": true,
+     "kind": "ip",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    },
+    {
+     "host": "host.example",
+     "purpose": "видео",
+     "reach": "dpi",
+     "dns": "ok",
+     "main": false,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "fail",
+    "headline": "YouTube не открывается: сервер заблокирован по адресу (IP)",
+    "advice": [
+     "Попробуйте подобрать стратегию во вкладке «Подбор стратегии». Если ни одна не подойдёт — закрыт сам адрес: поможет DNS-профиль в «Редакторе hosts», другой DNS или VPN."
+    ],
+    "dns_note": "",
+    "kind": "ip"
+   }
+  },
+  {
+   "label": "YouTube",
+   "zapret": true,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ip_block",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    },
+    {
+     "host": "host.example",
+     "purpose": "видео",
+     "reach": "dpi",
+     "dns": "ok",
+     "main": false,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "YouTube не открывается: не удалось соединиться с сервером, причина не ясна",
+    "advice": [
+     "Подберите другую стратегию: вкладка «Подбор стратегии» найдёт рабочую для вашего провайдера."
+    ],
+    "dns_note": "",
+    "kind": "noconnect"
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": true,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "freeze",
+     "dns": "ok",
+     "main": true,
+     "kind": "cut16",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "fail",
+    "headline": "Сайт грузится не до конца: загрузка обрывается после 16 КБ — Zapret запущен, но эту блокировку не обходит",
+    "advice": [
+     "Подберите другую стратегию: вкладка «Подбор стратегии» найдёт рабочую для вашего провайдера."
+    ],
+    "dns_note": "",
+    "kind": "cut16"
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": null,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "cert",
+     "dns": "local",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "fail",
+    "headline": "Сайт не открывается: запись в файле hosts ведёт на чужой сервер",
+    "advice": [
+     "Удалите или исправьте запись этого сайта в файле hosts (страница «Редактор hosts») — адрес в ней устарел."
+    ],
+    "dns_note": "",
+    "kind": "cert"
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": null,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "cert",
+     "dns": "spoofed",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "fail",
+    "headline": "Сайт не открывается: DNS подсовывает адрес чужого сервера",
+    "advice": [
+     "Включите DNS с шифрованием (DoH) в разделе «Настройка DNS» — провайдер не сможет подменять ответы."
+    ],
+    "dns_note": "DNS подменяет адрес host.example — провайдер перехватывает обычные DNS-запросы. Браузер с защищённым DNS этого не замечает, а программы, которые спрашивают адрес у Windows, сайт не откроют.",
+    "kind": "cert"
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": null,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "cert",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "fail",
+    "headline": "Сайт не открывается: вместо настоящего сервера отвечает чужой",
+    "advice": [
+     "Проверьте антивирус (проверку HTTPS-трафика), прокси и VPN: кто-то подменяет сертификаты сайтов."
+    ],
+    "dns_note": "",
+    "kind": "cert"
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": null,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "no_address",
+     "dns": "unknown",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "fail",
+    "headline": "Сайт не открывается: не удалось узнать адрес сервера",
+    "advice": [
+     "Проверьте подключение к интернету.",
+     "Включите DNS с шифрованием (DoH) в разделе «Настройка DNS» — провайдер не сможет подменять ответы."
+    ],
+    "dns_note": "",
+    "kind": "dns"
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": null,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ip_block",
+     "dns": "ok",
+     "main": true,
+     "kind": "down",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Сайт не открывается: сайт не открывается и из-за рубежа — похоже, он не работает сам",
+    "advice": [
+     "Zapret здесь не поможет: подождите, пока сайт заработает, и повторите проверку."
+    ],
+    "dns_note": "",
+    "kind": "down"
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": null,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "unknown",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "unknown",
+    "headline": "Сайт: проверка не дала ответа",
+    "advice": [
+     "Повторите проверку через минуту."
+    ],
+    "dns_note": "",
+    "kind": ""
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": null,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ip_block",
+     "dns": "ok",
+     "main": true,
+     "kind": "noconnect",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Сайт не открывается: не удалось соединиться с сервером, причина не ясна",
+    "advice": [
+     "Повторите проверку: соединиться не удалось, но подтверждения, что закрыт сам адрес, нет. Если повторяется — посмотрите записи этого сайта в «Редакторе hosts» и попробуйте другой DNS."
+    ],
+    "dns_note": "",
+    "kind": "noconnect"
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": null,
+   "targets": [
+    {
+     "host": "host.example",
+     "purpose": "сайт",
+     "reach": "ok",
+     "dns": "ok",
+     "main": true,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    },
+    {
+     "host": "host.example",
+     "purpose": "чат",
+     "reach": "ip_block",
+     "dns": "ok",
+     "main": false,
+     "kind": "",
+     "hosts_stale": false,
+     "unstable": false,
+     "dns_blind": false
+    }
+   ],
+   "verdict": {
+    "level": "warn",
+    "headline": "Сайт открывается, но не работают чат: не удалось соединиться с сервером, причина не ясна",
+    "advice": [
+     "Повторите проверку: соединиться не удалось, но подтверждения, что закрыт сам адрес, нет. Если повторяется — посмотрите записи этого сайта в «Редакторе hosts» и попробуйте другой DNS."
+    ],
+    "dns_note": "",
+    "kind": "noconnect"
+   }
+  },
+  {
+   "label": "Сайт",
+   "zapret": null,
+   "targets": [],
+   "verdict": {
+    "level": "unknown",
+    "headline": "Сайт: проверка не выполнилась",
+    "advice": [
+     "Повторите проверку."
+    ],
+    "dns_note": "",
+    "kind": ""
+   }
+  }
+ ],
+ "geo_advice": "Meduza сам ограничивает доступ из России, поэтому стратегия Zapret его не чинит. Включите для него DNS-профиль на странице «Редактор hosts» или смените DNS в разделе «Настройка DNS»."
+}
