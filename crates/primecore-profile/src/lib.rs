@@ -13,6 +13,7 @@ pub mod filter_switch;
 pub mod icons;
 pub mod fakes_names;
 pub mod identity;
+pub mod template_library;
 pub mod key_resolution;
 pub mod match_filters;
 pub mod models;
@@ -37,6 +38,7 @@ pub mod strategy_shape;
 pub mod strategy_visuals;
 pub mod winws1;
 pub mod winws2;
+pub mod user_profiles;
 pub mod winws2_preset_source;
 pub mod winws2_transport;
 

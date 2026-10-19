@@ -466,6 +466,83 @@ pub fn reconcile_list_file(lists_root: &Path, file_name: &str, _authoritative: b
     write_text_file(&paths.final_path, &content);
 }
 
+pub fn create_profile_user_list_file(lists_root: &Path, file_name: &str) {
+    if let Ok(paths) = layered_list_file(lists_root, file_name) {
+        if !paths.user_path.exists() {
+            write_text_file(&paths.user_path, "");
+        }
+    }
+    reconcile_list_file(lists_root, file_name, false);
+}
+
+pub fn read_profile_user_list_text(lists_root: &Path, file_name: &str) -> String {
+    let Ok(paths) = layered_list_file(lists_root, file_name) else {
+        return String::new();
+    };
+    read_text_file_safe(&paths.user_path).unwrap_or_default()
+}
+
+pub fn write_profile_user_list_text(lists_root: &Path, file_name: &str, text: &str) {
+    let Ok(paths) = layered_list_file(lists_root, file_name) else {
+        return;
+    };
+    write_text_file(&paths.user_path, text);
+    reconcile_list_file(lists_root, file_name, true);
+}
+
+pub fn rename_profile_user_list_file(
+    lists_root: &Path,
+    old_file_name: &str,
+    new_file_name: &str,
+) -> Result<(), String> {
+    let old_paths = safe_list_file_name(old_file_name)
+        .and_then(|_| layered_list_file(lists_root, old_file_name).ok());
+    let new_paths = layered_list_file(lists_root, new_file_name)?;
+    if let Some(user_parent) = new_paths.user_path.parent() {
+        std::fs::create_dir_all(user_parent).ok();
+    }
+    if let Some(old_paths) = old_paths {
+        if old_paths.user_path.exists() && old_paths.user_path != new_paths.user_path {
+            if new_paths.user_path.exists() {
+                return Err(format!("Файл списка уже существует: {}", new_paths.file_name));
+            }
+            // Владение старым итогом фиксируется ДО переноса user-слоя.
+            let old_was_external = !layers_have_effective(lists_root, &old_paths.file_name);
+            std::fs::rename(&old_paths.user_path, &new_paths.user_path).ok();
+            reconcile_list_file(lists_root, &old_paths.file_name, !old_was_external);
+        }
+    }
+    if !new_paths.user_path.exists() {
+        write_text_file(&new_paths.user_path, "");
+    }
+    reconcile_list_file(lists_root, &new_paths.file_name, false);
+    Ok(())
+}
+
+pub fn delete_profile_user_list_file(lists_root: &Path, file_name: &str) {
+    let Ok(paths) = layered_list_file(lists_root, file_name) else {
+        return;
+    };
+    let was_external = !layers_have_effective(lists_root, &paths.file_name);
+    std::fs::remove_file(&paths.user_path).ok();
+    reconcile_list_file(lists_root, &paths.file_name, !was_external);
+}
+
+/// python ListOwnership.EXTERNAL: слои НЕ владеют (нет effective-записей).
+fn layers_have_effective(lists_root: &Path, file_name: &str) -> bool {
+    let Ok(paths) = layered_list_file(lists_root, file_name) else {
+        return false;
+    };
+    [paths.base_path, paths.user_path]
+        .iter()
+        .any(|layer| {
+            layer.is_file()
+                && has_effective_entries(&text_entries(
+                    &read_text_file_safe(layer).unwrap_or_default(),
+                ))
+        })
+}
+
 /// python write_text_file: нормализованный utf-8 с финальным переводом.
 pub fn write_text_file(path: &Path, content: &str) {
     let normalized = normalize_newlines(content);

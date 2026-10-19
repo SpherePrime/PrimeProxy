@@ -3,20 +3,18 @@
 use std::path::Path;
 use std::path::PathBuf;
 
-use primecore_mode::AppPaths;
-
 use crate::models::{Profile, Strategy};
 use crate::parser::parse_preset_text;
 
 /// python profile_template_root: templates рядом с программой.
-pub fn profile_template_root(paths: &AppPaths) -> PathBuf {
-    paths.user_root.join("system").join("templates")
+pub fn profile_template_root(user_root: &Path) -> PathBuf {
+    user_root.join("system").join("templates")
 }
 
 /// python load_profile_templates.
-pub fn load_profile_templates(paths: &AppPaths, engine: &str) -> Vec<(String, Profile)> {
+pub fn load_profile_templates(user_root: &Path, engine: &str) -> Vec<(String, Profile)> {
     let normalized_engine = engine.trim().to_lowercase();
-    let path = profile_template_root(paths).join("all_profiles.txt");
+    let path = profile_template_root(user_root).join("all_profiles.txt");
     let mut templates: Vec<(String, Profile)> = Vec::new();
     if !path.is_file() {
         return templates;
@@ -63,11 +61,11 @@ pub fn load_profile_templates(paths: &AppPaths, engine: &str) -> Vec<(String, Pr
 
 /// python load_profile_template_library: имя → Profile с порядком вставки.
 pub fn load_profile_template_library(
-    paths: &AppPaths,
+    user_root: &Path,
     engine: &str,
     user_templates_dir: Option<&Path>,
 ) -> Vec<(String, Profile)> {
-    let mut templates = load_profile_templates(paths, engine);
+    let mut templates = load_profile_templates(user_root, engine);
     if let Some(user_dir) = user_templates_dir {
         for (template_id, profile) in load_user_profile_templates(user_dir, engine) {
             templates.push((template_id, profile));
@@ -76,8 +74,7 @@ pub fn load_profile_template_library(
     templates
 }
 
-/// Порт load_user_profile_templates (загружается в future user_profiles.rs,
-/// здесь локальный вариант: *.txt в каталоге).
+/// pythonuctions: отдельный квант для каталога шаблонов пользователя (*-txt).
 pub fn load_user_profile_templates(dir: &Path, engine: &str) -> Vec<(String, Profile)> {
     let mut templates: Vec<(String, Profile)> = Vec::new();
     let mut entries: Vec<PathBuf> = std::fs::read_dir(dir)
