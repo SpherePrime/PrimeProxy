@@ -24,6 +24,21 @@ const ROUNDS: [u32; 80] = {
 
 /// Хеш-сумма SHA-1 в шестнадцатеричном виде (как python hashlib.hexdigest()).
 pub fn sha1_hex(data: &[u8]) -> String {
+    let state = sha1_state(data);
+    state.iter().map(|word| format!("{word:08x}")).collect()
+}
+
+/// python hashlib.sha1(...).digest() — 20 байт.
+pub fn sha1_bytes(data: &[u8]) -> [u8; 20] {
+    let state = sha1_state(data);
+    let mut out = [0u8; 20];
+    for (index, word) in state.iter().enumerate() {
+        out[index * 4..index * 4 + 4].copy_from_slice(&word.to_be_bytes());
+    }
+    out
+}
+
+fn sha1_state(data: &[u8]) -> [u32; 5] {
     let mut words: Vec<u8> = data.to_vec();
     let bit_length = (data.len() as u64).wrapping_mul(8);
     words.push(0x80);
@@ -72,17 +87,11 @@ pub fn sha1_hex(data: &[u8]) -> String {
         state[3] = state[3].wrapping_add(d);
         state[4] = state[4].wrapping_add(e);
     }
-    state.iter().map(|word| format!("{word:08x}")).collect()
+    state
 }
 
 /// Асоциация ключей открытых групп — отпечаток названия.
 pub fn digest_prefix(prefix: &str, title: &str) -> String {
     let lowered = title.trim().to_lowercase();
     format!("{prefix}_{}", &sha1_hex(lowered.as_bytes())[..10])
-}
-
-/// Проверочное значение из python: hashlib.sha1(«Способ») == 9870437e70…
-#[allow(dead_code)]
-pub fn check_capacity() -> String {
-    digest_prefix("s", "Способ")
 }

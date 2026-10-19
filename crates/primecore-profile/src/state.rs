@@ -105,7 +105,7 @@ impl Default for ProfileListItem {
 }
 
 /// python ProfileListPayload.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub struct ProfileListPayload {
     pub items: Vec<ProfileListItem>,
     pub selected_preset_file_name: String,
@@ -117,7 +117,7 @@ pub type StrategyEntryMap = Vec<(String, StrategyEntry)>;
 pub type StrategyStateMap = Vec<(String, ProfileStrategyState)>;
 
 /// python ProfileSetupPayload.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub struct ProfileSetupPayload {
     pub item: ProfileListItem,
     pub strategy_entries: StrategyEntryMap,

@@ -15,7 +15,7 @@ use crate::strategy_catalog::{StrategyEntry, TreeRow};
 use crate::strategy_shape::{composite_identity, strategy_shape};
 
 /// Сервис, на котором стратегия стоит в готовых пресетах.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub struct StrategyPlace {
     pub name: String,
     pub presets: i64,
@@ -26,7 +26,7 @@ pub struct StrategyPlace {
 }
 
 /// Частота готовой стратегии среди готовых пресетов.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize)]
 pub struct StrategyUsage {
     /// В скольких готовых пресетах стратегия стоит на этом же сервисе.
     pub same_service: i64,
