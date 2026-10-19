@@ -1,4 +1,0 @@
-amazonaws.com
-amazon.com
-awsapps.com
-awsstatic.com
