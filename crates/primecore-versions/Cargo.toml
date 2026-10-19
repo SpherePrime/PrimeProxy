@@ -1,0 +1,9 @@
+[package]
+name = "primecore-versions"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = " Порт src/primebypass_update/versions.py: сравнение версий PrimeBypass."
+
+[dependencies]
+thiserror.workspace = true

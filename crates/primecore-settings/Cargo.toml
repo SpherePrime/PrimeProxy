@@ -1,0 +1,14 @@
+[package]
+name = "primecore-settings"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт чистой логики src/settings/normalize.py (+schema-константы) и settings-хранилища."
+
+[dependencies]
+primecore-mode = { path = "../primecore-mode" }
+rusqlite = { version = "0.32", features = ["bundled"] }
+once_cell.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]

@@ -1,0 +1,450 @@
+{
+ "index": {
+  "ambiguous": "",
+  "composite": "composite",
+  "empty": "",
+  "multi": "plain_multi",
+  "unknown": ""
+ },
+ "load": {
+  "after_delete": {
+   "by_service": [
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "simple"
+      },
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "composite"
+      }
+     ],
+     "service": "list=googlevideo|tcp=443"
+    },
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "syndata"
+      }
+     ],
+     "service": "list=other|tcp=443"
+    }
+   ],
+   "service_match_lines": {
+    "list=googlevideo|tcp=443": [
+     "--filter-tcp=443",
+     "--hostlist=googlevideo.txt"
+    ],
+    "list=other|tcp=443": [
+     "--filter-tcp=443",
+     "--hostlist=other.txt"
+    ]
+   },
+   "service_names": {
+    "list=googlevideo|tcp=443": "YouTube простой",
+    "list=other|tcp=443": "Отключенный пресет"
+   },
+   "services": [
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "simple"
+    },
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "composite"
+    },
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "syndata"
+    }
+   ]
+  },
+  "cached": {
+   "by_service": [
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 2,
+       "strategy": "simple"
+      },
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "composite"
+      }
+     ],
+     "service": "list=googlevideo|tcp=443"
+    },
+    {
+     "counts": [
+      {
+       "catalog": "udp",
+       "count": 1,
+       "strategy": "udp_fake"
+      }
+     ],
+     "service": "udp=50000"
+    },
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "syndata"
+      }
+     ],
+     "service": "list=other|tcp=443"
+    }
+   ],
+   "service_match_lines": {
+    "list=googlevideo|tcp=443": [
+     "--filter-tcp=443",
+     "--hostlist=googlevideo.txt"
+    ],
+    "list=other|tcp=443": [
+     "--filter-tcp=443",
+     "--hostlist=other.txt"
+    ],
+    "udp=50000": [
+     "--filter-udp=50000"
+    ]
+   },
+   "service_names": {
+    "list=googlevideo|tcp=443": "YouTube простой",
+    "list=other|tcp=443": "Отключенный пресет",
+    "udp=50000": "Квик UDP"
+   },
+   "services": [
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "simple"
+    },
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "composite"
+    },
+    {
+     "catalog": "udp",
+     "count": 1,
+     "strategy": "udp_fake"
+    },
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "syndata"
+    }
+   ]
+  },
+  "first": {
+   "by_service": [
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 2,
+       "strategy": "simple"
+      },
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "composite"
+      }
+     ],
+     "service": "list=googlevideo|tcp=443"
+    },
+    {
+     "counts": [
+      {
+       "catalog": "udp",
+       "count": 1,
+       "strategy": "udp_fake"
+      }
+     ],
+     "service": "udp=50000"
+    },
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "syndata"
+      }
+     ],
+     "service": "list=other|tcp=443"
+    }
+   ],
+   "service_match_lines": {
+    "list=googlevideo|tcp=443": [
+     "--filter-tcp=443",
+     "--hostlist=googlevideo.txt"
+    ],
+    "list=other|tcp=443": [
+     "--filter-tcp=443",
+     "--hostlist=other.txt"
+    ],
+    "udp=50000": [
+     "--filter-udp=50000"
+    ]
+   },
+   "service_names": {
+    "list=googlevideo|tcp=443": "YouTube простой",
+    "list=other|tcp=443": "Отключенный пресет",
+    "udp=50000": "Квик UDP"
+   },
+   "services": [
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "simple"
+    },
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "composite"
+    },
+    {
+     "catalog": "udp",
+     "count": 1,
+     "strategy": "udp_fake"
+    },
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "syndata"
+    }
+   ]
+  },
+  "w1_cached": {
+   "by_service": [
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "other"
+      }
+     ],
+     "service": "tcp=443"
+    }
+   ],
+   "service_match_lines": {
+    "tcp=443": [
+     "--filter-tcp=443"
+    ]
+   },
+   "service_names": {
+    "tcp=443": "W1 профиль"
+   },
+   "services": [
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "other"
+    }
+   ]
+  },
+  "w1_first": {
+   "by_service": [
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "other"
+      }
+     ],
+     "service": "tcp=443"
+    }
+   ],
+   "service_match_lines": {
+    "tcp=443": [
+     "--filter-tcp=443"
+    ]
+   },
+   "service_names": {
+    "tcp=443": "W1 профиль"
+   },
+   "services": [
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "other"
+    }
+   ]
+  }
+ },
+ "winws1": {
+  "usage": {
+   "by_service": [
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "other"
+      }
+     ],
+     "service": "tcp=443"
+    }
+   ],
+   "service_match_lines": {
+    "tcp=443": [
+     "--filter-tcp=443"
+    ]
+   },
+   "service_names": {
+    "tcp=443": "W1 профиль"
+   },
+   "services": [
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "other"
+    }
+   ]
+  }
+ },
+ "winws2": {
+  "for_profile": [
+   {
+    "recommended": true,
+    "same_service": 2,
+    "services": 1,
+    "strategy": "simple"
+   },
+   {
+    "recommended": true,
+    "same_service": 1,
+    "services": 1,
+    "strategy": "composite"
+   },
+   {
+    "recommended": false,
+    "same_service": 0,
+    "services": 1,
+    "strategy": "syndata"
+   }
+  ],
+  "for_profile_udp_catalog": [
+   {
+    "recommended": false,
+    "same_service": 0,
+    "services": 1,
+    "strategy": "udp_fake"
+   }
+  ],
+  "places_composite": {
+   "count": 1,
+   "name": "YouTube простой",
+   "service": "list=googlevideo|tcp=443"
+  },
+  "places_fake": {
+   "count": 1,
+   "name": "Квик UDP",
+   "service": "udp=50000"
+  },
+  "places_other_catalog": null,
+  "places_simple": {
+   "count": 2,
+   "name": "YouTube простой",
+   "service": "list=googlevideo|tcp=443"
+  },
+  "places_syndata": {
+   "count": 1,
+   "name": "Отключенный пресет",
+   "service": "list=other|tcp=443"
+  },
+  "places_voice": null,
+  "service_key": "list=googlevideo|tcp=443",
+  "usage": {
+   "by_service": [
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 2,
+       "strategy": "simple"
+      },
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "composite"
+      }
+     ],
+     "service": "list=googlevideo|tcp=443"
+    },
+    {
+     "counts": [
+      {
+       "catalog": "udp",
+       "count": 1,
+       "strategy": "udp_fake"
+      }
+     ],
+     "service": "udp=50000"
+    },
+    {
+     "counts": [
+      {
+       "catalog": "tcp",
+       "count": 1,
+       "strategy": "syndata"
+      }
+     ],
+     "service": "list=other|tcp=443"
+    }
+   ],
+   "service_match_lines": {
+    "list=googlevideo|tcp=443": [
+     "--filter-tcp=443",
+     "--hostlist=googlevideo.txt"
+    ],
+    "list=other|tcp=443": [
+     "--filter-tcp=443",
+     "--hostlist=other.txt"
+    ],
+    "udp=50000": [
+     "--filter-udp=50000"
+    ]
+   },
+   "service_names": {
+    "list=googlevideo|tcp=443": "YouTube простой",
+    "list=other|tcp=443": "Отключенный пресет",
+    "udp=50000": "Квик UDP"
+   },
+   "services": [
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "simple"
+    },
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "composite"
+    },
+    {
+     "catalog": "udp",
+     "count": 1,
+     "strategy": "udp_fake"
+    },
+    {
+     "catalog": "tcp",
+     "count": 1,
+     "strategy": "syndata"
+    }
+   ]
+  }
+ }
+}

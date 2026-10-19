@@ -1,0 +1,316 @@
+[
+ {
+  "input": [],
+  "output": {
+   "actions": [],
+   "strategy_lines": [],
+   "other_lines": []
+  }
+ },
+ {
+  "input": [
+   ""
+  ],
+  "output": {
+   "actions": [],
+   "strategy_lines": [],
+   "other_lines": []
+  }
+ },
+ {
+  "input": [
+   "--payload=tcp",
+   "--in-range=1-4",
+   "--out-range=2-6",
+   "--lua-desync=fake:1=2:flag:--foo=bar",
+   "ip-id-1-new:x",
+   "--lua-desync=split:segment=1500",
+   "--in-range=7-9",
+   "--lua-desync=ttl:mixed=1,2,3:hi"
+  ],
+  "output": {
+   "actions": [
+    {
+     "raw_line": "--lua-desync=fake:1=2:flag:--foo=bar",
+     "func_name": "fake",
+     "args": [
+      {
+       "raw": "1=2",
+       "key": "1",
+       "value": "2",
+       "is_flag": false
+      },
+      {
+       "raw": "flag",
+       "key": "",
+       "value": "",
+       "is_flag": true
+      },
+      {
+       "raw": "--foo=bar",
+       "key": "--foo",
+       "value": "bar",
+       "is_flag": false
+      }
+     ],
+     "flags": [
+      "flag"
+     ],
+     "payload": "tcp",
+     "in_range": "1-4",
+     "out_range": "2-6"
+    },
+    {
+     "raw_line": "--lua-desync=split:segment=1500",
+     "func_name": "split",
+     "args": [
+      {
+       "raw": "segment=1500",
+       "key": "segment",
+       "value": "1500",
+       "is_flag": false
+      }
+     ],
+     "flags": [],
+     "payload": "tcp",
+     "in_range": "1-4",
+     "out_range": "2-6"
+    },
+    {
+     "raw_line": "--lua-desync=ttl:mixed=1,2,3:hi",
+     "func_name": "ttl",
+     "args": [
+      {
+       "raw": "mixed=1,2,3",
+       "key": "mixed",
+       "value": "1,2,3",
+       "is_flag": false
+      },
+      {
+       "raw": "hi",
+       "key": "",
+       "value": "",
+       "is_flag": true
+      }
+     ],
+     "flags": [
+      "hi"
+     ],
+     "payload": "tcp",
+     "in_range": "7-9",
+     "out_range": "2-6"
+    }
+   ],
+   "strategy_lines": [
+    "--payload=tcp",
+    "--in-range=1-4",
+    "--out-range=2-6",
+    "--lua-desync=fake:1=2:flag:--foo=bar",
+    "ip-id-1-new:x",
+    "--lua-desync=split:segment=1500",
+    "--in-range=7-9",
+    "--lua-desync=ttl:mixed=1,2,3:hi"
+   ],
+   "other_lines": [
+    "ip-id-1-new:x"
+   ]
+  }
+ },
+ {
+  "input": [
+   "--PAYLOAD=udp",
+   "--lua-desync=fake:mt=3\\::special",
+   "--lua-desync=hop:naked=test\\::more"
+  ],
+  "output": {
+   "actions": [
+    {
+     "raw_line": "--lua-desync=fake:mt=3\\::special",
+     "func_name": "fake",
+     "args": [
+      {
+       "raw": "mt=3:",
+       "key": "mt",
+       "value": "3:",
+       "is_flag": false
+      },
+      {
+       "raw": "special",
+       "key": "",
+       "value": "",
+       "is_flag": true
+      }
+     ],
+     "flags": [
+      "special"
+     ],
+     "payload": "udp",
+     "in_range": "x",
+     "out_range": "a"
+    },
+    {
+     "raw_line": "--lua-desync=hop:naked=test\\::more",
+     "func_name": "hop",
+     "args": [
+      {
+       "raw": "naked=test:",
+       "key": "naked",
+       "value": "test:",
+       "is_flag": false
+      },
+      {
+       "raw": "more",
+       "key": "",
+       "value": "",
+       "is_flag": true
+      }
+     ],
+     "flags": [
+      "more"
+     ],
+     "payload": "udp",
+     "in_range": "x",
+     "out_range": "a"
+    }
+   ],
+   "strategy_lines": [
+    "--PAYLOAD=udp",
+    "--lua-desync=fake:mt=3\\::special",
+    "--lua-desync=hop:naked=test\\::more"
+   ],
+   "other_lines": []
+  }
+ },
+ {
+  "input": [
+   "--in-range",
+   "--out-range",
+   "--lua-desync="
+  ],
+  "output": {
+   "actions": [
+    {
+     "raw_line": "--lua-desync=",
+     "func_name": "",
+     "args": [],
+     "flags": [],
+     "payload": "all",
+     "in_range": "x",
+     "out_range": "a"
+    }
+   ],
+   "strategy_lines": [
+    "--in-range",
+    "--out-range",
+    "--lua-desync="
+   ],
+   "other_lines": []
+  }
+ },
+ {
+  "input": [
+   "  --payload=tls  ",
+   "",
+   "--lua-desync= seq:step=  slide9",
+   "x:y"
+  ],
+  "output": {
+   "actions": [
+    {
+     "raw_line": "--lua-desync= seq:step=  slide9",
+     "func_name": "seq",
+     "args": [
+      {
+       "raw": "step=  slide9",
+       "key": "step",
+       "value": "slide9",
+       "is_flag": false
+      }
+     ],
+     "flags": [],
+     "payload": "tls",
+     "in_range": "x",
+     "out_range": "a"
+    }
+   ],
+   "strategy_lines": [
+    "--payload=tls",
+    "--lua-desync= seq:step=  slide9",
+    "x:y"
+   ],
+   "other_lines": [
+    "x:y"
+   ]
+  }
+ },
+ {
+  "input": [
+   "--lua-desync=first",
+   "--lua-desync=second",
+   "third"
+  ],
+  "output": {
+   "actions": [
+    {
+     "raw_line": "--lua-desync=first",
+     "func_name": "first",
+     "args": [],
+     "flags": [],
+     "payload": "all",
+     "in_range": "x",
+     "out_range": "a"
+    },
+    {
+     "raw_line": "--lua-desync=second",
+     "func_name": "second",
+     "args": [],
+     "flags": [],
+     "payload": "all",
+     "in_range": "x",
+     "out_range": "a"
+    }
+   ],
+   "strategy_lines": [
+    "--lua-desync=first",
+    "--lua-desync=second",
+    "third"
+   ],
+   "other_lines": [
+    "third"
+   ]
+  }
+ },
+ {
+  "input": [
+   "страни:ки:русский",
+   "--lua-desync= привод:квас=зёд"
+  ],
+  "output": {
+   "actions": [
+    {
+     "raw_line": "--lua-desync= привод:квас=зёд",
+     "func_name": "привод",
+     "args": [
+      {
+       "raw": "квас=зёд",
+       "key": "квас",
+       "value": "зёд",
+       "is_flag": false
+      }
+     ],
+     "flags": [],
+     "payload": "all",
+     "in_range": "x",
+     "out_range": "a"
+    }
+   ],
+   "strategy_lines": [
+    "страни:ки:русский",
+    "--lua-desync= привод:квас=зёд"
+   ],
+   "other_lines": [
+    "страни:ки:русский"
+   ]
+  }
+ }
+]

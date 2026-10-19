@@ -1,0 +1,8 @@
+[package]
+name = "primecore-socketcancel"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/utils/socket_cancel.py: общая кнопка «Стоп» для сетевых запросов."
+
+[dependencies]

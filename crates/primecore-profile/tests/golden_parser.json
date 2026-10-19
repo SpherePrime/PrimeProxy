@@ -1,0 +1,727 @@
+[
+ {
+  "name": "winws2",
+  "engine": "winws2",
+  "text": "# Основной пресет: зеркала общения\n--lua-init=print(\"готово\")\n--wf-tcp=443\n--blob=amazon:noise=zero\n# Профили дальше\n\n--new=\"Чистый TCP\"\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag:--foo=bar\n--lua-desync=split:segment=1500\n\n--new=\"Youtube • hostlist video.txt\"\n--filter-tcp=80,443\n--hostlist=@C:\\lists\\video.txt\n\n--comment=\"Скрытый\"\n--skip\n--filter-udp=443\n--ipset-ip=1.2.3.4,5.6.7.8\n\n# конец\n",
+  "preset": {
+   "engine": "winws2",
+   "header_lines": [
+    "# Основной пресет: зеркала общения"
+   ],
+   "preamble_lines": [
+    "--lua-init=print(\"готово\")",
+    "--wf-tcp=443",
+    "--blob=amazon:noise=zero",
+    "# Профили дальше",
+    ""
+   ],
+   "footer_lines": [],
+   "source_name": "",
+   "profiles": [
+    {
+     "id": "profile:0",
+     "index": 0,
+     "engine": "winws2",
+     "display_name": "Чистый TCP",
+     "enabled": true,
+     "name": "Чистый TCP",
+     "new_line": "--new=\"Чистый TCP\"",
+     "match_signature": "",
+     "persistent_key": "name:Чистый TCP",
+     "match": {
+      "filter_lines": [],
+      "hostlist_lines": [],
+      "ipset_lines": [],
+      "hostlist_exclude_lines": [],
+      "hostlist_auto_lines": [],
+      "ipset_exclude_lines": [],
+      "hostlist_domains_lines": [],
+      "inline_ipset_lines": [],
+      "other_lines": []
+     },
+     "strategy_data": {
+      "kind": "Winws2Strategy",
+      "actions": [
+       {
+        "raw_line": "--lua-desync=fake:1=2:flag:--foo=bar",
+        "func_name": "fake",
+        "args": [
+         {
+          "raw": "1=2",
+          "key": "1",
+          "value": "2",
+          "is_flag": false
+         },
+         {
+          "raw": "flag",
+          "key": "",
+          "value": "",
+          "is_flag": true
+         },
+         {
+          "raw": "--foo=bar",
+          "key": "--foo",
+          "value": "bar",
+          "is_flag": false
+         }
+        ],
+        "flags": [
+         "flag"
+        ],
+        "payload": "tcp",
+        "in_range": "1-4",
+        "out_range": "2-6"
+       },
+       {
+        "raw_line": "--lua-desync=split:segment=1500",
+        "func_name": "split",
+        "args": [
+         {
+          "raw": "segment=1500",
+          "key": "segment",
+          "value": "1500",
+          "is_flag": false
+         }
+        ],
+        "flags": [],
+        "payload": "tcp",
+        "in_range": "1-4",
+        "out_range": "2-6"
+       }
+      ],
+      "strategy_lines": [
+       "--payload=tcp",
+       "--in-range=1-4",
+       "--out-range=2-6",
+       "--lua-desync=fake:1=2:flag:--foo=bar",
+       "--lua-desync=split:segment=1500"
+      ],
+      "other_lines": []
+     },
+     "segments": [
+      {
+       "kind": "strategy_filter",
+       "text": "--payload=tcp",
+       "name": "--payload",
+       "value": "tcp"
+      },
+      {
+       "kind": "strategy_filter",
+       "text": "--in-range=1-4",
+       "name": "--in-range",
+       "value": "1-4"
+      },
+      {
+       "kind": "strategy_filter",
+       "text": "--out-range=2-6",
+       "name": "--out-range",
+       "value": "2-6"
+      },
+      {
+       "kind": "strategy",
+       "text": "--lua-desync=fake:1=2:flag:--foo=bar",
+       "name": "--lua-desync",
+       "value": "fake:1=2:flag:--foo=bar"
+      },
+      {
+       "kind": "strategy",
+       "text": "--lua-desync=split:segment=1500",
+       "name": "--lua-desync",
+       "value": "split:segment=1500"
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      }
+     ]
+    },
+    {
+     "id": "profile:1",
+     "index": 1,
+     "engine": "winws2",
+     "display_name": "Youtube • hostlist video.txt",
+     "enabled": false,
+     "name": "Youtube • hostlist video.txt",
+     "new_line": "--new=\"Youtube • hostlist video.txt\"",
+     "match_signature": "hostlist=video.txt|ipset-ip=1.2.3.4,5.6.7.8|tcp=80,443|udp=443",
+     "persistent_key": "name:Youtube • hostlist video.txt",
+     "match": {
+      "filter_lines": [
+       "--filter-tcp=80,443",
+       "--filter-udp=443"
+      ],
+      "hostlist_lines": [
+       "--hostlist=@C:\\lists\\video.txt"
+      ],
+      "ipset_lines": [],
+      "hostlist_exclude_lines": [],
+      "hostlist_auto_lines": [],
+      "ipset_exclude_lines": [],
+      "hostlist_domains_lines": [],
+      "inline_ipset_lines": [
+       "--ipset-ip=1.2.3.4,5.6.7.8"
+      ],
+      "other_lines": []
+     },
+     "strategy_data": {
+      "kind": "Winws2Strategy",
+      "actions": [],
+      "strategy_lines": [],
+      "other_lines": []
+     },
+     "segments": [
+      {
+       "kind": "match",
+       "text": "--filter-tcp=80,443",
+       "name": "--filter-tcp",
+       "value": "80,443"
+      },
+      {
+       "kind": "match",
+       "text": "--hostlist=@C:\\lists\\video.txt",
+       "name": "--hostlist",
+       "value": "@C:\\lists\\video.txt"
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      },
+      {
+       "kind": "directive",
+       "text": "--comment=\"Скрытый\"",
+       "name": "--comment",
+       "value": "\"Скрытый\""
+      },
+      {
+       "kind": "directive",
+       "text": "--skip",
+       "name": "--skip",
+       "value": ""
+      },
+      {
+       "kind": "match",
+       "text": "--filter-udp=443",
+       "name": "--filter-udp",
+       "value": "443"
+      },
+      {
+       "kind": "match",
+       "text": "--ipset-ip=1.2.3.4,5.6.7.8",
+       "name": "--ipset-ip",
+       "value": "1.2.3.4,5.6.7.8"
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      },
+      {
+       "kind": "comment",
+       "text": "# конец",
+       "name": "",
+       "value": ""
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      }
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "name": "winws1",
+  "engine": "winws1",
+  "text": "# WinWS1\n--dpi-desync=syndata\n--wf-tcp=443\n\n--new=\"Первый\"\n--filter-tcp=80\n--dpi-desync=fake,disorder2\n--dup-fooling=badseq\n\n--skip\n--new=\"Второй\"\n--filter-tcp=443\n--wssize=1:6\n",
+  "preset": {
+   "engine": "winws1",
+   "header_lines": [
+    "# WinWS1"
+   ],
+   "preamble_lines": [],
+   "footer_lines": [],
+   "source_name": "",
+   "profiles": [
+    {
+     "id": "profile:0",
+     "index": 0,
+     "engine": "winws1",
+     "display_name": "Без фильтра",
+     "enabled": true,
+     "name": "",
+     "new_line": "",
+     "match_signature": "",
+     "persistent_key": "sig:",
+     "match": {
+      "filter_lines": [],
+      "hostlist_lines": [],
+      "ipset_lines": [],
+      "hostlist_exclude_lines": [],
+      "hostlist_auto_lines": [],
+      "ipset_exclude_lines": [],
+      "hostlist_domains_lines": [],
+      "inline_ipset_lines": [],
+      "other_lines": []
+     },
+     "strategy_data": {
+      "kind": "Winws1Strategy",
+      "dpi_desync_lines": [
+       "--dpi-desync=syndata"
+      ],
+      "dup_lines": [],
+      "wssize_lines": [],
+      "ip_id_lines": [],
+      "strategy_lines": [
+       "--dpi-desync=syndata",
+       "--wf-tcp=443"
+      ],
+      "other_lines": [
+       "--wf-tcp=443"
+      ]
+     },
+     "segments": [
+      {
+       "kind": "strategy",
+       "text": "--dpi-desync=syndata",
+       "name": "--dpi-desync",
+       "value": "syndata"
+      },
+      {
+       "kind": "strategy",
+       "text": "--wf-tcp=443",
+       "name": "--wf-tcp",
+       "value": "443"
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      }
+     ]
+    },
+    {
+     "id": "profile:1",
+     "index": 1,
+     "engine": "winws1",
+     "display_name": "Первый",
+     "enabled": false,
+     "name": "Первый",
+     "new_line": "--new=\"Первый\"",
+     "match_signature": "tcp=80",
+     "persistent_key": "name:Первый",
+     "match": {
+      "filter_lines": [
+       "--filter-tcp=80"
+      ],
+      "hostlist_lines": [],
+      "ipset_lines": [],
+      "hostlist_exclude_lines": [],
+      "hostlist_auto_lines": [],
+      "ipset_exclude_lines": [],
+      "hostlist_domains_lines": [],
+      "inline_ipset_lines": [],
+      "other_lines": []
+     },
+     "strategy_data": {
+      "kind": "Winws1Strategy",
+      "dpi_desync_lines": [
+       "--dpi-desync=fake,disorder2"
+      ],
+      "dup_lines": [
+       "--dup-fooling=badseq"
+      ],
+      "wssize_lines": [],
+      "ip_id_lines": [],
+      "strategy_lines": [
+       "--dpi-desync=fake,disorder2",
+       "--dup-fooling=badseq"
+      ],
+      "other_lines": []
+     },
+     "segments": [
+      {
+       "kind": "match",
+       "text": "--filter-tcp=80",
+       "name": "--filter-tcp",
+       "value": "80"
+      },
+      {
+       "kind": "strategy",
+       "text": "--dpi-desync=fake,disorder2",
+       "name": "--dpi-desync",
+       "value": "fake,disorder2"
+      },
+      {
+       "kind": "strategy",
+       "text": "--dup-fooling=badseq",
+       "name": "--dup-fooling",
+       "value": "badseq"
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      },
+      {
+       "kind": "directive",
+       "text": "--skip",
+       "name": "--skip",
+       "value": ""
+      }
+     ]
+    },
+    {
+     "id": "profile:2",
+     "index": 2,
+     "engine": "winws1",
+     "display_name": "Второй",
+     "enabled": true,
+     "name": "Второй",
+     "new_line": "--new=\"Второй\"",
+     "match_signature": "tcp=443",
+     "persistent_key": "name:Второй",
+     "match": {
+      "filter_lines": [
+       "--filter-tcp=443"
+      ],
+      "hostlist_lines": [],
+      "ipset_lines": [],
+      "hostlist_exclude_lines": [],
+      "hostlist_auto_lines": [],
+      "ipset_exclude_lines": [],
+      "hostlist_domains_lines": [],
+      "inline_ipset_lines": [],
+      "other_lines": []
+     },
+     "strategy_data": {
+      "kind": "Winws1Strategy",
+      "dpi_desync_lines": [],
+      "dup_lines": [],
+      "wssize_lines": [
+       "--wssize=1:6"
+      ],
+      "ip_id_lines": [],
+      "strategy_lines": [
+       "--wssize=1:6"
+      ],
+      "other_lines": []
+     },
+     "segments": [
+      {
+       "kind": "match",
+       "text": "--filter-tcp=443",
+       "name": "--filter-tcp",
+       "value": "443"
+      },
+      {
+       "kind": "strategy",
+       "text": "--wssize=1:6",
+       "name": "--wssize",
+       "value": "1:6"
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      }
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "name": "dupes",
+  "engine": "winws2",
+  "text": "--new=\"Двойка\"\n--hostlist=same.txt\n--lua-desync=fake\n\n--new=\"Двойка\"\n--hostlist=same.txt\n--lua-desync=split\n",
+  "preset": {
+   "engine": "winws2",
+   "header_lines": [],
+   "preamble_lines": [],
+   "footer_lines": [],
+   "source_name": "",
+   "profiles": [
+    {
+     "id": "profile:0",
+     "index": 0,
+     "engine": "winws2",
+     "display_name": "Двойка",
+     "enabled": true,
+     "name": "Двойка",
+     "new_line": "--new=\"Двойка\"",
+     "match_signature": "hostlist=same.txt",
+     "persistent_key": "name:Двойка",
+     "match": {
+      "filter_lines": [],
+      "hostlist_lines": [
+       "--hostlist=same.txt"
+      ],
+      "ipset_lines": [],
+      "hostlist_exclude_lines": [],
+      "hostlist_auto_lines": [],
+      "ipset_exclude_lines": [],
+      "hostlist_domains_lines": [],
+      "inline_ipset_lines": [],
+      "other_lines": []
+     },
+     "strategy_data": {
+      "kind": "Winws2Strategy",
+      "actions": [
+       {
+        "raw_line": "--lua-desync=fake",
+        "func_name": "fake",
+        "args": [],
+        "flags": [],
+        "payload": "all",
+        "in_range": "x",
+        "out_range": "a"
+       }
+      ],
+      "strategy_lines": [
+       "--lua-desync=fake"
+      ],
+      "other_lines": []
+     },
+     "segments": [
+      {
+       "kind": "match",
+       "text": "--hostlist=same.txt",
+       "name": "--hostlist",
+       "value": "same.txt"
+      },
+      {
+       "kind": "strategy",
+       "text": "--lua-desync=fake",
+       "name": "--lua-desync",
+       "value": "fake"
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      }
+     ]
+    },
+    {
+     "id": "profile:1",
+     "index": 1,
+     "engine": "winws2",
+     "display_name": "Двойка",
+     "enabled": true,
+     "name": "Двойка",
+     "new_line": "--new=\"Двойка\"",
+     "match_signature": "hostlist=same.txt",
+     "persistent_key": "name:Двойка|list=same",
+     "match": {
+      "filter_lines": [],
+      "hostlist_lines": [
+       "--hostlist=same.txt"
+      ],
+      "ipset_lines": [],
+      "hostlist_exclude_lines": [],
+      "hostlist_auto_lines": [],
+      "ipset_exclude_lines": [],
+      "hostlist_domains_lines": [],
+      "inline_ipset_lines": [],
+      "other_lines": []
+     },
+     "strategy_data": {
+      "kind": "Winws2Strategy",
+      "actions": [
+       {
+        "raw_line": "--lua-desync=split",
+        "func_name": "split",
+        "args": [],
+        "flags": [],
+        "payload": "all",
+        "in_range": "x",
+        "out_range": "a"
+       }
+      ],
+      "strategy_lines": [
+       "--lua-desync=split"
+      ],
+      "other_lines": []
+     },
+     "segments": [
+      {
+       "kind": "match",
+       "text": "--hostlist=same.txt",
+       "name": "--hostlist",
+       "value": "same.txt"
+      },
+      {
+       "kind": "strategy",
+       "text": "--lua-desync=split",
+       "name": "--lua-desync",
+       "value": "split"
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      }
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "name": "other",
+  "engine": "winws1",
+  "text": "Обычная строка без профиля\n--bucket=1\n# только коммент\n\n--new\n--payload=udp\nстрока неoption\n--lua-desync=\n",
+  "preset": {
+   "engine": "winws1",
+   "header_lines": [],
+   "preamble_lines": [
+    "Обычная строка без профиля",
+    "--bucket=1",
+    "# только коммент",
+    ""
+   ],
+   "footer_lines": [],
+   "source_name": "",
+   "profiles": [
+    {
+     "id": "profile:0",
+     "index": 0,
+     "engine": "winws1",
+     "display_name": "Без фильтра • сложный match",
+     "enabled": true,
+     "name": "",
+     "new_line": "--new",
+     "match_signature": "",
+     "persistent_key": "sig:",
+     "match": {
+      "filter_lines": [],
+      "hostlist_lines": [],
+      "ipset_lines": [],
+      "hostlist_exclude_lines": [],
+      "hostlist_auto_lines": [],
+      "ipset_exclude_lines": [],
+      "hostlist_domains_lines": [],
+      "inline_ipset_lines": [],
+      "other_lines": [
+       "--payload=udp",
+       "строка неoption",
+       "--lua-desync="
+      ]
+     },
+     "strategy_data": {
+      "kind": "Winws1Strategy",
+      "dpi_desync_lines": [],
+      "dup_lines": [],
+      "wssize_lines": [],
+      "ip_id_lines": [],
+      "strategy_lines": [],
+      "other_lines": []
+     },
+     "segments": [
+      {
+       "kind": "match",
+       "text": "--payload=udp",
+       "name": "--payload",
+       "value": "udp"
+      },
+      {
+       "kind": "match",
+       "text": "строка неoption",
+       "name": "строка неoption",
+       "value": ""
+      },
+      {
+       "kind": "match",
+       "text": "--lua-desync=",
+       "name": "--lua-desync",
+       "value": ""
+      },
+      {
+       "kind": "blank",
+       "text": "",
+       "name": "",
+       "value": ""
+      }
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "name": "outline",
+  "engine": "winws2",
+  "text": "# Основной пресет: зеркала общения\n--lua-init=print(\"готово\")\n--wf-tcp=443\n--blob=amazon:noise=zero\n# Профили дальше\n\n--new=\"Чистый TCP\"\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag:--foo=bar\n--lua-desync=split:segment=1500\n\n--new=\"Youtube • hostlist video.txt\"\n--filter-tcp=80,443\n--hostlist=@C:\\lists\\video.txt\n\n--comment=\"Скрытый\"\n--skip\n--filter-udp=443\n--ipset-ip=1.2.3.4,5.6.7.8\n\n# конец\n",
+  "outline": {
+   "header": [
+    0
+   ],
+   "lua_init": [
+    1
+   ],
+   "interception": [
+    2
+   ],
+   "blobs": [
+    3
+   ],
+   "engine_options": [],
+   "profiles": [
+    {
+     "new_line": 6,
+     "lines": [
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "name": [],
+     "match": [],
+     "packets": [
+      7,
+      8,
+      9
+     ],
+     "strategy": [
+      10,
+      11
+     ]
+    },
+    {
+     "new_line": 13,
+     "lines": [
+      14,
+      15,
+      17,
+      18,
+      19,
+      20
+     ],
+     "name": [
+      17,
+      18
+     ],
+     "match": [
+      14,
+      15,
+      19,
+      20
+     ],
+     "packets": [],
+     "strategy": []
+    }
+   ]
+  }
+ }
+]

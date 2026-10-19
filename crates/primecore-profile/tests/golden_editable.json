@@ -1,0 +1,791 @@
+{
+ "ops": {
+  "edits": {
+   "hostlist_change": {
+    "index": 0,
+    "preset": {
+     "engine": "winws2",
+     "footer": [],
+     "header": [],
+     "preamble": [],
+     "profiles": [
+      {
+       "enabled": true,
+       "match": {
+        "filter_lines": [
+         "--filter-tcp=443"
+        ],
+        "hostlist_auto_lines": [],
+        "hostlist_domains_lines": [],
+        "hostlist_exclude_lines": [],
+        "hostlist_lines": [],
+        "inline_ipset_lines": [],
+        "ipset_exclude_lines": [],
+        "ipset_lines": [
+         "--ipset=new.city.txt"
+        ],
+        "other_lines": []
+       },
+       "name": "Peredovoy Bereg",
+       "segments": [
+        [
+         "blank",
+         ""
+        ],
+        [
+         "match",
+         "--filter-tcp=443"
+        ],
+        [
+         "match",
+         "--ipset=new.city.txt"
+        ],
+        [
+         "strategy_filter",
+         "--in-range=n1-d8"
+        ],
+        [
+         "strategy",
+         "--lua-desync=fakedsplit:4"
+        ],
+        [
+         "strategy",
+         "--lua-desync=split:2"
+        ],
+        [
+         "strategy_filter",
+         "--out-range=x"
+        ],
+        [
+         "blank",
+         ""
+        ]
+       ]
+      },
+      {
+       "enabled": true,
+       "match": {
+        "filter_lines": [
+         "--filter-tcp=80"
+        ],
+        "hostlist_auto_lines": [],
+        "hostlist_domains_lines": [],
+        "hostlist_exclude_lines": [
+         "--hostlist-exclude=gov.ru.txt"
+        ],
+        "hostlist_lines": [],
+        "inline_ipset_lines": [],
+        "ipset_exclude_lines": [],
+        "ipset_lines": [
+         "--ipset=ipset-ru.txt"
+        ],
+        "other_lines": []
+       },
+       "name": "Isklyuchenie RU",
+       "segments": [
+        [
+         "blank",
+         ""
+        ],
+        [
+         "match",
+         "--filter-tcp=80"
+        ],
+        [
+         "match",
+         "--ipset=ipset-ru.txt"
+        ],
+        [
+         "match",
+         "--hostlist-exclude=gov.ru.txt"
+        ],
+        [
+         "strategy_filter",
+         "--in-range=a"
+        ],
+        [
+         "blank",
+         ""
+        ]
+       ]
+      }
+     ],
+     "source_name": "alpha"
+    }
+   },
+   "range_add": {
+    "index": 1,
+    "preset": {
+     "engine": "winws2",
+     "footer": [],
+     "header": [],
+     "preamble": [],
+     "profiles": [
+      {
+       "enabled": true,
+       "match": {
+        "filter_lines": [
+         "--filter-tcp=443"
+        ],
+        "hostlist_auto_lines": [],
+        "hostlist_domains_lines": [],
+        "hostlist_exclude_lines": [],
+        "hostlist_lines": [
+         "--hostlist=steam.ru.txt"
+        ],
+        "inline_ipset_lines": [],
+        "ipset_exclude_lines": [],
+        "ipset_lines": [],
+        "other_lines": []
+       },
+       "name": "Peredovoy Bereg",
+       "segments": [
+        [
+         "blank",
+         ""
+        ],
+        [
+         "match",
+         "--filter-tcp=443"
+        ],
+        [
+         "match",
+         "--hostlist=steam.ru.txt"
+        ],
+        [
+         "strategy_filter",
+         "--in-range=n1-d8"
+        ],
+        [
+         "strategy",
+         "--lua-desync=fakedsplit:4"
+        ],
+        [
+         "strategy",
+         "--lua-desync=split:2"
+        ],
+        [
+         "strategy_filter",
+         "--out-range=x"
+        ],
+        [
+         "blank",
+         ""
+        ]
+       ]
+      },
+      {
+       "enabled": true,
+       "match": {
+        "filter_lines": [
+         "--filter-tcp=80"
+        ],
+        "hostlist_auto_lines": [],
+        "hostlist_domains_lines": [],
+        "hostlist_exclude_lines": [
+         "--hostlist-exclude=gov.ru.txt"
+        ],
+        "hostlist_lines": [],
+        "inline_ipset_lines": [],
+        "ipset_exclude_lines": [],
+        "ipset_lines": [
+         "--ipset=ipset-ru.txt"
+        ],
+        "other_lines": []
+       },
+       "name": "Isklyuchenie RU",
+       "segments": [
+        [
+         "blank",
+         ""
+        ],
+        [
+         "match",
+         "--filter-tcp=80"
+        ],
+        [
+         "match",
+         "--ipset=ipset-ru.txt"
+        ],
+        [
+         "match",
+         "--hostlist-exclude=gov.ru.txt"
+        ],
+        [
+         "strategy_filter",
+         "--in-range=p2<d3"
+        ],
+        [
+         "strategy_filter",
+         "--out-range=-n3"
+        ],
+        [
+         "blank",
+         ""
+        ]
+       ]
+      }
+     ],
+     "source_name": "alpha"
+    }
+   },
+   "range_change": {
+    "index": 0,
+    "preset": {
+     "engine": "winws2",
+     "footer": [],
+     "header": [],
+     "preamble": [],
+     "profiles": [
+      {
+       "enabled": true,
+       "match": {
+        "filter_lines": [
+         "--filter-tcp=443"
+        ],
+        "hostlist_auto_lines": [],
+        "hostlist_domains_lines": [],
+        "hostlist_exclude_lines": [],
+        "hostlist_lines": [
+         "--hostlist=steam.ru.txt"
+        ],
+        "inline_ipset_lines": [],
+        "ipset_exclude_lines": [],
+        "ipset_lines": [],
+        "other_lines": []
+       },
+       "name": "Peredovoy Bereg",
+       "segments": [
+        [
+         "blank",
+         ""
+        ],
+        [
+         "match",
+         "--filter-tcp=443"
+        ],
+        [
+         "match",
+         "--hostlist=steam.ru.txt"
+        ],
+        [
+         "strategy_filter",
+         "--in-range=-n1"
+        ],
+        [
+         "strategy_filter",
+         "--out-range=n8-"
+        ],
+        [
+         "strategy",
+         "--lua-desync=fakedsplit:4"
+        ],
+        [
+         "strategy",
+         "--lua-desync=split:2"
+        ],
+        [
+         "strategy_filter",
+         "--out-range=x"
+        ],
+        [
+         "blank",
+         ""
+        ]
+       ]
+      },
+      {
+       "enabled": true,
+       "match": {
+        "filter_lines": [
+         "--filter-tcp=80"
+        ],
+        "hostlist_auto_lines": [],
+        "hostlist_domains_lines": [],
+        "hostlist_exclude_lines": [
+         "--hostlist-exclude=gov.ru.txt"
+        ],
+        "hostlist_lines": [],
+        "inline_ipset_lines": [],
+        "ipset_exclude_lines": [],
+        "ipset_lines": [
+         "--ipset=ipset-ru.txt"
+        ],
+        "other_lines": []
+       },
+       "name": "Isklyuchenie RU",
+       "segments": [
+        [
+         "blank",
+         ""
+        ],
+        [
+         "match",
+         "--filter-tcp=80"
+        ],
+        [
+         "match",
+         "--ipset=ipset-ru.txt"
+        ],
+        [
+         "match",
+         "--hostlist-exclude=gov.ru.txt"
+        ],
+        [
+         "strategy_filter",
+         "--in-range=a"
+        ],
+        [
+         "blank",
+         ""
+        ]
+       ]
+      }
+     ],
+     "source_name": "alpha"
+    }
+   },
+   "range_same_invalid": {
+    "error": "Invalid winws2 packet range value: n6",
+    "index": 0
+   },
+   "value_change": {
+    "index": 0,
+    "preset": {
+     "engine": "winws2",
+     "footer": [],
+     "header": [],
+     "preamble": [],
+     "profiles": [
+      {
+       "enabled": true,
+       "match": {
+        "filter_lines": [
+         "--filter-tcp=443"
+        ],
+        "hostlist_auto_lines": [],
+        "hostlist_domains_lines": [],
+        "hostlist_exclude_lines": [],
+        "hostlist_lines": [
+         "--hostlist=other.list",
+         "--hostlist=这个.txt"
+        ],
+        "inline_ipset_lines": [],
+        "ipset_exclude_lines": [],
+        "ipset_lines": [],
+        "other_lines": []
+       },
+       "name": "Peredovoy Bereg",
+       "segments": [
+        [
+         "blank",
+         ""
+        ],
+        [
+         "match",
+         "--filter-tcp=443"
+        ],
+        [
+         "match",
+         "--hostlist=other.list"
+        ],
+        [
+         "match",
+         "--hostlist=这个.txt"
+        ],
+        [
+         "strategy_filter",
+         "--in-range=n1-d8"
+        ],
+        [
+         "strategy",
+         "--lua-desync=fakedsplit:4"
+        ],
+        [
+         "strategy",
+         "--lua-desync=split:2"
+        ],
+        [
+         "strategy_filter",
+         "--out-range=x"
+        ],
+        [
+         "blank",
+         ""
+        ]
+       ]
+      },
+      {
+       "enabled": true,
+       "match": {
+        "filter_lines": [
+         "--filter-tcp=80"
+        ],
+        "hostlist_auto_lines": [],
+        "hostlist_domains_lines": [],
+        "hostlist_exclude_lines": [
+         "--hostlist-exclude=gov.ru.txt"
+        ],
+        "hostlist_lines": [],
+        "inline_ipset_lines": [],
+        "ipset_exclude_lines": [],
+        "ipset_lines": [
+         "--ipset=ipset-ru.txt"
+        ],
+        "other_lines": []
+       },
+       "name": "Isklyuchenie RU",
+       "segments": [
+        [
+         "blank",
+         ""
+        ],
+        [
+         "match",
+         "--filter-tcp=80"
+        ],
+        [
+         "match",
+         "--ipset=ipset-ru.txt"
+        ],
+        [
+         "match",
+         "--hostlist-exclude=gov.ru.txt"
+        ],
+        [
+         "strategy_filter",
+         "--in-range=a"
+        ],
+        [
+         "blank",
+         ""
+        ]
+       ]
+      }
+     ],
+     "source_name": "alpha"
+    }
+   }
+  },
+  "errors": {
+   "bad_range": "Invalid winws2 packet range value: n6",
+   "bogus_kind": "filter_kind must be hostlist or ipset",
+   "empty_value": "filter_value must not be empty",
+   "not_file": "filter_value must point to a list file",
+   "wrong_index": "list index out of range"
+  },
+  "exclude_role_on_primary": {
+   "engine": "winws2",
+   "footer": [],
+   "header": [],
+   "preamble": [],
+   "profiles": [
+    {
+     "enabled": true,
+     "match": {
+      "filter_lines": [
+       "--filter-tcp=443"
+      ],
+      "hostlist_auto_lines": [],
+      "hostlist_domains_lines": [],
+      "hostlist_exclude_lines": [
+       "--hostlist-exclude=steam.ru.txt"
+      ],
+      "hostlist_lines": [],
+      "inline_ipset_lines": [],
+      "ipset_exclude_lines": [],
+      "ipset_lines": [],
+      "other_lines": []
+     },
+     "name": "Peredovoy Bereg",
+     "segments": [
+      [
+       "blank",
+       ""
+      ],
+      [
+       "match",
+       "--filter-tcp=443"
+      ],
+      [
+       "match",
+       "--hostlist-exclude=steam.ru.txt"
+      ],
+      [
+       "strategy_filter",
+       "--in-range=n1-d8"
+      ],
+      [
+       "strategy",
+       "--lua-desync=fakedsplit:4"
+      ],
+      [
+       "strategy",
+       "--lua-desync=split:2"
+      ],
+      [
+       "strategy_filter",
+       "--out-range=x"
+      ],
+      [
+       "blank",
+       ""
+      ]
+     ]
+    },
+    {
+     "enabled": true,
+     "match": {
+      "filter_lines": [
+       "--filter-tcp=80"
+      ],
+      "hostlist_auto_lines": [],
+      "hostlist_domains_lines": [],
+      "hostlist_exclude_lines": [
+       "--hostlist-exclude=gov.ru.txt"
+      ],
+      "hostlist_lines": [],
+      "inline_ipset_lines": [],
+      "ipset_exclude_lines": [],
+      "ipset_lines": [
+       "--ipset=ipset-ru.txt"
+      ],
+      "other_lines": []
+     },
+     "name": "Isklyuchenie RU",
+     "segments": [
+      [
+       "blank",
+       ""
+      ],
+      [
+       "match",
+       "--filter-tcp=80"
+      ],
+      [
+       "match",
+       "--ipset=ipset-ru.txt"
+      ],
+      [
+       "match",
+       "--hostlist-exclude=gov.ru.txt"
+      ],
+      [
+       "strategy_filter",
+       "--in-range=a"
+      ],
+      [
+       "blank",
+       ""
+      ]
+     ]
+    }
+   ],
+   "source_name": "alpha"
+  },
+  "file_reference": [
+   [
+    "steam.ru.txt",
+    true
+   ],
+   [
+    "steam.ru.txt, gov.txt",
+    true
+   ],
+   [
+    "\"quoted.list\"",
+    true
+   ],
+   [
+    "@lst.txt",
+    true
+   ],
+   [
+    "",
+    false
+   ],
+   [
+    "ste.am",
+    false
+   ],
+   [
+    ".lst",
+    true
+   ],
+   [
+    "..",
+    false
+   ],
+   [
+    "http://x/y.txt",
+    false
+   ],
+   [
+    "y.LST",
+    true
+   ]
+  ],
+  "insert_index": 1,
+  "insert_index_initial": 1,
+  "normalize_filter_value": [
+   [
+    "hostlist-untrusted.txt",
+    "hostlist",
+    "hostlist-untrusted.txt"
+   ],
+   [
+    " steam.ru.txt ",
+    "hostlist",
+    "steam.ru.txt"
+   ],
+   [
+    "a,b,,c",
+    "ipset",
+    "a,b,c"
+   ],
+   [
+    "",
+    "hostlist",
+    ""
+   ],
+   [
+    "\"quoted.txt\"",
+    "ipset",
+    "\"quoted.txt\""
+   ]
+  ],
+  "preset_initial": {
+   "engine": "winws2",
+   "footer": [],
+   "header": [],
+   "preamble": [],
+   "profiles": [
+    {
+     "enabled": true,
+     "match": {
+      "filter_lines": [
+       "--filter-tcp=443"
+      ],
+      "hostlist_auto_lines": [],
+      "hostlist_domains_lines": [],
+      "hostlist_exclude_lines": [],
+      "hostlist_lines": [
+       "--hostlist=steam.ru.txt"
+      ],
+      "inline_ipset_lines": [],
+      "ipset_exclude_lines": [],
+      "ipset_lines": [],
+      "other_lines": []
+     },
+     "name": "Peredovoy Bereg",
+     "segments": [
+      [
+       "match",
+       "--filter-tcp=443"
+      ],
+      [
+       "match",
+       "--hostlist=steam.ru.txt"
+      ],
+      [
+       "strategy_filter",
+       "--in-range=n1-d8"
+      ],
+      [
+       "strategy",
+       "--lua-desync=fakedsplit:4"
+      ],
+      [
+       "strategy",
+       "--lua-desync=split:2"
+      ],
+      [
+       "strategy_filter",
+       "--out-range=x"
+      ]
+     ]
+    },
+    {
+     "enabled": true,
+     "match": {
+      "filter_lines": [
+       "--filter-tcp=80"
+      ],
+      "hostlist_auto_lines": [],
+      "hostlist_domains_lines": [],
+      "hostlist_exclude_lines": [
+       "--hostlist-exclude=gov.ru.txt"
+      ],
+      "hostlist_lines": [],
+      "inline_ipset_lines": [],
+      "ipset_exclude_lines": [],
+      "ipset_lines": [
+       "--ipset=ipset-ru.txt"
+      ],
+      "other_lines": []
+     },
+     "name": "Isklyuchenie RU",
+     "segments": [
+      [
+       "match",
+       "--filter-tcp=80"
+      ],
+      [
+       "match",
+       "--ipset=ipset-ru.txt"
+      ],
+      [
+       "match",
+       "--hostlist-exclude=gov.ru.txt"
+      ],
+      [
+       "strategy_filter",
+       "--in-range=a"
+      ],
+      [
+       "blank",
+       ""
+      ]
+     ]
+    }
+   ],
+   "source_name": "alpha"
+  },
+  "ranges": [
+   [
+    "n1-d8",
+    "a"
+   ],
+   [
+    "a",
+    "a"
+   ]
+  ],
+  "read": [
+   {
+    "index": 0,
+    "settings": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_protocol": "tcp",
+     "filter_role": "primary",
+     "filter_value": "steam.ru.txt",
+     "in_range": "n1-d8",
+     "out_range": "a"
+    }
+   },
+   {
+    "index": 1,
+    "settings": {
+     "filter_editable": true,
+     "filter_kind": "ipset",
+     "filter_protocol": "tcp",
+     "filter_role": "primary",
+     "filter_value": "ipset-ru.txt",
+     "in_range": "a",
+     "out_range": "a"
+    }
+   }
+  ]
+ }
+}

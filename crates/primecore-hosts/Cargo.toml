@@ -1,0 +1,10 @@
+[package]
+name = "primecore-hosts"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт чистой логики src/hosts/hosts.py: управляемый блок hosts."
+
+[dependencies]
+thiserror.workspace = true
+primecore-versions = { path = "../primecore-versions" }

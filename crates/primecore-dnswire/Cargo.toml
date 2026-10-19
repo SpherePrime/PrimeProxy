@@ -1,0 +1,17 @@
+[package]
+name = "primecore-dnswire"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/utils/dns_wire.py: DNS-кодек RFC 1035 и UDP/TCP-транспорт."
+
+[dependencies]
+serde_json.workspace = true
+idna = "1.1"
+primecore-netfailure = { path = "../primecore-netfailure" }
+primecore-socketcancel = { path = "../primecore-socketcancel" }
+rustls.workspace = true
+webpki-roots.workspace = true
+reqwest.workspace = true
+
+[dev-dependencies]

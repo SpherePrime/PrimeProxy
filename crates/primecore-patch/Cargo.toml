@@ -1,0 +1,12 @@
+[package]
+name = "primecore-patch"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/primebypass_update/bsdiff.py: применение заплаток BSDIFF40."
+
+[dependencies]
+bzip2.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]

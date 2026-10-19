@@ -1,0 +1,354 @@
+{
+ "ops": {
+  "catalog": {
+   "empty": "tcp",
+   "http80": "http80",
+   "http80_plus": "tcp",
+   "http80_quic": "tcp",
+   "http80_range": "tcp",
+   "http80_range_big": "tcp",
+   "http80_udp": "tcp",
+   "l7_empty": "tcp",
+   "l7_mixed": "udp",
+   "l7_tcp": "tcp",
+   "l7_udp_quic": "udp",
+   "neg_number": "tcp",
+   "ports_bad": "tcp",
+   "ports_mixed": "tcp",
+   "tcp_only": "tcp",
+   "tcp_range_swap": "tcp",
+   "tcp_udp": "tcp",
+   "voice_discord_udp": "voice",
+   "voice_no_ports": "udp",
+   "voice_only_ports": "udp",
+   "voice_ports": "voice",
+   "voice_stun": "voice"
+  },
+  "filter_values": {
+   "empty": {
+    "l7": [],
+    "tcp": [],
+    "udp": []
+   },
+   "http80": {
+    "l7": [],
+    "tcp": [
+     "80"
+    ],
+    "udp": []
+   },
+   "http80_plus": {
+    "l7": [],
+    "tcp": [
+     "80,443"
+    ],
+    "udp": []
+   },
+   "http80_quic": {
+    "l7": [
+     "quic"
+    ],
+    "tcp": [
+     "80"
+    ],
+    "udp": []
+   },
+   "http80_range": {
+    "l7": [],
+    "tcp": [
+     "80-81"
+    ],
+    "udp": []
+   },
+   "http80_range_big": {
+    "l7": [],
+    "tcp": [
+     "80-10000"
+    ],
+    "udp": []
+   },
+   "http80_udp": {
+    "l7": [],
+    "tcp": [
+     "80"
+    ],
+    "udp": [
+     "443"
+    ]
+   },
+   "l7_empty": {
+    "l7": [
+     ""
+    ],
+    "tcp": [],
+    "udp": []
+   },
+   "l7_mixed": {
+    "l7": [
+     "http,quic"
+    ],
+    "tcp": [],
+    "udp": []
+   },
+   "l7_tcp": {
+    "l7": [
+     "http,tls"
+    ],
+    "tcp": [],
+    "udp": []
+   },
+   "l7_udp_quic": {
+    "l7": [
+     "quic"
+    ],
+    "tcp": [],
+    "udp": []
+   },
+   "neg_number": {
+    "l7": [],
+    "tcp": [
+     "-1"
+    ],
+    "udp": []
+   },
+   "ports_bad": {
+    "l7": [],
+    "tcp": [
+     "-,"
+    ],
+    "udp": [
+     "..-3"
+    ]
+   },
+   "ports_mixed": {
+    "l7": [],
+    "tcp": [
+     "443,80-81,x"
+    ],
+    "udp": [
+     "50000-59001"
+    ]
+   },
+   "tcp_only": {
+    "l7": [],
+    "tcp": [
+     "443"
+    ],
+    "udp": []
+   },
+   "tcp_range_swap": {
+    "l7": [],
+    "tcp": [
+     "81-80"
+    ],
+    "udp": []
+   },
+   "tcp_udp": {
+    "l7": [],
+    "tcp": [
+     "443"
+    ],
+    "udp": [
+     "123"
+    ]
+   },
+   "voice_discord_udp": {
+    "l7": [],
+    "tcp": [],
+    "udp": [
+     "51000"
+    ]
+   },
+   "voice_no_ports": {
+    "l7": [],
+    "tcp": [],
+    "udp": [
+     "100"
+    ]
+   },
+   "voice_only_ports": {
+    "l7": [],
+    "tcp": [],
+    "udp": [
+     "51000"
+    ]
+   },
+   "voice_ports": {
+    "l7": [
+     ""
+    ],
+    "tcp": [],
+    "udp": [
+     "50000-59000"
+    ]
+   },
+   "voice_stun": {
+    "l7": [
+     "stun"
+    ],
+    "tcp": [],
+    "udp": []
+   }
+  },
+  "is_http80": {
+   "empty": false,
+   "http80": true,
+   "http80_plus": false,
+   "http80_quic": false,
+   "http80_range": false,
+   "http80_range_big": false,
+   "http80_udp": false,
+   "l7_empty": false,
+   "l7_mixed": false,
+   "l7_tcp": false,
+   "l7_udp_quic": false,
+   "neg_number": false,
+   "ports_bad": false,
+   "ports_mixed": false,
+   "tcp_only": false,
+   "tcp_range_swap": false,
+   "tcp_udp": false,
+   "voice_discord_udp": false,
+   "voice_no_ports": false,
+   "voice_only_ports": false,
+   "voice_ports": false,
+   "voice_stun": false
+  },
+  "is_voice": {
+   "empty": false,
+   "http80": false,
+   "http80_plus": false,
+   "http80_quic": false,
+   "http80_range": false,
+   "http80_range_big": false,
+   "http80_udp": false,
+   "l7_empty": false,
+   "l7_mixed": false,
+   "l7_tcp": false,
+   "l7_udp_quic": false,
+   "neg_number": false,
+   "ports_bad": false,
+   "ports_mixed": false,
+   "tcp_only": false,
+   "tcp_range_swap": false,
+   "tcp_udp": false,
+   "voice_discord_udp": true,
+   "voice_no_ports": false,
+   "voice_only_ports": false,
+   "voice_ports": true,
+   "voice_stun": true
+  },
+  "l7_transport": [
+   [
+    [
+     "http",
+     "tls"
+    ],
+    "tcp"
+   ],
+   [
+    [
+     "quic"
+    ],
+    "udp"
+   ],
+   [
+    [
+     "http",
+     "quic"
+    ],
+    "udp"
+   ],
+   [
+    [],
+    null
+   ],
+   [
+    [
+     ""
+    ],
+    null
+   ],
+   [
+    [
+     "",
+     " http "
+    ],
+    "tcp"
+   ],
+   [
+    [
+     "mtproto"
+    ],
+    "tcp"
+   ],
+   [
+    [
+     "bt",
+     "xmpp"
+    ],
+    "tcp"
+   ],
+   [
+    [
+     "dtls"
+    ],
+    "udp"
+   ],
+   [
+    [
+     "unknown"
+    ],
+    "udp"
+   ]
+  ],
+  "ports_label": {
+   "empty": "",
+   "http80": "TCP 80",
+   "http80_plus": "TCP 80,443",
+   "http80_quic": "TCP 80",
+   "http80_range": "TCP 80-81",
+   "http80_range_big": "TCP 80-10000",
+   "http80_udp": "TCP 80; UDP 443",
+   "l7_empty": "",
+   "l7_mixed": "",
+   "l7_tcp": "",
+   "l7_udp_quic": "",
+   "neg_number": "TCP -1",
+   "ports_bad": "TCP -,; UDP ..-3",
+   "ports_mixed": "TCP 443,80-81,x; UDP 50000-59001",
+   "tcp_only": "TCP 443",
+   "tcp_range_swap": "TCP 81-80",
+   "tcp_udp": "TCP 443; UDP 123",
+   "voice_discord_udp": "UDP 51000",
+   "voice_no_ports": "UDP 100",
+   "voice_only_ports": "UDP 51000",
+   "voice_ports": "UDP 50000-59000",
+   "voice_stun": ""
+  },
+  "protocol_label": {
+   "empty": "TCP",
+   "http80": "TCP/HTTP",
+   "http80_plus": "TCP",
+   "http80_quic": "TCP/UDP",
+   "http80_range": "TCP",
+   "http80_range_big": "TCP",
+   "http80_udp": "TCP/UDP",
+   "l7_empty": "L7",
+   "l7_mixed": "L7",
+   "l7_tcp": "L7",
+   "l7_udp_quic": "L7",
+   "neg_number": "TCP",
+   "ports_bad": "TCP/UDP",
+   "ports_mixed": "TCP/UDP",
+   "tcp_only": "TCP",
+   "tcp_range_swap": "TCP",
+   "tcp_udp": "TCP/UDP",
+   "voice_discord_udp": "Voice",
+   "voice_no_ports": "UDP",
+   "voice_only_ports": "UDP",
+   "voice_ports": "Voice",
+   "voice_stun": "Voice"
+  }
+ }
+}

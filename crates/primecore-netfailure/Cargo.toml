@@ -1,0 +1,11 @@
+[package]
+name = "primecore-netfailure"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/utils/net_failure.py: виды сетевого сбоя по коду ошибки."
+
+[dependencies]
+
+[dev-dependencies]
+serde_json.workspace = true

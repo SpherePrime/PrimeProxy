@@ -1,0 +1,283 @@
+[
+ {
+  "name": "simple",
+  "lines": [
+   "--in-range=1-4",
+   "--out-range=2-6",
+   "--lua-desync=fake",
+   "--lua-desync=split"
+  ],
+  "shape": {
+   "profile_range_lines": [
+    "--in-range=1-4",
+    "--out-range=2-6"
+   ],
+   "body_lines": [
+    "--lua-desync=fake",
+    "--lua-desync=split"
+   ],
+   "composite": false,
+   "payload_scopes": [
+    "all"
+   ],
+   "lua_lines": [
+    "--lua-desync=fake",
+    "--lua-desync=split"
+   ]
+  },
+  "identity": null,
+  "union": "all"
+ },
+ {
+  "name": "composite",
+  "lines": [
+   "--payload=tcp",
+   "--in-range=1-4",
+   "--lua-desync=fake",
+   "--payload=udp",
+   "--lua-desync=hop",
+   "--out-range=9",
+   "--lua-desync=pass"
+  ],
+  "shape": {
+   "profile_range_lines": [
+    "--in-range=1-4"
+   ],
+   "body_lines": [
+    "--payload=tcp",
+    "--lua-desync=fake",
+    "--payload=udp",
+    "--lua-desync=hop",
+    "--out-range=9",
+    "--lua-desync=pass"
+   ],
+   "composite": true,
+   "payload_scopes": [
+    "tcp",
+    "udp",
+    "udp"
+   ],
+   "lua_lines": [
+    "--lua-desync=fake",
+    "--lua-desync=hop",
+    "--lua-desync=pass"
+   ]
+  },
+  "identity": [
+   [
+    "payload",
+    "tcp"
+   ],
+   [
+    "lua",
+    "--lua-desync=fake"
+   ],
+   [
+    "payload",
+    "udp"
+   ],
+   [
+    "lua",
+    "--lua-desync=hop"
+   ],
+   [
+    "range",
+    "--out-range=9"
+   ],
+   [
+    "lua",
+    "--lua-desync=pass"
+   ]
+  ],
+  "union": "tcp,udp"
+ },
+ {
+  "name": "ranges_after",
+  "lines": [
+   "--lua-desync=fake",
+   "--in-range=9-10",
+   "--lua-desync=split"
+  ],
+  "shape": {
+   "profile_range_lines": [],
+   "body_lines": [
+    "--lua-desync=fake",
+    "--in-range=9-10",
+    "--lua-desync=split"
+   ],
+   "composite": true,
+   "payload_scopes": [
+    "all",
+    "all"
+   ],
+   "lua_lines": [
+    "--lua-desync=fake",
+    "--lua-desync=split"
+   ]
+  },
+  "identity": [
+   [
+    "payload",
+    "all"
+   ],
+   [
+    "lua",
+    "--lua-desync=fake"
+   ],
+   [
+    "range",
+    "--in-range=9-10"
+   ],
+   [
+    "lua",
+    "--lua-desync=split"
+   ]
+  ],
+  "union": "all"
+ },
+ {
+  "name": "no_lua",
+  "lines": [
+   "--payload=tls",
+   "--in-range=1"
+  ],
+  "shape": {
+   "profile_range_lines": [
+    "--in-range=1"
+   ],
+   "body_lines": [
+    "--payload=tls"
+   ],
+   "composite": false,
+   "payload_scopes": [],
+   "lua_lines": []
+  },
+  "identity": [],
+  "union": "all"
+ },
+ {
+  "name": "empty",
+  "lines": [],
+  "shape": {
+   "profile_range_lines": [],
+   "body_lines": [],
+   "composite": false,
+   "payload_scopes": [],
+   "lua_lines": []
+  },
+  "identity": [],
+  "union": "all"
+ },
+ {
+  "name": "tokens",
+  "lines": [
+   "--payload= STUN , tls_client_hello , stun,  DHT"
+  ],
+  "shape": {
+   "profile_range_lines": [],
+   "body_lines": [
+    "--payload= STUN , tls_client_hello , stun,  DHT"
+   ],
+   "composite": false,
+   "payload_scopes": [],
+   "lua_lines": []
+  },
+  "identity": [],
+  "union": "all"
+ },
+ {
+  "name": "multi_payload",
+  "lines": [
+   "--payload=a,b",
+   "--payload=b,c",
+   "--lua-desync=x",
+   "--payload=,Q",
+   "--lua-desync=y"
+  ],
+  "shape": {
+   "profile_range_lines": [],
+   "body_lines": [
+    "--payload=a,b",
+    "--payload=b,c",
+    "--lua-desync=x",
+    "--payload=,Q",
+    "--lua-desync=y"
+   ],
+   "composite": true,
+   "payload_scopes": [
+    "b,c",
+    ",Q"
+   ],
+   "lua_lines": [
+    "--lua-desync=x",
+    "--lua-desync=y"
+   ]
+  },
+  "identity": [
+   [
+    "payload",
+    "b,c"
+   ],
+   [
+    "lua",
+    "--lua-desync=x"
+   ],
+   [
+    "payload",
+    "q"
+   ],
+   [
+    "lua",
+    "--lua-desync=y"
+   ]
+  ],
+  "union": "b,c,q"
+ },
+ {
+  "name": "junk",
+  "lines": [
+   "--wssize=1",
+   "строка",
+   "--in-range=i-ii",
+   "--lua-desync=",
+   "--"
+  ],
+  "shape": {
+   "profile_range_lines": [
+    "--in-range=i-ii"
+   ],
+   "body_lines": [
+    "--wssize=1",
+    "строка",
+    "--lua-desync=",
+    "--"
+   ],
+   "composite": false,
+   "payload_scopes": [
+    "all"
+   ],
+   "lua_lines": [
+    "--lua-desync="
+   ]
+  },
+  "identity": [
+   [
+    "payload",
+    "all"
+   ],
+   [
+    "other",
+    "--wssize=1"
+   ],
+   [
+    "other",
+    "строка"
+   ],
+   [
+    "lua",
+    "--lua-desync="
+   ]
+  ],
+  "union": "all"
+ }
+]

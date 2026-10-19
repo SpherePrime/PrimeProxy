@@ -1,0 +1,145 @@
+{
+ "dedup": [
+  {
+   "in_preset": true,
+   "key": "profile:0",
+   "order": 0,
+   "profile_display": "googlevideo.com (CDN сервера)",
+   "profile_name": "googlevideo.com (CDN сервера)",
+   "profile_signature": "hostlist=googlevideo.com.txt|tcp=443",
+   "resolved_display_name": "YouTube · видео (googlevideo.com)",
+   "user_template_key": ""
+  },
+  {
+   "in_preset": true,
+   "key": "profile:1",
+   "order": 1,
+   "profile_display": "YouTube · видео (googlevideo.com)",
+   "profile_name": "YouTube · видео (googlevideo.com)",
+   "profile_signature": "hostlist=googlevideo.com.txt|tcp=443",
+   "resolved_display_name": "YouTube · видео (googlevideo.com)",
+   "user_template_key": ""
+  }
+ ],
+ "dup_enabled": [
+  {
+   "in_preset": true,
+   "key": "profile:0",
+   "order": 0,
+   "profile_display": "Startup Advice",
+   "profile_name": "Startup Advice",
+   "profile_signature": "hostlist=other.txt|tcp=443",
+   "resolved_display_name": "Startup Advice",
+   "user_template_key": ""
+  },
+  {
+   "in_preset": true,
+   "key": "profile:1",
+   "order": 1,
+   "profile_display": "Startup Advice (второй)",
+   "profile_name": "Startup Advice (второй)",
+   "profile_signature": "hostlist=other.txt|tcp=443",
+   "resolved_display_name": "Startup Advice (второй)",
+   "user_template_key": ""
+  }
+ ],
+ "fallback_template": [
+  {
+   "in_preset": true,
+   "key": "profile:0",
+   "order": 0,
+   "profile_display": "Startup Advice",
+   "profile_name": "Startup Advice",
+   "profile_signature": "hostlist=other.txt|tcp=443",
+   "resolved_display_name": "Startup Advice",
+   "user_template_key": ""
+  },
+  {
+   "in_preset": false,
+   "key": "template:stock:yt",
+   "order": 1,
+   "profile_display": "googlevideo.com (CDN сервера)",
+   "profile_name": "googlevideo.com (CDN сервера)",
+   "profile_signature": "hostlist=googlevideo.com.txt|tcp=443",
+   "resolved_display_name": "googlevideo.com (CDN сервера)",
+   "user_template_key": ""
+  }
+ ],
+ "ops": {},
+ "plain": [
+  {
+   "in_preset": true,
+   "key": "profile:0",
+   "order": 0,
+   "profile_display": "Startup Advice",
+   "profile_name": "Startup Advice",
+   "profile_signature": "hostlist=other.txt|tcp=443",
+   "resolved_display_name": "Startup Advice",
+   "user_template_key": ""
+  },
+  {
+   "in_preset": true,
+   "key": "profile:1",
+   "order": 1,
+   "profile_display": "Задуман Пара",
+   "profile_name": "Задуман Пара",
+   "profile_signature": "ipset=ipset-other.txt|tcp=443",
+   "resolved_display_name": "Задуман Пара",
+   "user_template_key": ""
+  },
+  {
+   "in_preset": false,
+   "key": "template:stock:0",
+   "order": 2,
+   "profile_display": "googlevideo.com (CDN сервера)",
+   "profile_name": "googlevideo.com (CDN сервера)",
+   "profile_signature": "hostlist=googlevideo.com.txt|tcp=443",
+   "resolved_display_name": "googlevideo.com (CDN сервера)",
+   "user_template_key": ""
+  },
+  {
+   "in_preset": false,
+   "key": "template:stock:2",
+   "order": 4,
+   "profile_display": "Discord UDP (обычно не нужно)",
+   "profile_name": "Discord UDP (обычно не нужно)",
+   "profile_signature": "udp=50000",
+   "resolved_display_name": "Discord UDP (обычно не нужно)",
+   "user_template_key": ""
+  }
+ ],
+ "templates_only": [
+  {
+   "in_preset": false,
+   "key": "template:stock:0",
+   "order": 0,
+   "profile_display": "googlevideo.com (CDN сервера)",
+   "profile_name": "googlevideo.com (CDN сервера)",
+   "profile_signature": "hostlist=googlevideo.com.txt|tcp=443",
+   "resolved_display_name": "googlevideo.com (CDN сервера)",
+   "user_template_key": ""
+  },
+  {
+   "in_preset": false,
+   "key": "template:stock:2",
+   "order": 2,
+   "profile_display": "Discord UDP (обычно не нужно)",
+   "profile_name": "Discord UDP (обычно не нужно)",
+   "profile_signature": "udp=50000",
+   "resolved_display_name": "Discord UDP (обычно не нужно)",
+   "user_template_key": ""
+  }
+ ],
+ "user_template": [
+  {
+   "in_preset": false,
+   "key": "template:user:styles",
+   "order": 0,
+   "profile_display": "Принт Пара",
+   "profile_name": "Принт Пара",
+   "profile_signature": "ipset=styles.ipset|tcp=443",
+   "resolved_display_name": "Принт Пара",
+   "user_template_key": "template:user:styles"
+  }
+ ]
+}

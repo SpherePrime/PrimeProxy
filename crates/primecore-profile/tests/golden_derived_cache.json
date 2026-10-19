@@ -1,0 +1,625 @@
+{
+ "caches": {
+  "lists_ttl": [
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "primary"
+    },
+    "editable_filter_kinds": [
+     "hostlist",
+     "ipset"
+    ],
+    "list_type": "hostlist",
+    "match_summary": "TCP • TCP 443 • hostlist",
+    "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--lua-desync=multisplit:pos=midsld",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "simple",
+    "strategy_name": "Простая midsld",
+    "strategy_payload_scopes": []
+   },
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "primary"
+    },
+    "editable_filter_kinds": [
+     "hostlist",
+     "ipset"
+    ],
+    "list_type": "hostlist",
+    "match_summary": "TCP • TCP 443 • hostlist",
+    "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--lua-desync=multisplit:pos=midsld",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "simple",
+    "strategy_name": "Простая midsld",
+    "strategy_payload_scopes": []
+   },
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "primary"
+    },
+    "editable_filter_kinds": [
+     "hostlist"
+    ],
+    "list_type": "",
+    "match_summary": "TCP • TCP 443",
+    "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--lua-desync=multisplit:pos=midsld",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "simple",
+    "strategy_name": "Простая midsld",
+    "strategy_payload_scopes": []
+   }
+  ],
+  "preset_sources": [
+   [
+    {
+     "in_preset": true,
+     "order": 0,
+     "profile_name": "Simple"
+    },
+    {
+     "in_preset": true,
+     "order": 1,
+     "profile_name": "Custom"
+    }
+   ],
+   [
+    {
+     "in_preset": true,
+     "order": 0,
+     "profile_name": "Simple"
+    },
+    {
+     "in_preset": true,
+     "order": 1,
+     "profile_name": "Custom"
+    }
+   ],
+   [
+    {
+     "in_preset": true,
+     "order": 0,
+     "profile_name": "Simple"
+    },
+    {
+     "in_preset": true,
+     "order": 1,
+     "profile_name": "Custom"
+    }
+   ]
+  ],
+  "rename": [
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "primary"
+    },
+    "editable_filter_kinds": [
+     "hostlist"
+    ],
+    "list_type": "",
+    "match_summary": "TCP",
+    "raw_profile_text": "--hostlist-exclude=gov.ru.txt",
+    "strategy_entry_ids": [],
+    "strategy_entry_names": [],
+    "strategy_id": "none",
+    "strategy_name": "Стратегия не выбрана",
+    "strategy_payload_scopes": []
+   },
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "exclude"
+    },
+    "editable_filter_kinds": [
+     "hostlist"
+    ],
+    "list_type": "",
+    "match_summary": "TCP",
+    "raw_profile_text": "--hostlist-exclude=gov.ru.txt",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "none",
+    "strategy_name": "Стратегия не выбрана",
+    "strategy_payload_scopes": []
+   }
+  ],
+  "sequence": [
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "primary"
+    },
+    "editable_filter_kinds": [
+     "hostlist",
+     "ipset"
+    ],
+    "list_type": "hostlist",
+    "match_summary": "TCP • TCP 443 • hostlist",
+    "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--lua-desync=multisplit:pos=midsld",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "simple",
+    "strategy_name": "Простая midsld",
+    "strategy_payload_scopes": []
+   },
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "primary"
+    },
+    "editable_filter_kinds": [
+     "hostlist",
+     "ipset"
+    ],
+    "list_type": "hostlist",
+    "match_summary": "TCP • TCP 443 • hostlist",
+    "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--lua-desync=mldisorder:fake=smtp:udplen=57",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "custom",
+    "strategy_name": "Своя стратегия",
+    "strategy_payload_scopes": []
+   },
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "primary"
+    },
+    "editable_filter_kinds": [
+     "hostlist",
+     "ipset"
+    ],
+    "list_type": "hostlist",
+    "match_summary": "TCP • TCP 443 • hostlist",
+    "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--lua-desync=multisplit:pos=midsld",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "simple",
+    "strategy_name": "Простая midsld",
+    "strategy_payload_scopes": []
+   },
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "primary"
+    },
+    "editable_filter_kinds": [
+     "hostlist",
+     "ipset"
+    ],
+    "list_type": "hostlist",
+    "match_summary": "TCP • TCP 443 • hostlist",
+    "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "none",
+    "strategy_name": "Стратегия не выбрана",
+    "strategy_payload_scopes": []
+   },
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "primary"
+    },
+    "editable_filter_kinds": [
+     "hostlist",
+     "ipset"
+    ],
+    "list_type": "hostlist",
+    "match_summary": "TCP • TCP 443 • hostlist",
+    "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--lua-desync=mldisorder:fake=smtp:udplen=57",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "custom",
+    "strategy_name": "Своя стратегия",
+    "strategy_payload_scopes": []
+   },
+   {
+    "editable": {
+     "filter_editable": true,
+     "filter_kind": "hostlist",
+     "filter_role": "exclude"
+    },
+    "editable_filter_kinds": [
+     "hostlist"
+    ],
+    "list_type": "",
+    "match_summary": "TCP",
+    "raw_profile_text": "--hostlist-exclude=gov.ru.txt",
+    "strategy_entry_ids": [
+     "simple",
+     "composite",
+     "syndata"
+    ],
+    "strategy_entry_names": [
+     "Простая midsld",
+     "Составная ветки",
+     "Только syndata"
+    ],
+    "strategy_id": "none",
+    "strategy_name": "Стратегия не выбрана",
+    "strategy_payload_scopes": []
+   }
+  ]
+ },
+ "catalog_ids": {
+  "tcp": [
+   "simple",
+   "composite",
+   "syndata"
+  ],
+  "voice": [
+   "voice_udp"
+  ],
+  "w1_udp": [
+   "other"
+  ]
+ },
+ "catalog_signature": "(('/tmp/derivedzdqhz99s/user/system/strategy_catalogs/winws2', 'winws2'), (('tcp.txt', 1792440873700322382, 328), ('voice.txt', 1792440873700389052, 89)))",
+ "cores": {
+  "composite_match": {
+   "editable": {
+    "filter_editable": true,
+    "filter_kind": "hostlist",
+    "filter_role": "primary"
+   },
+   "editable_filter_kinds": [
+    "hostlist",
+    "ipset"
+   ],
+   "list_type": "hostlist",
+   "match_summary": "TCP • TCP 443 • hostlist",
+   "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--payload=all\n--lua-desync=syndata\n--payload=tls_client_hello,http_req\n--lua-desync=multidisorder_legacy:pos=2",
+   "strategy_entry_ids": [
+    "simple",
+    "composite",
+    "syndata"
+   ],
+   "strategy_entry_names": [
+    "Простая midsld",
+    "Составная ветки",
+    "Только syndata"
+   ],
+   "strategy_id": "composite",
+   "strategy_name": "Составная ветки",
+   "strategy_payload_scopes": [
+    "all",
+    "tls_client_hello,http_req"
+   ]
+  },
+  "exclude_named": {
+   "editable": {
+    "filter_editable": true,
+    "filter_kind": "hostlist",
+    "filter_role": "primary"
+   },
+   "editable_filter_kinds": [
+    "hostlist"
+   ],
+   "list_type": "",
+   "match_summary": "TCP",
+   "raw_profile_text": "--hostlist-exclude=gov.ru.txt",
+   "strategy_entry_ids": [],
+   "strategy_entry_names": [],
+   "strategy_id": "none",
+   "strategy_name": "Стратегия не выбрана",
+   "strategy_payload_scopes": []
+  },
+  "exclude_role": {
+   "editable": {
+    "filter_editable": true,
+    "filter_kind": "hostlist",
+    "filter_role": "exclude"
+   },
+   "editable_filter_kinds": [
+    "hostlist"
+   ],
+   "list_type": "",
+   "match_summary": "TCP",
+   "raw_profile_text": "--hostlist-exclude=gov.ru.txt",
+   "strategy_entry_ids": [
+    "simple",
+    "composite",
+    "syndata"
+   ],
+   "strategy_entry_names": [
+    "Простая midsld",
+    "Составная ветки",
+    "Только syndata"
+   ],
+   "strategy_id": "none",
+   "strategy_name": "Стратегия не выбрана",
+   "strategy_payload_scopes": []
+  },
+  "no_filter": {
+   "editable": {
+    "filter_editable": false,
+    "filter_kind": "hostlist",
+    "filter_role": "primary"
+   },
+   "editable_filter_kinds": [
+    "hostlist"
+   ],
+   "list_type": "",
+   "match_summary": "TCP",
+   "raw_profile_text": "--lua-desync=multisplit:pos=midsld",
+   "strategy_entry_ids": [
+    "simple",
+    "composite",
+    "syndata"
+   ],
+   "strategy_entry_names": [
+    "Простая midsld",
+    "Составная ветки",
+    "Только syndata"
+   ],
+   "strategy_id": "simple",
+   "strategy_name": "Простая midsld",
+   "strategy_payload_scopes": []
+  },
+  "none_strategy": {
+   "editable": {
+    "filter_editable": true,
+    "filter_kind": "hostlist",
+    "filter_role": "primary"
+   },
+   "editable_filter_kinds": [
+    "hostlist",
+    "ipset"
+   ],
+   "list_type": "hostlist",
+   "match_summary": "TCP • TCP 443 • hostlist",
+   "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt",
+   "strategy_entry_ids": [
+    "simple",
+    "composite",
+    "syndata"
+   ],
+   "strategy_entry_names": [
+    "Простая midsld",
+    "Составная ветки",
+    "Только syndata"
+   ],
+   "strategy_id": "none",
+   "strategy_name": "Стратегия не выбрана",
+   "strategy_payload_scopes": []
+  },
+  "raw_text": {
+   "editable": {
+    "filter_editable": true,
+    "filter_kind": "hostlist",
+    "filter_role": "primary"
+   },
+   "editable_filter_kinds": [
+    "hostlist",
+    "ipset"
+   ],
+   "list_type": "hostlist",
+   "match_summary": "TCP • TCP 443 • hostlist",
+   "raw_profile_text": "--filter-tcp=443\n--hostlist=other.txt\n--lua-desync=multisplit:pos=midsld",
+   "strategy_entry_ids": [
+    "simple",
+    "composite",
+    "syndata"
+   ],
+   "strategy_entry_names": [
+    "Простая midsld",
+    "Составная ветки",
+    "Только syndata"
+   ],
+   "strategy_id": "simple",
+   "strategy_name": "Простая midsld",
+   "strategy_payload_scopes": []
+  },
+  "simple_custom": {
+   "editable": {
+    "filter_editable": true,
+    "filter_kind": "hostlist",
+    "filter_role": "primary"
+   },
+   "editable_filter_kinds": [
+    "hostlist",
+    "ipset"
+   ],
+   "list_type": "hostlist",
+   "match_summary": "TCP • TCP 443 • hostlist",
+   "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--lua-desync=mldisorder:fake=smtp:udplen=57",
+   "strategy_entry_ids": [
+    "simple",
+    "composite",
+    "syndata"
+   ],
+   "strategy_entry_names": [
+    "Простая midsld",
+    "Составная ветки",
+    "Только syndata"
+   ],
+   "strategy_id": "custom",
+   "strategy_name": "Своя стратегия",
+   "strategy_payload_scopes": []
+  },
+  "simple_match": {
+   "editable": {
+    "filter_editable": true,
+    "filter_kind": "hostlist",
+    "filter_role": "primary"
+   },
+   "editable_filter_kinds": [
+    "hostlist",
+    "ipset"
+   ],
+   "list_type": "hostlist",
+   "match_summary": "TCP • TCP 443 • hostlist",
+   "raw_profile_text": "--filter-tcp=443\n--hostlist=googlevideo.txt\n--lua-desync=multisplit:pos=midsld",
+   "strategy_entry_ids": [
+    "simple",
+    "composite",
+    "syndata"
+   ],
+   "strategy_entry_names": [
+    "Простая midsld",
+    "Составная ветки",
+    "Только syndata"
+   ],
+   "strategy_id": "simple",
+   "strategy_name": "Простая midsld",
+   "strategy_payload_scopes": []
+  },
+  "voice_list": {
+   "editable": {
+    "filter_editable": false,
+    "filter_kind": "hostlist",
+    "filter_role": "primary"
+   },
+   "editable_filter_kinds": [
+    "hostlist"
+   ],
+   "list_type": "",
+   "match_summary": "UDP • UDP 50000",
+   "raw_profile_text": "--filter-udp=50000\n--lua-desync=fake:blob=fake_default_quic:repeats=3",
+   "strategy_entry_ids": [],
+   "strategy_entry_names": [],
+   "strategy_id": "custom",
+   "strategy_name": "Своя стратегия",
+   "strategy_payload_scopes": []
+  },
+  "winws1": {
+   "editable": {
+    "filter_editable": false,
+    "filter_kind": "hostlist",
+    "filter_role": "primary"
+   },
+   "editable_filter_kinds": [
+    "hostlist"
+   ],
+   "list_type": "",
+   "match_summary": "TCP",
+   "raw_profile_text": "--dpi-desync=multisplit\n--dpi-desync-split-seqovl=211",
+   "strategy_entry_ids": [],
+   "strategy_entry_names": [],
+   "strategy_id": "custom",
+   "strategy_name": "Своя стратегия",
+   "strategy_payload_scopes": []
+  }
+ },
+ "kinds": {
+  "simple": [
+   "hostlist",
+   "ipset"
+  ]
+ },
+ "visible": {
+  "composite_match": {
+   "visible_list_type": "hostlist"
+  },
+  "exclude_named": {
+   "visible_list_type": ""
+  },
+  "exclude_role": {
+   "visible_list_type": ""
+  },
+  "none_strategy": {
+   "visible_list_type": "hostlist"
+  },
+  "raw_text": {
+   "visible_list_type": "hostlist"
+  },
+  "simple_custom": {
+   "visible_list_type": "hostlist"
+  },
+  "simple_match": {
+   "visible_list_type": "hostlist"
+  },
+  "voice_list": {
+   "visible_list_type": ""
+  }
+ }
+}

@@ -1,0 +1,57 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/primecore-versions",
+    "crates/primecore-manifest",
+    "crates/primecore-patch",
+    "crates/primecore-hosts",
+    "crates/primecore-release",
+    "crates/primecore-server",
+    "crates/primecore-mode",
+    "crates/primecore-settings",
+    "crates/primecore-dnswire",
+    "crates/primecore-netfailure",
+    "crates/primecore-socketcancel",
+    "crates/primecore-profile",
+    "crates/primecore-lists",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+rust-version = "1.80"
+
+# Правила общие для всех ядер PrimeCore (порт логики Python-версии в Rust):
+# - никакого unsafe;
+# - ошибки — свои типы, никакого panic()/.unwrap() вне тестов;
+# - форматирование сообщений ошибок и коды ошибок совпадают с Python-кодом,
+#   чтобы сервер/electron-UI/Android-showed строки были теми же, что у текущего
+#   приложения (Они читаются пользователем).
+
+[workspace.dependencies]
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+thiserror = "2"
+base64 = "0.22"
+ed25519-dalek = "2"
+bzip2 = "0.6"
+regex = "1"
+once_cell = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "signal"] }
+axum = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
+sha2 = "0.10"
+tower = "0.5"
+rustls = "0.23"
+webpki-roots = "0.26"
+tower-http = { version = "0.6", features = ["fs", "set-header"] }
+primecore-settings = { path = "crates/primecore-settings" }
+primecore-lists = { path = "crates/primecore-lists" }
+primecore-mode = { path = "crates/primecore-mode" }
+fastrand = "2.5"
+
+[profile.release]
+lto = "thin"
+opt-level = 3

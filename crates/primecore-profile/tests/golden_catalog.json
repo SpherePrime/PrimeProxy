@@ -1,0 +1,329 @@
+{
+ "visuals": [
+  {
+   "technique_keys": [
+    "fake",
+    "split"
+   ],
+   "icon_name": "fa5s.magic",
+   "color": "#ff6b6b",
+   "colors": [
+    "#ff6b6b",
+    "#f59e0b"
+   ],
+   "label": "Fake + Split",
+   "description": "Fake: подмена пакета; Split: разделение данных"
+  },
+  {
+   "technique_keys": [],
+   "icon_name": "fa5s.question",
+   "color": "#9aa6b2",
+   "colors": [
+    "#9aa6b2"
+   ],
+   "label": "Своя",
+   "description": "готовая стратегия не распознана по --lua-desync"
+  },
+  {
+   "technique_keys": [
+    "tamper",
+    "multidisorder"
+   ],
+   "icon_name": "fa5s.pen",
+   "color": "#e0b86b",
+   "colors": [
+    "#e0b86b",
+    "#58d17a"
+   ],
+   "label": "Tamper + MultiDisorder",
+   "description": "Tamper: изменение содержимого пакета без разделения; MultiDisorder: перестановка нескольких частей данных"
+  },
+  {
+   "technique_keys": [],
+   "icon_name": "fa5s.question",
+   "color": "#9aa6b2",
+   "colors": [
+    "#9aa6b2"
+   ],
+   "label": "Своя",
+   "description": "готовая стратегия не распознана по --lua-desync"
+  },
+  {
+   "technique_keys": [
+    "fake"
+   ],
+   "icon_name": "fa5s.magic",
+   "color": "#ff6b6b",
+   "colors": [
+    "#ff6b6b"
+   ],
+   "label": "Fake",
+   "description": "Fake: подмена пакета"
+  },
+  {
+   "technique_keys": [
+    "syndata"
+   ],
+   "icon_name": "fa5s.database",
+   "color": "#aeb8c5",
+   "colors": [
+    "#aeb8c5"
+   ],
+   "label": "Syndata",
+   "description": "Syndata: добавление данных в SYN"
+  },
+  {
+   "technique_keys": [
+    "hostfakesplit"
+   ],
+   "icon_name": "fa5s.user-secret",
+   "color": "#ff8f5a",
+   "colors": [
+    "#ff8f5a"
+   ],
+   "label": "HostFakeSplit",
+   "description": "HostFakeSplit: разделение по имени сайта с поддельным именем между частями"
+  },
+  {
+   "technique_keys": [
+    "udplen",
+    "tcpseg",
+    "fake"
+   ],
+   "icon_name": "fa5s.ruler",
+   "color": "#b58cff",
+   "colors": [
+    "#b58cff",
+    "#f6c945",
+    "#ff6b6b"
+   ],
+   "label": "UDPLen + TCPSeg + Fake",
+   "description": "UDPLen: изменение длины UDP-пакета; TCPSeg: изменение TCP-сегментации; Fake: подмена пакета"
+  }
+ ],
+ "plain": [
+  "подделка + нарезка",
+  "нет",
+  "правка содержимого + перестановка",
+  "нет",
+  "подделка",
+  "данные в первом пакете",
+  "подмена имени сайта",
+  "длина пакета + нарезка + подделка"
+ ],
+ "parse": {
+  "alpha": [
+   {
+    "strategy_id": "Базовая Обхода",
+    "catalog_name": "alpha",
+    "name": "Разделение",
+    "args": "--lua-desync=split:2",
+    "visual": {
+     "technique_keys": [
+      "split"
+     ],
+     "icon_name": "fa5s.cut",
+     "color": "#f59e0b",
+     "colors": [
+      "#f59e0b"
+     ],
+     "label": "Split",
+     "description": "Split: разделение данных"
+    },
+    "is_composite": false,
+    "payload_scopes": [],
+    "old_name": "Актуальный Разделение",
+    "label": "stable",
+    "author": "",
+    "description": "Простое"
+   },
+   {
+    "strategy_id": "Композитный Тип",
+    "catalog_name": "alpha",
+    "name": "Дубли",
+    "args": "--lua-desync=fake\n--in-range=4-6\n--lua-desync=split",
+    "visual": {
+     "technique_keys": [
+      "fake",
+      "split"
+     ],
+     "icon_name": "fa5s.magic",
+     "color": "#ff6b6b",
+     "colors": [
+      "#ff6b6b",
+      "#f59e0b"
+     ],
+     "label": "Fake + Split",
+     "description": "Fake: подмена пакета; Split: разделение данных"
+    },
+    "is_composite": true,
+    "payload_scopes": [
+     "all",
+     "all"
+    ],
+    "old_name": "",
+    "label": "",
+    "author": "",
+    "description": ""
+   },
+   {
+    "strategy_id": "Пустой",
+    "catalog_name": "alpha",
+    "name": "Пустой",
+    "args": "",
+    "visual": {
+     "technique_keys": [],
+     "icon_name": "fa5s.question",
+     "color": "#9aa6b2",
+     "colors": [
+      "#9aa6b2"
+     ],
+     "label": "Своя",
+     "description": "готовая стратегия не распознана по --lua-desync"
+    },
+    "is_composite": false,
+    "payload_scopes": [],
+    "old_name": "",
+    "label": "",
+    "author": "",
+    "description": ""
+   },
+   {
+    "strategy_id": "Ipset",
+    "catalog_name": "alpha",
+    "name": "Ipset",
+    "args": "--lua-desync=tamper",
+    "visual": {
+     "technique_keys": [],
+     "icon_name": "fa5s.question",
+     "color": "#9aa6b2",
+     "colors": [
+      "#9aa6b2"
+     ],
+     "label": "Своя",
+     "description": "готовая стратегия не распознана по --lua-desync"
+    },
+    "is_composite": false,
+    "payload_scopes": [],
+    "old_name": "",
+    "label": "",
+    "author": "",
+    "description": ""
+   }
+  ],
+  "beta": [],
+  "direct1": [
+   {
+    "strategy_id": "Базовая Обхода",
+    "catalog_name": "alpha",
+    "name": "Разделение",
+    "args": "--lua-desync=split:2",
+    "visual": {
+     "technique_keys": [
+      "split"
+     ],
+     "icon_name": "fa5s.cut",
+     "color": "#f59e0b",
+     "colors": [
+      "#f59e0b"
+     ],
+     "label": "Split",
+     "description": "Split: разделение данных"
+    },
+    "is_composite": false,
+    "payload_scopes": [],
+    "old_name": "Актуальный Разделение",
+    "label": "stable",
+    "author": "",
+    "description": "Простое"
+   },
+   {
+    "strategy_id": "Композитный Тип",
+    "catalog_name": "alpha",
+    "name": "Дубли",
+    "args": "--lua-desync=fake\n--in-range=4-6\n--lua-desync=split",
+    "visual": {
+     "technique_keys": [
+      "fake",
+      "split"
+     ],
+     "icon_name": "fa5s.magic",
+     "color": "#ff6b6b",
+     "colors": [
+      "#ff6b6b",
+      "#f59e0b"
+     ],
+     "label": "Fake + Split",
+     "description": "Fake: подмена пакета; Split: разделение данных"
+    },
+    "is_composite": true,
+    "payload_scopes": [
+     "all",
+     "all"
+    ],
+    "old_name": "",
+    "label": "",
+    "author": "",
+    "description": ""
+   },
+   {
+    "strategy_id": "Пустой",
+    "catalog_name": "alpha",
+    "name": "Пустой",
+    "args": "",
+    "visual": {
+     "technique_keys": [],
+     "icon_name": "fa5s.question",
+     "color": "#9aa6b2",
+     "colors": [
+      "#9aa6b2"
+     ],
+     "label": "Своя",
+     "description": "готовая стратегия не распознана по --lua-desync"
+    },
+    "is_composite": false,
+    "payload_scopes": [],
+    "old_name": "",
+    "label": "",
+    "author": "",
+    "description": ""
+   },
+   {
+    "strategy_id": "Ipset",
+    "catalog_name": "alpha",
+    "name": "Ipset",
+    "args": "--lua-desync=tamper",
+    "visual": {
+     "technique_keys": [],
+     "icon_name": "fa5s.question",
+     "color": "#9aa6b2",
+     "colors": [
+      "#9aa6b2"
+     ],
+     "label": "Своя",
+     "description": "готовая стратегия не распознана по --lua-desync"
+    },
+    "is_composite": false,
+    "payload_scopes": [],
+    "old_name": "",
+    "label": "",
+    "author": "",
+    "description": ""
+   }
+  ],
+  "direct2": []
+ },
+ "missing": [
+  [
+   true,
+   true
+  ],
+  [
+   false,
+   false
+  ]
+ ],
+ "catalog_keys": [
+  "alpha"
+ ]
+}

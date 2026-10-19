@@ -1,0 +1,17 @@
+[package]
+name = "primecore-manifest"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = " Порт src/primebypass_update/manifest.py + updater/release/signed.py: подписанный список выпуска."
+
+[dependencies]
+base64.workspace = true
+ed25519-dalek.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+primecore-versions = { path = "../primecore-versions" }
+
+[dev-dependencies]
+ed25519-dalek.workspace = true
+tempfile = "3"

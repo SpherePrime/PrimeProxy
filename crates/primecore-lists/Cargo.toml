@@ -1,0 +1,12 @@
+[package]
+name = "primecore-lists"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт списков (lists/core: слои base/user/final, имена файлов списков)."
+
+[dependencies]
+
+[dev-dependencies]
+serde_json.workspace = true
+once_cell.workspace = true

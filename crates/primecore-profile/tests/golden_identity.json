@@ -1,0 +1,617 @@
+{
+ "normalized": [
+  [
+   "uid:alpha",
+   {
+    "name": "Сводка",
+    "sig": "sig:list=gov|tcp=443"
+   }
+  ],
+  [
+   "uid:beta",
+   {
+    "name": "Слепок",
+    "sig": ""
+   }
+  ],
+  [
+   "uid:gamma",
+   {
+    "name": "OtherName",
+    "sig": "sig:udp=50000"
+   }
+  ],
+  [
+   "uid:lonely",
+   {
+    "name": "Забытый",
+    "sig": "sig:none"
+   }
+  ],
+  [
+   "uid:empty_name",
+   {
+    "name": "",
+    "sig": "sig:list=googlevideo|tcp=443"
+   }
+  ],
+  [
+   "uid:old",
+   {
+    "name": "Числовой",
+    "sig": "42"
+   }
+  ]
+ ],
+ "resolutions": {
+  "clash": {
+   "entries": [
+    [
+     "Ранний",
+     "sig:list=gov|tcp=443"
+    ],
+    [
+     "Ранний",
+     "sig:list=gov|tcp=443"
+    ],
+    [
+     "Ранний",
+     "sig:list=gov|tcp=443"
+    ]
+   ],
+   "new_uids": [
+    "uid:duplicate-2",
+    "uid:duplicate-3"
+   ],
+   "registry": [
+    [
+     "uid:beta",
+     {
+      "name": "Слепок",
+      "sig": ""
+     }
+    ],
+    [
+     "uid:gamma",
+     {
+      "name": "OtherName",
+      "sig": "sig:udp=50000"
+     }
+    ],
+    [
+     "uid:lonely",
+     {
+      "name": "Забытый",
+      "sig": "sig:none"
+     }
+    ],
+    [
+     "uid:empty_name",
+     {
+      "name": "",
+      "sig": "sig:list=googlevideo|tcp=443"
+     }
+    ],
+    [
+     "uid:old",
+     {
+      "name": "Числовой",
+      "sig": "42"
+     }
+    ],
+    [
+     "uid:alpha",
+     {
+      "name": "Ранний",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ],
+    [
+     "uid:duplicate-2",
+     {
+      "name": "Ранний",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ],
+    [
+     "uid:duplicate-3",
+     {
+      "name": "Ранний",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ]
+   ],
+   "uids": [
+    "uid:alpha",
+    "uid:duplicate-2",
+    "uid:duplicate-3"
+   ]
+  },
+  "cleanup": {
+   "entries": [
+    [
+     "   Слитно   ",
+     "  sig:list=googlevideo|tcp=443  "
+    ]
+   ],
+   "new_uids": [],
+   "registry": [
+    [
+     "uid:alpha",
+     {
+      "name": "Сводка",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ],
+    [
+     "uid:beta",
+     {
+      "name": "Слепок",
+      "sig": ""
+     }
+    ],
+    [
+     "uid:gamma",
+     {
+      "name": "OtherName",
+      "sig": "sig:udp=50000"
+     }
+    ],
+    [
+     "uid:lonely",
+     {
+      "name": "Забытый",
+      "sig": "sig:none"
+     }
+    ],
+    [
+     "uid:old",
+     {
+      "name": "Числовой",
+      "sig": "42"
+     }
+    ],
+    [
+     "uid:empty_name",
+     {
+      "name": "Слитно",
+      "sig": "sig:list=googlevideo|tcp=443"
+     }
+    ]
+   ],
+   "uids": [
+    "uid:empty_name"
+   ]
+  },
+  "edit_match": {
+   "entries": [
+    [
+     "Сводка",
+     "sig:list=googlevideo|tcp=443"
+    ]
+   ],
+   "new_uids": [],
+   "registry": [
+    [
+     "uid:alpha",
+     {
+      "name": "Сводка",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ],
+    [
+     "uid:beta",
+     {
+      "name": "Слепок",
+      "sig": ""
+     }
+    ],
+    [
+     "uid:gamma",
+     {
+      "name": "OtherName",
+      "sig": "sig:udp=50000"
+     }
+    ],
+    [
+     "uid:lonely",
+     {
+      "name": "Забытый",
+      "sig": "sig:none"
+     }
+    ],
+    [
+     "uid:old",
+     {
+      "name": "Числовой",
+      "sig": "42"
+     }
+    ],
+    [
+     "uid:empty_name",
+     {
+      "name": "Сводка",
+      "sig": "sig:list=googlevideo|tcp=443"
+     }
+    ]
+   ],
+   "uids": [
+    "uid:empty_name"
+   ]
+  },
+  "empty_pair": {
+   "entries": [
+    [
+     "",
+     ""
+    ]
+   ],
+   "new_uids": [
+    "uid:fallback-empty_pair-0"
+   ],
+   "registry": [
+    [
+     "uid:alpha",
+     {
+      "name": "Сводка",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ],
+    [
+     "uid:beta",
+     {
+      "name": "Слепок",
+      "sig": ""
+     }
+    ],
+    [
+     "uid:gamma",
+     {
+      "name": "OtherName",
+      "sig": "sig:udp=50000"
+     }
+    ],
+    [
+     "uid:lonely",
+     {
+      "name": "Забытый",
+      "sig": "sig:none"
+     }
+    ],
+    [
+     "uid:empty_name",
+     {
+      "name": "",
+      "sig": "sig:list=googlevideo|tcp=443"
+     }
+    ],
+    [
+     "uid:old",
+     {
+      "name": "Числовой",
+      "sig": "42"
+     }
+    ],
+    [
+     "uid:fallback-empty_pair-0",
+     {
+      "name": "",
+      "sig": ""
+     }
+    ]
+   ],
+   "uids": [
+    "uid:fallback-empty_pair-0"
+   ]
+  },
+  "exact": {
+   "entries": [
+    [
+     "Сводка",
+     "sig:list=gov|tcp=443"
+    ],
+    [
+     "Голос UDP",
+     "sig:udp=50000"
+    ]
+   ],
+   "new_uids": [],
+   "registry": [
+    [
+     "uid:beta",
+     {
+      "name": "Слепок",
+      "sig": ""
+     }
+    ],
+    [
+     "uid:lonely",
+     {
+      "name": "Забытый",
+      "sig": "sig:none"
+     }
+    ],
+    [
+     "uid:empty_name",
+     {
+      "name": "",
+      "sig": "sig:list=googlevideo|tcp=443"
+     }
+    ],
+    [
+     "uid:old",
+     {
+      "name": "Числовой",
+      "sig": "42"
+     }
+    ],
+    [
+     "uid:alpha",
+     {
+      "name": "Сводка",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ],
+    [
+     "uid:gamma",
+     {
+      "name": "Голос UDP",
+      "sig": "sig:udp=50000"
+     }
+    ]
+   ],
+   "uids": [
+    "uid:alpha",
+    "uid:gamma"
+   ]
+  },
+  "mixed": {
+   "entries": [
+    [
+     "Ренейм Сигнатура",
+     "sig:list=gov|tcp=443"
+    ],
+    [
+     "Сводка",
+     "sig:list=googlevideo|tcp=443"
+    ],
+    [
+     "Голос UDP",
+     "sig:udp=50000"
+    ]
+   ],
+   "new_uids": [],
+   "registry": [
+    [
+     "uid:beta",
+     {
+      "name": "Слепок",
+      "sig": ""
+     }
+    ],
+    [
+     "uid:lonely",
+     {
+      "name": "Забытый",
+      "sig": "sig:none"
+     }
+    ],
+    [
+     "uid:old",
+     {
+      "name": "Числовой",
+      "sig": "42"
+     }
+    ],
+    [
+     "uid:alpha",
+     {
+      "name": "Ренейм Сигнатура",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ],
+    [
+     "uid:empty_name",
+     {
+      "name": "Сводка",
+      "sig": "sig:list=googlevideo|tcp=443"
+     }
+    ],
+    [
+     "uid:gamma",
+     {
+      "name": "Голос UDP",
+      "sig": "sig:udp=50000"
+     }
+    ]
+   ],
+   "uids": [
+    "uid:alpha",
+    "uid:empty_name",
+    "uid:gamma"
+   ]
+  },
+  "new": {
+   "entries": [
+    [
+     "Совсем новый",
+     "sig:list=gov|tcp=443"
+    ]
+   ],
+   "new_uids": [],
+   "registry": [
+    [
+     "uid:beta",
+     {
+      "name": "Слепок",
+      "sig": ""
+     }
+    ],
+    [
+     "uid:gamma",
+     {
+      "name": "OtherName",
+      "sig": "sig:udp=50000"
+     }
+    ],
+    [
+     "uid:lonely",
+     {
+      "name": "Забытый",
+      "sig": "sig:none"
+     }
+    ],
+    [
+     "uid:empty_name",
+     {
+      "name": "",
+      "sig": "sig:list=googlevideo|tcp=443"
+     }
+    ],
+    [
+     "uid:old",
+     {
+      "name": "Числовой",
+      "sig": "42"
+     }
+    ],
+    [
+     "uid:alpha",
+     {
+      "name": "Совсем новый",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ]
+   ],
+   "uids": [
+    "uid:alpha"
+   ]
+  },
+  "renamed": {
+   "entries": [
+    [
+     "Сводка Теперь Иначе",
+     "sig:list=gov|tcp=443"
+    ]
+   ],
+   "new_uids": [],
+   "registry": [
+    [
+     "uid:beta",
+     {
+      "name": "Слепок",
+      "sig": ""
+     }
+    ],
+    [
+     "uid:gamma",
+     {
+      "name": "OtherName",
+      "sig": "sig:udp=50000"
+     }
+    ],
+    [
+     "uid:lonely",
+     {
+      "name": "Забытый",
+      "sig": "sig:none"
+     }
+    ],
+    [
+     "uid:empty_name",
+     {
+      "name": "",
+      "sig": "sig:list=googlevideo|tcp=443"
+     }
+    ],
+    [
+     "uid:old",
+     {
+      "name": "Числовой",
+      "sig": "42"
+     }
+    ],
+    [
+     "uid:alpha",
+     {
+      "name": "Сводка Теперь Иначе",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ]
+   ],
+   "uids": [
+    "uid:alpha"
+   ]
+  },
+  "two_same_sig": {
+   "entries": [
+    [
+     "Первый Двойник",
+     "sig:list=gov|tcp=443"
+    ],
+    [
+     "Второй Двойник",
+     "sig:list=gov|tcp=443"
+    ]
+   ],
+   "new_uids": [
+    "uid:fallback-two_same_sig-0"
+   ],
+   "registry": [
+    [
+     "uid:beta",
+     {
+      "name": "Слепок",
+      "sig": ""
+     }
+    ],
+    [
+     "uid:gamma",
+     {
+      "name": "OtherName",
+      "sig": "sig:udp=50000"
+     }
+    ],
+    [
+     "uid:lonely",
+     {
+      "name": "Забытый",
+      "sig": "sig:none"
+     }
+    ],
+    [
+     "uid:empty_name",
+     {
+      "name": "",
+      "sig": "sig:list=googlevideo|tcp=443"
+     }
+    ],
+    [
+     "uid:old",
+     {
+      "name": "Числовой",
+      "sig": "42"
+     }
+    ],
+    [
+     "uid:alpha",
+     {
+      "name": "Первый Двойник",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ],
+    [
+     "uid:fallback-two_same_sig-0",
+     {
+      "name": "Второй Двойник",
+      "sig": "sig:list=gov|tcp=443"
+     }
+    ]
+   ],
+   "uids": [
+    "uid:alpha",
+    "uid:fallback-two_same_sig-0"
+   ]
+  }
+ }
+}

@@ -1,0 +1,350 @@
+{
+ "ops": {
+  "normalize": [
+   [
+    "a",
+    "a"
+   ],
+   [
+    "A",
+    "a"
+   ],
+   [
+    "x",
+    "x"
+   ],
+   [
+    "X",
+    "x"
+   ],
+   [
+    "-n3",
+    "-n3"
+   ],
+   [
+    "-D12",
+    "-d12"
+   ],
+   [
+    "n3",
+    "n3"
+   ],
+   [
+    "-n",
+    "-n"
+   ],
+   [
+    "-",
+    "-"
+   ],
+   [
+    "2-14",
+    "2-14"
+   ],
+   [
+    "n1-d8",
+    "n1-d8"
+   ],
+   [
+    "p2<d3",
+    "p2<d3"
+   ],
+   [
+    "<n5",
+    "<n5"
+   ],
+   [
+    "n8-",
+    "n8-"
+   ],
+   [
+    "n8<s2",
+    "n8<s2"
+   ],
+   [
+    "s1-s2",
+    "s1-s2"
+   ],
+   [
+    "b10-",
+    "b10-"
+   ],
+   [
+    "x-2",
+    "x-2"
+   ],
+   [
+    "a-d",
+    "a-d"
+   ],
+   [
+    "  'a'  ",
+    "a"
+   ],
+   [
+    "\"-n7\"*, ",
+    "\"-n7\"*,"
+   ],
+   [
+    "",
+    ""
+   ],
+   [
+    "n-2",
+    "n-2"
+   ],
+   [
+    "-x2",
+    "-x2"
+   ],
+   [
+    "--32",
+    "--32"
+   ],
+   [
+    "12-13-14",
+    "12-13-14"
+   ],
+   [
+    "sp13<sp14",
+    "sp13<sp14"
+   ],
+   [
+    "QuOtEd",
+    "quoted"
+   ],
+   [
+    "\"\"",
+    ""
+   ]
+  ],
+  "parse": [
+   [
+    "a",
+    {
+     "enabled": true,
+     "expression": "a",
+     "mode": "a",
+     "raw_line": "--out-range=a",
+     "value": 0
+    }
+   ],
+   [
+    "A",
+    {
+     "enabled": true,
+     "expression": "a",
+     "mode": "a",
+     "raw_line": "--out-range=A",
+     "value": 0
+    }
+   ],
+   [
+    "x",
+    {
+     "enabled": true,
+     "expression": "x",
+     "mode": "x",
+     "raw_line": "--out-range=x",
+     "value": 0
+    }
+   ],
+   [
+    "X",
+    {
+     "enabled": true,
+     "expression": "x",
+     "mode": "x",
+     "raw_line": "--out-range=X",
+     "value": 0
+    }
+   ],
+   [
+    "-n3",
+    {
+     "enabled": true,
+     "expression": "-n3",
+     "mode": "n",
+     "raw_line": "--out-range=-n3",
+     "value": 3
+    }
+   ],
+   [
+    "-D12",
+    {
+     "enabled": true,
+     "expression": "-d12",
+     "mode": "d",
+     "raw_line": "--out-range=-D12",
+     "value": 12
+    }
+   ],
+   [
+    "n3",
+    null
+   ],
+   [
+    "-n",
+    null
+   ],
+   [
+    "-",
+    null
+   ],
+   [
+    "2-14",
+    null
+   ],
+   [
+    "n1-d8",
+    {
+     "enabled": true,
+     "expression": "n1-d8",
+     "mode": "",
+     "raw_line": "--out-range=n1-d8",
+     "value": 0
+    }
+   ],
+   [
+    "p2<d3",
+    {
+     "enabled": true,
+     "expression": "p2<d3",
+     "mode": "",
+     "raw_line": "--out-range=p2<d3",
+     "value": 0
+    }
+   ],
+   [
+    "<n5",
+    {
+     "enabled": true,
+     "expression": "<n5",
+     "mode": "",
+     "raw_line": "--out-range=<n5",
+     "value": 0
+    }
+   ],
+   [
+    "n8-",
+    {
+     "enabled": true,
+     "expression": "n8-",
+     "mode": "",
+     "raw_line": "--out-range=n8-",
+     "value": 0
+    }
+   ],
+   [
+    "n8<s2",
+    {
+     "enabled": true,
+     "expression": "n8<s2",
+     "mode": "",
+     "raw_line": "--out-range=n8<s2",
+     "value": 0
+    }
+   ],
+   [
+    "s1-s2",
+    {
+     "enabled": true,
+     "expression": "s1-s2",
+     "mode": "",
+     "raw_line": "--out-range=s1-s2",
+     "value": 0
+    }
+   ],
+   [
+    "b10-",
+    {
+     "enabled": true,
+     "expression": "b10-",
+     "mode": "",
+     "raw_line": "--out-range=b10-",
+     "value": 0
+    }
+   ],
+   [
+    "x-2",
+    null
+   ],
+   [
+    "a-d",
+    null
+   ],
+   [
+    "  'a'  ",
+    {
+     "enabled": true,
+     "expression": "a",
+     "mode": "a",
+     "raw_line": "--out-range=  'a'  ",
+     "value": 0
+    }
+   ],
+   [
+    "\"-n7\"*, ",
+    null
+   ],
+   [
+    "",
+    null
+   ],
+   [
+    "n-2",
+    null
+   ],
+   [
+    "-x2",
+    null
+   ],
+   [
+    "--32",
+    null
+   ],
+   [
+    "12-13-14",
+    null
+   ],
+   [
+    "sp13<sp14",
+    null
+   ]
+  ],
+  "payload": [
+   [
+    "all",
+    true
+   ],
+   [
+    "tls_client_hello",
+    true
+   ],
+   [
+    "",
+    false
+   ],
+   [
+    "all,quic",
+    true
+   ],
+   [
+    "quic,unknown",
+    false
+   ],
+   [
+    "all,",
+    true
+   ],
+   [
+    "nope",
+    false
+   ],
+   [
+    "all, nope",
+    true
+   ]
+  ]
+ }
+}

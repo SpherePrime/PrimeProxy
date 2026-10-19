@@ -1,0 +1,903 @@
+{
+ "ops": {
+  "constants": [
+   "group",
+   "section",
+   "strategy"
+  ],
+  "default_open_focused": [
+   "fake_split",
+   "",
+   "split",
+   "fake_split"
+  ],
+  "default_open_nofocus": [
+   "fake_split",
+   "",
+   "fake_split"
+  ],
+  "plan": {
+   "current_strategy_id": "fake_b",
+   "grouping": "method",
+   "groups": [
+    {
+     "color": "#6fb8ff",
+     "description": "способ обхода: поддельный пакет, затем данные по частям",
+     "icon_name": "fa5s.layer-group",
+     "key": "fake_split",
+     "sections": [
+      {
+       "items": [
+        {
+         "accessible_text": "General FakeSplit · из Epic Games, выбрана, в избранном, работает, способ: нарезка с подделками",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "из Epic Games",
+         "detail": "из Epic Games",
+         "family_color": "#6fb8ff",
+         "family_key": "fake_split",
+         "favorite": true,
+         "is_current": true,
+         "name": "General FakeSplit · из Epic Games",
+         "payload_badge": "",
+         "plain_label": "нарезка с подделками",
+         "rating": "work",
+         "strategy_id": "fake_b",
+         "title": "General FakeSplit",
+         "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\n--lua-desync=fakedsplit:4 --fake=2",
+         "twin_key": "fake_split//general fakesplit"
+        },
+        {
+         "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 2 пресетах, у вас работает · 2",
+         "badge_text": "у вас работает · 2",
+         "badge_tone": "personal",
+         "caption": "из Steam · на этом сервисе в 2 пресетах",
+         "detail": "из Steam",
+         "family_color": "#6fb8ff",
+         "family_key": "fake_split",
+         "favorite": false,
+         "is_current": false,
+         "name": "General FakeSplit · из Steam",
+         "payload_badge": "",
+         "plain_label": "нарезка с подделками",
+         "rating": "",
+         "strategy_id": "fake_a",
+         "title": "General FakeSplit",
+         "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 2 сервисах.\n\n--lua-desync=fakedsplit:4 --fake=2",
+         "twin_key": "fake_split//general fakesplit"
+        },
+        {
+         "accessible_text": "General FakeSplit №3, не выбрана, способ: нарезка с подделками",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "",
+         "detail": "",
+         "family_color": "#6fb8ff",
+         "family_key": "fake_split",
+         "favorite": false,
+         "is_current": false,
+         "name": "General FakeSplit №3",
+         "payload_badge": "",
+         "plain_label": "нарезка с подделками",
+         "rating": "",
+         "strategy_id": "fake_c",
+         "title": "General FakeSplit №3",
+         "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\n--lua-desync=fakedsplit:4 --fake=2",
+         "twin_key": ""
+        }
+       ],
+       "key": "",
+       "title": ""
+      }
+     ],
+     "title": "Подмена и разделение"
+    },
+    {
+     "color": "#4cc2ff",
+     "description": "способ обхода: данные уходят несколькими частями",
+     "icon_name": "fa5s.columns",
+     "key": "split",
+     "sections": [
+      {
+       "items": [
+        {
+         "accessible_text": "Bridge PSN, не выбрана, способ: нарезка, осторожно",
+         "badge_text": "осторожно",
+         "badge_tone": "warning",
+         "caption": "",
+         "detail": "",
+         "family_color": "#4cc2ff",
+         "family_key": "split",
+         "favorite": false,
+         "is_current": false,
+         "name": "Bridge PSN",
+         "payload_badge": "",
+         "plain_label": "нарезка",
+         "rating": "",
+         "strategy_id": "ordr_a",
+         "title": "Bridge PSN",
+         "tooltip": "MultiSplit: несколько точек разделения данных\n\n--lua-desync=multisplit",
+         "twin_key": ""
+        },
+        {
+         "accessible_text": "Quake Split №8, не выбрана, способ: нарезка",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "",
+         "detail": "",
+         "family_color": "#4cc2ff",
+         "family_key": "split",
+         "favorite": false,
+         "is_current": false,
+         "name": "Quake Split №8",
+         "payload_badge": "",
+         "plain_label": "нарезка",
+         "rating": "",
+         "strategy_id": "split_b",
+         "title": "Quake Split №8",
+         "tooltip": "Split: разделение данных\n\nНерабочей — на 1 профиле.\n\n--lua-desync=split:3",
+         "twin_key": ""
+        },
+        {
+         "accessible_text": "Bridge · из Xbox Live, не выбрана, не работает, способ: нарезка, на этом сервисе в 1 пресете",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "из Xbox Live · на этом сервисе в 1 пресете",
+         "detail": "из Xbox Live",
+         "family_color": "#4cc2ff",
+         "family_key": "split",
+         "favorite": false,
+         "is_current": false,
+         "name": "Bridge · из Xbox Live",
+         "payload_badge": "",
+         "plain_label": "нарезка",
+         "rating": "notwork",
+         "strategy_id": "split_a",
+         "title": "Bridge",
+         "tooltip": "Split: разделение данных\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 4 сервисах.\n\n--lua-desync=split:3",
+         "twin_key": ""
+        }
+       ],
+       "key": "",
+       "title": ""
+      }
+     ],
+     "title": "Разделение"
+    },
+    {
+     "color": "#9aa6b2",
+     "description": "способ обхода: способ не распознан или встречается редко",
+     "icon_name": "fa5s.question",
+     "key": "other",
+     "sections": [
+      {
+       "items": [
+        {
+         "accessible_text": "Pass-through, не выбрана, способ: Своя",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "",
+         "detail": "",
+         "family_color": "#9aa6b2",
+         "family_key": "other",
+         "favorite": false,
+         "is_current": false,
+         "name": "Pass-through",
+         "payload_badge": "",
+         "plain_label": "Своя",
+         "rating": "",
+         "strategy_id": "pass_silent",
+         "title": "Pass-through",
+         "tooltip": "готовая стратегия не распознана по --lua-desync",
+         "twin_key": ""
+        }
+       ],
+       "key": "",
+       "title": ""
+      }
+     ],
+     "title": "Прочие"
+    }
+   ],
+   "narrowed": false,
+   "narrowed_by_query": false,
+   "queue": [
+    "fake_a",
+    "split_a",
+    "fake_b",
+    "pass_silent",
+    "ordr_a",
+    "fake_c",
+    "split_b"
+   ],
+   "recommended_count": 2,
+   "tab_counts": [
+    [
+     "recommended",
+     2
+    ],
+    [
+     "works",
+     1
+    ],
+    [
+     "favorite",
+     1
+    ],
+    [
+     "all",
+     7
+    ]
+   ],
+   "total_count": 7,
+   "visible_count": 7
+  },
+  "rows_all_open": [
+   {
+    "n": 0,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "g:fake_split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Подмена и разделение",
+      "способ обхода: поддельный пакет, затем данные по частям",
+      "fa5s.layer-group",
+      "#6fb8ff",
+      3,
+      "General FakeSplit · из Epic Games",
+      true
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 1,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "i:fake_b",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:fake_b",
+      2,
+      false
+     ],
+     "strategy_id": "fake_b",
+     "twin_count": 2,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 2,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "i:fake_c",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:fake_c",
+      0,
+      false
+     ],
+     "strategy_id": "fake_c",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 3,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "g:split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Разделение",
+      "способ обхода: данные уходят несколькими частями",
+      "fa5s.columns",
+      "#4cc2ff",
+      3,
+      "",
+      true
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 4,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "i:ordr_a",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:ordr_a",
+      0,
+      false
+     ],
+     "strategy_id": "ordr_a",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 5,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "i:split_b",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:split_b",
+      0,
+      false
+     ],
+     "strategy_id": "split_b",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 6,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "i:split_a",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:split_a",
+      0,
+      false
+     ],
+     "strategy_id": "split_a",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 7,
+    "row": {
+     "expanded": true,
+     "group_key": "other",
+     "key": "g:other",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Прочие",
+      "способ обхода: способ не распознан или встречается редко",
+      "fa5s.question",
+      "#9aa6b2",
+      1,
+      "",
+      true
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 8,
+    "row": {
+     "expanded": true,
+     "group_key": "other",
+     "key": "i:pass_silent",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:pass_silent",
+      0,
+      false
+     ],
+     "strategy_id": "pass_silent",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   }
+  ],
+  "rows_closed": [
+   {
+    "n": 0,
+    "row": {
+     "expanded": false,
+     "group_key": "fake_split",
+     "key": "g:fake_split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Подмена и разделение",
+      "способ обхода: поддельный пакет, затем данные по частям",
+      "fa5s.layer-group",
+      "#6fb8ff",
+      3,
+      "General FakeSplit · из Epic Games",
+      false
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 1,
+    "row": {
+     "expanded": false,
+     "group_key": "split",
+     "key": "g:split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Разделение",
+      "способ обхода: данные уходят несколькими частями",
+      "fa5s.columns",
+      "#4cc2ff",
+      3,
+      "",
+      false
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 2,
+    "row": {
+     "expanded": false,
+     "group_key": "other",
+     "key": "g:other",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Прочие",
+      "способ обхода: способ не распознан или встречается редко",
+      "fa5s.question",
+      "#9aa6b2",
+      1,
+      "",
+      false
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   }
+  ],
+  "rows_one_group_only": [
+   {
+    "n": 0,
+    "row": {
+     "expanded": false,
+     "group_key": "fake_split",
+     "key": "g:fake_split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Подмена и разделение",
+      "способ обхода: поддельный пакет, затем данные по частям",
+      "fa5s.layer-group",
+      "#6fb8ff",
+      3,
+      "General FakeSplit · из Epic Games",
+      false
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 1,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "g:split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Разделение",
+      "способ обхода: данные уходят несколькими частями",
+      "fa5s.columns",
+      "#4cc2ff",
+      3,
+      "",
+      true
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 2,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "i:ordr_a",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:ordr_a",
+      0,
+      false
+     ],
+     "strategy_id": "ordr_a",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 3,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "i:split_b",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:split_b",
+      0,
+      false
+     ],
+     "strategy_id": "split_b",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 4,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "i:split_a",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:split_a",
+      0,
+      false
+     ],
+     "strategy_id": "split_a",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 5,
+    "row": {
+     "expanded": false,
+     "group_key": "other",
+     "key": "g:other",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Прочие",
+      "способ обхода: способ не распознан или встречается редко",
+      "fa5s.question",
+      "#9aa6b2",
+      1,
+      "",
+      false
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   }
+  ],
+  "rows_open_fake": [
+   {
+    "n": 0,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "g:fake_split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Подмена и разделение",
+      "способ обхода: поддельный пакет, затем данные по частям",
+      "fa5s.layer-group",
+      "#6fb8ff",
+      3,
+      "General FakeSplit · из Epic Games",
+      true
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 1,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "i:fake_b",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:fake_b",
+      2,
+      false
+     ],
+     "strategy_id": "fake_b",
+     "twin_count": 2,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 2,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "i:fake_c",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:fake_c",
+      0,
+      false
+     ],
+     "strategy_id": "fake_c",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 3,
+    "row": {
+     "expanded": false,
+     "group_key": "split",
+     "key": "g:split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Разделение",
+      "способ обхода: данные уходят несколькими частями",
+      "fa5s.columns",
+      "#4cc2ff",
+      3,
+      "",
+      false
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 4,
+    "row": {
+     "expanded": false,
+     "group_key": "other",
+     "key": "g:other",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Прочие",
+      "способ обхода: способ не распознан или встречается редко",
+      "fa5s.question",
+      "#9aa6b2",
+      1,
+      "",
+      false
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   }
+  ],
+  "rows_twins_open": [
+   {
+    "n": 0,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "g:fake_split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Подмена и разделение",
+      "способ обхода: поддельный пакет, затем данные по частям",
+      "fa5s.layer-group",
+      "#6fb8ff",
+      3,
+      "General FakeSplit · из Epic Games",
+      true
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 1,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "i:fake_b",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:fake_b",
+      2,
+      true
+     ],
+     "strategy_id": "fake_b",
+     "twin_count": 2,
+     "twin_open": true
+    }
+   },
+   {
+    "n": 2,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "i:fake_a",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:fake_a",
+      0,
+      true
+     ],
+     "strategy_id": "fake_a",
+     "twin_count": 0,
+     "twin_open": true
+    }
+   },
+   {
+    "n": 3,
+    "row": {
+     "expanded": true,
+     "group_key": "fake_split",
+     "key": "i:fake_c",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:fake_c",
+      0,
+      false
+     ],
+     "strategy_id": "fake_c",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 4,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "g:split",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Разделение",
+      "способ обхода: данные уходят несколькими частями",
+      "fa5s.columns",
+      "#4cc2ff",
+      3,
+      "",
+      true
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 5,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "i:ordr_a",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:ordr_a",
+      0,
+      false
+     ],
+     "strategy_id": "ordr_a",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 6,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "i:split_b",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:split_b",
+      0,
+      false
+     ],
+     "strategy_id": "split_b",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 7,
+    "row": {
+     "expanded": true,
+     "group_key": "split",
+     "key": "i:split_a",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:split_a",
+      0,
+      false
+     ],
+     "strategy_id": "split_a",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 8,
+    "row": {
+     "expanded": true,
+     "group_key": "other",
+     "key": "g:other",
+     "kind": "group",
+     "selectable": true,
+     "shown": [
+      "Прочие",
+      "способ обхода: способ не распознан или встречается редко",
+      "fa5s.question",
+      "#9aa6b2",
+      1,
+      "",
+      true
+     ],
+     "strategy_id": "",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   },
+   {
+    "n": 9,
+    "row": {
+     "expanded": true,
+     "group_key": "other",
+     "key": "i:pass_silent",
+     "kind": "strategy",
+     "selectable": true,
+     "shown": [
+      "item:pass_silent",
+      0,
+      false
+     ],
+     "strategy_id": "pass_silent",
+     "twin_count": 0,
+     "twin_open": false
+    }
+   }
+  ],
+  "twin_keys": [
+   "fake_split//general fakesplit"
+  ]
+ }
+}

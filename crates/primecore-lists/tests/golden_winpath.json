@@ -1,0 +1,235 @@
+{
+ "cases": [
+  {
+   "raw": "C:\\Users\\x\\a.txt",
+   "name": "a.txt",
+   "parent": "C:\\Users\\x",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "a"
+  },
+  {
+   "raw": "C:/Users/x/a.txt",
+   "name": "a.txt",
+   "parent": "C:\\Users\\x",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "a"
+  },
+  {
+   "raw": "C:x.txt",
+   "name": "x.txt",
+   "parent": "C:",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "x"
+  },
+  {
+   "raw": "C:",
+   "name": "",
+   "parent": "C:",
+   "suffixes": [],
+   "stem": ""
+  },
+  {
+   "raw": "C:\\",
+   "name": "",
+   "parent": "C:\\",
+   "suffixes": [],
+   "stem": ""
+  },
+  {
+   "raw": "x.txt",
+   "name": "x.txt",
+   "parent": ".",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "x"
+  },
+  {
+   "raw": "x.txt/",
+   "name": "x.txt",
+   "parent": ".",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "x"
+  },
+  {
+   "raw": "lists/base/steam.txt",
+   "name": "steam.txt",
+   "parent": "lists\\base",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "steam"
+  },
+  {
+   "raw": "//srv/share/a.txt",
+   "name": "a.txt",
+   "parent": "\\\\srv\\share\\",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "a"
+  },
+  {
+   "raw": "\\srv/share/a.txt",
+   "name": "a.txt",
+   "parent": "\\srv\\share",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "a"
+  },
+  {
+   "raw": "\\\\a\\b\\c.txt",
+   "name": "c.txt",
+   "parent": "\\\\a\\b\\",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "c"
+  },
+  {
+   "raw": "\\a\\b\\c.txt",
+   "name": "c.txt",
+   "parent": "\\a\\b",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "c"
+  },
+  {
+   "raw": "a.txt:stream",
+   "name": "a.txt:stream",
+   "parent": ".",
+   "suffixes": [
+    ".txt:stream"
+   ],
+   "stem": "a"
+  },
+  {
+   "raw": "dir//a.txt",
+   "name": "a.txt",
+   "parent": "dir",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "a"
+  },
+  {
+   "raw": "C:\\x\\",
+   "name": "x",
+   "parent": "C:\\",
+   "suffixes": [],
+   "stem": "x"
+  },
+  {
+   "raw": "C:\\x\\.txt",
+   "name": ".txt",
+   "parent": "C:\\x",
+   "suffixes": [],
+   "stem": ".txt"
+  },
+  {
+   "raw": "~",
+   "name": "~",
+   "parent": ".",
+   "suffixes": [],
+   "stem": "~"
+  },
+  {
+   "raw": "~\\a.txt",
+   "name": "a.txt",
+   "parent": "~",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "a"
+  },
+  {
+   "raw": "//",
+   "name": "",
+   "parent": "\\\\",
+   "suffixes": [],
+   "stem": ""
+  },
+  {
+   "raw": ".hidden",
+   "name": ".hidden",
+   "parent": ".",
+   "suffixes": [],
+   "stem": ".hidden"
+  },
+  {
+   "raw": "no.ext",
+   "name": "no.ext",
+   "parent": ".",
+   "suffixes": [
+    ".ext"
+   ],
+   "stem": "no"
+  },
+  {
+   "raw": "C:\\dir\\ipset-all.txt\\",
+   "name": "ipset-all.txt",
+   "parent": "C:\\dir",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "ipset-all"
+  },
+  {
+   "raw": "",
+   "name": "",
+   "parent": ".",
+   "suffixes": [],
+   "stem": ""
+  },
+  {
+   "raw": "\\\\",
+   "name": "",
+   "parent": "\\\\",
+   "suffixes": [],
+   "stem": ""
+  },
+  {
+   "raw": "steam.ru.txt",
+   "name": "steam.ru.txt",
+   "parent": ".",
+   "suffixes": [
+    ".ru",
+    ".txt"
+   ],
+   "stem": "steam.ru"
+  },
+  {
+   "raw": "steam",
+   "name": "steam",
+   "parent": ".",
+   "suffixes": [],
+   "stem": "steam"
+  },
+  {
+   "raw": "C:\\dir\\",
+   "name": "dir",
+   "parent": "C:\\",
+   "suffixes": [],
+   "stem": "dir"
+  },
+  {
+   "raw": "presets\\lists\\steam.txt",
+   "name": "steam.txt",
+   "parent": "presets\\lists",
+   "suffixes": [
+    ".txt"
+   ],
+   "stem": "steam"
+  }
+ ]
+}

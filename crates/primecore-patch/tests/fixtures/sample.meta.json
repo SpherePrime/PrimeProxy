@@ -1,0 +1,54 @@
+{
+ "magic": "BSDIFF40",
+ "old_size": 806,
+ "new_size": 824,
+ "patch_size": 192,
+ "control_size": 168,
+ "diff_size": 810,
+ "triples": [
+  {
+   "kind": "change",
+   "copy": 6,
+   "insert": 0,
+   "seek": 0
+  },
+  {
+   "kind": "copy-zero",
+   "copy": 2,
+   "insert": 0,
+   "seek": 0
+  },
+  {
+   "kind": "seek",
+   "copy": 0,
+   "insert": 0,
+   "seek": 2
+  },
+  {
+   "kind": "copy-zero",
+   "copy": 4,
+   "insert": 0,
+   "seek": 0
+  },
+  {
+   "kind": "seek",
+   "copy": 0,
+   "insert": 0,
+   "seek": -6
+  },
+  {
+   "kind": "copy-tail",
+   "copy": 798,
+   "insert": 0,
+   "seek": 0
+  },
+  {
+   "kind": "insert",
+   "copy": 0,
+   "insert": 14,
+   "seek": 0
+  }
+ ],
+ "contract": "out[new++]=old[old]+diff; old_pos+=copy+seek; new_pos+=copy+insert; insert берётся из extra",
+ "generated_by": "make_patch_fixture.py (формат bsdiff4, без библиотек bsdiff)"
+}

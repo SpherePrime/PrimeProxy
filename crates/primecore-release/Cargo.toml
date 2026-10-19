@@ -1,0 +1,14 @@
+[package]
+name = "primecore-release"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/primebypass_update/release/*: каналы, парсер Telegram, гонка resolver."
+
+[dependencies]
+serde_json.workspace = true
+thiserror.workspace = true
+regex.workspace = true
+primecore-versions = { path = "../primecore-versions" }
+primecore-manifest = { path = "../primecore-manifest" }
+once_cell.workspace = true

@@ -1,0 +1,4172 @@
+{
+ "bsdiff": [
+  {
+   "from": "2e004cae6d54740198a3f8e5bfd4791a292f1557d3afead706e1bf7e88aed366",
+   "size": 2398748,
+   "to": "3b63e979ec1e22df678cdc32f78d6f8e0b8378a2554e93bf62f30203ddbc7fd2"
+  },
+  {
+   "from": "39ea046ee52795277909182bb39c320f85c639e65558918166630e29618af8f6",
+   "size": 2354336,
+   "to": "3b63e979ec1e22df678cdc32f78d6f8e0b8378a2554e93bf62f30203ddbc7fd2"
+  },
+  {
+   "from": "63cc9822c6943dc5043899493a7d3ef2e5a58dd1000a99b75f0477ee999219c8",
+   "size": 2351499,
+   "to": "3b63e979ec1e22df678cdc32f78d6f8e0b8378a2554e93bf62f30203ddbc7fd2"
+  }
+ ],
+ "channel": "dev",
+ "created": 1792248912,
+ "files": [
+  {
+   "path": "_internal/PyQt6/Qt6/plugins/iconengines/qsvgicon.dll",
+   "sha256": "dcfe12e028e1fd694a99fbc18f6aebf08d36223f5fd99c1bc1e7bc85eee11281",
+   "size": 72504,
+   "zsize": 32274
+  },
+  {
+   "path": "_internal/PyQt6/Qt6/plugins/imageformats/qico.dll",
+   "sha256": "0eb08bc9d8f6c1ab05f3a837629eb10e41eb6aa72240d23e291056b801894794",
+   "size": 45880,
+   "zsize": 23274
+  },
+  {
+   "path": "_internal/PyQt6/Qt6/plugins/imageformats/qjpeg.dll",
+   "sha256": "bc3815c58443a01f43417ecac74bbf182c245d433ea82af0b3dc669c2cb064ab",
+   "size": 577848,
+   "zsize": 160270
+  },
+  {
+   "path": "_internal/PyQt6/Qt6/plugins/imageformats/qsvg.dll",
+   "sha256": "8a4db91d1cb7689554794e93a9b0811fdffecfa43fc8c703049092ca27097ab7",
+   "size": 39224,
+   "zsize": 19426
+  },
+  {
+   "path": "_internal/PyQt6/Qt6/plugins/imageformats/qwebp.dll",
+   "sha256": "5b3412d4df198847fa8953d7af857bbddc46e58d0cab53725821d245b65d802c",
+   "size": 562488,
+   "zsize": 249493
+  },
+  {
+   "path": "_internal/PyQt6/Qt6/plugins/platforms/qwindows.dll",
+   "sha256": "dd126e2a47f7f3d4a855981e9d4012076058b1440f6900b9a07aa950e4e4f20a",
+   "size": 1006904,
+   "zsize": 373111
+  },
+  {
+   "path": "_internal/PyQt6/Qt6/plugins/styles/qmodernwindowsstyle.dll",
+   "sha256": "093e3ac68dfdac52a2667a2f7ba00b336392f9d6bde08430494ef54dbd120541",
+   "size": 230712,
+   "zsize": 98764
+  },
+  {
+   "path": "_internal/PyQt6/QtCore.pyd",
+   "sha256": "91dd5166110b88a4f4d3acda6fe6c10ed699882dd3602328a59e9f656cc766b1",
+   "size": 2666496,
+   "zsize": 614646
+  },
+  {
+   "path": "_internal/PyQt6/QtGui.pyd",
+   "sha256": "cf5ae37fd119fb29a53f1f2cea1362fdf036d940191be45d83da0f98ce8752b8",
+   "size": 2310144,
+   "zsize": 514072
+  },
+  {
+   "path": "_internal/PyQt6/QtSvg.pyd",
+   "sha256": "542d023e993274d9a8c54135fba79cbeb0a99934b04bd47ae181413b55581684",
+   "size": 50176,
+   "zsize": 16834
+  },
+  {
+   "path": "_internal/PyQt6/QtWidgets.pyd",
+   "sha256": "4f81361816e94e1ae05f178085b22d5b9b19e417713b1966dd481a4017aa3b21",
+   "size": 5072896,
+   "zsize": 922533
+  },
+  {
+   "path": "_internal/PyQt6/QtXml.pyd",
+   "sha256": "395d30c4e76750a093e22b32981ca683e400cb5eb4b34f8aa3d0e100bdc0d02b",
+   "size": 117760,
+   "zsize": 28138
+  },
+  {
+   "path": "_internal/PyQt6/sip.pyd",
+   "sha256": "61237093b5c263bb97f3e9088a5b7d60cfdda983bf6f0b4031634e8962fd9825",
+   "size": 112128,
+   "zsize": 47191
+  },
+  {
+   "path": "_internal/Zapret.exe",
+   "sha256": "3b63e979ec1e22df678cdc32f78d6f8e0b8378a2554e93bf62f30203ddbc7fd2",
+   "size": 85224448,
+   "zsize": 20705119
+  },
+  {
+   "path": "_internal/_asyncio.pyd",
+   "sha256": "dc6db118862ab3298e55e0f7c44c2c0dae4af9e810d2578271280202d6aa098a",
+   "size": 78048,
+   "zsize": 33675
+  },
+  {
+   "path": "_internal/_bz2.pyd",
+   "sha256": "d28c3dd1c22bfb8a6e8a6a9c2359842b797d08e878ecb7805f60e86a45589d11",
+   "size": 87776,
+   "zsize": 44084
+  },
+  {
+   "path": "_internal/_cffi_backend.pyd",
+   "sha256": "2011ed3465ee2b732588c443c246f9c857288b8a0c59ea737100d230a5f8e346",
+   "size": 181248,
+   "zsize": 74526
+  },
+  {
+   "path": "_internal/_ctypes.pyd",
+   "sha256": "25d9b0be550d428fecc697ca20450343a7c3ce77c9f5283e9aecfd188d609250",
+   "size": 142560,
+   "zsize": 62392
+  },
+  {
+   "path": "_internal/_decimal.pyd",
+   "sha256": "8d41a84db20a9b985e98c802ad6833cf9625c744ad35478dd346f54f81488706",
+   "size": 290528,
+   "zsize": 121877
+  },
+  {
+   "path": "_internal/_elementtree.pyd",
+   "sha256": "16f4d30a50fc25950762a8bbef9dd6c5750729345539c224d489be33e6d6f340",
+   "size": 138464,
+   "zsize": 58320
+  },
+  {
+   "path": "_internal/_hashlib.pyd",
+   "sha256": "36ce760b9fac53fe51755f30a68d86f5fde89bf1b66c65c19e04aa3afa404ac2",
+   "size": 69344,
+   "zsize": 29670
+  },
+  {
+   "path": "_internal/_overlapped.pyd",
+   "sha256": "ac877f3da413c1523c07b6a0dd1f7e0d7ceb3e8590a5e9e20a78eb1bcb700793",
+   "size": 58080,
+   "zsize": 27505
+  },
+  {
+   "path": "_internal/_queue.pyd",
+   "sha256": "bb53357b4e91ac23ed4061f15ff3e5e91a5b3be1cbb0c6cf294521ae5b4efa1c",
+   "size": 36576,
+   "zsize": 19470
+  },
+  {
+   "path": "_internal/_socket.pyd",
+   "sha256": "25ac83cac32ed0d67b2cc9672ce64cb53f0a29a75b14c276e901023ff43da5f9",
+   "size": 87776,
+   "zsize": 39261
+  },
+  {
+   "path": "_internal/_sqlite3.pyd",
+   "sha256": "b0c4edff6d60f300373ec929ab915f95ee601bf167e04d28e4e9e28a8e536fe0",
+   "size": 132832,
+   "zsize": 56397
+  },
+  {
+   "path": "_internal/_ssl.pyd",
+   "sha256": "5c07572df2913618cfb851b608cb5f74d740fcce5c3f2e63dc0a2ba39ab35dad",
+   "size": 190688,
+   "zsize": 66187
+  },
+  {
+   "path": "_internal/_uuid.pyd",
+   "sha256": "a09308efd309732e3745e70b4456235579c450cac32bed616dfb3913b56f6637",
+   "size": 28384,
+   "zsize": 15708
+  },
+  {
+   "path": "_internal/_win32sysloader.pyd",
+   "sha256": "6becee5e15c921c2b5457cd6aff39e02b7540426fb3933b90801265ac60ef23b",
+   "size": 15872,
+   "zsize": 6792
+  },
+  {
+   "path": "_internal/_zstd.pyd",
+   "sha256": "262aea62a994920daf152a10bdc0ca83a8b1c0874e71db23734862431de182c6",
+   "size": 503520,
+   "zsize": 187120
+  },
+  {
+   "path": "_internal/ada92cb5d92a588d1b93__mypyc.pyd",
+   "sha256": "3048af5864e17f79410273b3074416d67473eae22b3d7d1b7b58f24a506f82ed",
+   "size": 223232,
+   "zsize": 74284
+  },
+  {
+   "path": "_internal/certifi/cacert.pem",
+   "sha256": "9cc2a774b5198dcff14d9be1e66091f538975d867ce029a96bce15a55dfd730f",
+   "size": 240216,
+   "zsize": 124035
+  },
+  {
+   "path": "_internal/charset_normalizer/cd.pyd",
+   "sha256": "032b490f6b42a0928b3cb6e17fd4caf8a6becaaf05739c4fe41267dcf890c278",
+   "size": 10752,
+   "zsize": 4225
+  },
+  {
+   "path": "_internal/charset_normalizer/md.pyd",
+   "sha256": "1e6a7085b577f6a3b569bada5838e44805fc4cbd49361192e078ddd8230f2ffd",
+   "size": 10752,
+   "zsize": 4223
+  },
+  {
+   "path": "_internal/curl_cffi.libs/libcurl-impersonate-1172405423dc93b7aeed557f2a2ca325.dll",
+   "sha256": "1172405423dc93b7aeed557f2a2ca325f73d89c4593640a4b775cee3cc1ea048",
+   "size": 3885056,
+   "zsize": 1617632
+  },
+  {
+   "path": "_internal/curl_cffi/_wrapper.pyd",
+   "sha256": "d7d354dc1b6b0be4bffa463940e7f81e50f2f5d741a9f4724b8f2fff7341cff7",
+   "size": 39936,
+   "zsize": 11930
+  },
+  {
+   "path": "_internal/install_manifest.json",
+   "sha256": "45efe9e7884c04c948c1ac269b8f09af40b4a03b45269b955a33dcc735a0ade3",
+   "size": 29729,
+   "zsize": 6530
+  },
+  {
+   "path": "_internal/libcrypto-3.dll",
+   "sha256": "53c529145339fb042a3dcd3a09c2d7753204f8b4fc79d99e0d31e69a33985958",
+   "size": 6242552,
+   "zsize": 1851002
+  },
+  {
+   "path": "_internal/libffi-8.dll",
+   "sha256": "eff52743773eb550fcc6ce3efc37c85724502233b6b002a35496d828bd7b280a",
+   "size": 39696,
+   "zsize": 22166
+  },
+  {
+   "path": "_internal/libssl-3.dll",
+   "sha256": "b17a87979862d19241edc4318f967e24c3ec356ed6c2368f561179fab2311001",
+   "size": 1329912,
+   "zsize": 424744
+  },
+  {
+   "path": "_internal/msvcp140.dll",
+   "sha256": "7c26614e1d733892c2deac7e245ce115504b1d80592dd0a01b08e3e5a55f89ca",
+   "size": 643512,
+   "zsize": 164088
+  },
+  {
+   "path": "_internal/msvcp140_1.dll",
+   "sha256": "206c931bf90fdad8816de3b5e2ef80b2bcaa9406c89ecc05fe6fddffe251e982",
+   "size": 35768,
+   "zsize": 17066
+  },
+  {
+   "path": "_internal/msvcp140_2.dll",
+   "sha256": "d50d7883f20d1dc6191768d3746f52dd9cac89c346ffaed5be1f110c2f34a838",
+   "size": 274872,
+   "zsize": 98552
+  },
+  {
+   "path": "_internal/perfmon.pyd",
+   "sha256": "2c9eda499dfe74a093b4e907f3ea2460041a8ed94def9b2e3c1b83df365bce6b",
+   "size": 29184,
+   "zsize": 11504
+  },
+  {
+   "path": "_internal/psutil/_psutil_windows.pyd",
+   "sha256": "0035450801bd7d938e9e146c5ec28e619cb5a5f4a18cdc53ac7e9734c7f94f78",
+   "size": 70656,
+   "zsize": 30537
+  },
+  {
+   "path": "_internal/pyexpat.pyd",
+   "sha256": "133942bde91fe43289076a0b50a01b265df4ead078617cca6f6604a4166e1260",
+   "size": 222944,
+   "zsize": 96600
+  },
+  {
+   "path": "_internal/python3.dll",
+   "sha256": "22c6e46d8bd563cdb072650901461ef68be2ea6cb1e80af859559d9395a27e39",
+   "size": 73952,
+   "zsize": 22070
+  },
+  {
+   "path": "_internal/python314.dll",
+   "sha256": "fde89cdb5c2d08ae65de7ef4abca1876c93ba3796002f5ac0bf7e4d4f5a94da0",
+   "size": 6778592,
+   "zsize": 2296809
+  },
+  {
+   "path": "_internal/pywintypes314.dll",
+   "sha256": "e62808f40462f8066c8d19811cebd15467de6992b1cb48be5f5903910f5395f7",
+   "size": 136704,
+   "zsize": 49587
+  },
+  {
+   "path": "_internal/qt6core.dll",
+   "sha256": "fae4778a42e93adc82b831c879c886a05147e9cc26760808d21116be5547259b",
+   "size": 10480440,
+   "zsize": 2904475
+  },
+  {
+   "path": "_internal/qt6gui.dll",
+   "sha256": "8fceee959a670372aaa5763287c2ef7924cd9ecdbe2c29cf4b6c12a63079c503",
+   "size": 9589560,
+   "zsize": 3458857
+  },
+  {
+   "path": "_internal/qt6svg.dll",
+   "sha256": "a5866fa80cca10dd58e31f277b62f1a1060d3a495fabcea72e2f9ade0f9e45fe",
+   "size": 642360,
+   "zsize": 228739
+  },
+  {
+   "path": "_internal/qt6widgets.dll",
+   "sha256": "4d603bff620ae0830d15c25a787f9f10ed3f972d998f1f17c9c4f83937280399",
+   "size": 6594360,
+   "zsize": 2454589
+  },
+  {
+   "path": "_internal/qt6xml.dll",
+   "sha256": "23974da7ec6da4e70c7cae7a3cad81662f7a046714bf175073f6f0c3161f44f5",
+   "size": 160056,
+   "zsize": 64354
+  },
+  {
+   "path": "_internal/qtawesome/fonts/fontawesome5-brands-webfont-5.15.4.ttf",
+   "sha256": "cda59d6efffa685830fd95b55f64ae9cb51279cd34b2410b69f84c7ec30157d9",
+   "size": 133988,
+   "zsize": 87573
+  },
+  {
+   "path": "_internal/qtawesome/fonts/fontawesome5-brands-webfont-charmap-5.15.4.json",
+   "sha256": "d00ae829ec115926c670397b7bc470656fae8dc2bdd5b48a81c753dc854ca1fa",
+   "size": 11408,
+   "zsize": 3404
+  },
+  {
+   "path": "_internal/qtawesome/fonts/fontawesome5-solid-webfont-5.15.4.ttf",
+   "sha256": "4c5431bc1b2abf8aed5c614f2f32120d666bdda640cb1a7678d70e08cdd4323f",
+   "size": 202408,
+   "zsize": 95124
+  },
+  {
+   "path": "_internal/qtawesome/fonts/fontawesome5-solid-webfont-charmap-5.15.4.json",
+   "sha256": "1b0cac3ed4d3b144965a45aba9ad31e8654e4735d94b4ed9bced1b5eea9804d3",
+   "size": 25711,
+   "zsize": 6769
+  },
+  {
+   "path": "_internal/select.pyd",
+   "sha256": "fab1b4cee101359d82d72061b83cff1855337b3677b9fe01cd69f7548f4c496e",
+   "size": 33504,
+   "zsize": 18156
+  },
+  {
+   "path": "_internal/servicemanager.pyd",
+   "sha256": "0582ec19772bc11d9e745a2f7094b5f6ad0df76024bc1e8ab6df32314d674e28",
+   "size": 42496,
+   "zsize": 16773
+  },
+  {
+   "path": "_internal/sqlite3.dll",
+   "sha256": "2940bee51c4a00c7e8f2a8a1be857d4c4ad23b2657fbf7fdf18e3a3fd20066c6",
+   "size": 1584864,
+   "zsize": 743657
+  },
+  {
+   "path": "_internal/tgcrypto.pyd",
+   "sha256": "9a6ce249445aff3bcd080e976f5df071f5522b1dda1eadedb3737751ddc2a163",
+   "size": 34304,
+   "zsize": 13704
+  },
+  {
+   "path": "_internal/unicodedata.pyd",
+   "sha256": "0d4f124b2d6622d276d777f7106972219f9b310edb5df8149c253da7c013d6d8",
+   "size": 759008,
+   "zsize": 315869
+  },
+  {
+   "path": "_internal/vcruntime140.dll",
+   "sha256": "052ad6a20d375957e82aa6a3c441ea548d89be0981516ca7eb306e063d5027f4",
+   "size": 120400,
+   "zsize": 55915
+  },
+  {
+   "path": "_internal/vcruntime140_1.dll",
+   "sha256": "6a99bc0128e0c7d6cbbf615fcc26909565e17d4ca3451b97f8987f9c6acbc6c8",
+   "size": 49776,
+   "zsize": 25427
+  },
+  {
+   "path": "_internal/win32api.pyd",
+   "sha256": "9004920e2c7863c34d0b3c4183ab3e1482475817cfb64f4f198e1fdd43f48f4e",
+   "size": 139264,
+   "zsize": 50364
+  },
+  {
+   "path": "_internal/win32crypt.pyd",
+   "sha256": "1144670ad8271e4d477167bcb55b8ec38e8ad9f02c6fbfe66024e67083da2131",
+   "size": 125952,
+   "zsize": 45692
+  },
+  {
+   "path": "_internal/win32evtlog.pyd",
+   "sha256": "0899fd11f626958ab4969bf4080156d45eb6257894e6f3217eccee354a0adecf",
+   "size": 75776,
+   "zsize": 27580
+  },
+  {
+   "path": "_internal/win32gui.pyd",
+   "sha256": "a3f9d6430652a0104acf77ca5d07417f0610839196be94fa42d55ddef2676b47",
+   "size": 222208,
+   "zsize": 70488
+  },
+  {
+   "path": "_internal/win32print.pyd",
+   "sha256": "f57d443d761c8eb22f52c8cb19c91e355bf4af7076e120a6ab0303893d17d050",
+   "size": 76288,
+   "zsize": 28862
+  },
+  {
+   "path": "_internal/win32security.pyd",
+   "sha256": "ea6806e8f9e940a890571c0c2545f851e57e9b8daea11f920a19c7cb4c01468d",
+   "size": 133120,
+   "zsize": 46947
+  },
+  {
+   "path": "_internal/win32service.pyd",
+   "sha256": "ad5c32d7dd34edf3365ee0ea805db6a8fae3887b8ad62dfec5257eac34dec81b",
+   "size": 60416,
+   "zsize": 22381
+  },
+  {
+   "path": "bin/1.bin",
+   "sha256": "e4d572e6bf6de04c648744cb7271644cb40fd6c79d718e911716d734cbb53841",
+   "size": 136,
+   "zsize": 91
+  },
+  {
+   "path": "bin/2.bin",
+   "sha256": "f86d488593a65132c10e7e5b5e02f32ff8e0862988b30bebc6a671c5380f3976",
+   "size": 1357,
+   "zsize": 574
+  },
+  {
+   "path": "bin/3.bin",
+   "sha256": "d6d63c53bc0e1d97e913a43fc4db34f6558bb807228bf6100e3b6863f0720404",
+   "size": 517,
+   "zsize": 316
+  },
+  {
+   "path": "bin/4.bin",
+   "sha256": "936c2bee4cfb80aa3c426b2dcbcc834b3fbcd1adb17172959dc569c73a14275c",
+   "size": 681,
+   "zsize": 681
+  },
+  {
+   "path": "bin/ACTIVE_DISCORD_UDP.bin",
+   "sha256": "2fe18b3bd20807d36704d0b072092ee49ae84edca907a4420ab9a0f0f28fddcf",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/ACTIVE_GAME_UDP.bin",
+   "sha256": "e065870cb0d13152e6132807bbf42218a9e7cd8d96f5602b61674cc540f3a56e",
+   "size": 1250,
+   "zsize": 1260
+  },
+  {
+   "path": "bin/chrome_template.hex",
+   "sha256": "b179cd80c6824c2811065dc4ad20ed216e9953c8a022a49b16e313d526676387",
+   "size": 3654,
+   "zsize": 1858
+  },
+  {
+   "path": "bin/dht_find_node.bin",
+   "sha256": "1f892e567bdd3dfc23e8dc86933b258a67262cb66cbf16bcc3cfa704db604ba0",
+   "size": 98,
+   "zsize": 107
+  },
+  {
+   "path": "bin/dht_get_peers.bin",
+   "sha256": "b57f6584eb58689ccf81702b44103fa53ea31a5dba00be9c95b4059bad602e77",
+   "size": 104,
+   "zsize": 113
+  },
+  {
+   "path": "bin/dtls_clienthello_w3_org.bin",
+   "sha256": "5bacd8cb6bd451f2374e55bc066b632e3c88fb852e3a44f19e6246c04d127be5",
+   "size": 226,
+   "zsize": 205
+  },
+  {
+   "path": "bin/fake_http_lichess.bin",
+   "sha256": "a07850d92c7513bd619d52da93fcdccd17361dfb25b8ef16272163bfef7f9efe",
+   "size": 148,
+   "zsize": 139
+  },
+  {
+   "path": "bin/fake_http_ovhcloud.bin",
+   "sha256": "8be0457af14b36cb5296f26b223d25792d26afcf392ba0ec3a1bd983458429ee",
+   "size": 149,
+   "zsize": 141
+  },
+  {
+   "path": "bin/fake_http_postimg.bin",
+   "sha256": "17992ee1dcb45be7e5599bb2193dd0608f2fc53b70e7e3cb277f28836fa2ac8b",
+   "size": 147,
+   "zsize": 139
+  },
+  {
+   "path": "bin/fake_http_winrar.bin",
+   "sha256": "7bf9ea8752e3dcaf62ba2f691df9f3033f012899d2880015070befc5c21cd0c1",
+   "size": 148,
+   "zsize": 139
+  },
+  {
+   "path": "bin/fake_quic.bin",
+   "sha256": "a7341421e156184678f11b293fd8037fbc0a2dc46ef4168b4c976f754b1f85fb",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/fake_quic_1.bin",
+   "sha256": "a7341421e156184678f11b293fd8037fbc0a2dc46ef4168b4c976f754b1f85fb",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/fake_quic_2.bin",
+   "sha256": "f4589c57749f956bb30538197a521d7005f8b0a8723b4707e72405e51ddac50a",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/fake_quic_3.bin",
+   "sha256": "4a6f8a103646793bac9cdcfff9b0ed9f23ef3b43e588ac870c835d3f23fe6e28",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/fake_syndata.bin",
+   "sha256": "2ccdc1d1f976183dd113e3e3b7130e91710c1d54818d18db46262a236b23f7ac",
+   "size": 317,
+   "zsize": 327
+  },
+  {
+   "path": "bin/fake_tls_1.bin",
+   "sha256": "417486136b2938616e10b327df4a80d80ce5de479e535e024ee5a4b20a8b7699",
+   "size": 225,
+   "zsize": 217
+  },
+  {
+   "path": "bin/fake_tls_2.bin",
+   "sha256": "b20530263cf4b4ef7bfd1ecf1d071da8d74e839328bea67410dd81696c989e4c",
+   "size": 228,
+   "zsize": 219
+  },
+  {
+   "path": "bin/fake_tls_3.bin",
+   "sha256": "e5938780152169f720383f80eabb309e9477369b83b5ec40cc137c397f862cde",
+   "size": 652,
+   "zsize": 662
+  },
+  {
+   "path": "bin/fake_tls_4.bin",
+   "sha256": "a274651c7ee20c696b1454c25355f8c2a6c8116f7746b8686c932ff63893fdf8",
+   "size": 314,
+   "zsize": 324
+  },
+  {
+   "path": "bin/fake_tls_5.bin",
+   "sha256": "de66eca5d91ecfd12593cd83218d4aee33a04674c736be4bd7b3de9ad26ba3b3",
+   "size": 306,
+   "zsize": 316
+  },
+  {
+   "path": "bin/fake_tls_6.bin",
+   "sha256": "fc3d6b7ebfcc2c2ffa348737fac7ffaeb951d541806a5efdb518330b856dab8e",
+   "size": 209,
+   "zsize": 203
+  },
+  {
+   "path": "bin/fake_tls_7.bin",
+   "sha256": "364ecb8ff5c99d1ab84df16c02602e241e8d49416035d0b3afbbb4b441014543",
+   "size": 226,
+   "zsize": 218
+  },
+  {
+   "path": "bin/fake_tls_8.bin",
+   "sha256": "83ccbc02a89a4017ccdccbb66c1aad01a52c6db1644480977355a98e398cdb69",
+   "size": 318,
+   "zsize": 328
+  },
+  {
+   "path": "bin/fake_tls_vimeo_com.bin",
+   "sha256": "0e42538d33e0e66aee52395529719492719efd7520febe715fec3743f4bc0991",
+   "size": 290,
+   "zsize": 295
+  },
+  {
+   "path": "bin/gen_chrome_ch.py",
+   "sha256": "0a87ee279a439476ccca67d3e2a3b7b83d3eaa251d28253030dc1f96894521fb",
+   "size": 6450,
+   "zsize": 2395
+  },
+  {
+   "path": "bin/http_fake_MS.bin",
+   "sha256": "a12afb6937c64b1173e4f5c3eaaf739da3b97a774ef8ce8d44a7b1c918a7ed69",
+   "size": 282,
+   "zsize": 246
+  },
+  {
+   "path": "bin/http_iana_org.bin",
+   "sha256": "f77d1cdaff02b6311d4276eeb8479830ab777d8fce4a4b116135c7768f3a284a",
+   "size": 418,
+   "zsize": 317
+  },
+  {
+   "path": "bin/mts_ch.bin",
+   "sha256": "70e5fe06407335247f07a1e45e9ef8cd2f844dbd78a6d74973908f4f233a698f",
+   "size": 192,
+   "zsize": 182
+  },
+  {
+   "path": "bin/quic_1.bin",
+   "sha256": "f4589c57749f956bb30538197a521d7005f8b0a8723b4707e72405e51ddac50a",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/quic_2.bin",
+   "sha256": "e4d572e6bf6de04c648744cb7271644cb40fd6c79d718e911716d734cbb53841",
+   "size": 136,
+   "zsize": 91
+  },
+  {
+   "path": "bin/quic_3.bin",
+   "sha256": "f86d488593a65132c10e7e5b5e02f32ff8e0862988b30bebc6a671c5380f3976",
+   "size": 1357,
+   "zsize": 574
+  },
+  {
+   "path": "bin/quic_4.bin",
+   "sha256": "0e53683f2408bab1f52bc3db10c11b3a2bf238f68db64f4d0ea8aff37e07a61d",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/quic_5.bin",
+   "sha256": "a7ea947b0efe4690b91f6180ff16c0f750443901f0f6310d94dca9f0b8606dac",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/quic_6.bin",
+   "sha256": "97f544d62aaa0d85db91dbb611a3e1782647dda243777417d57096ed7e668a1c",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/quic_7.bin",
+   "sha256": "4a6f8a103646793bac9cdcfff9b0ed9f23ef3b43e588ac870c835d3f23fe6e28",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/quic_initial_4pda.to.bin",
+   "sha256": "e065870cb0d13152e6132807bbf42218a9e7cd8d96f5602b61674cc540f3a56e",
+   "size": 1250,
+   "zsize": 1260
+  },
+  {
+   "path": "bin/quic_initial_4pda_to.bin",
+   "sha256": "e065870cb0d13152e6132807bbf42218a9e7cd8d96f5602b61674cc540f3a56e",
+   "size": 1250,
+   "zsize": 1260
+  },
+  {
+   "path": "bin/quic_initial_5ka_ru.bin",
+   "sha256": "247dcd97f53bfae5482e4b2b66acdb01e48ee6c29c5ca526c9b241fa38c233b5",
+   "size": 1250,
+   "zsize": 1260
+  },
+  {
+   "path": "bin/quic_initial_dbankcloud_ru.bin",
+   "sha256": "f7a1c1cffc8f65bd47412b7ca5588653d21eec916bb79203c9914890a62874df",
+   "size": 1357,
+   "zsize": 581
+  },
+  {
+   "path": "bin/quic_initial_facebook_com.bin",
+   "sha256": "d6504305e15e6f63930d24ced9045001e345d3c1aeb56b1b4c329d51c7dea274",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/quic_initial_facebook_com_quiche.bin",
+   "sha256": "2c874e6b4adbfd9206c0b5a34a6a3e93af4c4f8552285408d61c56ed26c6f1f1",
+   "size": 1200,
+   "zsize": 357
+  },
+  {
+   "path": "bin/quic_initial_google_com.bin",
+   "sha256": "ff694e7edb1829d4746cec4d1075e26522e572325da750705fcba52a6aed8067",
+   "size": 1357,
+   "zsize": 574
+  },
+  {
+   "path": "bin/quic_initial_rutracker_org.bin",
+   "sha256": "d5d77f90ff45489d246bd447c3e9f28e98891e206dc17c79d4de1da6bd0f18e8",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/quic_initial_rutracker_org_kyber_1.bin",
+   "sha256": "e0ae5ed5e3018512c8ab8ba8d7097607a65f17fa258bbd0b50596abe85f71264",
+   "size": 1230,
+   "zsize": 1240
+  },
+  {
+   "path": "bin/quic_initial_rutracker_org_kyber_2.bin",
+   "sha256": "b32f891a670afcda91276b2dfc712c6c67ab1c02c0c3e9dbd8ac1f7cb9790c73",
+   "size": 1230,
+   "zsize": 1240
+  },
+  {
+   "path": "bin/quic_initial_rutube_ru.bin",
+   "sha256": "74b1dfbdec125263c9407436658b0a848b8f0a934b8063d11571a6a2146a4a7b",
+   "size": 1357,
+   "zsize": 582
+  },
+  {
+   "path": "bin/quic_initial_steamcommunity_com.bin",
+   "sha256": "2fe18b3bd20807d36704d0b072092ee49ae84edca907a4420ab9a0f0f28fddcf",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/quic_initial_tencent_com.bin",
+   "sha256": "d250051d6200946a7ba0629c59c5641432957fa3513081a6c3c5aaa91a62ac03",
+   "size": 1231,
+   "zsize": 1241
+  },
+  {
+   "path": "bin/quic_initial_vk_com.bin",
+   "sha256": "f86d488593a65132c10e7e5b5e02f32ff8e0862988b30bebc6a671c5380f3976",
+   "size": 1357,
+   "zsize": 574
+  },
+  {
+   "path": "bin/quic_initial_www_google_com.bin",
+   "sha256": "f4589c57749f956bb30538197a521d7005f8b0a8723b4707e72405e51ddac50a",
+   "size": 1200,
+   "zsize": 1210
+  },
+  {
+   "path": "bin/quic_short_header.bin",
+   "sha256": "ec07b86d54395a3620569d786846c2062f5d30fe8847ecb862703a623c4176ab",
+   "size": 620,
+   "zsize": 630
+  },
+  {
+   "path": "bin/quic_test_00.bin",
+   "sha256": "96032bf86c2cd113f793285516822702cab4f89cbd2b7356f9682843fbb5420e",
+   "size": 144,
+   "zsize": 119
+  },
+  {
+   "path": "bin/stun.bin",
+   "sha256": "9cd5469309780ca56c0bd97266524a48c7ee529d02c3179cfecb20b260a59641",
+   "size": 100,
+   "zsize": 109
+  },
+  {
+   "path": "bin/stun2.bin",
+   "sha256": "b7c2497496039c541f7337ac8536813f0a1cf52363ab2faa5213b7816d458813",
+   "size": 120,
+   "zsize": 129
+  },
+  {
+   "path": "bin/syn_packet.bin",
+   "sha256": "92b092ff4f9c18263ba17c108bf224f99ab6c8ede28353893504937a28dc161a",
+   "size": 32,
+   "zsize": 41
+  },
+  {
+   "path": "bin/tls_clienthello_1.bin",
+   "sha256": "072a353ff8a71f44d8075ed785b18132c9a1d8d70d6db9d18485c58ea799ae4d",
+   "size": 517,
+   "zsize": 348
+  },
+  {
+   "path": "bin/tls_clienthello_10.bin",
+   "sha256": "ecabfe2280b3291acc6774d34bd1dbe7e307e8b80e4fb2cfd7f033c6316df771",
+   "size": 305,
+   "zsize": 315
+  },
+  {
+   "path": "bin/tls_clienthello_11.bin",
+   "sha256": "70d12b145219e8252aca422dfd4ea6214cec6ce9dbda911a3cf31aba1e437681",
+   "size": 286,
+   "zsize": 296
+  },
+  {
+   "path": "bin/tls_clienthello_12.bin",
+   "sha256": "0f44d524ed295e7df3ba9cae1dda7f43701dde30c98347e4cbd3dd04d05152a3",
+   "size": 289,
+   "zsize": 293
+  },
+  {
+   "path": "bin/tls_clienthello_13.bin",
+   "sha256": "b60f50c804baeefdfc711f658c1acf8c79e1b7da9a4505ce67208bdd4240869d",
+   "size": 300,
+   "zsize": 306
+  },
+  {
+   "path": "bin/tls_clienthello_14.bin",
+   "sha256": "72c0bbc8d02077e28f8b41574a0673ebbdcfb4a86274c3468160b11a320e17d1",
+   "size": 228,
+   "zsize": 219
+  },
+  {
+   "path": "bin/tls_clienthello_15.bin",
+   "sha256": "701fa6646f880cadaab4ef57eeddec40e61c19e74f5b9ca57ec56d62320b3fc9",
+   "size": 317,
+   "zsize": 327
+  },
+  {
+   "path": "bin/tls_clienthello_16.bin",
+   "sha256": "f88d0e2c60338eda178fb0370256b575a9b4f838f35ca1d9d3771dd3f96796a4",
+   "size": 318,
+   "zsize": 328
+  },
+  {
+   "path": "bin/tls_clienthello_17.bin",
+   "sha256": "7c120e7191dab6264c8fd10f227d3a87e1d5194e530907c8f82453f4c89fcb19",
+   "size": 309,
+   "zsize": 319
+  },
+  {
+   "path": "bin/tls_clienthello_18.bin",
+   "sha256": "364ecb8ff5c99d1ab84df16c02602e241e8d49416035d0b3afbbb4b441014543",
+   "size": 226,
+   "zsize": 218
+  },
+  {
+   "path": "bin/tls_clienthello_2.bin",
+   "sha256": "e5938780152169f720383f80eabb309e9477369b83b5ec40cc137c397f862cde",
+   "size": 652,
+   "zsize": 662
+  },
+  {
+   "path": "bin/tls_clienthello_2n.bin",
+   "sha256": "936c2bee4cfb80aa3c426b2dcbcc834b3fbcd1adb17172959dc569c73a14275c",
+   "size": 681,
+   "zsize": 681
+  },
+  {
+   "path": "bin/tls_clienthello_3.bin",
+   "sha256": "9db8772636bb332f1970e8767bc7d628bfa640714bd0b7e699fbe92d559e666e",
+   "size": 517,
+   "zsize": 340
+  },
+  {
+   "path": "bin/tls_clienthello_4.bin",
+   "sha256": "d6d63c53bc0e1d97e913a43fc4db34f6558bb807228bf6100e3b6863f0720404",
+   "size": 517,
+   "zsize": 316
+  },
+  {
+   "path": "bin/tls_clienthello_4pda_to.bin",
+   "sha256": "eefeaf09dde8d69b1f176212541f63c68b314a33a335eced99a8a29f17254da8",
+   "size": 284,
+   "zsize": 289
+  },
+  {
+   "path": "bin/tls_clienthello_5.bin",
+   "sha256": "fc3d6b7ebfcc2c2ffa348737fac7ffaeb951d541806a5efdb518330b856dab8e",
+   "size": 209,
+   "zsize": 203
+  },
+  {
+   "path": "bin/tls_clienthello_5ka_ru.bin",
+   "sha256": "1e8871e272591c5a277d38a6166af597c1fecb1cf58e85162e8f1968ec08d018",
+   "size": 654,
+   "zsize": 664
+  },
+  {
+   "path": "bin/tls_clienthello_6.bin",
+   "sha256": "b16bd9b1aa82f3fb0b81fe4856c67e9b301834e8c2db6e55ef4b92712c4544be",
+   "size": 208,
+   "zsize": 180
+  },
+  {
+   "path": "bin/tls_clienthello_7.bin",
+   "sha256": "42fda11a366a5a47b27a4567f588e62deec67c502e53445e970f8bab7dd77355",
+   "size": 306,
+   "zsize": 316
+  },
+  {
+   "path": "bin/tls_clienthello_8.bin",
+   "sha256": "901bab626e0cb8846b3bac443939b6b99bab0c5fd2211040bd58174091e5537e",
+   "size": 280,
+   "zsize": 290
+  },
+  {
+   "path": "bin/tls_clienthello_9.bin",
+   "sha256": "aaaf593606c285662286c1eef9a7d73a8ea310268c314108d61f4a58b386ced8",
+   "size": 721,
+   "zsize": 731
+  },
+  {
+   "path": "bin/tls_clienthello_chat_deepseek_com.bin",
+   "sha256": "713112c4ef1de109cb86b1d247f0b950e6a2d317cae033ec7ca5ef2e493a5722",
+   "size": 517,
+   "zsize": 521
+  },
+  {
+   "path": "bin/tls_clienthello_gosuslugi_ru.bin",
+   "sha256": "ec581c9877ebc4b69e6cdab48f46e0f7b0eeb67c5fefe849f21525faa1ff4f74",
+   "size": 517,
+   "zsize": 327
+  },
+  {
+   "path": "bin/tls_clienthello_iana_org.bin",
+   "sha256": "9db8772636bb332f1970e8767bc7d628bfa640714bd0b7e699fbe92d559e666e",
+   "size": 517,
+   "zsize": 340
+  },
+  {
+   "path": "bin/tls_clienthello_max_ru.bin",
+   "sha256": "4ee0870abe0a0128600b0095189987ba1d210dae8bf963bc725aff49cf922624",
+   "size": 664,
+   "zsize": 668
+  },
+  {
+   "path": "bin/tls_clienthello_rutracker_org_kyber.bin",
+   "sha256": "0fe5b4118d698536bb845450e3314e22969c59f69f72d90dcb4ef477327ce81d",
+   "size": 1787,
+   "zsize": 1797
+  },
+  {
+   "path": "bin/tls_clienthello_sberbank_ru.bin",
+   "sha256": "48eb82490d124ad37f03b27c971d97c61fb606fb0c336633f6cc3e72470642c1",
+   "size": 560,
+   "zsize": 166
+  },
+  {
+   "path": "bin/tls_clienthello_sberbank_ru_v2.bin",
+   "sha256": "e661d6fdf204f2d70c27b1b10b854968f279394b31ba5231d17a5d289acab951",
+   "size": 1827,
+   "zsize": 1837
+  },
+  {
+   "path": "bin/tls_clienthello_sochi_park.bin",
+   "sha256": "ad552922acfe029521da884ea29f4bb28bb6bdcee9b1a70b46adbfd266c11d4d",
+   "size": 244,
+   "zsize": 253
+  },
+  {
+   "path": "bin/tls_clienthello_vk_com.bin",
+   "sha256": "d6d63c53bc0e1d97e913a43fc4db34f6558bb807228bf6100e3b6863f0720404",
+   "size": 517,
+   "zsize": 316
+  },
+  {
+   "path": "bin/tls_clienthello_vk_com_kyber.bin",
+   "sha256": "b930e34be4a0f7fe388d4cb9886838f9a7b68fd62d3461629885e4cefcfe3805",
+   "size": 1812,
+   "zsize": 1822
+  },
+  {
+   "path": "bin/tls_clienthello_www_google_com.bin",
+   "sha256": "936c2bee4cfb80aa3c426b2dcbcc834b3fbcd1adb17172959dc569c73a14275c",
+   "size": 681,
+   "zsize": 681
+  },
+  {
+   "path": "bin/tls_clienthello_www_google_com_2.bin",
+   "sha256": "e5938780152169f720383f80eabb309e9477369b83b5ec40cc137c397f862cde",
+   "size": 652,
+   "zsize": 662
+  },
+  {
+   "path": "bin/tls_clienthello_www_iana_org.bin",
+   "sha256": "e0d9ce1619e2242efcfe3939cb909a036ccba5915a00d19c4d359c8af8b8b275",
+   "size": 226,
+   "zsize": 216
+  },
+  {
+   "path": "bin/tls_clienthello_www_sferum_ru.bin",
+   "sha256": "e6dd8d724eecc6a7340bf64e2ebec81c60bc4e078c6f702b4b6ba9bf184180ad",
+   "size": 661,
+   "zsize": 671
+  },
+  {
+   "path": "bin/wireguard_initiation.bin",
+   "sha256": "0af3b37b9912fbee78663711e93e090a33665759b684199ac4d0c9d9dbc468df",
+   "size": 148,
+   "zsize": 150
+  },
+  {
+   "path": "bin/wireguard_response.bin",
+   "sha256": "8cfa32a791b31f89270f0ad2bed8db04c1ec1f97a66044f120037530610f807b",
+   "size": 92,
+   "zsize": 93
+  },
+  {
+   "path": "bin/ya_ch.bin",
+   "sha256": "ce77a3a35b5cf614f950d8871f7d1e1d76e08afad0a416bd4471724684c47f01",
+   "size": 191,
+   "zsize": 183
+  },
+  {
+   "path": "bin/zero_1024.bin",
+   "sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+   "size": 1024,
+   "zsize": 18
+  },
+  {
+   "path": "bin/zero_256.bin",
+   "sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1",
+   "size": 256,
+   "zsize": 19
+  },
+  {
+   "path": "bin/zero_512.bin",
+   "sha256": "076a27c79e5ace2a3d47f9dd2e83e4ff6ea8872b3c2218f66c92b89b55f36560",
+   "size": 512,
+   "zsize": 18
+  },
+  {
+   "path": "exe/Monkey64.sys",
+   "sha256": "8da085332782708d8767bcace5327a6ec7283c17cfb85e40b03cd2323a90ddc2",
+   "size": 94144,
+   "zsize": 43845
+  },
+  {
+   "path": "exe/WinDivert.dll",
+   "sha256": "944368b7a6eb0a97701e152a9171267db66377cc31bde415ab5da22c7a09cc43",
+   "size": 45568,
+   "zsize": 22553
+  },
+  {
+   "path": "exe/aaaaaaaaa1",
+   "sha256": "8da085332782708d8767bcace5327a6ec7283c17cfb85e40b03cd2323a90ddc2",
+   "size": 94144,
+   "zsize": 43845
+  },
+  {
+   "path": "exe/dnscrypt-proxy.LICENSE.txt",
+   "sha256": "d0b350342d0373ecbc96207ab0f5b6aa2e07add58daafe401ea74b16f0c26c7a",
+   "size": 787,
+   "zsize": 522
+  },
+  {
+   "path": "exe/dnscrypt-proxy.exe",
+   "sha256": "d847f834aef02f8705a649dc1060f520cdb7931d7361035728770dce2c16eeb6",
+   "size": 12071936,
+   "zsize": 3914583
+  },
+  {
+   "path": "exe/stop.bat",
+   "sha256": "5d1c4cece15b0dc73ac633ebacc80590f7d4fbaa3c6e32220f8ea3d827f0e676",
+   "size": 639,
+   "zsize": 309
+  },
+  {
+   "path": "exe/winws.exe",
+   "sha256": "290edd688f5d0f9c3f013497c5753faa018f1bc4498035d88060d2a59b408910",
+   "size": 321024,
+   "zsize": 150346
+  },
+  {
+   "path": "exe/winws2.exe",
+   "sha256": "2151eabfd33562419b333eb6242bb3020cca524b218e54acadf4e4bd77642b63",
+   "size": 835584,
+   "zsize": 394960
+  },
+  {
+   "path": "lists/base/allzone.txt",
+   "sha256": "94c4cb5a94a9aca85519a806888213c8dad9971da4300e1daeb486daf3087cd6",
+   "size": 421,
+   "zsize": 261
+  },
+  {
+   "path": "lists/base/amazon.txt",
+   "sha256": "c113fa71a4147dbbfb4152879a1bbcda0fc179921cd77944b9ef15c4df85aa6a",
+   "size": 51,
+   "zsize": 50
+  },
+  {
+   "path": "lists/base/apple.txt",
+   "sha256": "7d5cfda6517e8dfb070271745e9ad7499b0ca08b507618c8ecd6ff402afe77d1",
+   "size": 74,
+   "zsize": 66
+  },
+  {
+   "path": "lists/base/autohostlist.txt",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "size": 0,
+   "zsize": 9
+  },
+  {
+   "path": "lists/base/chatgpt.txt",
+   "sha256": "77cb6118e53ecdf251c4fff3565631434b3fab253230eaebc5a1865772db569f",
+   "size": 56,
+   "zsize": 57
+  },
+  {
+   "path": "lists/base/claude.txt",
+   "sha256": "9e00cdffd3001b1226ce0c0ccd9b9af09e9ceb590309e01f9ea7ae6ab0e8e163",
+   "size": 35,
+   "zsize": 44
+  },
+  {
+   "path": "lists/base/cloudflare-ipset.txt",
+   "sha256": "56986735403917c41509ccfb07e1d0640bfc3132add1845d8a70bce94d032cf1",
+   "size": 121333,
+   "zsize": 23839
+  },
+  {
+   "path": "lists/base/cloudflare-ipset_v6.txt",
+   "sha256": "c6e2f0cbe2fb513343fac2adc9c3ff22fb93ab0693867affbc04798a4ddaa2ea",
+   "size": 43250,
+   "zsize": 5074
+  },
+  {
+   "path": "lists/base/cloudflare.txt",
+   "sha256": "557989fafbcf5d96e2bf903f44f34a70bddf137cb3a3250c7dfa46251419b301",
+   "size": 133,
+   "zsize": 72
+  },
+  {
+   "path": "lists/base/cloudfront.txt",
+   "sha256": "329ee15d042cf37eadf602b5622e62337605bd5010d92a6cae4694491201fdf6",
+   "size": 15,
+   "zsize": 24
+  },
+  {
+   "path": "lists/base/css-rbxcdn-com.txt",
+   "sha256": "8e41ef51897b4ac99d947280fbc59f3bb3706eb78c040f4e0c710dcc8e90a083",
+   "size": 15,
+   "zsize": 24
+  },
+  {
+   "path": "lists/base/deepseek.txt",
+   "sha256": "c3a0ffc11fddb1990da8d3a3fbd95e17272a7f15691c97843c90ce4892b4247f",
+   "size": 35,
+   "zsize": 37
+  },
+  {
+   "path": "lists/base/discord-images.txt",
+   "sha256": "c633a75422a942de3115e054190164aff4cedafd10f446e398cdd5899e96d80d",
+   "size": 77,
+   "zsize": 57
+  },
+  {
+   "path": "lists/base/discord-media.txt",
+   "sha256": "e9f016e5582e07c270a0cbaff6499d17d17fcc1cb1d665b689860129f71c93dd",
+   "size": 13,
+   "zsize": 22
+  },
+  {
+   "path": "lists/base/discord-updates.txt",
+   "sha256": "79d37ea29e3de661ceced570cb07df5fb1ace91791c5d006399b85711c53caf7",
+   "size": 19,
+   "zsize": 28
+  },
+  {
+   "path": "lists/base/discord.txt",
+   "sha256": "0ed1174a03049d35a2e9b4b2b3b49b9cd3e454952525cf2d9d8ca10edbf40506",
+   "size": 715,
+   "zsize": 258
+  },
+  {
+   "path": "lists/base/epicgames-fortnite.txt",
+   "sha256": "436f341073050cf77171afe40d670545f140bd690dd2f9dd99b8fec1cac78863",
+   "size": 58,
+   "zsize": 64
+  },
+  {
+   "path": "lists/base/facebook.txt",
+   "sha256": "6cf15ee01f5c337cc2989cacacee20556de7c5939d79b6213db9b8c14ce65ff2",
+   "size": 45,
+   "zsize": 54
+  },
+  {
+   "path": "lists/base/faceinsta.txt",
+   "sha256": "de55901bfa80b91ea5d088506c8a448ab6310f273512cecd0031b1e8fdebc4a0",
+   "size": 73,
+   "zsize": 63
+  },
+  {
+   "path": "lists/base/fandom.txt",
+   "sha256": "42355e4f91d32670b2d6a04e68bb213c43bb8b765cdd8322d674c44de58ad3b2",
+   "size": 24,
+   "zsize": 33
+  },
+  {
+   "path": "lists/base/gemini.txt",
+   "sha256": "3dc86bd281c463f9f5080483c655cadf8677c59bc27397ac5b225662783d648f",
+   "size": 14,
+   "zsize": 23
+  },
+  {
+   "path": "lists/base/github.txt",
+   "sha256": "f2bf5465b6c0cd1700723de6f2d4597e3833b115d02143dc0b3110b58f3d1a9d",
+   "size": 104,
+   "zsize": 70
+  },
+  {
+   "path": "lists/base/githubusercontent.txt",
+   "sha256": "6108f8b6e0603b4d9d43b5b359eac44fbbb334dc7284e65444b7c532dcb6e13a",
+   "size": 22,
+   "zsize": 31
+  },
+  {
+   "path": "lists/base/google-backend.txt",
+   "sha256": "3c0fb75c2ebdef99ef1a3d8226ea735dae2d387d88905c161952d17a9714c881",
+   "size": 75,
+   "zsize": 59
+  },
+  {
+   "path": "lists/base/google.txt",
+   "sha256": "dcf3254d84333b0b73ef6b2582eb3867c8d105d766ae39c7d44c7f90db05413d",
+   "size": 157,
+   "zsize": 102
+  },
+  {
+   "path": "lists/base/googlevideo.txt",
+   "sha256": "b6231674dd12fc9365c78d627ed9046186293762b85f3ce165a5258bbb838e51",
+   "size": 15,
+   "zsize": 24
+  },
+  {
+   "path": "lists/base/i-ytimg.txt",
+   "sha256": "17556b5e880a6bbda9a0379d1cb0c66928c7da315908d6d1ea38c8c7b47b7473",
+   "size": 11,
+   "zsize": 20
+  },
+  {
+   "path": "lists/base/instagram.txt",
+   "sha256": "faf28dd94ce5ff5524856cc849e0b2bb756a356c2e2310317e8daf5df2eb2176",
+   "size": 31,
+   "zsize": 34
+  },
+  {
+   "path": "lists/base/ipset-akamai.txt",
+   "sha256": "11ce16478645955046e8a6cd4c58757642620818630e221e46e550fcaa00fe51",
+   "size": 1653,
+   "zsize": 412
+  },
+  {
+   "path": "lists/base/ipset-all.txt",
+   "sha256": "c39bf4e1b151c7d0d42fe7dae4c09e01ac26806a1ff4060ae456c7fb22087651",
+   "size": 572927,
+   "zsize": 91197
+  },
+  {
+   "path": "lists/base/ipset-amazon.txt",
+   "sha256": "c932b78c7914781d5d7542ea7badb6472d78166648dbdf88791063d6d511c7be",
+   "size": 125371,
+   "zsize": 19012
+  },
+  {
+   "path": "lists/base/ipset-anydesk.txt",
+   "sha256": "5e6fd3a5e5e5a069e67954ea711617183314112a82972e772485d356a37f4066",
+   "size": 225,
+   "zsize": 98
+  },
+  {
+   "path": "lists/base/ipset-censorliber.txt",
+   "sha256": "55c5139d28b5451021260c77db527d7133a3f5058ddea4aaa084cd148acf2865",
+   "size": 221,
+   "zsize": 142
+  },
+  {
+   "path": "lists/base/ipset-chatgpt.txt",
+   "sha256": "9e0d91a79ec925fa91e66578e00c6396f991f41df36d2e871af544625240fc19",
+   "size": 16,
+   "zsize": 20
+  },
+  {
+   "path": "lists/base/ipset-claude.txt",
+   "sha256": "b1bda1dc58c31d213ef4a07d2be785d5c55e0b63a6ee84781f07416d1cf6408b",
+   "size": 44,
+   "zsize": 43
+  },
+  {
+   "path": "lists/base/ipset-cloudflare.txt",
+   "sha256": "5c5887144caa7915c02addd95f123ac3e927a2a761cf729d7d9fdf598c214d90",
+   "size": 2171,
+   "zsize": 444
+  },
+  {
+   "path": "lists/base/ipset-cloudflare1.txt",
+   "sha256": "eb1b733a9b9bbc0089f4f364296035224dfd6fb8f548a87c100bc7e7bfee4d14",
+   "size": 34345,
+   "zsize": 5310
+  },
+  {
+   "path": "lists/base/ipset-css-rbxcdn-com.txt",
+   "sha256": "19e36255972107d42b8cecb77ef5622e842e8a50778a6ed8dd1ce94732daca9e",
+   "size": 7,
+   "zsize": 16
+  },
+  {
+   "path": "lists/base/ipset-datacamp.txt",
+   "sha256": "4931656d9132af4420c04d0989468fb3852d56d94c8afd105c3e136d4bdf9c0a",
+   "size": 3176,
+   "zsize": 451
+  },
+  {
+   "path": "lists/base/ipset-digitalocean.txt",
+   "sha256": "b1520a60f2db3b098c6825437325c91d347ffcdf5557d8a57cab1ed7a8fb49bd",
+   "size": 13885,
+   "zsize": 1896
+  },
+  {
+   "path": "lists/base/ipset-discord.txt",
+   "sha256": "0679397c4e2547ada4f522b814811e46e6b5f412923937d1be8d6f4bfd70672f",
+   "size": 1013,
+   "zsize": 205
+  },
+  {
+   "path": "lists/base/ipset-dns.txt",
+   "sha256": "f0c2c764c7b59fb38ea7d61b6bbfb8f56f42bb51b588cfd23dfb5a35ec45640e",
+   "size": 309,
+   "zsize": 130
+  },
+  {
+   "path": "lists/base/ipset-exclude.txt",
+   "sha256": "96c03954012765ce4ab03b9c30f29ab1ca1b698c6752224d03828e6d182eb0fc",
+   "size": 135,
+   "zsize": 85
+  },
+  {
+   "path": "lists/base/ipset-facebook.txt",
+   "sha256": "1e7a75ca3e64dc755783ab76f6f8cf65bf99883c2ff96825ba38850e71a60d1b",
+   "size": 3603,
+   "zsize": 503
+  },
+  {
+   "path": "lists/base/ipset-fandom.txt",
+   "sha256": "19e36255972107d42b8cecb77ef5622e842e8a50778a6ed8dd1ce94732daca9e",
+   "size": 7,
+   "zsize": 16
+  },
+  {
+   "path": "lists/base/ipset-fastly.txt",
+   "sha256": "dcbeb216790bb959a4c6bea5c43208cae41b3d2680bde95dbb5649f581576fa0",
+   "size": 3623,
+   "zsize": 478
+  },
+  {
+   "path": "lists/base/ipset-frantech.txt",
+   "sha256": "c0d7983cbdd84472e9677a851793d19383b10cc574c771ec9a7b3d15241e9d42",
+   "size": 1358,
+   "zsize": 361
+  },
+  {
+   "path": "lists/base/ipset-github.txt",
+   "sha256": "3c487ee280816a490e5601d5b3e9f73010711f82fd709c3a31fed48f84c56df5",
+   "size": 115,
+   "zsize": 60
+  },
+  {
+   "path": "lists/base/ipset-google.txt",
+   "sha256": "9eba67a582b14675db2774738b36034fd42393fe098fd00a3c37071637fba812",
+   "size": 3304,
+   "zsize": 550
+  },
+  {
+   "path": "lists/base/ipset-googlevideo.txt",
+   "sha256": "d54fbe1337ace02485e7ffa524956278db3e0894f891aa8731ae8158f0e27e37",
+   "size": 1273,
+   "zsize": 393
+  },
+  {
+   "path": "lists/base/ipset-hetzner.txt",
+   "sha256": "a7de1d29ccce355244195fa5a48c2ae580ccfbb06cca5282141cb23adcd2e758",
+   "size": 1291,
+   "zsize": 382
+  },
+  {
+   "path": "lists/base/ipset-i-ytimg.txt",
+   "sha256": "4dabcab210766e35f03e77120e6986d6e6d4752b2a9ff22980b9253d026080d8",
+   "size": 15,
+   "zsize": 20
+  },
+  {
+   "path": "lists/base/ipset-instagram.txt",
+   "sha256": "7f73f8222914e543736a8a30f082ed55e1a012938b2d1c0d65f1d4c81451597d",
+   "size": 89,
+   "zsize": 54
+  },
+  {
+   "path": "lists/base/ipset-js-rbxcdn-com.txt",
+   "sha256": "4dabcab210766e35f03e77120e6986d6e6d4752b2a9ff22980b9253d026080d8",
+   "size": 15,
+   "zsize": 20
+  },
+  {
+   "path": "lists/base/ipset-lol-euw.txt",
+   "sha256": "3e41d8063357f5583f7c184bc42f46b399246a5fb143d4ef8cb7f00e2cf455c3",
+   "size": 133,
+   "zsize": 75
+  },
+  {
+   "path": "lists/base/ipset-lol-ru.txt",
+   "sha256": "ba0b490e61d51bba37b47d556324772527ecb4bd911d5bcfffba711abf0d1e25",
+   "size": 111,
+   "zsize": 71
+  },
+  {
+   "path": "lists/base/ipset-melbicom.txt",
+   "sha256": "04070fec927ffe0f842cb2ccddf753b737beccc61e3b790f978944b6256e47bb",
+   "size": 752,
+   "zsize": 263
+  },
+  {
+   "path": "lists/base/ipset-microsoft-store.txt",
+   "sha256": "4dabcab210766e35f03e77120e6986d6e6d4752b2a9ff22980b9253d026080d8",
+   "size": 15,
+   "zsize": 20
+  },
+  {
+   "path": "lists/base/ipset-novoserve.txt",
+   "sha256": "0729f63d88566f1afb52cc54791559862c906b22a81d73095a6c7b5c4b363ace",
+   "size": 1588,
+   "zsize": 371
+  },
+  {
+   "path": "lists/base/ipset-ovh.txt",
+   "sha256": "b9794c52f68b0f3de8ea46fe6d44ff267de56d02a1cc4c81b76e43c4089dc7e5",
+   "size": 2296,
+   "zsize": 528
+  },
+  {
+   "path": "lists/base/ipset-porn.txt",
+   "sha256": "22a2ec8b2f64415b58798e9cd6ee2414fad0366afef9d96083c09ae1333cb353",
+   "size": 106,
+   "zsize": 93
+  },
+  {
+   "path": "lists/base/ipset-railway.txt",
+   "sha256": "139f08f5328b4bf78c1119e36ef8a8b7c6e1cd09a5b3883fa0780cb7baa936b5",
+   "size": 315,
+   "zsize": 133
+  },
+  {
+   "path": "lists/base/ipset-roblox.txt",
+   "sha256": "9bfcdee06e4f03360f5f2a189d3c949e5706849f452d2738b95bfd1386ee7207",
+   "size": 980,
+   "zsize": 166
+  },
+  {
+   "path": "lists/base/ipset-ru.txt",
+   "sha256": "cd89a0ac142c9c9c7106e47d3eabf3407469251b603fc1b1664bb7595d34fde5",
+   "size": 10871,
+   "zsize": 2364
+  },
+  {
+   "path": "lists/base/ipset-russia-youtube-rtmps.txt",
+   "sha256": "4da1e958dc6dd16be9165eff2f319f9edd9ed40fb7e77f8449e50d5290415f46",
+   "size": 528,
+   "zsize": 154
+  },
+  {
+   "path": "lists/base/ipset-russia-youtube.txt",
+   "sha256": "5626040b3e5ce114e04d2ff1babcaa36e8b10b41812e9835035d4e0b7ecd5214",
+   "size": 177,
+   "zsize": 120
+  },
+  {
+   "path": "lists/base/ipset-rutracker.txt",
+   "sha256": "188ef1f592b6996e7ac8bdc30aa5ee1ea1ac6df208aa55f7a7e5e5647bcfd76a",
+   "size": 43,
+   "zsize": 44
+  },
+  {
+   "path": "lists/base/ipset-soundcloud.txt",
+   "sha256": "b0a9d03fd6941a16b781da051bfcd527db480ca9219ec72a8cc52a80c4f6bdba",
+   "size": 102,
+   "zsize": 59
+  },
+  {
+   "path": "lists/base/ipset-static-whatsapp-net.txt",
+   "sha256": "4dabcab210766e35f03e77120e6986d6e6d4752b2a9ff22980b9253d026080d8",
+   "size": 15,
+   "zsize": 20
+  },
+  {
+   "path": "lists/base/ipset-steam.txt",
+   "sha256": "25d2d170aaa8ca89c09db22e07685c79e757b7a8bfaea6a1f36e12fbc78d41be",
+   "size": 660,
+   "zsize": 277
+  },
+  {
+   "path": "lists/base/ipset-tankix.txt",
+   "sha256": "07fc3e02e64ba0e03e3b78e77158e4bd8a47f38a557088063a85e8a88b7c9588",
+   "size": 279,
+   "zsize": 204
+  },
+  {
+   "path": "lists/base/ipset-telegram-bypass.txt",
+   "sha256": "cc4e9acc3d0564b5d33f2e03c864f6ef24161ed75cbcf0cbf6ae111b4d282552",
+   "size": 133,
+   "zsize": 80
+  },
+  {
+   "path": "lists/base/ipset-telegram.txt",
+   "sha256": "4a19e990e605787d1abac8e85288f20df9ec923ca1239db7f4454400b43f5eeb",
+   "size": 287,
+   "zsize": 156
+  },
+  {
+   "path": "lists/base/ipset-timeweb.txt",
+   "sha256": "1066d8989db8820246b961968579e03e1a7a02d95a3c9030e86c2d3fec07a135",
+   "size": 5109,
+   "zsize": 671
+  },
+  {
+   "path": "lists/base/ipset-tr-rbxcdn-com.txt",
+   "sha256": "4dabcab210766e35f03e77120e6986d6e6d4752b2a9ff22980b9253d026080d8",
+   "size": 15,
+   "zsize": 20
+  },
+  {
+   "path": "lists/base/ipset-twitch.txt",
+   "sha256": "045a36ac2d1feca6d60fdd366b9c28a2b468d6211d9369d11148b3af7fc5eec7",
+   "size": 2769,
+   "zsize": 859
+  },
+  {
+   "path": "lists/base/ipset-twitter.txt",
+   "sha256": "003e24cfba26072c5efa9dbdb478aed2dca128194ef6b89c700504dda0e02bc4",
+   "size": 249,
+   "zsize": 100
+  },
+  {
+   "path": "lists/base/ipset-usa-google.txt",
+   "sha256": "a123ecdc787322ea5319445695c68f4c209c5f43db052e35397142bca750ed1d",
+   "size": 3346,
+   "zsize": 571
+  },
+  {
+   "path": "lists/base/ipset-warp.txt",
+   "sha256": "c018f105c7ceea48da0ec581179dd733fb8b04e660bfb2afe867da61242e09d7",
+   "size": 165,
+   "zsize": 94
+  },
+  {
+   "path": "lists/base/ipset-whatsapp.txt",
+   "sha256": "87f5060a4c40bda292527520c184c59e4f1aced7cf1e1aaf1a20b9cef5126c39",
+   "size": 11882,
+   "zsize": 1469
+  },
+  {
+   "path": "lists/base/ipset-worldstream.txt",
+   "sha256": "0dd3555c7c6d809f71866a35dbe670050e52079e08b1b2452d80ed8aff660875",
+   "size": 1922,
+   "zsize": 595
+  },
+  {
+   "path": "lists/base/ipset-youtube.txt",
+   "sha256": "3a0a0e35ee363c0b2c5d5129469600ef7ff9b12aa52521b822cedeabeca6ea25",
+   "size": 235,
+   "zsize": 135
+  },
+  {
+   "path": "lists/base/ipset-zapretkvn.txt",
+   "sha256": "c65ff18aa46ed8c9ecfe8707f65928651212e7f664a39595342c732a34d5b90b",
+   "size": 11403,
+   "zsize": 1869
+  },
+  {
+   "path": "lists/base/itch.txt",
+   "sha256": "18a8c7f8a3ff0ba9c644d4d0170a5a6ac6e5fc3d02956c9931171022d98b42ab",
+   "size": 80,
+   "zsize": 61
+  },
+  {
+   "path": "lists/base/js-rbxcdn-com.txt",
+   "sha256": "febd4e9ffd5aa31ce23a7b6b0372fc58a96a9d475aaea3d4e0e8cda4ecfe85ff",
+   "size": 14,
+   "zsize": 23
+  },
+  {
+   "path": "lists/base/linkedin.txt",
+   "sha256": "ed81ac16f436b2b98d7b204e08b69fdb5aafc20caa404277594bd4c5d7103e14",
+   "size": 23,
+   "zsize": 32
+  },
+  {
+   "path": "lists/base/list-exclude.txt",
+   "sha256": "e7d99420db383ceba8373d7ec41774eda8c698ed2d5e32d702be7aa3f893222e",
+   "size": 1741,
+   "zsize": 748
+  },
+  {
+   "path": "lists/base/list-general.txt",
+   "sha256": "42e51c1b94b5be2993dbaa8f3c813b1bcb0c1ef6562b3366a0f142196371b6e2",
+   "size": 849,
+   "zsize": 315
+  },
+  {
+   "path": "lists/base/list-google.txt",
+   "sha256": "2ba93d814dca7b55e69ab88b33ba36b6e9930596af2add4fa2fdb98ba0cac7f4",
+   "size": 394,
+   "zsize": 172
+  },
+  {
+   "path": "lists/base/lordfilm.txt",
+   "sha256": "f415317359348800f9f714021ca1b42e3730b69dffc0a3e291f6ccbedeb98a52",
+   "size": 81,
+   "zsize": 59
+  },
+  {
+   "path": "lists/base/microsoft-store.txt",
+   "sha256": "3371d08c2ad737fc6aa50e2e03248dfe4d4de3287c21444570727872ff8a1691",
+   "size": 534,
+   "zsize": 109
+  },
+  {
+   "path": "lists/base/mycdnlist.txt",
+   "sha256": "fe26ba3edea0a45e05bd91ddc2943d408528e8694383cf6aaf85f89768ab9312",
+   "size": 213,
+   "zsize": 142
+  },
+  {
+   "path": "lists/base/myhostlist.txt",
+   "sha256": "86881cf3a2db44aea6e43759257591f34bac90dfe38e393a53fc1dbdbc3d495f",
+   "size": 230,
+   "zsize": 156
+  },
+  {
+   "path": "lists/base/netrogat.txt",
+   "sha256": "fc575731855ba23f8df32c419522cc9de56547615a7c794dc3f7e4fa0630865d",
+   "size": 960,
+   "zsize": 531
+  },
+  {
+   "path": "lists/base/notion.txt",
+   "sha256": "33c162ecae4985034a5986334e3cdadfcc2fa475d9e557bc7c603bff98100929",
+   "size": 22,
+   "zsize": 31
+  },
+  {
+   "path": "lists/base/ntcparty.txt",
+   "sha256": "013a4a5786a7399cb7bfc6157919a7bb44fbad59ec4d9736c2a890fb689abebb",
+   "size": 9,
+   "zsize": 18
+  },
+  {
+   "path": "lists/base/obsidian.txt",
+   "sha256": "0154820e0d55e5db62f85470014956134c71904da65b9d8a8342d6a3cdbd47cf",
+   "size": 11,
+   "zsize": 20
+  },
+  {
+   "path": "lists/base/other.txt",
+   "sha256": "1a2651dc5806b56aaa251b7b738a26e05943780fe205fcca7985ab9e478d1bd8",
+   "size": 2580,
+   "zsize": 1188
+  },
+  {
+   "path": "lists/base/porn.txt",
+   "sha256": "3ee176f8c748d0ee4c353a605c6dccf5bf8659ae76817e1d2a8db8b6135db90a",
+   "size": 578,
+   "zsize": 239
+  },
+  {
+   "path": "lists/base/riot-valorant.txt",
+   "sha256": "0cfe3e4327c58641c24a5ab72ce8f6e6287e41666843391ab6df9d8e96949cfd",
+   "size": 153,
+   "zsize": 106
+  },
+  {
+   "path": "lists/base/roblox.txt",
+   "sha256": "59178ce4746749b7d32d0ae665f6a70f161e2b15f5ca7a6e300d0d8e8448ca4d",
+   "size": 1129,
+   "zsize": 400
+  },
+  {
+   "path": "lists/base/russia-blacklist.txt",
+   "sha256": "c2e4a7390c3b2a0194750ac2dd7567b168107074453711af56bc6d61f22b560b",
+   "size": 1773215,
+   "zsize": 535900
+  },
+  {
+   "path": "lists/base/russia-discord-ipset.txt",
+   "sha256": "0a33809262ad9d3882fa2a4b957fdfe01b08797ea823ddb04a475c4e0913ceec",
+   "size": 11302,
+   "zsize": 2394
+  },
+  {
+   "path": "lists/base/russia-discord.txt",
+   "sha256": "bc8e18bcc098eba61e8c5a5ce82d97719118bc17e63424b81b8730c9afe07a92",
+   "size": 163,
+   "zsize": 94
+  },
+  {
+   "path": "lists/base/russia-youtube-rtmps.txt",
+   "sha256": "4da1e958dc6dd16be9165eff2f319f9edd9ed40fb7e77f8449e50d5290415f46",
+   "size": 528,
+   "zsize": 154
+  },
+  {
+   "path": "lists/base/russia-youtube.txt",
+   "sha256": "c9fe5b2094b58cef40e42aaaf677fb160b2dafe17c58e0fc8cf69edb9d3a502b",
+   "size": 416,
+   "zsize": 181
+  },
+  {
+   "path": "lists/base/russia-youtubeQ.txt",
+   "sha256": "aed7d552798888bffd8995a132a2bda698693b6a0b1a9095df20f88768bc3b88",
+   "size": 209,
+   "zsize": 110
+  },
+  {
+   "path": "lists/base/rutor.txt",
+   "sha256": "1b32d38ef68596fb3995c03339ad13858b8e02544ec5cb8cec34a2592683a126",
+   "size": 20,
+   "zsize": 29
+  },
+  {
+   "path": "lists/base/rutracker.txt",
+   "sha256": "e24f1b4b14300ed8ba88e02983d002176e4928e65c1ea30bb8a9473898e8f7ed",
+   "size": 217,
+   "zsize": 91
+  },
+  {
+   "path": "lists/base/soundcloud.txt",
+   "sha256": "3423487db01a26394ad2731fc98eb8f5180d9cc7f62bc2168eb4aa8dd94ccda1",
+   "size": 394,
+   "zsize": 164
+  },
+  {
+   "path": "lists/base/speedtest.txt",
+   "sha256": "a5bd9759cbc87dd8437386a77d2a02c1ebb7769734224d068e12cc7692e2c3cf",
+   "size": 80,
+   "zsize": 74
+  },
+  {
+   "path": "lists/base/static-whatsapp-net.txt",
+   "sha256": "e3cd1285d5ec4fec3a50d170d6582cb52fbad17ee7bcfde0aa2d5b24f6943564",
+   "size": 20,
+   "zsize": 29
+  },
+  {
+   "path": "lists/base/steam.txt",
+   "sha256": "91e32742913e6943fc61a351719413e875d0ae8ef645ce534d2adbf09c7d2f28",
+   "size": 257,
+   "zsize": 138
+  },
+  {
+   "path": "lists/base/tankix.txt",
+   "sha256": "c053a6cc33a5221ac7a44d17ccdd6a4d22db1a81fcc3bc133e3f1303738f4674",
+   "size": 55,
+   "zsize": 47
+  },
+  {
+   "path": "lists/base/telegram.txt",
+   "sha256": "13f6e7d1e8e30570cdfb0a4acc93b1d235b134c088fc793f576a789fc99faf7b",
+   "size": 129,
+   "zsize": 81
+  },
+  {
+   "path": "lists/base/tiktok.txt",
+   "sha256": "7169d3a00ee86df654e795d25eef0bf849adfb7a19fb75793d874b807875a090",
+   "size": 333,
+   "zsize": 157
+  },
+  {
+   "path": "lists/base/tr-rbxcdn-com.txt",
+   "sha256": "a2b5a0ba6499f14a00de4f53c4e34bb24033bd3fd4f935eafac86230af02766b",
+   "size": 14,
+   "zsize": 23
+  },
+  {
+   "path": "lists/base/twimg.txt",
+   "sha256": "756ba872cb2b4678ce88cee68310bad1308847177a4bd521925385cd96b7b616",
+   "size": 9,
+   "zsize": 18
+  },
+  {
+   "path": "lists/base/twitch.txt",
+   "sha256": "1f2e8ac8deb807feb02d58aeb9db936baf010442c83a8cc783c53a387bc7f3ed",
+   "size": 190,
+   "zsize": 109
+  },
+  {
+   "path": "lists/base/twitter.txt",
+   "sha256": "c8467776d06ac3a8117613dbb7078b5205bcd5354741037e560b792777a536a0",
+   "size": 24,
+   "zsize": 33
+  },
+  {
+   "path": "lists/base/ubisoft.txt",
+   "sha256": "c4a85e34d8d2f77d27853cdaac2c15846b8901c655290536469e2794b77a503a",
+   "size": 65,
+   "zsize": 54
+  },
+  {
+   "path": "lists/base/vencord.txt",
+   "sha256": "6eefeaf77d7554ed208a5fc416d475511302d8d0a9420d8b782e3406a81707a5",
+   "size": 13,
+   "zsize": 22
+  },
+  {
+   "path": "lists/base/whatsapp.txt",
+   "sha256": "67008e166d59b9259d59d98ddf98205c7c1da97db55d1ce7cb1033a9e95f6a8c",
+   "size": 72,
+   "zsize": 59
+  },
+  {
+   "path": "lists/base/youtube.txt",
+   "sha256": "5d50a48a8d6289ba5c8a1b6418075c94cc6fa053732f7675e1e1ba1dbabd3bf2",
+   "size": 425,
+   "zsize": 173
+  },
+  {
+   "path": "lists/base/youtubeGV.txt",
+   "sha256": "b6231674dd12fc9365c78d627ed9046186293762b85f3ce165a5258bbb838e51",
+   "size": 15,
+   "zsize": 24
+  },
+  {
+   "path": "lists/base/youtubeQ.txt",
+   "sha256": "885042df9670954231a72f2b0a9e0912b1469085274a79616bcf45d6d47c0a93",
+   "size": 100,
+   "zsize": 81
+  },
+  {
+   "path": "lists/base/youtube_v2.txt",
+   "sha256": "b42ae2ae0de78c093a3506f39f78910c928f683dde4d63f11be268205d3fe9b8",
+   "size": 399,
+   "zsize": 173
+  },
+  {
+   "path": "lists/base/zapret-moe.txt",
+   "sha256": "1be7273c93af32330a3be4d4426e60a22013c8bd4de40c0b21ed25899a4c66b9",
+   "size": 11,
+   "zsize": 20
+  },
+  {
+   "path": "lua/circular-config.txt",
+   "sha256": "e2e3a634ff1e40dfc9f672c1a79ca5ff64997ac983a42bac9936656bf5d330b1",
+   "size": 61207,
+   "zsize": 5325
+  },
+  {
+   "path": "lua/combined-detector.lua",
+   "sha256": "5fdf7f92230b57240af069601ffb8ef2fc2bd4e91fdae57dd7439ea8818f7b9b",
+   "size": 46167,
+   "zsize": 10199
+  },
+  {
+   "path": "lua/custom_diag.lua",
+   "sha256": "3f456f4e34681aa4990b01456da8c13ecf1408a75966f518eeb7f7d85cc59750",
+   "size": 5731,
+   "zsize": 1809
+  },
+  {
+   "path": "lua/custom_funcs.lua",
+   "sha256": "47b637ffa0bbe8acddd286d9cd4b52357c0e77be312908af319f4fbf84754056",
+   "size": 198801,
+   "zsize": 36289
+  },
+  {
+   "path": "lua/domain-grouping.lua",
+   "sha256": "5841bf7f8e23376506a495397b91a9ea5d5fe94c1fc1c4f57888b5237cd951ba",
+   "size": 3928,
+   "zsize": 1284
+  },
+  {
+   "path": "lua/fakemultidisorder.lua",
+   "sha256": "280069e844fef8c3899df1c70502c1740a7f056b697f2801f8f0ae189b0d76bf",
+   "size": 8202,
+   "zsize": 2522
+  },
+  {
+   "path": "lua/fakemultisplit.lua",
+   "sha256": "3fdc88dc0b3b007a7d4837ff371a6259bb0ec7982be0fc0eb76726005c4e682b",
+   "size": 5921,
+   "zsize": 1907
+  },
+  {
+   "path": "lua/silent-drop-detector.lua",
+   "sha256": "42bef4e9666798a795188341adaf9870bb93283946d08ea7c7f5141f1b242554",
+   "size": 1667,
+   "zsize": 645
+  },
+  {
+   "path": "lua/strategies-discord-source.txt",
+   "sha256": "307d7ebbd164ecb384b1e563c4e48c77b36e9dad3872019b9255cb7f5ca390f4",
+   "size": 1677,
+   "zsize": 384
+  },
+  {
+   "path": "lua/strategies-http-source.txt",
+   "sha256": "11d24e616f9214dd6eb5b268c5810e6da5d844848d068fb59589390a80ff2bc3",
+   "size": 24761,
+   "zsize": 2470
+  },
+  {
+   "path": "lua/strategies-source.txt",
+   "sha256": "dd82b8a12a630be02244d2dfe6e295c46c134107d4fb39457d77ef769ff29048",
+   "size": 19099,
+   "zsize": 1771
+  },
+  {
+   "path": "lua/strategies-udp-source.txt",
+   "sha256": "430f4e3dc631f5d3799b6a3a333fe669658e1624780c4f10361bffc6b2464156",
+   "size": 6316,
+   "zsize": 754
+  },
+  {
+   "path": "lua/strategies-unknown-source.txt",
+   "sha256": "794a7e02cb711a7c0aea24a9cac4ebfb17f4fcef979d3bf127d50eb88d28d13b",
+   "size": 6339,
+   "zsize": 758
+  },
+  {
+   "path": "lua/strategies.lua",
+   "sha256": "0313bca00a043370296eea1543ae859bd27b3201d1e78a11be258d023c2c0065",
+   "size": 27672,
+   "zsize": 1934
+  },
+  {
+   "path": "lua/strategy-lock-manager.lua",
+   "sha256": "942f7fffdaeee9108d693a2af43f9349ca51442e692567b1e9e30e0244173285",
+   "size": 35487,
+   "zsize": 7348
+  },
+  {
+   "path": "lua/strategy-stats.lua",
+   "sha256": "fe560438abf538e6aefa18e387b520c5051850cdf5623c4f5290bbd9607d8dcc",
+   "size": 7956,
+   "zsize": 2405
+  },
+  {
+   "path": "lua/zapret-antidpi.lua",
+   "sha256": "31c9dd75b0bd55e98e5306293f2be81e9d2ecadcbbf9157394ff37dcff7dc85a",
+   "size": 51782,
+   "zsize": 8253
+  },
+  {
+   "path": "lua/zapret-auto.lua",
+   "sha256": "c2028f544134b0dec33f054ac54fe4f2315d969ba034601456f72017fd5f8528",
+   "size": 20988,
+   "zsize": 5445
+  },
+  {
+   "path": "lua/zapret-lib.lua",
+   "sha256": "a33b5886603ee8181772798b2708e7ffa08da54cd2df39a965fac3abc5d3af9c",
+   "size": 93335,
+   "zsize": 22274
+  },
+  {
+   "path": "lua/zapret-multishake.lua",
+   "sha256": "761f96844bc4fd0d4a41596609a411fc84f61ad1574f4218358a3ee6e8de4772",
+   "size": 30173,
+   "zsize": 4554
+  },
+  {
+   "path": "lua/zapret-obfs.lua",
+   "sha256": "e9581bfbca846630ada78193641d834e25abc11337ba85467d642c2d8c6fa47f",
+   "size": 18850,
+   "zsize": 4925
+  },
+  {
+   "path": "lua/zapret-pcap.lua",
+   "sha256": "6866c37c92fbc62075accf94228da48af618c7f416edc682eba99b2196e05f45",
+   "size": 1441,
+   "zsize": 668
+  },
+  {
+   "path": "lua/zapret-rst-flood.lua",
+   "sha256": "7aa9f1557ff77253cb4ece144cebe58dd80546eaf553b29ed1e16b953066b03b",
+   "size": 8450,
+   "zsize": 2942
+  },
+  {
+   "path": "lua/zapret-tests.lua",
+   "sha256": "ea34b7dec72b0ccc20f76e78686494ffa0e1b546a32cfb7e8a559b55daa6ab37",
+   "size": 37413,
+   "zsize": 7898
+  },
+  {
+   "path": "lua/zapret-wgobfs.lua",
+   "sha256": "74c32c05b3098fd71ba28338b710ac9a23b2cdbdffd040597f235f43f54faf2d",
+   "size": 3375,
+   "zsize": 1337
+  },
+  {
+   "path": "presets/winws1_builtin/2025_01_06.txt",
+   "sha256": "673accea31330f1f2bbb89499adb3600caf0c4d084e406873fcd44e9e949aeac",
+   "size": 2067,
+   "zsize": 694
+  },
+  {
+   "path": "presets/winws1_builtin/Default v1.txt",
+   "sha256": "1f4ee61ada1f96615987531c6033c8656c4fcbe8fca6b337ff4ed9ebae23a505",
+   "size": 6180,
+   "zsize": 1141
+  },
+  {
+   "path": "presets/winws1_builtin/Shigulovski.txt",
+   "sha256": "833d0fac11d41d40d221246821bf18ddfb7a06162b40f3bf320690848e950282",
+   "size": 746,
+   "zsize": 356
+  },
+  {
+   "path": "presets/winws1_builtin/Ufanet_2025_03_31.txt",
+   "sha256": "1853964a6a6509fd9995f5b053ec4f944205432cacd3d6619790440b5dfbb723",
+   "size": 1563,
+   "zsize": 578
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_31_1.txt",
+   "sha256": "b927b92d8c67c996474db0e286acd2fb1abf8dd2b702b689fbdda4fa95d8f06c",
+   "size": 3857,
+   "zsize": 877
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_31_2.txt",
+   "sha256": "93cacb4959f69b2773a36753c06f20a922dd165233e5fb54008e9b43b507634f",
+   "size": 3548,
+   "zsize": 859
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_31_3.txt",
+   "sha256": "666bc24c6af6c0a4ae89b4207fe231adf64f3b4f0e09786140ee308e752d39f5",
+   "size": 4588,
+   "zsize": 945
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_31_4.txt",
+   "sha256": "23305ab5f8358f959ea66d70f25055cdcc461423a03bd12e4e78e28d8b8f4742",
+   "size": 4409,
+   "zsize": 973
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_31_5.txt",
+   "sha256": "d64c27646498564ee008982e2ce5284748c441558a9f7a61e8ea10f8efc513fc",
+   "size": 4371,
+   "zsize": 956
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_34_1.txt",
+   "sha256": "18dd7a8c34c23d23ccb866a71da51b07dc52e0f64bd973f22ccebad9d0a1264f",
+   "size": 9275,
+   "zsize": 1336
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_34_2.txt",
+   "sha256": "ecd4ef1d849e9b645166dbbd0b91055b2c810ce0f2889203d4a9880afb664db4",
+   "size": 9187,
+   "zsize": 1131
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_34_3.txt",
+   "sha256": "2784af2fd2bf319aa6c0ccf7a5c92dd01a4266b1e5e52d540bace53d019a51cb",
+   "size": 9176,
+   "zsize": 1318
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_34_4.txt",
+   "sha256": "125ffa49ffb4a77e725511022dca85a92bc08d0d9ee2cb0130f102c8b25b3676",
+   "size": 8612,
+   "zsize": 1308
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_34_Amazon1.txt",
+   "sha256": "8536e448e547a0831f8575b76651d7cf1c7032bee44b4382371eb87b086999e0",
+   "size": 3694,
+   "zsize": 878
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_34_Amazon2.txt",
+   "sha256": "896e85822f94e7fa561424c0999e816265f54c9d73e1bebdef6a7189e66d23ca",
+   "size": 4032,
+   "zsize": 907
+  },
+  {
+   "path": "presets/winws1_builtin/YTDisBystro_34_Amazon3.txt",
+   "sha256": "c89d6f167d1302f4440eb47d3ed6154509a2fa0674f2e47d427c58551fb6c5d5",
+   "size": 4219,
+   "zsize": 942
+  },
+  {
+   "path": "presets/winws1_builtin/alt1.txt",
+   "sha256": "e1b38bba854ef8ce89f541942a5fd02579ae33aa715b56ad57318456d455342c",
+   "size": 1812,
+   "zsize": 592
+  },
+  {
+   "path": "presets/winws1_builtin/alt10_190b.txt",
+   "sha256": "3e5ad9feab48491ab4a3b668e28914d96ad5b11e9f2c8f76b9172bef5f23809b",
+   "size": 6132,
+   "zsize": 844
+  },
+  {
+   "path": "presets/winws1_builtin/alt10_190b_allsites.txt",
+   "sha256": "dbf04eaf7af735543d79ddb8a30903b30bf2bc24f1679bfa109ad077e45f08d0",
+   "size": 1538,
+   "zsize": 529
+  },
+  {
+   "path": "presets/winws1_builtin/alt1_161.txt",
+   "sha256": "d7b900b9551c9daffc579b1c69bb9e6c0f5b83ffc7256ef6bc042bbf64d898ae",
+   "size": 3838,
+   "zsize": 750
+  },
+  {
+   "path": "presets/winws1_builtin/alt1_181.txt",
+   "sha256": "1a4592463ba8e98e11235a042a2ad4ba6c84aab8ef6895c78ba12fac97300e44",
+   "size": 3620,
+   "zsize": 706
+  },
+  {
+   "path": "presets/winws1_builtin/alt1_182.txt",
+   "sha256": "f7a544c5149fb2ca6470316fbe02d1cba364794a16e537527c2e2d66f8f66185",
+   "size": 3628,
+   "zsize": 709
+  },
+  {
+   "path": "presets/winws1_builtin/alt2.txt",
+   "sha256": "c10c2ed1ecd40236a18e2887b706cebc43dc9d6239da8d983cb59b2b9d1ef866",
+   "size": 1561,
+   "zsize": 547
+  },
+  {
+   "path": "presets/winws1_builtin/alt2_161.txt",
+   "sha256": "ad2abf96ef433108b80099a207e32bbe5665eb35f9363f776c5e13600e63fd09",
+   "size": 3717,
+   "zsize": 761
+  },
+  {
+   "path": "presets/winws1_builtin/alt2_181.txt",
+   "sha256": "b7f86fbc77ee5905f9ab79ad8657b1b4b1a77c9d0d2b30419128b4030b03538c",
+   "size": 3510,
+   "zsize": 716
+  },
+  {
+   "path": "presets/winws1_builtin/alt2_182.txt",
+   "sha256": "65828b4eb98d63e385a7e11397b16b03f51997127b1fe448bf2147b976877234",
+   "size": 3554,
+   "zsize": 725
+  },
+  {
+   "path": "presets/winws1_builtin/alt2_182_allsites.txt",
+   "sha256": "92d25f6125bbc7f6bf234aa9aa421dbf7873157d0eec09b8c226b2bcd2b6d037",
+   "size": 1623,
+   "zsize": 500
+  },
+  {
+   "path": "presets/winws1_builtin/alt3.txt",
+   "sha256": "6cd5ff29e35a8eebe49ea360c10eec2c9711de1b4e964cf81e7c101774fc708c",
+   "size": 1961,
+   "zsize": 654
+  },
+  {
+   "path": "presets/winws1_builtin/alt3_161.txt",
+   "sha256": "85d7b704f9a192a2a41ab3e7d776d3e85f4a526b8931fb8ad42913afd329b2a1",
+   "size": 3365,
+   "zsize": 754
+  },
+  {
+   "path": "presets/winws1_builtin/alt3_181.txt",
+   "sha256": "a0d8e21d3057f4db0bfa8596857c428a199ebbfe3699ef8e44d2d1ef15b36122",
+   "size": 3403,
+   "zsize": 734
+  },
+  {
+   "path": "presets/winws1_builtin/alt3_182.txt",
+   "sha256": "f61935df022ad628015a9deed104c03c6fff1c24fed62abba2a0b4c2970125e1",
+   "size": 3507,
+   "zsize": 741
+  },
+  {
+   "path": "presets/winws1_builtin/alt3_182_allsites.txt",
+   "sha256": "d539c226c704f2f1819c5ab8f3c7fd46590cf0b30df1b9921283fafabebad1d6",
+   "size": 3706,
+   "zsize": 714
+  },
+  {
+   "path": "presets/winws1_builtin/alt3_game.txt",
+   "sha256": "158a92aca335e583133786650c6a9561fd191d88fb21bbe2d64dde147349f087",
+   "size": 1729,
+   "zsize": 625
+  },
+  {
+   "path": "presets/winws1_builtin/alt3_lol11.txt",
+   "sha256": "dc2208f4c7c7ecd52ad264a32c3ddd529050f4d6ce53f1965755de19e2845f89",
+   "size": 2475,
+   "zsize": 712
+  },
+  {
+   "path": "presets/winws1_builtin/alt4.txt",
+   "sha256": "4d5059653e78d2cc79f30b4b4d37823d8b5c7429d4fba9127c348aa100383aef",
+   "size": 1970,
+   "zsize": 635
+  },
+  {
+   "path": "presets/winws1_builtin/alt4_161.txt",
+   "sha256": "fb8087fc04f0846d00da1e613ae4d38d8685375724c7e0a5e2cfa30b53fa7076",
+   "size": 3942,
+   "zsize": 798
+  },
+  {
+   "path": "presets/winws1_builtin/alt4_181.txt",
+   "sha256": "e263a672bb3e4a6dea1d260932345be00e4dcf678af8641b11d363d618c2aa3e",
+   "size": 3705,
+   "zsize": 758
+  },
+  {
+   "path": "presets/winws1_builtin/alt4_182.txt",
+   "sha256": "f0beaa15a353c100551baf2624204061f93cf07ba60dd96540156406a954756d",
+   "size": 3747,
+   "zsize": 764
+  },
+  {
+   "path": "presets/winws1_builtin/alt4_190b.txt",
+   "sha256": "5613126924ebbee702afafdd4f7b350aa990e0353a728cb4436a71b6d4e0d7e6",
+   "size": 6446,
+   "zsize": 838
+  },
+  {
+   "path": "presets/winws1_builtin/alt4_190b_allsites.txt",
+   "sha256": "25e0896ce632e544071332da2083ecda74adc8a52ddaac34621f2c63ec504b72",
+   "size": 6464,
+   "zsize": 845
+  },
+  {
+   "path": "presets/winws1_builtin/alt5.txt",
+   "sha256": "998bfc23edbaaeb4ee08a57a7e8789c104f76860819fd244314989b90c568197",
+   "size": 1639,
+   "zsize": 586
+  },
+  {
+   "path": "presets/winws1_builtin/alt5_161.txt",
+   "sha256": "6be21dbaf95e5a7d98514729364ee758c5a04c84dc3ce0c4568487a58a901aca",
+   "size": 1078,
+   "zsize": 504
+  },
+  {
+   "path": "presets/winws1_builtin/alt5_181.txt",
+   "sha256": "10277bfcbabc99bbf825b58ee47ad0f79882c933dbecaed3df072299bc4527fa",
+   "size": 1137,
+   "zsize": 476
+  },
+  {
+   "path": "presets/winws1_builtin/alt5_182.txt",
+   "sha256": "5f5d63f21000a5fd6ff7ef099cd1f6db048f47b40195b6d04f8836d23c258d9f",
+   "size": 1145,
+   "zsize": 480
+  },
+  {
+   "path": "presets/winws1_builtin/alt5_190b_allsites.txt",
+   "sha256": "1fb4c255c0e5a40bc244d74aaff230f6b68f842e61f7d028def6378cbd395747",
+   "size": 1282,
+   "zsize": 427
+  },
+  {
+   "path": "presets/winws1_builtin/alt6_181.txt",
+   "sha256": "c8082a2f7fabe82364427322c4b263d42e9941e8290fd0bf6c5537ab7541128e",
+   "size": 4183,
+   "zsize": 758
+  },
+  {
+   "path": "presets/winws1_builtin/alt6_182.txt",
+   "sha256": "69432ea4af2e8f9ad66644d640ab83c83a512ddf0055d94154dfefbf176a8f72",
+   "size": 4231,
+   "zsize": 762
+  },
+  {
+   "path": "presets/winws1_builtin/alt6_190b.txt",
+   "sha256": "db922cfe2e37acbb840ba9e8959604d24dff51ab58b6c6580a7e5d0ecafbf074",
+   "size": 6086,
+   "zsize": 833
+  },
+  {
+   "path": "presets/winws1_builtin/alt6_190b_allsites.txt",
+   "sha256": "25457b31d4bc56070616e9d4abb41544f605fbd8362bc84decbe603f32f2310f",
+   "size": 3137,
+   "zsize": 602
+  },
+  {
+   "path": "presets/winws1_builtin/alt7_190b.txt",
+   "sha256": "8942b44c743b44cfd700f564060c99a410d66eb154bbf9ceb0b0a5b3b3c2c198",
+   "size": 5941,
+   "zsize": 848
+  },
+  {
+   "path": "presets/winws1_builtin/alt7_190b_allsite.txt",
+   "sha256": "b429110e60f59712377ffbb9c2b7a8423cea6a0224104eb3c3d79f3f6a783397",
+   "size": 1542,
+   "zsize": 526
+  },
+  {
+   "path": "presets/winws1_builtin/alt8_190b.txt",
+   "sha256": "55ca764eb7c99bbdac34a5e0325d463a710936a1760cdc8eae3c1e55c0cac3d7",
+   "size": 5786,
+   "zsize": 819
+  },
+  {
+   "path": "presets/winws1_builtin/alt8_190b_allsites.txt",
+   "sha256": "cbd7058cb020cdedbb9d2a1bd239cd620e0c6de2a7ab2059117b809e2dfbc8d8",
+   "size": 1254,
+   "zsize": 479
+  },
+  {
+   "path": "presets/winws1_builtin/alt9_190b.txt",
+   "sha256": "4325fbdc1c634c0e0edabbb793360f812ba6a07f87207f93acd3c56e55754b7c",
+   "size": 5660,
+   "zsize": 838
+  },
+  {
+   "path": "presets/winws1_builtin/alt9_190b_allsites.txt",
+   "sha256": "5974818014478b7d6450f78dbec03052ae1cf8a7820a62238dc3165b41230dd1",
+   "size": 1226,
+   "zsize": 484
+  },
+  {
+   "path": "presets/winws1_builtin/alt_190b.txt",
+   "sha256": "46b4329478fb01cb0e88bbca5006f8cce9fae3e07cdbcfd6c1bdf7bb1a3bcb22",
+   "size": 6056,
+   "zsize": 823
+  },
+  {
+   "path": "presets/winws1_builtin/alt_190b_allsites.txt",
+   "sha256": "aab779e63c19b578a10ae8a3b944f79db7cad249f9b74d8b8778e117e55d2e79",
+   "size": 3739,
+   "zsize": 662
+  },
+  {
+   "path": "presets/winws1_builtin/alt_faketlsautoalt2_190b.txt",
+   "sha256": "6a370e264fe9f66b397696f95df9bde641433097f527191b65b34afb6b320653",
+   "size": 7905,
+   "zsize": 902
+  },
+  {
+   "path": "presets/winws1_builtin/alt_faketlsautoalt2_190b_allsites.txt",
+   "sha256": "887322a5f6d50fb829bbb81adefe28ec8f88261f8e4274aef123189d4f611551",
+   "size": 8410,
+   "zsize": 913
+  },
+  {
+   "path": "presets/winws1_builtin/alt_faketlsautoalt3_190b.txt",
+   "sha256": "d7c6ffff8316eba73e6b22032d6b08ad2fa7ccf0f8d43ca396fb1e5a012383c4",
+   "size": 7303,
+   "zsize": 881
+  },
+  {
+   "path": "presets/winws1_builtin/alt_faketlsautoalt3_190b_allsites.txt",
+   "sha256": "0d9c0dee711075795638706ce06d035e0dd601e8e86f8c4631338fdee6054fdb",
+   "size": 7765,
+   "zsize": 894
+  },
+  {
+   "path": "presets/winws1_builtin/alt_faketlsautoalt_190b.txt",
+   "sha256": "d8ce43065a0c10fa554e7a09c760d49ccf6d3599e8b636505ade2c41a649964a",
+   "size": 6461,
+   "zsize": 859
+  },
+  {
+   "path": "presets/winws1_builtin/alt_faketlsautoalt_190b_allsites.txt",
+   "sha256": "2ef993a7a23e943dd556e7d69aac592fe7aedc33e33c73ad17287f4c1fff2640",
+   "size": 6863,
+   "zsize": 872
+  },
+  {
+   "path": "presets/winws1_builtin/alt_general_faketlsauto.txt",
+   "sha256": "5cc02927043cce13b5b6c4930b18508dd32fd97eac669859bd0e1152575a91e3",
+   "size": 6069,
+   "zsize": 845
+  },
+  {
+   "path": "presets/winws1_builtin/alt_general_faketlsauto_allsites.txt",
+   "sha256": "9474a0c1ab05e522e2ebbfd165732ccf002e001de7672251b42e01cc1e4f8bcb",
+   "size": 3928,
+   "zsize": 667
+  },
+  {
+   "path": "presets/winws1_builtin/alt_simplefake_190b.txt",
+   "sha256": "8ece83778374215c40526fcc153ce6244293ae2052699869743892bb39d549d7",
+   "size": 5406,
+   "zsize": 809
+  },
+  {
+   "path": "presets/winws1_builtin/alt_simplefake_190b_allsites.txt",
+   "sha256": "dcab81af84bf84a8d386b3cff75429f64b0dee12cc2eae1296a2882e58a87c93",
+   "size": 6107,
+   "zsize": 834
+  },
+  {
+   "path": "presets/winws1_builtin/alt_simplefakealt_190b.txt",
+   "sha256": "f02d12a894b2be4fa45fb57c60f36f335b807ada0b536b1b7f4c59604c9f4459",
+   "size": 6014,
+   "zsize": 826
+  },
+  {
+   "path": "presets/winws1_builtin/alt_simplefakealt_190b_allsites.txt",
+   "sha256": "03e56a75088be1570fd7e6e070a7fae710adea40dc1ada4440ab48435b677a34",
+   "size": 6385,
+   "zsize": 838
+  },
+  {
+   "path": "presets/winws1_builtin/altmgts1_161.txt",
+   "sha256": "9d311befb061f3cc3a0a4ac6ea16d0fb2094efd441b705e493c3568e7a4429bf",
+   "size": 3579,
+   "zsize": 727
+  },
+  {
+   "path": "presets/winws1_builtin/altmgts2_161.txt",
+   "sha256": "5c5c46f959a164db611f31dd36bc76beb3b0f904b7f1099a9150e3fd08bb81e2",
+   "size": 3442,
+   "zsize": 768
+  },
+  {
+   "path": "presets/winws1_builtin/ankddev10.txt",
+   "sha256": "fc91c677a093c053a4af4f7ba96bef4f505bbd9500001e0124e7a5e5dd040164",
+   "size": 1481,
+   "zsize": 589
+  },
+  {
+   "path": "presets/winws1_builtin/bolvan_allport.txt",
+   "sha256": "f7a61b5361b29ae8b05ec9cee307f36c41abdd7fa991deebe33cea93897b7c8b",
+   "size": 1661,
+   "zsize": 599
+  },
+  {
+   "path": "presets/winws1_builtin/bystro292_1.txt",
+   "sha256": "206e186439c49e20b3439fb4c9def86bc1d32c60fa5b7bde2ef11ffbb3568d51",
+   "size": 2795,
+   "zsize": 798
+  },
+  {
+   "path": "presets/winws1_builtin/bystro292_2.txt",
+   "sha256": "e1ca18c2e8f9e941da0a029ca3c18e90298a366e467ce2e07efa14291ee8a36a",
+   "size": 2798,
+   "zsize": 793
+  },
+  {
+   "path": "presets/winws1_builtin/datanoackpadencap.txt",
+   "sha256": "199c945024a72c996cc8312587cc3cc835db59c8018001199b0a5f645a5fb4d3",
+   "size": 4398,
+   "zsize": 819
+  },
+  {
+   "path": "presets/winws1_builtin/datanoackpadencapmidsld.txt",
+   "sha256": "52e2fa914b8904d5e08b10d1ac6e86328513970c2d4efb4dbb0f67a0531837b7",
+   "size": 4454,
+   "zsize": 836
+  },
+  {
+   "path": "presets/winws1_builtin/datanoackpadencapmidsldwssize.txt",
+   "sha256": "0597691afa1fcad998df55154625ac2249d27219e8ef2dccf111a99b1077bd0f",
+   "size": 1274,
+   "zsize": 439
+  },
+  {
+   "path": "presets/winws1_builtin/discord_voice_badseq.txt",
+   "sha256": "99b7ed93792d6083f583e9d03eebbe52ad0839fc1be1869d3d989f9bb0e2c58f",
+   "size": 2341,
+   "zsize": 595
+  },
+  {
+   "path": "presets/winws1_builtin/discord_voice_dtls.txt",
+   "sha256": "d79636c24d976596cff75d1a4f13ac7358eea9dbcea8340055181d73bcd1d9b4",
+   "size": 1511,
+   "zsize": 530
+  },
+  {
+   "path": "presets/winws1_builtin/discord_voice_md5sig_badseq.txt",
+   "sha256": "c148e6b3b7ce3978f9c3d1151def868b5b7d49c71c462e637cd005c07d43c0ab",
+   "size": 2397,
+   "zsize": 596
+  },
+  {
+   "path": "presets/winws1_builtin/discordfake.txt",
+   "sha256": "4df9c7f8a16ac18efd148e3dbb482ce50a29c9d75cc7d533e95a768a43338c3e",
+   "size": 1730,
+   "zsize": 554
+  },
+  {
+   "path": "presets/winws1_builtin/discordfakesplit.txt",
+   "sha256": "79e55519d6e87b8fb39f0bc285ff4df6c3e4b068515bfad64ca669f597c96ec8",
+   "size": 1630,
+   "zsize": 607
+  },
+  {
+   "path": "presets/winws1_builtin/discordtcp80.txt",
+   "sha256": "17464819d23f1863c004211384fa8955d2724c31556dee178505c56d37fe2b7d",
+   "size": 1580,
+   "zsize": 553
+  },
+  {
+   "path": "presets/winws1_builtin/faketlsalt2_181.txt",
+   "sha256": "ffe33dcbdcefde438e6a16673bfb8f913cabb37bd249195804db7fa2cef29440",
+   "size": 4459,
+   "zsize": 716
+  },
+  {
+   "path": "presets/winws1_builtin/faketlsalt_181.txt",
+   "sha256": "10a4a9c70279b23b8ddff28b468329ad7b88735d8f261c6a956c6664a24d5cf6",
+   "size": 3427,
+   "zsize": 724
+  },
+  {
+   "path": "presets/winws1_builtin/faketlsalt_182.txt",
+   "sha256": "8f2be387af99a971eee26665a8e3fb00b640391ef20e74ebfa9f89847064ec98",
+   "size": 2776,
+   "zsize": 650
+  },
+  {
+   "path": "presets/winws1_builtin/faketlsauto_181.txt",
+   "sha256": "645824c11b74efb55d9b2b88793e25311060b5ac8e64f4b76e2988f8d3376de3",
+   "size": 3579,
+   "zsize": 688
+  },
+  {
+   "path": "presets/winws1_builtin/faketlsautoalt.txt",
+   "sha256": "fc0690347300a52a0a6b63fdbb4edfdd0ac60914f95eef04e651ed0a3d336b37",
+   "size": 3577,
+   "zsize": 680
+  },
+  {
+   "path": "presets/winws1_builtin/faketlsmod.txt",
+   "sha256": "53c62815cf913c4e1dc7e51d5213480d70ae801223bfd562fb4be21e97e6f0d2",
+   "size": 1333,
+   "zsize": 518
+  },
+  {
+   "path": "presets/winws1_builtin/faketlsmod2.txt",
+   "sha256": "2b96f0a4d3670371b3e869110507efbac5f1c094a3102a0fbc087d0ffcce1219",
+   "size": 1344,
+   "zsize": 517
+  },
+  {
+   "path": "presets/winws1_builtin/general 1.10.3 (game filter).txt",
+   "sha256": "b12b9703c496c555044cb7c094c6855462c15bf257a0b7fe8e17b3b568b56f44",
+   "size": 14313,
+   "zsize": 1106
+  },
+  {
+   "path": "presets/winws1_builtin/general 1.9.9a (game filter).txt",
+   "sha256": "867b4b3b508b41b1d5d6d71c640d7d13571513eec5e3db8137d4c923f0be8135",
+   "size": 14362,
+   "zsize": 1069
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT1 1.10.3 (game filter).txt",
+   "sha256": "6ef42675270fc5436a1cd66ce6c42c2e3cba3d90f97b526d51fdd8aad0863eb0",
+   "size": 17596,
+   "zsize": 1140
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT1 1.9.9a (game filter).txt",
+   "sha256": "e36a2d1f0439b9cf213ddd821f1553f8c90e320d8c0d394bd7c5496e0a5bdc03",
+   "size": 17125,
+   "zsize": 1090
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT10 1.10.3 (game filter).txt",
+   "sha256": "7612343f13e38584bc9b973dee65f3dc4ddc08810d79b3c85be836010a0448cc",
+   "size": 16232,
+   "zsize": 1125
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT10 1.9.9a (game filter).txt",
+   "sha256": "f2603a7d8b80002ae21ea4333c8378df4f03011f6d7283b42bb269839ded9554",
+   "size": 15796,
+   "zsize": 1077
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT11 1.10.3 (game filter).txt",
+   "sha256": "dbe8f7a956cd19bfa17ce9918fe1b34b8a2df2ffbf57c919fda11f3f3a840ef2",
+   "size": 19510,
+   "zsize": 1162
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT11 1.9.9a (game filter).txt",
+   "sha256": "2dde678f979c8ad7a3ec3269b35a7c220d2c08372ed706fc084b222a670fecbe",
+   "size": 19051,
+   "zsize": 1116
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT12 1.10.3 (game filter).txt",
+   "sha256": "713b53b15e276984d6204dd6286cb4e0f2d1d0b8c82908faf599f68005b059ae",
+   "size": 19358,
+   "zsize": 1188
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT12 1.9.9a (game filter).txt",
+   "sha256": "f51dd5dcc97d837e255c61d4889057145604310310117243ca64cb24b30ec3d3",
+   "size": 18927,
+   "zsize": 1147
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT13 1.10.3 (game filter).txt",
+   "sha256": "1b091e0f6c2013338519ff934b90b49a65e79e3ebc53b7ec9030888640405047",
+   "size": 18112,
+   "zsize": 1190
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT2 1.10.3 (game filter).txt",
+   "sha256": "9758a9e3f930ac5147ff8a37c2d89f9035dcb9d13a352d09155b1f1c1f85f8dd",
+   "size": 14479,
+   "zsize": 1102
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT2 1.9.9a (game filter).txt",
+   "sha256": "bda6ba950b8c241986e025c2d5ab9a8b52dd3c28f2815523bfa12e847641152d",
+   "size": 14528,
+   "zsize": 1067
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT3 1.10.3 (game filter).txt",
+   "sha256": "5520552a06825c311e7dc371ab64ca603fd441bf99fa4d2ced4b10fbcea9970a",
+   "size": 16142,
+   "zsize": 1158
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT3 1.9.9a (game filter).txt",
+   "sha256": "5d607aa6a5e2d7b5c433658dd745b3cbe54a2079ece951af9f220b7ac0bf18f7",
+   "size": 15906,
+   "zsize": 1115
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT4 1.10.3 (game filter).txt",
+   "sha256": "03298466d16b791e60d6e73b235d53bda5c261329b4085f3029999d862fa49dd",
+   "size": 17646,
+   "zsize": 1146
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT4 1.9.9a (game filter).txt",
+   "sha256": "3f506defb3bbefe6eda8a09861dc0b397c51937e72520b2339005f8228ac1692",
+   "size": 17175,
+   "zsize": 1093
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT5 1.10.3 (game filter).txt",
+   "sha256": "dac47db5293d084dc7e78b1d2faa4a8f375d81effcf1af470c93b5779185afcb",
+   "size": 7788,
+   "zsize": 916
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT5 1.9.9a (game filter).txt",
+   "sha256": "17a5ab2c6f0f1b8786634ea576d0d21adf9f4d860b201d8fddf4ae5d2b9d07c8",
+   "size": 7837,
+   "zsize": 883
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT6 1.10.3 (game filter).txt",
+   "sha256": "ca693d7c9c440bb14b5e46c0cba71d60e2bbb5fc0bc6b6a5082475624b77af5c",
+   "size": 14479,
+   "zsize": 1099
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT6 1.9.9a (game filter).txt",
+   "sha256": "6a93a3e4b42580b23e7e6a4d821aedcf3b2347e3a12a941a16b11970c40ceb02",
+   "size": 14528,
+   "zsize": 1065
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT7 1.10.3 (game filter).txt",
+   "sha256": "ed66b1a500bf5c1f0ab0f4285184632ed3231c05be8309d9eb71671ca6c7a5ef",
+   "size": 13304,
+   "zsize": 1106
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT7 1.9.9a (game filter).txt",
+   "sha256": "362142288cff8c5036516827197725b5310fab45f1d8ba0c2d3c4f231a2be9ea",
+   "size": 13353,
+   "zsize": 1070
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT8 1.10.3 (game filter).txt",
+   "sha256": "93e5889272a6548e493e15588401b0ff1aaeffcdc75696d8edac7b410d958e99",
+   "size": 15506,
+   "zsize": 1118
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT8 1.9.9a (game filter).txt",
+   "sha256": "17b25200dbb96c81d63bce8b0fa60acac5ccad9b83e439ab866f23deb43940da",
+   "size": 15270,
+   "zsize": 1077
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT9 1.10.3 (game filter).txt",
+   "sha256": "ad126845447694835dfcc549627222ea4737d0843cd3a2b29eb6f1ec2fa1333b",
+   "size": 13734,
+   "zsize": 1089
+  },
+  {
+   "path": "presets/winws1_builtin/general ALT9 1.9.9a (game filter).txt",
+   "sha256": "5f86a3250e20ec35ffeb2f1e3614b1b3f51d8c8532854c875dd3a374c59fd8a7",
+   "size": 13783,
+   "zsize": 1058
+  },
+  {
+   "path": "presets/winws1_builtin/general EXP 1.10.0 (game filter).txt",
+   "sha256": "ff8ce289a49b95773a842da5c3280371f28174eaf607a8b68cc600ac7d5c2060",
+   "size": 20459,
+   "zsize": 1253
+  },
+  {
+   "path": "presets/winws1_builtin/general EXP 1.10.3 (game filter).txt",
+   "sha256": "fc56b3861d536c3768a1cbb0c97a04dae84c9b29e9f16baf8256277660250cf7",
+   "size": 20510,
+   "zsize": 1255
+  },
+  {
+   "path": "presets/winws1_builtin/general FAKE TLS AUTO 1.10.3 (game filter).txt",
+   "sha256": "097d3c7dc53855e08d51999dff60753928271c2e2b1b6af10c2db7dc6c80a408",
+   "size": 18143,
+   "zsize": 1178
+  },
+  {
+   "path": "presets/winws1_builtin/general FAKE TLS AUTO 1.9.9a (game filter).txt",
+   "sha256": "3c0d075f0ad367c8a6efef28ba2368c56b4bb86e3412fad6af847da4a3561f8e",
+   "size": 17722,
+   "zsize": 1128
+  },
+  {
+   "path": "presets/winws1_builtin/general FAKE TLS AUTO ALT 1.10.3 (game filter).txt",
+   "sha256": "c5569b30bd94e31c9ea7772a89a1772d5d832a6a44e77052301e311cd0c9412c",
+   "size": 17062,
+   "zsize": 1169
+  },
+  {
+   "path": "presets/winws1_builtin/general FAKE TLS AUTO ALT 1.9.9a (game filter).txt",
+   "sha256": "2ce042ac969ea1769220aae3f71cbc351115c030f0c480fa272a29807b4d18d8",
+   "size": 16826,
+   "zsize": 1126
+  },
+  {
+   "path": "presets/winws1_builtin/general FAKE TLS AUTO ALT2 1.10.3 (game filter).txt",
+   "sha256": "2e6e578e816935bc1f643367848c1f2353bc34b6ddc485192cedee3f923e7687",
+   "size": 19813,
+   "zsize": 1201
+  },
+  {
+   "path": "presets/winws1_builtin/general FAKE TLS AUTO ALT2 1.9.9a (game filter).txt",
+   "sha256": "963a41b22a90091aa44a83d014edab1200d6e228a0535914a000da532b98544b",
+   "size": 19577,
+   "zsize": 1161
+  },
+  {
+   "path": "presets/winws1_builtin/general FAKE TLS AUTO ALT3 1.10.3 (game filter).txt",
+   "sha256": "de44bdbbf05dd19f0ca11e2b5c3119393e4279ddbd8115e71489093a468c9cce",
+   "size": 18738,
+   "zsize": 1177
+  },
+  {
+   "path": "presets/winws1_builtin/general FAKE TLS AUTO ALT3 1.9.9a (game filter).txt",
+   "sha256": "3ad507aeaec8de117fa8117f0d53a42340d9f2cbbc25d50b96d4eaa323003393",
+   "size": 18502,
+   "zsize": 1134
+  },
+  {
+   "path": "presets/winws1_builtin/general SIMPLE FAKE 1.10.3 (game filter).txt",
+   "sha256": "691b4f4a9837ba89edf6fe03f4c9cff3d1677c1cde14be5f2cf0ca58f8a552d2",
+   "size": 15579,
+   "zsize": 1144
+  },
+  {
+   "path": "presets/winws1_builtin/general SIMPLE FAKE 1.9.9a (game filter).txt",
+   "sha256": "a6ad0c16701035b58d94dd114e7ac7ed793316174ddf4a3d946002f9ca338741",
+   "size": 15932,
+   "zsize": 1072
+  },
+  {
+   "path": "presets/winws1_builtin/general SIMPLE FAKE ALT 1.10.3 (game filter).txt",
+   "sha256": "91947f93b220a2b2d103617773e0819c0e38eff53d45afad26c68265e7597428",
+   "size": 17335,
+   "zsize": 1143
+  },
+  {
+   "path": "presets/winws1_builtin/general SIMPLE FAKE ALT 1.9.9a (game filter).txt",
+   "sha256": "0f1182597dd212614f819184e67b4cfe46dfd6e2467d9feeae13126c0aaa3d2c",
+   "size": 16836,
+   "zsize": 1090
+  },
+  {
+   "path": "presets/winws1_builtin/general SIMPLE FAKE ALT2 1.10.3 (game filter).txt",
+   "sha256": "de9e06eb6033edbd308b018d7ce8b7b693976a5077e99af04bd43bf9235a488d",
+   "size": 16212,
+   "zsize": 1121
+  },
+  {
+   "path": "presets/winws1_builtin/general SIMPLE FAKE ALT2 1.9.9a (game filter).txt",
+   "sha256": "101053e9573e2de50026cab46c230264d65966b8e58f7bb38f25aabd53674d54",
+   "size": 15753,
+   "zsize": 1074
+  },
+  {
+   "path": "presets/winws1_builtin/general_181.txt",
+   "sha256": "b96bb80d1b46ada37677f2eb00df086eab25edde08df1c12d6e473b48b52724b",
+   "size": 3432,
+   "zsize": 658
+  },
+  {
+   "path": "presets/winws1_builtin/general_alt11_191.txt",
+   "sha256": "4505f602ee6ae6b76376fdc94e2e492ab5bfde6611a2d90d8d702b6a23ecef55",
+   "size": 7705,
+   "zsize": 892
+  },
+  {
+   "path": "presets/winws1_builtin/general_alt11_191_allsites.txt",
+   "sha256": "f7718c19efa6c713c63c128d842ac958b9709bccbb8441b991deb9bdc8e32f1a",
+   "size": 1625,
+   "zsize": 544
+  },
+  {
+   "path": "presets/winws1_builtin/general_simplefake_alt2_191.txt",
+   "sha256": "37e4e08d8e28000ccb0ce0185940ffd81f4f9d24b0494fa6f97c38704f015aff",
+   "size": 5741,
+   "zsize": 835
+  },
+  {
+   "path": "presets/winws1_builtin/general_simplefake_alt2_191_allsites.txt",
+   "sha256": "00755ce636e9cfcc45d01cf1f1eef60e5d992c1e7d2ba8221376b658129121a6",
+   "size": 1580,
+   "zsize": 536
+  },
+  {
+   "path": "presets/winws1_builtin/md5sigpadencap.txt",
+   "sha256": "db3ed7cea32d4764d7a23eb1af83139f7604e2277909c7a8c444d2dd5cc34927",
+   "size": 4389,
+   "zsize": 817
+  },
+  {
+   "path": "presets/winws1_builtin/md5sigpadencapwssize.txt",
+   "sha256": "a93cab274e8eba8d7fa69d6a01e2e43403a2ccc2f18d52bc565fa03768535626",
+   "size": 925,
+   "zsize": 383
+  },
+  {
+   "path": "presets/winws1_builtin/mgts1.txt",
+   "sha256": "7cfaf82a10b10d834671dcf5c36f85be61f5dbac50b6aebc9d0b6002792d9ea6",
+   "size": 3439,
+   "zsize": 701
+  },
+  {
+   "path": "presets/winws1_builtin/mgts2.txt",
+   "sha256": "c55466985cc06be681994fc9979600a09412f2b45b71a31d90e8cb8f1f599062",
+   "size": 3462,
+   "zsize": 702
+  },
+  {
+   "path": "presets/winws1_builtin/mgts2_181.txt",
+   "sha256": "6e9e4a9c326f34da9abb62836ea4077a45155b78594471897328505a1f7524a2",
+   "size": 3138,
+   "zsize": 649
+  },
+  {
+   "path": "presets/winws1_builtin/mgts3.txt",
+   "sha256": "3840d1bfb7a6e5f6371a4cd14a6078c2ae55d7c034761076e19481af6b02ba7a",
+   "size": 3602,
+   "zsize": 753
+  },
+  {
+   "path": "presets/winws1_builtin/mgts4.txt",
+   "sha256": "bb1e5b5439cf7877aa3c2e9e57b50a94c9f2e68119353f5edf1ec7504fe0886d",
+   "size": 4141,
+   "zsize": 719
+  },
+  {
+   "path": "presets/winws1_builtin/mgts_181.txt",
+   "sha256": "4fbda9e7140ec03ade5d39049205b0cd111b4d2d162ae87b016a21dd9fe09364",
+   "size": 3366,
+   "zsize": 658
+  },
+  {
+   "path": "presets/winws1_builtin/multisplitmd5sigpadencap.txt",
+   "sha256": "994f2c662ec7740cb0356e79a260756f9627a0d9a29c3b63485353fbd0546206",
+   "size": 4443,
+   "zsize": 823
+  },
+  {
+   "path": "presets/winws1_builtin/multisplitmd5sigpadencapwssize.txt",
+   "sha256": "6434dedda4fda0990ce162fe3e214bb587a55bb21b2bb66c49c45c4da449fa5e",
+   "size": 979,
+   "zsize": 403
+  },
+  {
+   "path": "presets/winws1_builtin/original_bolvan.txt",
+   "sha256": "a10a4b6d9a96c7a838587650dca4b42059a0af6667d4c0b5cc708de2e0505c04",
+   "size": 1598,
+   "zsize": 623
+  },
+  {
+   "path": "presets/winws1_builtin/original_bolvan_v2.txt",
+   "sha256": "af42597881363b7deb4f187a742deb5fc4ddaabeb1b3833777a217f6adc5e9d4",
+   "size": 1632,
+   "zsize": 698
+  },
+  {
+   "path": "presets/winws1_builtin/original_bolvan_v2_badsum.txt",
+   "sha256": "ddd721aa7f3c004a803cbb2ecc5a55ff237441ea2c0bcb4bb254d3d8d422026a",
+   "size": 4533,
+   "zsize": 1296
+  },
+  {
+   "path": "presets/winws1_builtin/original_bolvan_v2_badsum_1.txt",
+   "sha256": "3f66ef5c9a71b5845544d7492b5d3abeb7a5b4b8fdb19dafc4ee8ac1ea30f869",
+   "size": 3860,
+   "zsize": 1013
+  },
+  {
+   "path": "presets/winws1_builtin/original_bolvan_v2_badsum_2.txt",
+   "sha256": "5c3e807c6d9d04763ce9399837a001bd08d70be9564d08d5a7e0b69c6b43fd08",
+   "size": 3536,
+   "zsize": 984
+  },
+  {
+   "path": "presets/winws1_builtin/original_bolvan_v2_badsum_3.txt",
+   "sha256": "f049fbf65682bbb77a5c802a081972618a84822dd4ae66ea967f83664d6378e2",
+   "size": 1809,
+   "zsize": 653
+  },
+  {
+   "path": "presets/winws1_builtin/original_bolvan_v2_badsum_6.txt",
+   "sha256": "3ea58db41b3bf0adb05add12410eba60812a412a9703d164057faea82a55a9fd",
+   "size": 664,
+   "zsize": 336
+  },
+  {
+   "path": "presets/winws1_builtin/original_bolvan_v2_badsum_lite.txt",
+   "sha256": "88c71f789672c6c71f4514cc217307014ed64c5219a4cd6bef0f9bf56d6d6ab6",
+   "size": 1844,
+   "zsize": 609
+  },
+  {
+   "path": "presets/winws1_builtin/original_bolvan_v2_badsum_test.txt",
+   "sha256": "56cf708c04379b9fc5a1aabc9681bb8c8179f4b2d75a01a760d8714f0cc7b60b",
+   "size": 1175,
+   "zsize": 464
+  },
+  {
+   "path": "presets/winws1_builtin/other1.txt",
+   "sha256": "67984aeb780e5ba14a9565751e1412e55cfe0a3d42eb89d2492a1b483b996949",
+   "size": 3721,
+   "zsize": 714
+  },
+  {
+   "path": "presets/winws1_builtin/other2.txt",
+   "sha256": "a8c537f165a8d95aff0040c9aeeebedb99ab58ccd0c1d17d5d1f8d21c77b72fe",
+   "size": 3734,
+   "zsize": 705
+  },
+  {
+   "path": "presets/winws1_builtin/rosmega.txt",
+   "sha256": "67d9fbadd1149b9f3a5df2690258944629a61abd94d5e7bbc9e342db098aa421",
+   "size": 1658,
+   "zsize": 638
+  },
+  {
+   "path": "presets/winws1_builtin/rosmts.txt",
+   "sha256": "75b52cd0d8fba4ae8f9f3af4395abd7464036d8a7eecd3c6222a5590504dfd41",
+   "size": 1142,
+   "zsize": 446
+  },
+  {
+   "path": "presets/winws1_builtin/split_pos.txt",
+   "sha256": "8926247ed73d3025be8b56b251bc0f8e158f916584ad0c03090c6a414bff4c9e",
+   "size": 1566,
+   "zsize": 511
+  },
+  {
+   "path": "presets/winws1_builtin/splitbadseq.txt",
+   "sha256": "46b7d0b245bf6983e9ed25f775af2cb40f0f08fc672a3f9c71c9da688106d604",
+   "size": 3816,
+   "zsize": 755
+  },
+  {
+   "path": "presets/winws1_builtin/splitsniext.txt",
+   "sha256": "19a7a9a603e99133adc4f6e5948a24f52bdde65e185a9b7e7ac2bfd9692a9617",
+   "size": 3800,
+   "zsize": 743
+  },
+  {
+   "path": "presets/winws1_builtin/ttlpadencap.txt",
+   "sha256": "560c90b23768bbe69034ffc458e2788e95449aa5880b7c3e437233bf96524d61",
+   "size": 3561,
+   "zsize": 812
+  },
+  {
+   "path": "presets/winws1_builtin/ulta2.txt",
+   "sha256": "063e33fd7cd47e7783f3a6e2de1699fceaf640a19648d6ec2664673b0eb58043",
+   "size": 4125,
+   "zsize": 765
+  },
+  {
+   "path": "presets/winws1_builtin/ultazl.txt",
+   "sha256": "44d746c38dded3af14b2361466e3839bc8551573a5cdd8bd37daa3fdadb52cdf",
+   "size": 4034,
+   "zsize": 710
+  },
+  {
+   "path": "presets/winws1_builtin/ultimatealt.txt",
+   "sha256": "82789baac20e6b9891f394c309f1a943346af2a650ff9d148099ab94c17d9341",
+   "size": 1612,
+   "zsize": 599
+  },
+  {
+   "path": "presets/winws1_builtin/valorant.txt",
+   "sha256": "3d6b4496c9188a6317a7b06a11d902ac7c3c44a75a6a60da0ec007e018b7f11e",
+   "size": 740,
+   "zsize": 354
+  },
+  {
+   "path": "presets/winws1_builtin/warp1.txt",
+   "sha256": "ac5862f0e64a2ab210ed4bf23c4ce39db9a728fa11760206fdae54157b44f6e6",
+   "size": 1179,
+   "zsize": 439
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP YTDisBystro_3_4_v1.txt",
+   "sha256": "eb445f5ab02df60dae8b54615ca9eca8d6fee3c4eb8f666089aa3a1f428b4ccd",
+   "size": 4282,
+   "zsize": 1086
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP discord_urgent_sni.txt",
+   "sha256": "887b421248a0badc1def870b36f6ff1df53833f86c5ca2efcea8b3af7368f011",
+   "size": 4215,
+   "zsize": 1061
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP fake_tls_auto_11.txt",
+   "sha256": "04f1cc78dc1cbf75990c084883c529b077cabade0db6a7e6f96a7b2a7c6c711f",
+   "size": 4405,
+   "zsize": 1124
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP hostfakesplit.txt",
+   "sha256": "3d72f0e33203e2706c2f5e47d8ce5786b5ace8a1d0212ceb60393356d7e43e21",
+   "size": 4225,
+   "zsize": 1054
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP hostfakesplit_multi_syndata.txt",
+   "sha256": "d142c9c5a961f50f8d4ba710abc4a5096f3297597fb6c4bb5217c1a6ba3caecf",
+   "size": 4328,
+   "zsize": 1087
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP multidisorder complex.txt",
+   "sha256": "f8ab352e09af29c7444a1017c24f2c7497f96e7469608f7ecb1d2290c16c15f4",
+   "size": 4257,
+   "zsize": 1093
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP multisplit_sni.txt",
+   "sha256": "4f4cbfdaf48113d8fe00d4eeee705cf8df6020aad3104833397b52d5125c31b6",
+   "size": 4295,
+   "zsize": 1085
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP multisplit_stun.txt",
+   "sha256": "e1f5f2d37dac285c7f3ef5f6c68f2901d102c7d684dee2c15f6ba8efa397a626",
+   "size": 4292,
+   "zsize": 1087
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP v1.txt",
+   "sha256": "1f9708e304cae944e2524291c8ee8d8313edabdfd2e9f54bc04cb67dfcd0780b",
+   "size": 1808,
+   "zsize": 643
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP v2.txt",
+   "sha256": "b3bc12f9eee667eed8341df499e03ef3c6771f11a4a42698661d56e990106540",
+   "size": 3085,
+   "zsize": 903
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP v3_1.txt",
+   "sha256": "504f92e44135aaea5ccbffbadfda1650ed4ee2acb46156d54eb6420f335ed29a",
+   "size": 4187,
+   "zsize": 1053
+  },
+  {
+   "path": "presets/winws2_builtin/ALL TCP & UDP v3_2.txt",
+   "sha256": "72a39a6803a376faa67a56cb74542c0ee4ed4f0231e11fd5f69ce410c50785f2",
+   "size": 4256,
+   "zsize": 1073
+  },
+  {
+   "path": "presets/winws2_builtin/Dead by Daylight (game filter).txt",
+   "sha256": "132c357d6ebfa00d9b62b4b7abea4b1962d9263af96c19f275437f6f07a0b6c1",
+   "size": 13472,
+   "zsize": 2023
+  },
+  {
+   "path": "presets/winws2_builtin/Dead by Daylight v2 (game filter).txt",
+   "sha256": "3f4e70ae4645c96f152c8d76834d4ab2a4e0024f76992f351fd3dcec1324295c",
+   "size": 15518,
+   "zsize": 2166
+  },
+  {
+   "path": "presets/winws2_builtin/Default (circular) v2.txt",
+   "sha256": "51a00656ec4e80265c8e39c4fe02b07bb6082e3a8c1a2410b231083e38115fa6",
+   "size": 6936,
+   "zsize": 1460
+  },
+  {
+   "path": "presets/winws2_builtin/Default (circular).txt",
+   "sha256": "c5e84cc381e896f19e2ccd2f421c3d75ddc815434f6e4a1d7595412b0df97d95",
+   "size": 8092,
+   "zsize": 1643
+  },
+  {
+   "path": "presets/winws2_builtin/Default (game filter).txt",
+   "sha256": "14e72bae54f7f6f7e4194e16331521b0141fc5d3d24d1119e28e5dcf8094e649",
+   "size": 10489,
+   "zsize": 1990
+  },
+  {
+   "path": "presets/winws2_builtin/Default multisplit_sni (game filter).txt",
+   "sha256": "92dbdb0e796cf2f67b7e273b443fa65723892c460346b326c3bdbd44c479fe43",
+   "size": 12683,
+   "zsize": 1923
+  },
+  {
+   "path": "presets/winws2_builtin/Default multisplit_sni.txt",
+   "sha256": "fd296fc19d38fa446974e005e4f5ceee11ee18cbd7323ff2f35eb14f03b1a9cb",
+   "size": 7790,
+   "zsize": 1709
+  },
+  {
+   "path": "presets/winws2_builtin/Default multisplit_stun (game filter).txt",
+   "sha256": "91cfe5b9ab2a960ee67abeb2e08e2a01d97b56ab6d3fd5ece483f15184db70c2",
+   "size": 12637,
+   "zsize": 1954
+  },
+  {
+   "path": "presets/winws2_builtin/Default multisplit_stun.txt",
+   "sha256": "f60d8c3cb3d2dc54437f4c7b26c486ba8275e112c95c16ea272e344c93c614e6",
+   "size": 7661,
+   "zsize": 1650
+  },
+  {
+   "path": "presets/winws2_builtin/Default v1 (game filter).txt",
+   "sha256": "c193b569e0a4b6509e2c3bd0fe97d489b5e4865526fd87a1597710ab692e96e7",
+   "size": 17926,
+   "zsize": 2610
+  },
+  {
+   "path": "presets/winws2_builtin/Default v2 (game filter).txt",
+   "sha256": "8a0dea4bb3f497d100b1c5a00a3c1a297bfebd3b3f87b1ff365e1c4727cf21e5",
+   "size": 13859,
+   "zsize": 2078
+  },
+  {
+   "path": "presets/winws2_builtin/Default v3 (game filter).txt",
+   "sha256": "419554d4dd783f12de3eb4fc328571cdcc2e9ff25016bc3ae45cbd2a9683c8d4",
+   "size": 10613,
+   "zsize": 1943
+  },
+  {
+   "path": "presets/winws2_builtin/Default v4 (game filter).txt",
+   "sha256": "1191d806c36fc93d54d9bb1de5b58e61feb502f8c725d86754a25362ac1d2e78",
+   "size": 13501,
+   "zsize": 2042
+  },
+  {
+   "path": "presets/winws2_builtin/Default v5 (game filter).txt",
+   "sha256": "7391b91f74ce865b82da8b638a591b123e208f183c96e728adad1fde4e87f745",
+   "size": 11711,
+   "zsize": 1916
+  },
+  {
+   "path": "presets/winws2_builtin/Gaming (game filter).txt",
+   "sha256": "8dc43bc73567da83eb996abeaa925f59ccfc62be7d81772b435b0c93cbc5cede",
+   "size": 13038,
+   "zsize": 1990
+  },
+  {
+   "path": "presets/winws2_builtin/Preset X (game filter).txt",
+   "sha256": "487253bccb35c6d8983b8a6aafd85e3c3f26d5253cde21177e3b896525f521f7",
+   "size": 11810,
+   "zsize": 1798
+  },
+  {
+   "path": "presets/winws2_builtin/Preset X v2 (game filter).txt",
+   "sha256": "24861b0a9627eae1f739052c6b4f1c7a61eaae315b94a07939d9be11eb590414",
+   "size": 8351,
+   "zsize": 1745
+  },
+  {
+   "path": "presets/winws2_builtin/Preset X v3 (game filter).txt",
+   "sha256": "873c4247b20b69c2560b3d404d9b2cf0ca31893f151fc9eda2058e98ecfeee34",
+   "size": 8699,
+   "zsize": 1689
+  },
+  {
+   "path": "presets/winws2_builtin/Preset XY (game filter).txt",
+   "sha256": "ec28809cca2f6fc5263a9023e746599795e6dabe68350ec1cd6eb3a263489448",
+   "size": 7787,
+   "zsize": 1668
+  },
+  {
+   "path": "presets/winws2_builtin/Preset.X1.txt",
+   "sha256": "5f991f7b760cf9fd609351bc35f2dd3ef8e804e44b9a7917c4cf227c75abcfaa",
+   "size": 9210,
+   "zsize": 1777
+  },
+  {
+   "path": "presets/winws2_builtin/Send + Syndata (game filter).txt",
+   "sha256": "78a131cb3e64003df74f728708d45f7499500237130a4c3066345ddc1ef5d70e",
+   "size": 12417,
+   "zsize": 1926
+  },
+  {
+   "path": "presets/winws2_builtin/Syndata + MultiDisorder legacy (game filter).txt",
+   "sha256": "0e29cf90039639d64be459203672b97cd6fb2bd50265d987dc09553dc5b79fe3",
+   "size": 12712,
+   "zsize": 1939
+  },
+  {
+   "path": "presets/winws2_builtin/Syndata + MultiDisorder legacy WoW (game filter).txt",
+   "sha256": "146942bb25c451bc1391abead60a084e3fc6d9fe8f03548dba3cfe4bf67ce861",
+   "size": 10091,
+   "zsize": 1886
+  },
+  {
+   "path": "presets/winws2_builtin/TESTERSKIY BY SSB.txt",
+   "sha256": "68e2dbe8bfe524a7596e23da8b06121a2ed340433b337331933f7c7e20077260",
+   "size": 7713,
+   "zsize": 1720
+  },
+  {
+   "path": "presets/winws2_builtin/Ultimate Main Riot + Valorant (game filter).txt",
+   "sha256": "edca9b3d70a8267d6fd8b870da9430f68b594f3a0179712554c91760f1794a73",
+   "size": 7362,
+   "zsize": 1548
+  },
+  {
+   "path": "presets/winws2_builtin/Universal V5.txt",
+   "sha256": "8bace8bc3f7a4a04fd7084d7747f573a32f8532bcb793d71660e1b8fe266baa3",
+   "size": 12733,
+   "zsize": 2508
+  },
+  {
+   "path": "presets/winws2_builtin/complex multidisorder (game filter).txt",
+   "sha256": "485d43dc3ff50e4d0f4329ce19a6a3d9722b59c6b80ec78fe07a7766730fe7b4",
+   "size": 15117,
+   "zsize": 1894
+  },
+  {
+   "path": "presets/winws2_builtin/custom (circular).txt",
+   "sha256": "9c2834265b682b90c4c155219178084b20c88f5347f5d36a5d95ab007b7400dc",
+   "size": 6371,
+   "zsize": 1384
+  },
+  {
+   "path": "presets/winws2_builtin/fake (circular).txt",
+   "sha256": "a1d6585fe753d845e36af9afc97a10f0fdf4c4070341955f6e862eb1c31003ea",
+   "size": 8106,
+   "zsize": 1578
+  },
+  {
+   "path": "presets/winws2_builtin/fake close.txt",
+   "sha256": "2452e87ed7642a3c03cba889177437c341e938a47dec1c70075251b36a80f8e8",
+   "size": 2139,
+   "zsize": 739
+  },
+  {
+   "path": "presets/winws2_builtin/general 1.10.3 (game filter).txt",
+   "sha256": "e27fda4b649a8b68a143f1c1fc99d0d26a580da4d47a87383cfa433a770a6500",
+   "size": 25788,
+   "zsize": 2445
+  },
+  {
+   "path": "presets/winws2_builtin/general 1.9.9 (game filter).txt",
+   "sha256": "9c50bebe0cfc7039071b30e97740eae96752e4febdf5432cb3dfdc1558cd0282",
+   "size": 14197,
+   "zsize": 1897
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT (game filter).txt",
+   "sha256": "f2d6fdbedbf25f92fcf1ef58d5f9e53b77a9c30fbb3e1abf30552edf847df7f0",
+   "size": 13294,
+   "zsize": 1880
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT.txt",
+   "sha256": "bca11d4b1be047fbbff42cce1296f474a0df87c2c07a7821c617742fdf385265",
+   "size": 8428,
+   "zsize": 1535
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT1 1.10.3 (game filter).txt",
+   "sha256": "11027f044d25138f1be3aefb97530743cb3c55e96eec5f4122dc5a384a9626bb",
+   "size": 44799,
+   "zsize": 2602
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT1 1.9.9 (game filter).txt",
+   "sha256": "ae95ae365c71439a945112b4c52f804138b23f9250fb88c2eb20fe334ba7979c",
+   "size": 21879,
+   "zsize": 1995
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT10 (game filter).txt",
+   "sha256": "3435c037e926b673892c6be1026331c68991f10bbe5747ea5c98e2e2cf100c17",
+   "size": 12534,
+   "zsize": 1876
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT10 1.10.3 (game filter).txt",
+   "sha256": "a3f5b8868cae723d96ffda596abc61c8fe97bf6276118440316df781e21a9b94",
+   "size": 37333,
+   "zsize": 2570
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT10 1.9.9 (game filter).txt",
+   "sha256": "2a8692f9ac75eb2247a4b3af6c09f28839e6e0fdec8ce26cfdc2bd7402ff7e5f",
+   "size": 19030,
+   "zsize": 1961
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT10.txt",
+   "sha256": "c04e591b40f60da74b0e1c363c39502887fd53df044282a217481ac5f03e4e37",
+   "size": 6945,
+   "zsize": 1471
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT11 (game filter).txt",
+   "sha256": "5f3441d5c0d1609036557dd05da02b6d4bb1f35a1f0c5662afd6fc29a0767207",
+   "size": 13806,
+   "zsize": 1887
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT11 1.10.3 (game filter).txt",
+   "sha256": "c9ecb10583c9da9983a068f68fd69d79f3e1a54ce28a7bd570cf0250c8dfd379",
+   "size": 43498,
+   "zsize": 2626
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT11 1.9.9 (game filter).txt",
+   "sha256": "e82418c1c11a68bfb3df8b7bd310958117c700bd81eace22a7f3a43a8d917f74",
+   "size": 20182,
+   "zsize": 1994
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT11.txt",
+   "sha256": "61278c9547aae28250274e768f47cfc12c23281e2db4c2bf8fdcb6df2c91392b",
+   "size": 8613,
+   "zsize": 1523
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT12 1.10.3 (game filter).txt",
+   "sha256": "9981ff12ba081bfdac3575ffb5b068f2abf4891271fc045bc6649bd4f2424b4e",
+   "size": 43076,
+   "zsize": 2629
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT12 1.9.9 (game filter).txt",
+   "sha256": "c003c90a24653d6424bc0a71c64341b03282a93a98adabba5ce0893af21aab83",
+   "size": 19711,
+   "zsize": 1995
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT13 1.10.3 (game filter).txt",
+   "sha256": "bff61a467bbfee69f6e91eefd6beac6edadeffa6a54422a557af0a9ed055cfdd",
+   "size": 44431,
+   "zsize": 2717
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT2 (game filter).txt",
+   "sha256": "10f2d3e06ff74280498ccf37a6949c5fcbb6a9dcd7e32f18a2392283ab0c88fd",
+   "size": 11680,
+   "zsize": 1858
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT2 + syndata.txt",
+   "sha256": "5c4f25946db1aa79256ec64f5c02f1b77e0c89377e64b54ed5375eca4e84537d",
+   "size": 8466,
+   "zsize": 1543
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT2 1.10.3 (game filter).txt",
+   "sha256": "dbec52290cd6b66292693d6195565f6fea696302b5dfa8a49d32f2d464c10b0d",
+   "size": 25865,
+   "zsize": 2434
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT2 1.9.9 (game filter).txt",
+   "sha256": "1ba4d5094736c60a0607e1d42e7b5d9685b3b698851514aa26fe9da256662c6d",
+   "size": 14235,
+   "zsize": 1882
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT2.txt",
+   "sha256": "476f0a9bbd8f9dc469c036b2a373b68f71059cd37bab4b2926290cc49838a6a7",
+   "size": 7215,
+   "zsize": 1506
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT3 (game filter).txt",
+   "sha256": "5dd0f97a9cd4fd9de7a4b5009ef6e7418fe13246de3dbe682addf6b93ea0e92f",
+   "size": 13942,
+   "zsize": 1910
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT3 1.10.3 (game filter).txt",
+   "sha256": "47006f1ceb3ad4347d5c9e027c7d32983193be348cf5c049d3138c9feb5d8128",
+   "size": 40597,
+   "zsize": 2686
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT3 1.9.9 (game filter).txt",
+   "sha256": "5f8db5c03acc34265664322145727cba3f596fa93ba63cd4482941bf7a0ae998",
+   "size": 20269,
+   "zsize": 1971
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT3.txt",
+   "sha256": "16a56f4058d853ebab8370561eca1738d1aafb96325a38c37d5b3f047d1bb180",
+   "size": 9457,
+   "zsize": 1577
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT4 (game filter).txt",
+   "sha256": "2bf6e09c2e94a6c70033721578a025cbfb40dd8ac52bc5a67b7d9b4123b19ce0",
+   "size": 12360,
+   "zsize": 1866
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT4 1.10.3 (game filter).txt",
+   "sha256": "3f3d8c6b6fe9a50fdc1c9934c3e69d68f9f1404fad432874e78a4fa52308c847",
+   "size": 44376,
+   "zsize": 2601
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT4 1.9.9 (game filter).txt",
+   "sha256": "df8348724ff5cbce8eafc649ff6b36de5f925da19da6edda50446497d2b5cec9",
+   "size": 20880,
+   "zsize": 1983
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT4.txt",
+   "sha256": "1674e42637c2865a114d3d3879dcad500dcca463d5c62602abacd51e02b9253b",
+   "size": 7780,
+   "zsize": 1514
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT5 (game filter).txt",
+   "sha256": "40c057771bb43780df57f6ef91c7f8cd6d95fa8f49adce5b12eb350b266a3f1d",
+   "size": 8981,
+   "zsize": 1580
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT5 1.10.3 (game filter).txt",
+   "sha256": "d21d2e616c929a3f2cbd9e306063903c05f46719799a397c3fc0f1784ad3b30b",
+   "size": 26708,
+   "zsize": 2667
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT5.txt",
+   "sha256": "f21927c6da32d2b9639df627d5de95ae48ee56b0a11ce7f36a74d3842470f8c1",
+   "size": 4501,
+   "zsize": 1141
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT6 (game filter).txt",
+   "sha256": "ba22ecc5bcc781216af1a2c1450ea9085c288aba9a38fc352c367005cf39c27d",
+   "size": 11510,
+   "zsize": 1842
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT6 1.10.3 (game filter).txt",
+   "sha256": "6fcf210f04f2015d6c7dc7b5e1c674eb99a67765910589ee56d6f13e5215c74a",
+   "size": 25865,
+   "zsize": 2434
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT6 1.9.9 (game filter).txt",
+   "sha256": "d57c56ba12b9e70fa0323a27e18f80665782e48da9518e305e718b087ff2d8f7",
+   "size": 14235,
+   "zsize": 1882
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT6.txt",
+   "sha256": "fb6feeb7235ad24c5e4a85770a6e51c9526b5746fa47d06c6191200b5d619e5e",
+   "size": 7057,
+   "zsize": 1486
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT7 (game filter).txt",
+   "sha256": "ff531e524a57da9976627e211474441e6ed6a86ea8704093d51914dd2d01e0da",
+   "size": 10847,
+   "zsize": 1840
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT7 1.10.3 (game filter).txt",
+   "sha256": "ff2ed9451dbad7a9c0ed2620e42928a468d45c41ba5fdc68233f9904d63d9fcd",
+   "size": 24588,
+   "zsize": 2575
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT7 1.9.9 (game filter).txt",
+   "sha256": "10ddd6e152982bcff524c4c74f57a296fcd46cf7d8b6583cbe585f8a4c9601f9",
+   "size": 13520,
+   "zsize": 1902
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT7.txt",
+   "sha256": "40d35f2d53bb040a66060b4b0e8ddbb216236bbd653e8ab320c49917d3501acd",
+   "size": 7191,
+   "zsize": 1494
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT8 (game filter).txt",
+   "sha256": "d8f5b89b4bf0262aa39b4342110851c5d88b12afdfb389753ba34cffae605bbc",
+   "size": 11203,
+   "zsize": 1830
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT8 1.10.3 (game filter).txt",
+   "sha256": "94e7eae4c78372ffcff17a114b91092ef4af0472e07374020e8399aca05ee33e",
+   "size": 34112,
+   "zsize": 2504
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT8 1.9.9 (game filter).txt",
+   "sha256": "2c0aedffba2a9e773f6e74799a863a549f45b38b5d5cd98b147207910cc3f2af",
+   "size": 16894,
+   "zsize": 1926
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT8.txt",
+   "sha256": "ce0a7bf04c9c72bf227bf01aea86e9b42a639ac8fba51ca6c98d262e563f5bfc",
+   "size": 6874,
+   "zsize": 1460
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT9 1.10.3 (game filter).txt",
+   "sha256": "373f42949a6086af06c36fcdfad95f422961140c943c07cc327f8cc696608936",
+   "size": 26753,
+   "zsize": 2453
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT9 1.9.4 (game filter).txt",
+   "sha256": "ec9f73e09ff2d0901c98dcf07deb40f2a136e13089bc5add1ac6fdccc7afd833",
+   "size": 11542,
+   "zsize": 1842
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT9 1.9.4.txt",
+   "sha256": "e1509ee35e118b6bac461325a5b21d46958fc730623897b70b050941e38c8a0a",
+   "size": 7108,
+   "zsize": 1472
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT9 1.9.5 (game filter).txt",
+   "sha256": "66e191a115446d3d174de512fc28770d2b161971bfeec9d203f41f45d74a577c",
+   "size": 11556,
+   "zsize": 1853
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT9 1.9.5.txt",
+   "sha256": "e8287c0c1e9ee3db81390d68048f8a39edc14f76ad2b3b39833cabc5f59b4da8",
+   "size": 7123,
+   "zsize": 1483
+  },
+  {
+   "path": "presets/winws2_builtin/general ALT9 1.9.9 (game filter).txt",
+   "sha256": "5a0e237e9ece5a06c44183ca1f085bdadf117874ab1c744fc735530db5908dcd",
+   "size": 14351,
+   "zsize": 1895
+  },
+  {
+   "path": "presets/winws2_builtin/general EXP 1.10.0 (game filter).txt",
+   "sha256": "d45d507a51632232c5829cad6d78e4ec9228750d7846f90469e4c6ebda13d2de",
+   "size": 36527,
+   "zsize": 2665
+  },
+  {
+   "path": "presets/winws2_builtin/general EXP 1.10.3 (game filter).txt",
+   "sha256": "2627a059f84c2baa63bd26762ad738838c1381c8d06e5ba8b26f8d6fbf6b7162",
+   "size": 36333,
+   "zsize": 2639
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO (game filter).txt",
+   "sha256": "8759b8d949641b0acdca13b203d72482e8fb39243329646abab00385d64f8580",
+   "size": 16374,
+   "zsize": 1908
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO 1.10.3 (game filter).txt",
+   "sha256": "66987f24879fc1bf7957279d7bc1638b8ce147f884545b5f3f742d25968389f1",
+   "size": 49629,
+   "zsize": 2655
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO 1.9.9 (game filter).txt",
+   "sha256": "ab3944c51c03cca8c80e5599a30843737f944963f4f0d3733616c38455095f93",
+   "size": 24141,
+   "zsize": 2056
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT (game filter).txt",
+   "sha256": "749f9cb6c51909b139c1892a5f968fa8d06e61d9a99851fe4ccd27c80c66ac85",
+   "size": 13746,
+   "zsize": 1874
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT 1.10.3 (game filter).txt",
+   "sha256": "5b597dc945a6c98865fc1d7427729b24c6451dacf069c0a3b52d43879060aba1",
+   "size": 43851,
+   "zsize": 2614
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT 1.9.9 (game filter).txt",
+   "sha256": "142f5f9f666b7997e3ffb206994cda54160a8215a16af338db6c8f6cb3afafab",
+   "size": 21021,
+   "zsize": 2000
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT.txt",
+   "sha256": "cf97433fae1fa18d837d9b1f4697f980ceb4e94c1abf574da882eeffda194873",
+   "size": 8310,
+   "zsize": 1509
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT2 (game filter).txt",
+   "sha256": "980415f1fb9f715d17fdffa899314e790e7e04335b12e26c7faa42ef8dcb3a02",
+   "size": 14587,
+   "zsize": 1900
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT2 1.10.3 (game filter).txt",
+   "sha256": "0cc75a0d735e1382071ddf1bdac26df849c31251ee215a59d8cb4a92cc9cf119",
+   "size": 44312,
+   "zsize": 2642
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT2 1.9.9 (game filter).txt",
+   "sha256": "0794cd10b5cbe0c35735b910d2fb1a721e764405c768d2ec417f73c53fbc2a49",
+   "size": 22473,
+   "zsize": 2048
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT2.txt",
+   "sha256": "de496c31da7238f504a79ba59ac51d6b6784243fc8db66f931e3fc7ba70d6eee",
+   "size": 8791,
+   "zsize": 1531
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT3 (game filter).txt",
+   "sha256": "7938d0283bc03791c72815cef0121a50b779e0548d84bbc2f6ea5ee0eda08aa9",
+   "size": 15063,
+   "zsize": 1899
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT3 1.10.3 (game filter).txt",
+   "sha256": "adbac8d20c89fa1c119cd325339fa9922bb83b146b0ea355bd2fc2dc4f5bf8b4",
+   "size": 41915,
+   "zsize": 2615
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT3 1.9.9 (game filter).txt",
+   "sha256": "41318b80acf98513f83a7f66b6a12bc75ec9a0da80e57f0d441d8422c056ffaa",
+   "size": 22277,
+   "zsize": 2047
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO ALT3.txt",
+   "sha256": "c30cd96ebde6c7dd3adb6d5eed793af2ba2cfb5f3bf8f20a6fe561e83b3204f0",
+   "size": 9063,
+   "zsize": 1533
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO v2 (game filter).txt",
+   "sha256": "df1aeed8bc58bf853bc0b661838b72c85e65295bba4e4cfd3ac5a09619de2d2e",
+   "size": 14361,
+   "zsize": 1884
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO v2.txt",
+   "sha256": "2759826a76cb4a29d93227c4a12ca216253f7d3505d321c82d960c371ede7eef",
+   "size": 8711,
+   "zsize": 1519
+  },
+  {
+   "path": "presets/winws2_builtin/general FAKE TLS AUTO.txt",
+   "sha256": "90c1921b1e617a39f4ce3b8457d5010dbcc681fe278d0ff65804aca43f971e38",
+   "size": 9860,
+   "zsize": 1536
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE (game filter).txt",
+   "sha256": "537af4292b40ff1ea122321e6e6c49935c5998ca7a777dc70b3d38a4719e2321",
+   "size": 11467,
+   "zsize": 1822
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE 1.10.3 (game filter).txt",
+   "sha256": "e6062e7c7c663dfbf004e78bc132bbeac01c30521c573b50c002724966502880",
+   "size": 32942,
+   "zsize": 2531
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE 1.9.9 (game filter).txt",
+   "sha256": "26375d08c9da41701951e70e363146c33d3ed4c82ec05eeea1981da0a8f5af24",
+   "size": 18735,
+   "zsize": 1946
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE ALT (game filter).txt",
+   "sha256": "c11e0e1ab19b8ac3aefec518006684b34892f99e54811869d71c12f83aadba9c",
+   "size": 11111,
+   "zsize": 1811
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE ALT 1.10.3 (game filter).txt",
+   "sha256": "f4296043c4da2941f320f7b3e6ef0a47fd4ec84ddfe41e8a096c15cb2a84237b",
+   "size": 39340,
+   "zsize": 2583
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE ALT 1.9.9 (game filter).txt",
+   "sha256": "c74fd10902aa09be5fd9db6802d54f8e67fae03ee4dd8c7776f60185cc64afc1",
+   "size": 18084,
+   "zsize": 1949
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE ALT.txt",
+   "sha256": "4ec5154e71aea1414506dff8cba3bee79cc80b36a6e5464333e125a7200da8b7",
+   "size": 6803,
+   "zsize": 1456
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE ALT2 (game filter).txt",
+   "sha256": "33018caa7f16ec625d8ef195b9974eb94dcb16232dd9570bfe560886f987c7ca",
+   "size": 12552,
+   "zsize": 1859
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE ALT2 1.10.3 (game filter).txt",
+   "sha256": "27d1ae313ac9bf8136fb9f718e1fb6ce6c64146d662334eaabc4f0230c91f758",
+   "size": 37022,
+   "zsize": 2564
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE ALT2 1.9.9 (game filter).txt",
+   "sha256": "ee09793cd77a98d5e376a53026fa2378bfbc18786e91f695d3d8eb0727c46f2a",
+   "size": 18670,
+   "zsize": 1954
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE ALT2.txt",
+   "sha256": "cc01e27a04205a67d97c9402246f9a8e84dfb5318516dd67aee5752fa24e6510",
+   "size": 8349,
+   "zsize": 1492
+  },
+  {
+   "path": "presets/winws2_builtin/general SIMPLE FAKE.txt",
+   "sha256": "fc84b0d6ed4c3541e57394968e39b0d001453421e58c8ca815fdd2da7b6de942",
+   "size": 6902,
+   "zsize": 1459
+  },
+  {
+   "path": "presets/winws2_builtin/multidisorder (circular).txt",
+   "sha256": "2aa04f4492c7e0753e97d99af90b11b03202014fb7f529e070e5064771381d58",
+   "size": 6893,
+   "zsize": 1480
+  },
+  {
+   "path": "presets/winws2_builtin/multisplit (circular).txt",
+   "sha256": "4211d59a64e1e1dc4026007f8dd8f4c536efcfbadd6556584fa2abc963b83717",
+   "size": 7912,
+   "zsize": 1569
+  },
+  {
+   "path": "presets/winws2_builtin/protocol mask (stun).txt",
+   "sha256": "dafa3d1c8f1c80e2e672414a34009deffbb7c2ca2d6610593149205b053a3b94",
+   "size": 2144,
+   "zsize": 749
+  },
+  {
+   "path": "presets/winws2_builtin/shadow probes (circular).txt",
+   "sha256": "dd3099366ccdd2a8949b3b44661573450dceb4a6d17a34a31595a7376825c8be",
+   "size": 8144,
+   "zsize": 1633
+  },
+  {
+   "path": "presets/winws2_builtin/slow disorder.txt",
+   "sha256": "4b08bb9fc5b8203933507224007ac79a48cf06be062111c70ce626ea8ce4c7dd",
+   "size": 2137,
+   "zsize": 739
+  },
+  {
+   "path": "presets/winws2_builtin/slow split.txt",
+   "sha256": "9ad2f6ea79d30605e0332117f079059d5ecdb1a760bdf117523b61ce559d924c",
+   "size": 2118,
+   "zsize": 737
+  },
+  {
+   "path": "presets/winws2_builtin/special for loop-uh.txt",
+   "sha256": "5b8d6c82115fb16b4db2dad82eee8e9edf50207da284a8908b2eae39c471cece",
+   "size": 5097,
+   "zsize": 1289
+  },
+  {
+   "path": "presets/winws2_builtin/syndata (circular).txt",
+   "sha256": "da43ccd4776990893404f9505b96a5a5e6d8c3740b4493df4d4f69acce3e99c0",
+   "size": 8722,
+   "zsize": 1627
+  },
+  {
+   "path": "presets/winws2_builtin/tls records.txt",
+   "sha256": "e5f2fc9118a22a2e3edccc2a0400a5e4219ef08a2de5614e1e8cd0ff4c692486",
+   "size": 2100,
+   "zsize": 754
+  },
+  {
+   "path": "presets/winws2_builtin/white sni (circular).txt",
+   "sha256": "75b39c269a6910b4a3a9c625f5a52b294d2e272fd4fca0efaa9682a4c20b0e9a",
+   "size": 10017,
+   "zsize": 1839
+  },
+  {
+   "path": "presets/winws2_builtin/Ростелеком.txt",
+   "sha256": "9bf28cef2c55e8b8b19327981fce853064a6be0df55792ebc8256cbc4129c53f",
+   "size": 11631,
+   "zsize": 1783
+  },
+  {
+   "path": "system/fakes_catalog.sqlite3",
+   "sha256": "18524893d08c8c99a97f56766bc39be6c34ce5ca06b444ebc16338c6bbede2df",
+   "size": 28672,
+   "zsize": 4241
+  },
+  {
+   "path": "system/hosts_catalog.sqlite3",
+   "sha256": "de7be9ec74a26d3fd2ec02c4ce3dd88b908d402c26d702581dcaca092b56797d",
+   "size": 704512,
+   "zsize": 101847
+  },
+  {
+   "path": "system/ico/Zapret2.ico",
+   "sha256": "dca9f7a8ec1e7491e482020dabd44381090ede42052088c95e39521b4c2b5192",
+   "size": 35055,
+   "zsize": 34719
+  },
+  {
+   "path": "system/ico/ZapretDevLogo4.ico",
+   "sha256": "e64a06fc3f0db077b5d1314ea07d45d3e2d4337a158321f574adde2f89aac5d9",
+   "size": 30910,
+   "zsize": 30646
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/binoculars.svg",
+   "sha256": "7bdaee515b095b6f1bda0c3e2f643b7869c80c9336022d7295ead31f70aebed3",
+   "size": 3702,
+   "zsize": 858
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/bookmark.svg",
+   "sha256": "8737dd53c19d59e606c883ea81002612488ef7ab52c3cbec611e4219b8f9bc31",
+   "size": 1043,
+   "zsize": 491
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/cloud-download.svg",
+   "sha256": "3a32ffc33fb83918678e92fe81f9393d41051a72c54641c2aa10fae7dfb53d7e",
+   "size": 1211,
+   "zsize": 692
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/document.svg",
+   "sha256": "e8cdcc23a3473c9bf0575cca45bf473ebbb6da79f77f37c4255854a89c396e9e",
+   "size": 1176,
+   "zsize": 495
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/folder.svg",
+   "sha256": "fa9fe07892fa9157b6a3f41a9ba495f3f7f496f4e70dd10b78d19132c48bf1ed",
+   "size": 2609,
+   "zsize": 822
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/history.svg",
+   "sha256": "7524beacd97f82b5eb2194efb9380f575bc3b85fc0ad76fa63d4c6425f44769c",
+   "size": 1901,
+   "zsize": 974
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/home.svg",
+   "sha256": "30150558c027af8bb617c208eee56c912b9bc90d71be380f2a97cabdba071388",
+   "size": 2115,
+   "zsize": 798
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/info.svg",
+   "sha256": "bdbd1281e82a4bb603bf818fc99bd5d2671aaeea3f1c72595699a63037b79f8f",
+   "size": 1327,
+   "zsize": 680
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/key.svg",
+   "sha256": "81f6c2fe1f6c969e7991366e9ed494284e17d403f37ff50868aea631e009dfd3",
+   "size": 1214,
+   "zsize": 595
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/picture.svg",
+   "sha256": "5df4fcf1a122fa9e67a2e52b18a4916203c3086b86f67ba48ecc673e616a2fc8",
+   "size": 1233,
+   "zsize": 557
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/play.svg",
+   "sha256": "58b2ecebf4d64585e79ed0493c358b47ffe28a5c47ba0c7d1b23f2cf2698bffb",
+   "size": 523,
+   "zsize": 269
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/search.svg",
+   "sha256": "15b32df25651f8d57e0d9945001a0e191ed97bccccfbbfd02c09874ff8e3ebfd",
+   "size": 983,
+   "zsize": 462
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/services.svg",
+   "sha256": "1c36d130e8294c2d4269f433de31e0a186073b40c85510a8a5d7347c5a8d451f",
+   "size": 7312,
+   "zsize": 1223
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/settings.svg",
+   "sha256": "a7b4f4864bba852b2ecaabeb1750415b9787dc84e226310901fa91ea354262ec",
+   "size": 1934,
+   "zsize": 817
+  },
+  {
+   "path": "system/ico/windows11_fluent/sidebar/share.svg",
+   "sha256": "bbaadfa3adf97fb4fe510884b128cd4d4bfc8c6375a094579a87497717aff212",
+   "size": 1975,
+   "zsize": 676
+  },
+  {
+   "path": "system/strategy_catalogs/winws1/http80.txt",
+   "sha256": "b72ce642588bdcb2120ea4267896c8504847f30b942892a131fd1e8a46e369d2",
+   "size": 7096,
+   "zsize": 1320
+  },
+  {
+   "path": "system/strategy_catalogs/winws1/tcp.txt",
+   "sha256": "6f0c1c21acf65e8b200091461b2f13a60e770c21817ffb0d227c16f6d47b066d",
+   "size": 41978,
+   "zsize": 5617
+  },
+  {
+   "path": "system/strategy_catalogs/winws1/udp.txt",
+   "sha256": "08b5334c39311d9834f782d14cbd4d21f955fae8db2c8fe7dca7e236464dedf6",
+   "size": 11216,
+   "zsize": 1704
+  },
+  {
+   "path": "system/strategy_catalogs/winws1/voice.txt",
+   "sha256": "774d9ee697d42af4ecb9393e6e113fae57ea6093dd4fefca948989b6e293b7c9",
+   "size": 6080,
+   "zsize": 1285
+  },
+  {
+   "path": "system/strategy_catalogs/winws2/http80.txt",
+   "sha256": "5c95f7505cf2ba4d480cc07a6a478a022f566266750f76d571e8e988b4275fff",
+   "size": 54255,
+   "zsize": 7658
+  },
+  {
+   "path": "system/strategy_catalogs/winws2/tcp.txt",
+   "sha256": "6f37f1c452a78fb5e72e08b96291239032c4bb065da94b10cfa01060dbc4c05e",
+   "size": 195867,
+   "zsize": 17467
+  },
+  {
+   "path": "system/strategy_catalogs/winws2/udp.txt",
+   "sha256": "ff500d46976f7a0595ddf9f288f29f7ca5ef393d2608915f319e3cbaa57f7dd7",
+   "size": 27960,
+   "zsize": 3563
+  },
+  {
+   "path": "system/strategy_catalogs/winws2/voice.txt",
+   "sha256": "ea005d46da033d6aa046a28f44eb248c917a3002653be19fee13e37ba0523c30",
+   "size": 21835,
+   "zsize": 3575
+  },
+  {
+   "path": "system/templates/all_profiles.txt",
+   "sha256": "4e8a9ecfc51213f88f6f177b32ff51b4f9d22de5fcc295b1099d0c798fd9ebd2",
+   "size": 12444,
+   "zsize": 2065
+  },
+  {
+   "path": "system/themes/rkn_tyan/rkn_background.jpg",
+   "sha256": "03c33317204ce529222818a89677ff70404b16f087f4ec469cece00a40b8f6cf",
+   "size": 120007,
+   "zsize": 116360
+  },
+  {
+   "path": "system/themes/rkn_tyan/rkn_background_2.jpg",
+   "sha256": "2ddf2a37ef00c2accaaa957f138ade4009505285441c2f160f94ad8bddcd888a",
+   "size": 144054,
+   "zsize": 135855
+  },
+  {
+   "path": "system/themes/rkn_tyan_2/rkn_background_2.jpg",
+   "sha256": "2ddf2a37ef00c2accaaa957f138ade4009505285441c2f160f94ad8bddcd888a",
+   "size": 144054,
+   "zsize": 135855
+  },
+  {
+   "path": "windivert.filter/manual.md",
+   "sha256": "c290d4ceed68c9e2ea50bcdcf540764c574cf349e215d69aae52ed0dddb167c6",
+   "size": 68356,
+   "zsize": 17135
+  },
+  {
+   "path": "windivert.filter/windivert.all.txt",
+   "sha256": "7d1258d324ef4407a63af8f0130b9800ceb95fc79775c183e75d82d883a54cb1",
+   "size": 1518,
+   "zsize": 368
+  },
+  {
+   "path": "windivert.filter/windivert.discord_media+amazon.txt",
+   "sha256": "9c2e85966bbc7990ef07b1ab5aba28e783afca3945be29b876b5bc92cd7370f5",
+   "size": 1047,
+   "zsize": 274
+  },
+  {
+   "path": "windivert.filter/windivert.discord_media+stun+sites.txt",
+   "sha256": "e3b050473564ac3805bcf1eb84e24a146cea58295c09c7029e137fafe1057a2b",
+   "size": 1352,
+   "zsize": 344
+  },
+  {
+   "path": "windivert.filter/windivert.discord_media+stun.txt",
+   "sha256": "a8033c453ceaeeb2bc36e1fdfba7cf54265026cfc58555457f30df9539124fca",
+   "size": 1279,
+   "zsize": 324
+  },
+  {
+   "path": "windivert.filter/windivert.discord_media.txt",
+   "sha256": "a775d133e5ad0704c277fa72a2973db0826e5b4228ee3f70aeba752f2a47559e",
+   "size": 868,
+   "zsize": 224
+  },
+  {
+   "path": "windivert.filter/windivert.sites+stun.txt",
+   "sha256": "850d263b269c644659d89f282986d80ac64e2b8305a22836cbb3595dff9c01da",
+   "size": 779,
+   "zsize": 272
+  },
+  {
+   "path": "windivert.filter/windivert.stun.txt",
+   "sha256": "0eb870f5ec37fb1465227f4336ef9f82b81066a303864fc4a1bf3716e5fa70c5",
+   "size": 704,
+   "zsize": 246
+  },
+  {
+   "path": "windivert.filter/windivert.wireguard.txt",
+   "sha256": "6e2b64951040ba3e6a563fd023fa38bfea2f9fcd90d6bbf6100643c0b6f1ea3a",
+   "size": 672,
+   "zsize": 232
+  },
+  {
+   "path": "windivert.filter/windivert_part.cloudflare_tcp_80_443_AS13335_v4_remote.txt",
+   "sha256": "e4a5899e1a26311fddf3ef6a1c79e35ead66f6dda8c639d6d5a605f33e497f28",
+   "size": 1057,
+   "zsize": 240
+  },
+  {
+   "path": "windivert.filter/windivert_part.discord_bidirectional.txt",
+   "sha256": "3c7e34bfd286a9377ee0b07675588662088195e611e0aae398683cebbe04086c",
+   "size": 133,
+   "zsize": 83
+  },
+  {
+   "path": "windivert.filter/windivert_part.discord_media.txt",
+   "sha256": "2f2deaf49ed68eb684258497134181753188f2b475161deb244488a53872b7c5",
+   "size": 581,
+   "zsize": 159
+  },
+  {
+   "path": "windivert.filter/windivert_part.games_udp_bidirectional.txt",
+   "sha256": "b30853af0314da1f5e98cf11a50cdd1d85690ae9c78538cd1ff2a50b60032933",
+   "size": 263,
+   "zsize": 119
+  },
+  {
+   "path": "windivert.filter/windivert_part.google_tcp_80_443_AS15169_v4_remote.txt",
+   "sha256": "868837959aa2244e803c92da63c90e305dd4fa89923f99cecf65485d6eadebd6",
+   "size": 1315,
+   "zsize": 265
+  },
+  {
+   "path": "windivert.filter/windivert_part.mts_tcp_80_443_AS8359_v4_remote.txt",
+   "sha256": "02958a2e6dd5061a710144f41899e7a23b041aa9f21d6b4ddf6a2d9e2908f7f8",
+   "size": 2025,
+   "zsize": 335
+  },
+  {
+   "path": "windivert.filter/windivert_part.quic_bidirectional.txt",
+   "sha256": "c3db07178176bf5f2882e7787b639fc7e1c9e6c0aeede568bff219030fa582bc",
+   "size": 176,
+   "zsize": 101
+  },
+  {
+   "path": "windivert.filter/windivert_part.quic_initial_ietf.txt",
+   "sha256": "f243ddc22758b9e04838211a3815e43fb3abe615e6be29e6a812ae4c72b392e0",
+   "size": 157,
+   "zsize": 92
+  },
+  {
+   "path": "windivert.filter/windivert_part.stun.txt",
+   "sha256": "2a14f470b00cd9704003e0cade500086398f9222c858d9ae944bdeb89f520595",
+   "size": 96,
+   "zsize": 78
+  },
+  {
+   "path": "windivert.filter/windivert_part.stun_bidirectional.txt",
+   "sha256": "999fd1d0b5b8d292045f462989a9ea80a7bcd626657d2c31905b5dafeac70161",
+   "size": 213,
+   "zsize": 99
+  },
+  {
+   "path": "windivert.filter/windivert_part.wireguard.txt",
+   "sha256": "da68586267462b29e3e370203ce0369ae2baa25a07aa2deab5fb44d69fef27be",
+   "size": 166,
+   "zsize": 79
+  }
+ ],
+ "installer": {
+  "name": "Zapret2Setup_DEV_21_1_7_181.exe",
+  "sha256": "a098ea4606ac3fc81997a557d47ed30352b072c1796f9eba60570bd9c4e71b51",
+  "size": 44068334
+ },
+ "key": "gui-2026a",
+ "product": "zapret-gui",
+ "schema": 1,
+ "version": "21.1.7.181"
+}

@@ -1,0 +1,4398 @@
+{
+ "entries": [
+  {
+   "args": "--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+   "author": "bob",
+   "description": "Универсальная стратегия: подделка и нарезка TLS.",
+   "label": "recommended",
+   "name": "General FakeSplit · из Steam",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "general_fakesplit"
+  },
+  {
+   "args": "--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+   "author": "",
+   "description": "",
+   "label": "recommended",
+   "name": "General FakeSplit · из AltForge",
+   "old_name": "ALT11 старая",
+   "payload_scopes": [],
+   "strategy_id": "general_fakesplit_altforge"
+  },
+  {
+   "args": "--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+   "author": "",
+   "description": "",
+   "label": "stock",
+   "name": "General FakeSplit · из Epic Games",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "general_fakesplit_epic"
+  },
+  {
+   "args": "--lua-desync=fakedmultidisorder --payload=tls",
+   "author": "",
+   "description": "",
+   "label": "caution",
+   "name": "General MSDisorder №17",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "general_msdisorder"
+  },
+  {
+   "args": "--lua-desync=split:3",
+   "author": "bob",
+   "description": "",
+   "label": "stock",
+   "name": "Bridge · из Xbox Live",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "bridge_xbox"
+  },
+  {
+   "args": "--lua-desync=multisplit",
+   "author": "",
+   "description": "",
+   "label": "caution",
+   "name": "Bridge PSN",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "bridge_nosplit"
+  },
+  {
+   "args": "--lua-desync=fakeddisorder",
+   "author": "",
+   "description": "",
+   "label": "caution",
+   "name": "Bridge FakeSplit · из EG新闻网",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "bridge_fakesplit_uwu"
+  },
+  {
+   "args": "--lua-desync=fakedmultidisorder --payload=udp",
+   "author": "",
+   "description": "Разборка очереди UDP-потока.",
+   "label": "game",
+   "name": "Quake MSDisorder №7",
+   "old_name": "",
+   "payload_scopes": [
+    "udp"
+   ],
+   "strategy_id": "quake_msdisorder"
+  },
+  {
+   "args": "--lua-desync=udplen:2 --payload=udp",
+   "author": "",
+   "description": "",
+   "label": "game",
+   "name": "Quake UDPLen №22",
+   "old_name": "",
+   "payload_scopes": [
+    "udp"
+   ],
+   "strategy_id": "quake_udplen"
+  },
+  {
+   "args": "--lua-desync=udplen:2 --payload=udp",
+   "author": "",
+   "description": "",
+   "label": "game",
+   "name": "Quake UDPLen · из Epic Games",
+   "old_name": "",
+   "payload_scopes": [
+    "udp"
+   ],
+   "strategy_id": "quake_udplen_epic"
+  },
+  {
+   "args": "--lua-desync=udplen:7 --payload=udp",
+   "author": "",
+   "description": "",
+   "label": "experimental",
+   "name": "Quake UDPLen №40",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "quake_udplen_alt"
+  },
+  {
+   "args": "--lua-desync=split:1 --ipset=@hop.txt",
+   "author": "",
+   "description": "",
+   "label": "experimental",
+   "name": "HOPm NE240HOP · из Steam",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "hopm_ne240hop_1"
+  },
+  {
+   "args": "--lua-desync=split:1 --ipset=@hop.txt",
+   "author": "",
+   "description": "",
+   "label": "experimental",
+   "name": "HOPm NE240HOP · из Windows Update",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "hopm_ne240hop_2"
+  },
+  {
+   "args": "--lua-desync=split:2 --ipset=@hop.txt",
+   "author": "",
+   "description": "",
+   "label": "experimental",
+   "name": "HOPm NE240HOP №104",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "hopm_ne240hop_3"
+  },
+  {
+   "args": "--lua-desync=syndata:1",
+   "author": "",
+   "description": "自动选择",
+   "label": "stock",
+   "name": "sinALTER 自动 copy",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "sin_autocopy"
+  },
+  {
+   "args": "",
+   "author": "",
+   "description": "Ничего не делать: трафик идёт без обхода.",
+   "label": "stable",
+   "name": "Pass-through",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "pass_silent"
+  },
+  {
+   "args": "--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+   "author": "",
+   "description": "Составная: TLS и UDP ветки.",
+   "label": "stock",
+   "name": "rTNF ProMod composite",
+   "old_name": "",
+   "payload_scopes": [
+    "tls",
+    "udp"
+   ],
+   "strategy_id": "rtnf_promod_composite"
+  },
+  {
+   "args": "--lua-desync=hseq:60,min-5",
+   "author": "",
+   "description": "",
+   "label": "stable",
+   "name": "HTTP МOD ONLY",
+   "old_name": "",
+   "payload_scopes": [],
+   "strategy_id": "http_only_noop"
+  },
+  {
+   "args": "--lua-desync=presend:1 --payload=tls",
+   "author": "",
+   "description": "",
+   "label": "stock",
+   "name": "General PreSend · из Steam",
+   "old_name": "",
+   "payload_scopes": [
+    "tls"
+   ],
+   "strategy_id": "general_presend"
+  }
+ ],
+ "experience": {
+  "general_fakesplit": [
+   2,
+   0
+  ],
+  "general_fakesplit_epic": [
+   0,
+   2
+  ],
+  "pass_silent": [
+   3,
+   1
+  ],
+  "quake_msdisorder": [
+   1,
+   1
+  ],
+  "quake_udplen": [
+   0,
+   3
+  ]
+ },
+ "facts": {
+  "bridge_fakesplit_uwu": {
+   "args": "--lua-desync=fakeddisorder",
+   "author": "",
+   "description": "",
+   "detail": "из EG新闻网",
+   "family_key": "other",
+   "label": "caution",
+   "name": "Bridge FakeSplit · из EG新闻网",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "перестановка с подделками",
+   "search_text": "bridge fakesplit · из eg新闻网  --lua-desync=fakeddisorder fakeddisorder fakeddisorder: перестановка частей данных с поддельными копиями перестановка с подделками  ",
+   "series": "Bridge",
+   "source": "EG新闻网",
+   "strategy_id": "bridge_fakesplit_uwu",
+   "technical_label": "FakedDisorder",
+   "technique_description": "FakedDisorder: перестановка частей данных с поддельными копиями",
+   "title": "Bridge FakeSplit"
+  },
+  "bridge_nosplit": {
+   "args": "--lua-desync=multisplit",
+   "author": "",
+   "description": "",
+   "detail": "",
+   "family_key": "split",
+   "label": "caution",
+   "name": "Bridge PSN",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "нарезка",
+   "search_text": "bridge psn  --lua-desync=multisplit multisplit multisplit: несколько точек разделения данных нарезка  ",
+   "series": "Bridge",
+   "source": "",
+   "strategy_id": "bridge_nosplit",
+   "technical_label": "MultiSplit",
+   "technique_description": "MultiSplit: несколько точек разделения данных",
+   "title": "Bridge PSN"
+  },
+  "bridge_xbox": {
+   "args": "--lua-desync=split:3",
+   "author": "bob",
+   "description": "",
+   "detail": "из Xbox Live",
+   "family_key": "split",
+   "label": "stock",
+   "name": "Bridge · из Xbox Live",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "нарезка",
+   "search_text": "bridge · из xbox live  --lua-desync=split:3 split split: разделение данных нарезка  bob",
+   "series": "Bridge",
+   "source": "Xbox Live",
+   "strategy_id": "bridge_xbox",
+   "technical_label": "Split",
+   "technique_description": "Split: разделение данных",
+   "title": "Bridge"
+  },
+  "general_fakesplit": {
+   "args": "--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+   "author": "bob",
+   "description": "Универсальная стратегия: подделка и нарезка TLS.",
+   "detail": "из Steam",
+   "family_key": "fake_split",
+   "label": "recommended",
+   "name": "General FakeSplit · из Steam",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "нарезка с подделками",
+   "search_text": "general fakesplit · из steam  --fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4 fakedsplit fakedsplit: разделение данных с поддельными копиями частей нарезка с подделками универсальная стратегия: подделка и нарезка tls. bob",
+   "series": "General",
+   "source": "Steam",
+   "strategy_id": "general_fakesplit",
+   "technical_label": "FakedSplit",
+   "technique_description": "FakedSplit: разделение данных с поддельными копиями частей",
+   "title": "General FakeSplit"
+  },
+  "general_fakesplit_altforge": {
+   "args": "--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+   "author": "",
+   "description": "",
+   "detail": "из AltForge",
+   "family_key": "fake_split",
+   "label": "recommended",
+   "name": "General FakeSplit · из AltForge",
+   "old_name": "ALT11 старая",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "нарезка с подделками",
+   "search_text": "general fakesplit · из altforge alt11 старая --fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4 fakedsplit fakedsplit: разделение данных с поддельными копиями частей нарезка с подделками  ",
+   "series": "General",
+   "source": "AltForge",
+   "strategy_id": "general_fakesplit_altforge",
+   "technical_label": "FakedSplit",
+   "technique_description": "FakedSplit: разделение данных с поддельными копиями частей",
+   "title": "General FakeSplit"
+  },
+  "general_fakesplit_epic": {
+   "args": "--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+   "author": "",
+   "description": "",
+   "detail": "из Epic Games",
+   "family_key": "fake_split",
+   "label": "stock",
+   "name": "General FakeSplit · из Epic Games",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "нарезка с подделками",
+   "search_text": "general fakesplit · из epic games  --fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4 fakedsplit fakedsplit: разделение данных с поддельными копиями частей нарезка с подделками  ",
+   "series": "General",
+   "source": "Epic Games",
+   "strategy_id": "general_fakesplit_epic",
+   "technical_label": "FakedSplit",
+   "technique_description": "FakedSplit: разделение данных с поддельными копиями частей",
+   "title": "General FakeSplit"
+  },
+  "general_msdisorder": {
+   "args": "--lua-desync=fakedmultidisorder --payload=tls",
+   "author": "",
+   "description": "",
+   "detail": "",
+   "family_key": "other",
+   "label": "caution",
+   "name": "General MSDisorder №17",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "перестановка",
+   "search_text": "general msdisorder №17  --lua-desync=fakedmultidisorder --payload=tls multidisorder multidisorder: перестановка нескольких частей данных перестановка  ",
+   "series": "General",
+   "source": "",
+   "strategy_id": "general_msdisorder",
+   "technical_label": "MultiDisorder",
+   "technique_description": "MultiDisorder: перестановка нескольких частей данных",
+   "title": "General MSDisorder №17"
+  },
+  "general_presend": {
+   "args": "--lua-desync=presend:1 --payload=tls",
+   "author": "",
+   "description": "",
+   "detail": "из Steam",
+   "family_key": "other",
+   "label": "stock",
+   "name": "General PreSend · из Steam",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "Своя",
+   "search_text": "general presend · из steam  --lua-desync=presend:1 --payload=tls своя готовая стратегия не распознана по --lua-desync своя  ",
+   "series": "General",
+   "source": "Steam",
+   "strategy_id": "general_presend",
+   "technical_label": "Своя",
+   "technique_description": "готовая стратегия не распознана по --lua-desync",
+   "title": "General PreSend"
+  },
+  "hopm_ne240hop_1": {
+   "args": "--lua-desync=split:1 --ipset=@hop.txt",
+   "author": "",
+   "description": "",
+   "detail": "из Steam",
+   "family_key": "split",
+   "label": "experimental",
+   "name": "HOPm NE240HOP · из Steam",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "нарезка",
+   "search_text": "hopm ne240hop · из steam  --lua-desync=split:1 --ipset=@hop.txt split split: разделение данных нарезка  ",
+   "series": "HOPm",
+   "source": "Steam",
+   "strategy_id": "hopm_ne240hop_1",
+   "technical_label": "Split",
+   "technique_description": "Split: разделение данных",
+   "title": "HOPm NE240HOP"
+  },
+  "hopm_ne240hop_2": {
+   "args": "--lua-desync=split:1 --ipset=@hop.txt",
+   "author": "",
+   "description": "",
+   "detail": "из Windows Update",
+   "family_key": "split",
+   "label": "experimental",
+   "name": "HOPm NE240HOP · из Windows Update",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "нарезка",
+   "search_text": "hopm ne240hop · из windows update  --lua-desync=split:1 --ipset=@hop.txt split split: разделение данных нарезка  ",
+   "series": "HOPm",
+   "source": "Windows Update",
+   "strategy_id": "hopm_ne240hop_2",
+   "technical_label": "Split",
+   "technique_description": "Split: разделение данных",
+   "title": "HOPm NE240HOP"
+  },
+  "hopm_ne240hop_3": {
+   "args": "--lua-desync=split:2 --ipset=@hop.txt",
+   "author": "",
+   "description": "",
+   "detail": "",
+   "family_key": "split",
+   "label": "experimental",
+   "name": "HOPm NE240HOP №104",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "нарезка",
+   "search_text": "hopm ne240hop №104  --lua-desync=split:2 --ipset=@hop.txt split split: разделение данных нарезка  ",
+   "series": "HOPm",
+   "source": "",
+   "strategy_id": "hopm_ne240hop_3",
+   "technical_label": "Split",
+   "technique_description": "Split: разделение данных",
+   "title": "HOPm NE240HOP №104"
+  },
+  "http_only_noop": {
+   "args": "--lua-desync=hseq:60,min-5",
+   "author": "",
+   "description": "",
+   "detail": "",
+   "family_key": "other",
+   "label": "stable",
+   "name": "HTTP МOD ONLY",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "Своя",
+   "search_text": "http мod only  --lua-desync=hseq:60,min-5 своя готовая стратегия не распознана по --lua-desync своя  ",
+   "series": "HTTP",
+   "source": "",
+   "strategy_id": "http_only_noop",
+   "technical_label": "Своя",
+   "technique_description": "готовая стратегия не распознана по --lua-desync",
+   "title": "HTTP МOD ONLY"
+  },
+  "pass_silent": {
+   "args": "",
+   "author": "",
+   "description": "Ничего не делать: трафик идёт без обхода.",
+   "detail": "",
+   "family_key": "other",
+   "label": "stable",
+   "name": "Pass-through",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "Своя",
+   "search_text": "pass-through   своя готовая стратегия не распознана по --lua-desync своя ничего не делать: трафик идёт без обхода. ",
+   "series": "Pass-through",
+   "source": "",
+   "strategy_id": "pass_silent",
+   "technical_label": "Своя",
+   "technique_description": "готовая стратегия не распознана по --lua-desync",
+   "title": "Pass-through"
+  },
+  "quake_msdisorder": {
+   "args": "--lua-desync=fakedmultidisorder --payload=udp",
+   "author": "",
+   "description": "Разборка очереди UDP-потока.",
+   "detail": "",
+   "family_key": "other",
+   "label": "game",
+   "name": "Quake MSDisorder №7",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "перестановка",
+   "search_text": "quake msdisorder №7  --lua-desync=fakedmultidisorder --payload=udp multidisorder multidisorder: перестановка нескольких частей данных перестановка разборка очереди udp-потока. ",
+   "series": "Quake",
+   "source": "",
+   "strategy_id": "quake_msdisorder",
+   "technical_label": "MultiDisorder",
+   "technique_description": "MultiDisorder: перестановка нескольких частей данных",
+   "title": "Quake MSDisorder №7"
+  },
+  "quake_udplen": {
+   "args": "--lua-desync=udplen:2 --payload=udp",
+   "author": "",
+   "description": "",
+   "detail": "",
+   "family_key": "other",
+   "label": "game",
+   "name": "Quake UDPLen №22",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "длина пакета",
+   "search_text": "quake udplen №22  --lua-desync=udplen:2 --payload=udp udplen udplen: изменение длины udp-пакета длина пакета  ",
+   "series": "Quake",
+   "source": "",
+   "strategy_id": "quake_udplen",
+   "technical_label": "UDPLen",
+   "technique_description": "UDPLen: изменение длины UDP-пакета",
+   "title": "Quake UDPLen №22"
+  },
+  "quake_udplen_alt": {
+   "args": "--lua-desync=udplen:7 --payload=udp",
+   "author": "",
+   "description": "",
+   "detail": "",
+   "family_key": "other",
+   "label": "experimental",
+   "name": "Quake UDPLen №40",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "длина пакета",
+   "search_text": "quake udplen №40  --lua-desync=udplen:7 --payload=udp udplen udplen: изменение длины udp-пакета длина пакета  ",
+   "series": "Quake",
+   "source": "",
+   "strategy_id": "quake_udplen_alt",
+   "technical_label": "UDPLen",
+   "technique_description": "UDPLen: изменение длины UDP-пакета",
+   "title": "Quake UDPLen №40"
+  },
+  "quake_udplen_epic": {
+   "args": "--lua-desync=udplen:2 --payload=udp",
+   "author": "",
+   "description": "",
+   "detail": "из Epic Games",
+   "family_key": "other",
+   "label": "game",
+   "name": "Quake UDPLen · из Epic Games",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "длина пакета",
+   "search_text": "quake udplen · из epic games  --lua-desync=udplen:2 --payload=udp udplen udplen: изменение длины udp-пакета длина пакета  ",
+   "series": "Quake",
+   "source": "Epic Games",
+   "strategy_id": "quake_udplen_epic",
+   "technical_label": "UDPLen",
+   "technique_description": "UDPLen: изменение длины UDP-пакета",
+   "title": "Quake UDPLen"
+  },
+  "rtnf_promod_composite": {
+   "args": "--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+   "author": "",
+   "description": "Составная: TLS и UDP ветки.",
+   "detail": "",
+   "family_key": "other",
+   "label": "stock",
+   "name": "rTNF ProMod composite",
+   "old_name": "",
+   "payload_badge": "tls · udp",
+   "payload_badge_accessible": "типы пакетов: tls · udp",
+   "plain_label": "длина пакета",
+   "search_text": "rtnf promod composite  --filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1 udplen udplen: изменение длины udp-пакета длина пакета составная: tls и udp ветки. ",
+   "series": "rTNF",
+   "source": "",
+   "strategy_id": "rtnf_promod_composite",
+   "technical_label": "UDPLen",
+   "technique_description": "UDPLen: изменение длины UDP-пакета",
+   "title": "rTNF ProMod composite"
+  },
+  "sin_autocopy": {
+   "args": "--lua-desync=syndata:1",
+   "author": "",
+   "description": "自动选择",
+   "detail": "",
+   "family_key": "other",
+   "label": "stock",
+   "name": "sinALTER 自动 copy",
+   "old_name": "",
+   "payload_badge": "",
+   "payload_badge_accessible": "",
+   "plain_label": "данные в первом пакете",
+   "search_text": "sinalter 自动 copy  --lua-desync=syndata:1 syndata syndata: добавление данных в syn данные в первом пакете 自动选择 ",
+   "series": "sinALTER",
+   "source": "",
+   "strategy_id": "sin_autocopy",
+   "technical_label": "Syndata",
+   "technique_description": "Syndata: добавление данных в SYN",
+   "title": "sinALTER 自动 copy"
+  }
+ },
+ "ops": {
+  "badge": {
+   "bridge_nosplit|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "bridge_nosplit|personal_negative": [
+    "осторожно",
+    "warning"
+   ],
+   "bridge_nosplit|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "bridge_nosplit|plain": [
+    "осторожно",
+    "warning"
+   ],
+   "bridge_xbox|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "bridge_xbox|personal_negative": [
+    "",
+    ""
+   ],
+   "bridge_xbox|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "bridge_xbox|plain": [
+    "",
+    ""
+   ],
+   "general_fakesplit_altforge|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "general_fakesplit_altforge|personal_negative": [
+    "",
+    ""
+   ],
+   "general_fakesplit_altforge|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "general_fakesplit_altforge|plain": [
+    "",
+    ""
+   ],
+   "general_fakesplit_epic|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "general_fakesplit_epic|personal_negative": [
+    "",
+    ""
+   ],
+   "general_fakesplit_epic|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "general_fakesplit_epic|plain": [
+    "",
+    ""
+   ],
+   "general_fakesplit|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "general_fakesplit|personal_negative": [
+    "",
+    ""
+   ],
+   "general_fakesplit|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "general_fakesplit|plain": [
+    "",
+    ""
+   ],
+   "general_presend|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "general_presend|personal_negative": [
+    "",
+    ""
+   ],
+   "general_presend|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "general_presend|plain": [
+    "",
+    ""
+   ],
+   "hopm_ne240hop_1|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "hopm_ne240hop_1|personal_negative": [
+    "опытная",
+    "neutral"
+   ],
+   "hopm_ne240hop_1|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "hopm_ne240hop_1|plain": [
+    "опытная",
+    "neutral"
+   ],
+   "hopm_ne240hop_2|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "hopm_ne240hop_2|personal_negative": [
+    "опытная",
+    "neutral"
+   ],
+   "hopm_ne240hop_2|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "hopm_ne240hop_2|plain": [
+    "опытная",
+    "neutral"
+   ],
+   "http_only_noop|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "http_only_noop|personal_negative": [
+    "",
+    ""
+   ],
+   "http_only_noop|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "http_only_noop|plain": [
+    "",
+    ""
+   ],
+   "quake_msdisorder|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "quake_msdisorder|personal_negative": [
+    "",
+    ""
+   ],
+   "quake_msdisorder|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "quake_msdisorder|plain": [
+    "",
+    ""
+   ],
+   "quake_udplen|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "quake_udplen|personal_negative": [
+    "",
+    ""
+   ],
+   "quake_udplen|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "quake_udplen|plain": [
+    "",
+    ""
+   ],
+   "rtnf_promod_composite|personal": [
+    "у вас работает · 2",
+    "personal"
+   ],
+   "rtnf_promod_composite|personal_negative": [
+    "",
+    ""
+   ],
+   "rtnf_promod_composite|personal_tie": [
+    "у вас работает · 1",
+    "personal"
+   ],
+   "rtnf_promod_composite|plain": [
+    "",
+    ""
+   ]
+  },
+  "badges_zero": [
+   [
+    "осторожно",
+    "warning"
+   ],
+   [
+    "",
+    ""
+   ],
+   [
+    "",
+    ""
+   ],
+   [
+    "",
+    ""
+   ],
+   [
+    "",
+    ""
+   ],
+   [
+    "",
+    ""
+   ],
+   [
+    "",
+    ""
+   ]
+  ],
+  "current_recommended": {
+   "current_strategy_id": "none",
+   "grouping": "method",
+   "groups": [
+    {
+     "color": "#e5b454",
+     "description": "стоят на нём в готовых пресетах: чем чаще, тем выше",
+     "icon_name": "fa5s.thumbs-up",
+     "key": "recommended",
+     "sections": [
+      {
+       "items": [
+        {
+         "accessible_text": "General FakeSplit · из AltForge, не выбрана, в избранном, работает, способ: нарезка с подделками, на этом сервисе в 2 пресетах",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "из AltForge · нарезка с подделками · на этом сервисе в 2 пресетах",
+         "detail": "из AltForge",
+         "family_color": "#6fb8ff",
+         "family_key": "fake_split",
+         "favorite": true,
+         "is_current": false,
+         "name": "General FakeSplit · из AltForge",
+         "payload_badge": "",
+         "plain_label": "нарезка с подделками",
+         "rating": "work",
+         "strategy_id": "general_fakesplit_altforge",
+         "title": "General FakeSplit",
+         "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.\n\nРаньше называлась: ALT11 старая\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+         "twin_key": "recommended//general fakesplit"
+        },
+        {
+         "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 3 пресетах, у вас работает · 2",
+         "badge_text": "у вас работает · 2",
+         "badge_tone": "personal",
+         "caption": "из Steam · нарезка с подделками · на этом сервисе в 3 пресетах",
+         "detail": "из Steam",
+         "family_color": "#6fb8ff",
+         "family_key": "fake_split",
+         "favorite": false,
+         "is_current": false,
+         "name": "General FakeSplit · из Steam",
+         "payload_badge": "",
+         "plain_label": "нарезка с подделками",
+         "rating": "",
+         "strategy_id": "general_fakesplit",
+         "title": "General FakeSplit",
+         "tooltip": "Универсальная стратегия: подделка и нарезка TLS.\n\nFakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.\n\nАвтор: bob\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+         "twin_key": "recommended//general fakesplit"
+        },
+        {
+         "accessible_text": "General FakeSplit · из Epic Games, не выбрана, способ: нарезка с подделками, на этом сервисе в 1 пресете",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "из Epic Games · нарезка с подделками · на этом сервисе в 1 пресете",
+         "detail": "из Epic Games",
+         "family_color": "#6fb8ff",
+         "family_key": "fake_split",
+         "favorite": false,
+         "is_current": false,
+         "name": "General FakeSplit · из Epic Games",
+         "payload_badge": "",
+         "plain_label": "нарезка с подделками",
+         "rating": "",
+         "strategy_id": "general_fakesplit_epic",
+         "title": "General FakeSplit",
+         "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nНерабочей — на 2 профилях.\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 3 сервисах.\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+         "twin_key": "recommended//general fakesplit"
+        },
+        {
+         "accessible_text": "rTNF ProMod composite, не выбрана, способ: длина пакета, на этом сервисе в 4 пресетах, типы пакетов: tls · udp",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "длина пакета · на этом сервисе в 4 пресетах",
+         "detail": "",
+         "family_color": "#9aa6b2",
+         "family_key": "other",
+         "favorite": false,
+         "is_current": false,
+         "name": "rTNF ProMod composite",
+         "payload_badge": "tls · udp",
+         "plain_label": "длина пакета",
+         "rating": "",
+         "strategy_id": "rtnf_promod_composite",
+         "title": "rTNF ProMod composite",
+         "tooltip": "Составная: TLS и UDP ветки.\n\nUDPLen: изменение длины UDP-пакета\n\nСтоит на этом сервисе в 4 готовых пресетах. В готовых пресетах встречается ещё на 3 сервисах.\n\n--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+         "twin_key": ""
+        },
+        {
+         "accessible_text": "General PreSend · из Steam, не выбрана, способ: Своя, на этом сервисе в 2 пресетах",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "из Steam · Своя · на этом сервисе в 2 пресетах",
+         "detail": "из Steam",
+         "family_color": "#9aa6b2",
+         "family_key": "other",
+         "favorite": false,
+         "is_current": false,
+         "name": "General PreSend · из Steam",
+         "payload_badge": "",
+         "plain_label": "Своя",
+         "rating": "",
+         "strategy_id": "general_presend",
+         "title": "General PreSend",
+         "tooltip": "готовая стратегия не распознана по --lua-desync\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=presend:1 --payload=tls",
+         "twin_key": ""
+        },
+        {
+         "accessible_text": "Bridge · из Xbox Live, не выбрана, не работает, способ: нарезка, на этом сервисе в 1 пресете",
+         "badge_text": "",
+         "badge_tone": "",
+         "caption": "из Xbox Live · нарезка · на этом сервисе в 1 пресете",
+         "detail": "из Xbox Live",
+         "family_color": "#4cc2ff",
+         "family_key": "split",
+         "favorite": false,
+         "is_current": false,
+         "name": "Bridge · из Xbox Live",
+         "payload_badge": "",
+         "plain_label": "нарезка",
+         "rating": "notwork",
+         "strategy_id": "bridge_xbox",
+         "title": "Bridge",
+         "tooltip": "Split: разделение данных\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 8 сервисах.\n\nАвтор: bob\n\n--lua-desync=split:3",
+         "twin_key": ""
+        }
+       ],
+       "key": "",
+       "title": ""
+      }
+     ],
+     "title": "Советуем для этого сервиса"
+    }
+   ],
+   "narrowed": true,
+   "narrowed_by_query": false,
+   "queue": [
+    "pass_silent",
+    "general_fakesplit",
+    "quake_msdisorder",
+    "rtnf_promod_composite",
+    "general_fakesplit_altforge",
+    "general_presend",
+    "bridge_xbox",
+    "http_only_noop",
+    "bridge_nosplit",
+    "hopm_ne240hop_1",
+    "hopm_ne240hop_2",
+    "hopm_ne240hop_3",
+    "bridge_fakesplit_uwu",
+    "general_msdisorder",
+    "quake_udplen_epic",
+    "quake_udplen_alt",
+    "sin_autocopy",
+    "general_fakesplit_epic",
+    "quake_udplen"
+   ],
+   "recommended_count": 6,
+   "tab_counts": [
+    [
+     "recommended",
+     6
+    ],
+    [
+     "works",
+     2
+    ],
+    [
+     "favorite",
+     3
+    ],
+    [
+     "all",
+     19
+    ]
+   ],
+   "total_count": 19,
+   "visible_count": 6
+  },
+  "experience_sentences": [
+   "",
+   "Вы отметили её рабочей на 1 другом профиле.",
+   "Вы отметили её рабочей на 2 других профилях. Нерабочей — на 3 профилях.",
+   "Вы отметили её рабочей на 5 других профилях.",
+   "Нерабочей — на 2 профилях."
+  ],
+  "family_scores": {
+   "fake_split": 1,
+   "other": -1,
+   "split": -1
+  },
+  "family_scores_empty": {},
+  "full_queue_exp": [
+   "pass_silent",
+   "general_fakesplit",
+   "quake_msdisorder",
+   "rtnf_promod_composite",
+   "general_fakesplit_altforge",
+   "general_presend",
+   "bridge_xbox",
+   "http_only_noop",
+   "bridge_nosplit",
+   "hopm_ne240hop_1",
+   "hopm_ne240hop_2",
+   "hopm_ne240hop_3",
+   "bridge_fakesplit_uwu",
+   "general_msdisorder",
+   "quake_udplen_epic",
+   "quake_udplen_alt",
+   "sin_autocopy",
+   "general_fakesplit_epic",
+   "quake_udplen"
+  ],
+  "full_queue_plain": [
+   "rtnf_promod_composite",
+   "general_fakesplit",
+   "general_fakesplit_altforge",
+   "general_presend",
+   "bridge_xbox",
+   "general_fakesplit_epic",
+   "http_only_noop",
+   "bridge_nosplit",
+   "quake_msdisorder",
+   "hopm_ne240hop_1",
+   "hopm_ne240hop_2",
+   "hopm_ne240hop_3",
+   "bridge_fakesplit_uwu",
+   "general_msdisorder",
+   "pass_silent",
+   "quake_udplen_epic",
+   "quake_udplen",
+   "quake_udplen_alt",
+   "sin_autocopy"
+  ],
+  "next_to_try": [
+   "pass_silent",
+   "pass_silent"
+  ],
+  "next_to_try_current": "pass_silent",
+  "plans": {
+   "bogus_filter": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "method",
+    "groups": [
+     {
+      "color": "#6fb8ff",
+      "description": "способ обхода: поддельный пакет, затем данные по частям",
+      "icon_name": "fa5s.layer-group",
+      "key": "fake_split",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из AltForge, выбрана, в избранном, работает, способ: нарезка с подделками, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из AltForge · на этом сервисе в 2 пресетах",
+          "detail": "из AltForge",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": true,
+          "is_current": true,
+          "name": "General FakeSplit · из AltForge",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "work",
+          "strategy_id": "general_fakesplit_altforge",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.\n\nРаньше называлась: ALT11 старая\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "fake_split//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 3 пресетах, у вас работает · 2",
+          "badge_text": "у вас работает · 2",
+          "badge_tone": "personal",
+          "caption": "из Steam · на этом сервисе в 3 пресетах",
+          "detail": "из Steam",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit",
+          "title": "General FakeSplit",
+          "tooltip": "Универсальная стратегия: подделка и нарезка TLS.\n\nFakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.\n\nАвтор: bob\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "fake_split//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Epic Games, не выбрана, способ: нарезка с подделками, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Epic Games · на этом сервисе в 1 пресете",
+          "detail": "из Epic Games",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit_epic",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nНерабочей — на 2 профилях.\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 3 сервисах.\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "fake_split//general fakesplit"
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Подмена и разделение"
+     },
+     {
+      "color": "#4cc2ff",
+      "description": "способ обхода: данные уходят несколькими частями",
+      "icon_name": "fa5s.columns",
+      "key": "split",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Bridge PSN, не выбрана, способ: нарезка, на 6 сервисах, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "на 6 сервисах",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge PSN",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "bridge_nosplit",
+          "title": "Bridge PSN",
+          "tooltip": "MultiSplit: несколько точек разделения данных\n\nВ готовых пресетах встречается ещё на 6 сервисах.\n\n--lua-desync=multisplit",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "HOPm NE240HOP · из Steam, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "из Steam",
+          "detail": "из Steam",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_1",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": "split//hopm ne240hop"
+         },
+         {
+          "accessible_text": "HOPm NE240HOP · из Windows Update, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "из Windows Update",
+          "detail": "из Windows Update",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Windows Update",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_2",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": "split//hopm ne240hop"
+         },
+         {
+          "accessible_text": "HOPm NE240HOP №104, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP №104",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_3",
+          "title": "HOPm NE240HOP №104",
+          "tooltip": "Split: разделение данных\n\n--lua-desync=split:2 --ipset=@hop.txt",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge · из Xbox Live, не выбрана, не работает, способ: нарезка, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Xbox Live · на этом сервисе в 1 пресете",
+          "detail": "из Xbox Live",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge · из Xbox Live",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "notwork",
+          "strategy_id": "bridge_xbox",
+          "title": "Bridge",
+          "tooltip": "Split: разделение данных\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 8 сервисах.\n\nАвтор: bob\n\n--lua-desync=split:3",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Разделение"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "способ обхода: способ не распознан или встречается редко",
+      "icon_name": "fa5s.question",
+      "key": "other",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Quake MSDisorder №7, не выбрана, в избранном, способ: перестановка, на 2 сервисах, у вас работает · 1",
+          "badge_text": "у вас работает · 1",
+          "badge_tone": "personal",
+          "caption": "на 2 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake MSDisorder №7",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "quake_msdisorder",
+          "title": "Quake MSDisorder №7",
+          "tooltip": "Разборка очереди UDP-потока.\n\nMultiDisorder: перестановка нескольких частей данных\n\nВы отметили её рабочей на 1 другом профиле. Нерабочей — на 1 профиле.\n\nВ готовых пресетах встречается ещё на 2 сервисах.\n\n--lua-desync=fakedmultidisorder --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen · из Epic Games, не выбрана, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Epic Games",
+          "detail": "из Epic Games",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_epic",
+          "title": "Quake UDPLen",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №40, не выбрана, способ: длина пакета, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen №40",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_alt",
+          "title": "Quake UDPLen №40",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:7 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №22, не выбрана, в избранном, не работает, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake UDPLen №22",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "notwork",
+          "strategy_id": "quake_udplen",
+          "title": "Quake UDPLen №22",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\nНерабочей — на 3 профилях.\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         }
+        ],
+        "key": "other/quake",
+        "title": "Quake"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "General PreSend · из Steam, не выбрана, способ: Своя, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Steam · на этом сервисе в 2 пресетах",
+          "detail": "из Steam",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General PreSend · из Steam",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "general_presend",
+          "title": "General PreSend",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=presend:1 --payload=tls",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General MSDisorder №17, не выбрана, способ: перестановка, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General MSDisorder №17",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "general_msdisorder",
+          "title": "General MSDisorder №17",
+          "tooltip": "MultiDisorder: перестановка нескольких частей данных\n\n--lua-desync=fakedmultidisorder --payload=tls",
+          "twin_key": ""
+         }
+        ],
+        "key": "other/general",
+        "title": "General"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "HTTP МOD ONLY, не выбрана, работает, способ: Своя, на 8 сервисах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "на 8 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "HTTP МOD ONLY",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "work",
+          "strategy_id": "http_only_noop",
+          "title": "HTTP МOD ONLY",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nВ готовых пресетах встречается ещё на 8 сервисах.\n\n--lua-desync=hseq:60,min-5",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Pass-through, не выбрана, способ: Своя, у вас работает · 3",
+          "badge_text": "у вас работает · 3",
+          "badge_tone": "personal",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Pass-through",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "pass_silent",
+          "title": "Pass-through",
+          "tooltip": "Ничего не делать: трафик идёт без обхода.\n\nготовая стратегия не распознана по --lua-desync\n\nВы отметили её рабочей на 3 других профилях. Нерабочей — на 1 профиле.",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "rTNF ProMod composite, не выбрана, способ: длина пакета, на этом сервисе в 4 пресетах, типы пакетов: tls · udp",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "на этом сервисе в 4 пресетах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "rTNF ProMod composite",
+          "payload_badge": "tls · udp",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "rtnf_promod_composite",
+          "title": "rTNF ProMod composite",
+          "tooltip": "Составная: TLS и UDP ветки.\n\nUDPLen: изменение длины UDP-пакета\n\nСтоит на этом сервисе в 4 готовых пресетах. В готовых пресетах встречается ещё на 3 сервисах.\n\n--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge FakeSplit · из EG新闻网, не выбрана, способ: перестановка с подделками, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "из EG新闻网",
+          "detail": "из EG新闻网",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge FakeSplit · из EG新闻网",
+          "payload_badge": "",
+          "plain_label": "перестановка с подделками",
+          "rating": "",
+          "strategy_id": "bridge_fakesplit_uwu",
+          "title": "Bridge FakeSplit",
+          "tooltip": "FakedDisorder: перестановка частей данных с поддельными копиями\n\n--lua-desync=fakeddisorder",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "sinALTER 自动 copy, не выбрана, способ: данные в первом пакете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "sinALTER 自动 copy",
+          "payload_badge": "",
+          "plain_label": "данные в первом пакете",
+          "rating": "",
+          "strategy_id": "sin_autocopy",
+          "title": "sinALTER 自动 copy",
+          "tooltip": "自动选择\n\nSyndata: добавление данных в SYN\n\n--lua-desync=syndata:1",
+          "twin_key": ""
+         }
+        ],
+        "key": "other/",
+        "title": "Остальные"
+       }
+      ],
+      "title": "Прочие"
+     }
+    ],
+    "narrowed": false,
+    "narrowed_by_query": false,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 19
+   },
+   "bogus_grouping": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "method",
+    "groups": [
+     {
+      "color": "#6fb8ff",
+      "description": "способ обхода: поддельный пакет, затем данные по частям",
+      "icon_name": "fa5s.layer-group",
+      "key": "fake_split",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из AltForge, выбрана, в избранном, работает, способ: нарезка с подделками, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из AltForge · на этом сервисе в 2 пресетах",
+          "detail": "из AltForge",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": true,
+          "is_current": true,
+          "name": "General FakeSplit · из AltForge",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "work",
+          "strategy_id": "general_fakesplit_altforge",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.\n\nРаньше называлась: ALT11 старая\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "fake_split//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 3 пресетах, у вас работает · 2",
+          "badge_text": "у вас работает · 2",
+          "badge_tone": "personal",
+          "caption": "из Steam · на этом сервисе в 3 пресетах",
+          "detail": "из Steam",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit",
+          "title": "General FakeSplit",
+          "tooltip": "Универсальная стратегия: подделка и нарезка TLS.\n\nFakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.\n\nАвтор: bob\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "fake_split//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Epic Games, не выбрана, способ: нарезка с подделками, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Epic Games · на этом сервисе в 1 пресете",
+          "detail": "из Epic Games",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit_epic",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nНерабочей — на 2 профилях.\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 3 сервисах.\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "fake_split//general fakesplit"
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Подмена и разделение"
+     },
+     {
+      "color": "#4cc2ff",
+      "description": "способ обхода: данные уходят несколькими частями",
+      "icon_name": "fa5s.columns",
+      "key": "split",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Bridge PSN, не выбрана, способ: нарезка, на 6 сервисах, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "на 6 сервисах",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge PSN",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "bridge_nosplit",
+          "title": "Bridge PSN",
+          "tooltip": "MultiSplit: несколько точек разделения данных\n\nВ готовых пресетах встречается ещё на 6 сервисах.\n\n--lua-desync=multisplit",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "HOPm NE240HOP · из Steam, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "из Steam",
+          "detail": "из Steam",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_1",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": "split//hopm ne240hop"
+         },
+         {
+          "accessible_text": "HOPm NE240HOP · из Windows Update, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "из Windows Update",
+          "detail": "из Windows Update",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Windows Update",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_2",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": "split//hopm ne240hop"
+         },
+         {
+          "accessible_text": "HOPm NE240HOP №104, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP №104",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_3",
+          "title": "HOPm NE240HOP №104",
+          "tooltip": "Split: разделение данных\n\n--lua-desync=split:2 --ipset=@hop.txt",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge · из Xbox Live, не выбрана, не работает, способ: нарезка, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Xbox Live · на этом сервисе в 1 пресете",
+          "detail": "из Xbox Live",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge · из Xbox Live",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "notwork",
+          "strategy_id": "bridge_xbox",
+          "title": "Bridge",
+          "tooltip": "Split: разделение данных\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 8 сервисах.\n\nАвтор: bob\n\n--lua-desync=split:3",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Разделение"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "способ обхода: способ не распознан или встречается редко",
+      "icon_name": "fa5s.question",
+      "key": "other",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Quake MSDisorder №7, не выбрана, в избранном, способ: перестановка, на 2 сервисах, у вас работает · 1",
+          "badge_text": "у вас работает · 1",
+          "badge_tone": "personal",
+          "caption": "на 2 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake MSDisorder №7",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "quake_msdisorder",
+          "title": "Quake MSDisorder №7",
+          "tooltip": "Разборка очереди UDP-потока.\n\nMultiDisorder: перестановка нескольких частей данных\n\nВы отметили её рабочей на 1 другом профиле. Нерабочей — на 1 профиле.\n\nВ готовых пресетах встречается ещё на 2 сервисах.\n\n--lua-desync=fakedmultidisorder --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen · из Epic Games, не выбрана, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Epic Games",
+          "detail": "из Epic Games",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_epic",
+          "title": "Quake UDPLen",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №40, не выбрана, способ: длина пакета, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen №40",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_alt",
+          "title": "Quake UDPLen №40",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:7 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №22, не выбрана, в избранном, не работает, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake UDPLen №22",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "notwork",
+          "strategy_id": "quake_udplen",
+          "title": "Quake UDPLen №22",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\nНерабочей — на 3 профилях.\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         }
+        ],
+        "key": "other/quake",
+        "title": "Quake"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "General PreSend · из Steam, не выбрана, способ: Своя, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Steam · на этом сервисе в 2 пресетах",
+          "detail": "из Steam",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General PreSend · из Steam",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "general_presend",
+          "title": "General PreSend",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=presend:1 --payload=tls",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General MSDisorder №17, не выбрана, способ: перестановка, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General MSDisorder №17",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "general_msdisorder",
+          "title": "General MSDisorder №17",
+          "tooltip": "MultiDisorder: перестановка нескольких частей данных\n\n--lua-desync=fakedmultidisorder --payload=tls",
+          "twin_key": ""
+         }
+        ],
+        "key": "other/general",
+        "title": "General"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "HTTP МOD ONLY, не выбрана, работает, способ: Своя, на 8 сервисах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "на 8 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "HTTP МOD ONLY",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "work",
+          "strategy_id": "http_only_noop",
+          "title": "HTTP МOD ONLY",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nВ готовых пресетах встречается ещё на 8 сервисах.\n\n--lua-desync=hseq:60,min-5",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Pass-through, не выбрана, способ: Своя, у вас работает · 3",
+          "badge_text": "у вас работает · 3",
+          "badge_tone": "personal",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Pass-through",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "pass_silent",
+          "title": "Pass-through",
+          "tooltip": "Ничего не делать: трафик идёт без обхода.\n\nготовая стратегия не распознана по --lua-desync\n\nВы отметили её рабочей на 3 других профилях. Нерабочей — на 1 профиле.",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "rTNF ProMod composite, не выбрана, способ: длина пакета, на этом сервисе в 4 пресетах, типы пакетов: tls · udp",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "на этом сервисе в 4 пресетах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "rTNF ProMod composite",
+          "payload_badge": "tls · udp",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "rtnf_promod_composite",
+          "title": "rTNF ProMod composite",
+          "tooltip": "Составная: TLS и UDP ветки.\n\nUDPLen: изменение длины UDP-пакета\n\nСтоит на этом сервисе в 4 готовых пресетах. В готовых пресетах встречается ещё на 3 сервисах.\n\n--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge FakeSplit · из EG新闻网, не выбрана, способ: перестановка с подделками, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "из EG新闻网",
+          "detail": "из EG新闻网",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge FakeSplit · из EG新闻网",
+          "payload_badge": "",
+          "plain_label": "перестановка с подделками",
+          "rating": "",
+          "strategy_id": "bridge_fakesplit_uwu",
+          "title": "Bridge FakeSplit",
+          "tooltip": "FakedDisorder: перестановка частей данных с поддельными копиями\n\n--lua-desync=fakeddisorder",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "sinALTER 自动 copy, не выбрана, способ: данные в первом пакете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "sinALTER 自动 copy",
+          "payload_badge": "",
+          "plain_label": "данные в первом пакете",
+          "rating": "",
+          "strategy_id": "sin_autocopy",
+          "title": "sinALTER 自动 copy",
+          "tooltip": "自动选择\n\nSyndata: добавление данных в SYN\n\n--lua-desync=syndata:1",
+          "twin_key": ""
+         }
+        ],
+        "key": "other/",
+        "title": "Остальные"
+       }
+      ],
+      "title": "Прочие"
+     }
+    ],
+    "narrowed": false,
+    "narrowed_by_query": false,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 19
+   },
+   "method_all": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "method",
+    "groups": [
+     {
+      "color": "#6fb8ff",
+      "description": "способ обхода: поддельный пакет, затем данные по частям",
+      "icon_name": "fa5s.layer-group",
+      "key": "fake_split",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из AltForge, выбрана, в избранном, работает, способ: нарезка с подделками, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из AltForge · на этом сервисе в 2 пресетах",
+          "detail": "из AltForge",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": true,
+          "is_current": true,
+          "name": "General FakeSplit · из AltForge",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "work",
+          "strategy_id": "general_fakesplit_altforge",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.\n\nРаньше называлась: ALT11 старая\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "fake_split//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 3 пресетах, у вас работает · 2",
+          "badge_text": "у вас работает · 2",
+          "badge_tone": "personal",
+          "caption": "из Steam · на этом сервисе в 3 пресетах",
+          "detail": "из Steam",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit",
+          "title": "General FakeSplit",
+          "tooltip": "Универсальная стратегия: подделка и нарезка TLS.\n\nFakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.\n\nАвтор: bob\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "fake_split//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Epic Games, не выбрана, способ: нарезка с подделками, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Epic Games · на этом сервисе в 1 пресете",
+          "detail": "из Epic Games",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit_epic",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nНерабочей — на 2 профилях.\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 3 сервисах.\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "fake_split//general fakesplit"
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Подмена и разделение"
+     },
+     {
+      "color": "#4cc2ff",
+      "description": "способ обхода: данные уходят несколькими частями",
+      "icon_name": "fa5s.columns",
+      "key": "split",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Bridge PSN, не выбрана, способ: нарезка, на 6 сервисах, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "на 6 сервисах",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge PSN",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "bridge_nosplit",
+          "title": "Bridge PSN",
+          "tooltip": "MultiSplit: несколько точек разделения данных\n\nВ готовых пресетах встречается ещё на 6 сервисах.\n\n--lua-desync=multisplit",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "HOPm NE240HOP · из Steam, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "из Steam",
+          "detail": "из Steam",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_1",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": "split//hopm ne240hop"
+         },
+         {
+          "accessible_text": "HOPm NE240HOP · из Windows Update, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "из Windows Update",
+          "detail": "из Windows Update",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Windows Update",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_2",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": "split//hopm ne240hop"
+         },
+         {
+          "accessible_text": "HOPm NE240HOP №104, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP №104",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_3",
+          "title": "HOPm NE240HOP №104",
+          "tooltip": "Split: разделение данных\n\n--lua-desync=split:2 --ipset=@hop.txt",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge · из Xbox Live, не выбрана, не работает, способ: нарезка, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Xbox Live · на этом сервисе в 1 пресете",
+          "detail": "из Xbox Live",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge · из Xbox Live",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "notwork",
+          "strategy_id": "bridge_xbox",
+          "title": "Bridge",
+          "tooltip": "Split: разделение данных\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 8 сервисах.\n\nАвтор: bob\n\n--lua-desync=split:3",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Разделение"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "способ обхода: способ не распознан или встречается редко",
+      "icon_name": "fa5s.question",
+      "key": "other",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Quake MSDisorder №7, не выбрана, в избранном, способ: перестановка, на 2 сервисах, у вас работает · 1",
+          "badge_text": "у вас работает · 1",
+          "badge_tone": "personal",
+          "caption": "на 2 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake MSDisorder №7",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "quake_msdisorder",
+          "title": "Quake MSDisorder №7",
+          "tooltip": "Разборка очереди UDP-потока.\n\nMultiDisorder: перестановка нескольких частей данных\n\nВы отметили её рабочей на 1 другом профиле. Нерабочей — на 1 профиле.\n\nВ готовых пресетах встречается ещё на 2 сервисах.\n\n--lua-desync=fakedmultidisorder --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen · из Epic Games, не выбрана, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Epic Games",
+          "detail": "из Epic Games",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_epic",
+          "title": "Quake UDPLen",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №40, не выбрана, способ: длина пакета, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen №40",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_alt",
+          "title": "Quake UDPLen №40",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:7 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №22, не выбрана, в избранном, не работает, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake UDPLen №22",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "notwork",
+          "strategy_id": "quake_udplen",
+          "title": "Quake UDPLen №22",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\nНерабочей — на 3 профилях.\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         }
+        ],
+        "key": "other/quake",
+        "title": "Quake"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "General PreSend · из Steam, не выбрана, способ: Своя, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Steam · на этом сервисе в 2 пресетах",
+          "detail": "из Steam",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General PreSend · из Steam",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "general_presend",
+          "title": "General PreSend",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=presend:1 --payload=tls",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General MSDisorder №17, не выбрана, способ: перестановка, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General MSDisorder №17",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "general_msdisorder",
+          "title": "General MSDisorder №17",
+          "tooltip": "MultiDisorder: перестановка нескольких частей данных\n\n--lua-desync=fakedmultidisorder --payload=tls",
+          "twin_key": ""
+         }
+        ],
+        "key": "other/general",
+        "title": "General"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "HTTP МOD ONLY, не выбрана, работает, способ: Своя, на 8 сервисах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "на 8 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "HTTP МOD ONLY",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "work",
+          "strategy_id": "http_only_noop",
+          "title": "HTTP МOD ONLY",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nВ готовых пресетах встречается ещё на 8 сервисах.\n\n--lua-desync=hseq:60,min-5",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Pass-through, не выбрана, способ: Своя, у вас работает · 3",
+          "badge_text": "у вас работает · 3",
+          "badge_tone": "personal",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Pass-through",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "pass_silent",
+          "title": "Pass-through",
+          "tooltip": "Ничего не делать: трафик идёт без обхода.\n\nготовая стратегия не распознана по --lua-desync\n\nВы отметили её рабочей на 3 других профилях. Нерабочей — на 1 профиле.",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "rTNF ProMod composite, не выбрана, способ: длина пакета, на этом сервисе в 4 пресетах, типы пакетов: tls · udp",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "на этом сервисе в 4 пресетах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "rTNF ProMod composite",
+          "payload_badge": "tls · udp",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "rtnf_promod_composite",
+          "title": "rTNF ProMod composite",
+          "tooltip": "Составная: TLS и UDP ветки.\n\nUDPLen: изменение длины UDP-пакета\n\nСтоит на этом сервисе в 4 готовых пресетах. В готовых пресетах встречается ещё на 3 сервисах.\n\n--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge FakeSplit · из EG新闻网, не выбрана, способ: перестановка с подделками, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "из EG新闻网",
+          "detail": "из EG新闻网",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge FakeSplit · из EG新闻网",
+          "payload_badge": "",
+          "plain_label": "перестановка с подделками",
+          "rating": "",
+          "strategy_id": "bridge_fakesplit_uwu",
+          "title": "Bridge FakeSplit",
+          "tooltip": "FakedDisorder: перестановка частей данных с поддельными копиями\n\n--lua-desync=fakeddisorder",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "sinALTER 自动 copy, не выбрана, способ: данные в первом пакете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "sinALTER 自动 copy",
+          "payload_badge": "",
+          "plain_label": "данные в первом пакете",
+          "rating": "",
+          "strategy_id": "sin_autocopy",
+          "title": "sinALTER 自动 copy",
+          "tooltip": "自动选择\n\nSyndata: добавление данных в SYN\n\n--lua-desync=syndata:1",
+          "twin_key": ""
+         }
+        ],
+        "key": "other/",
+        "title": "Остальные"
+       }
+      ],
+      "title": "Прочие"
+     }
+    ],
+    "narrowed": false,
+    "narrowed_by_query": false,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 19
+   },
+   "method_favorite": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "method",
+    "groups": [
+     {
+      "color": "#6fb8ff",
+      "description": "способ обхода: поддельный пакет, затем данные по частям",
+      "icon_name": "fa5s.layer-group",
+      "key": "fake_split",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из AltForge, выбрана, в избранном, работает, способ: нарезка с подделками, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из AltForge · на этом сервисе в 2 пресетах",
+          "detail": "из AltForge",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": true,
+          "is_current": true,
+          "name": "General FakeSplit · из AltForge",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "work",
+          "strategy_id": "general_fakesplit_altforge",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.\n\nРаньше называлась: ALT11 старая\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Подмена и разделение"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "способ обхода: способ не распознан или встречается редко",
+      "icon_name": "fa5s.question",
+      "key": "other",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Quake MSDisorder №7, не выбрана, в избранном, способ: перестановка, на 2 сервисах, у вас работает · 1",
+          "badge_text": "у вас работает · 1",
+          "badge_tone": "personal",
+          "caption": "на 2 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake MSDisorder №7",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "quake_msdisorder",
+          "title": "Quake MSDisorder №7",
+          "tooltip": "Разборка очереди UDP-потока.\n\nMultiDisorder: перестановка нескольких частей данных\n\nВы отметили её рабочей на 1 другом профиле. Нерабочей — на 1 профиле.\n\nВ готовых пресетах встречается ещё на 2 сервисах.\n\n--lua-desync=fakedmultidisorder --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №22, не выбрана, в избранном, не работает, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake UDPLen №22",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "notwork",
+          "strategy_id": "quake_udplen",
+          "title": "Quake UDPLen №22",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\nНерабочей — на 3 профилях.\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Прочие"
+     }
+    ],
+    "narrowed": true,
+    "narrowed_by_query": false,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 3
+   },
+   "method_query": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "method",
+    "groups": [
+     {
+      "color": "#6fb8ff",
+      "description": "способ обхода: поддельный пакет, затем данные по частям",
+      "icon_name": "fa5s.layer-group",
+      "key": "fake_split",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 3 пресетах, у вас работает · 2",
+          "badge_text": "у вас работает · 2",
+          "badge_tone": "personal",
+          "caption": "из Steam · на этом сервисе в 3 пресетах",
+          "detail": "из Steam",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit",
+          "title": "General FakeSplit",
+          "tooltip": "Универсальная стратегия: подделка и нарезка TLS.\n\nFakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.\n\nАвтор: bob\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Подмена и разделение"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "способ обхода: способ не распознан или встречается редко",
+      "icon_name": "fa5s.question",
+      "key": "other",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "rTNF ProMod composite, не выбрана, способ: длина пакета, на этом сервисе в 4 пресетах, типы пакетов: tls · udp",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "на этом сервисе в 4 пресетах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "rTNF ProMod composite",
+          "payload_badge": "tls · udp",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "rtnf_promod_composite",
+          "title": "rTNF ProMod composite",
+          "tooltip": "Составная: TLS и UDP ветки.\n\nUDPLen: изменение длины UDP-пакета\n\nСтоит на этом сервисе в 4 готовых пресетах. В готовых пресетах встречается ещё на 3 сервисах.\n\n--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General PreSend · из Steam, не выбрана, способ: Своя, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Steam · на этом сервисе в 2 пресетах",
+          "detail": "из Steam",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General PreSend · из Steam",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "general_presend",
+          "title": "General PreSend",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=presend:1 --payload=tls",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General MSDisorder №17, не выбрана, способ: перестановка, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General MSDisorder №17",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "general_msdisorder",
+          "title": "General MSDisorder №17",
+          "tooltip": "MultiDisorder: перестановка нескольких частей данных\n\n--lua-desync=fakedmultidisorder --payload=tls",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Прочие"
+     }
+    ],
+    "narrowed": true,
+    "narrowed_by_query": true,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 4
+   },
+   "method_recommended": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "method",
+    "groups": [
+     {
+      "color": "#e5b454",
+      "description": "стоят на нём в готовых пресетах: чем чаще, тем выше",
+      "icon_name": "fa5s.thumbs-up",
+      "key": "recommended",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из AltForge, выбрана, в избранном, работает, способ: нарезка с подделками, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из AltForge · нарезка с подделками · на этом сервисе в 2 пресетах",
+          "detail": "из AltForge",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": true,
+          "is_current": true,
+          "name": "General FakeSplit · из AltForge",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "work",
+          "strategy_id": "general_fakesplit_altforge",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.\n\nРаньше называлась: ALT11 старая\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "recommended//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 3 пресетах, у вас работает · 2",
+          "badge_text": "у вас работает · 2",
+          "badge_tone": "personal",
+          "caption": "из Steam · нарезка с подделками · на этом сервисе в 3 пресетах",
+          "detail": "из Steam",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit",
+          "title": "General FakeSplit",
+          "tooltip": "Универсальная стратегия: подделка и нарезка TLS.\n\nFakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.\n\nАвтор: bob\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "recommended//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Epic Games, не выбрана, способ: нарезка с подделками, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Epic Games · нарезка с подделками · на этом сервисе в 1 пресете",
+          "detail": "из Epic Games",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit_epic",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nНерабочей — на 2 профилях.\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 3 сервисах.\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "recommended//general fakesplit"
+         },
+         {
+          "accessible_text": "rTNF ProMod composite, не выбрана, способ: длина пакета, на этом сервисе в 4 пресетах, типы пакетов: tls · udp",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "длина пакета · на этом сервисе в 4 пресетах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "rTNF ProMod composite",
+          "payload_badge": "tls · udp",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "rtnf_promod_composite",
+          "title": "rTNF ProMod composite",
+          "tooltip": "Составная: TLS и UDP ветки.\n\nUDPLen: изменение длины UDP-пакета\n\nСтоит на этом сервисе в 4 готовых пресетах. В готовых пресетах встречается ещё на 3 сервисах.\n\n--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General PreSend · из Steam, не выбрана, способ: Своя, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Steam · Своя · на этом сервисе в 2 пресетах",
+          "detail": "из Steam",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General PreSend · из Steam",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "general_presend",
+          "title": "General PreSend",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=presend:1 --payload=tls",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge · из Xbox Live, не выбрана, не работает, способ: нарезка, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Xbox Live · нарезка · на этом сервисе в 1 пресете",
+          "detail": "из Xbox Live",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge · из Xbox Live",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "notwork",
+          "strategy_id": "bridge_xbox",
+          "title": "Bridge",
+          "tooltip": "Split: разделение данных\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 8 сервисах.\n\nАвтор: bob\n\n--lua-desync=split:3",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Советуем для этого сервиса"
+     }
+    ],
+    "narrowed": true,
+    "narrowed_by_query": false,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 6
+   },
+   "method_works": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "method",
+    "groups": [
+     {
+      "color": "#6fb8ff",
+      "description": "способ обхода: поддельный пакет, затем данные по частям",
+      "icon_name": "fa5s.layer-group",
+      "key": "fake_split",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из AltForge, выбрана, в избранном, работает, способ: нарезка с подделками, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из AltForge · на этом сервисе в 2 пресетах",
+          "detail": "из AltForge",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": true,
+          "is_current": true,
+          "name": "General FakeSplit · из AltForge",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "work",
+          "strategy_id": "general_fakesplit_altforge",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.\n\nРаньше называлась: ALT11 старая\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Подмена и разделение"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "способ обхода: способ не распознан или встречается редко",
+      "icon_name": "fa5s.question",
+      "key": "other",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "HTTP МOD ONLY, не выбрана, работает, способ: Своя, на 8 сервисах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "на 8 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "HTTP МOD ONLY",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "work",
+          "strategy_id": "http_only_noop",
+          "title": "HTTP МOD ONLY",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nВ готовых пресетах встречается ещё на 8 сервисах.\n\n--lua-desync=hseq:60,min-5",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Прочие"
+     }
+    ],
+    "narrowed": true,
+    "narrowed_by_query": false,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 2
+   },
+   "series_all": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "series",
+    "groups": [
+     {
+      "color": "#9aa6b2",
+      "description": "",
+      "icon_name": "fa5s.tag",
+      "key": "s_dfe2db7497",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из AltForge, выбрана, в избранном, работает, способ: нарезка с подделками, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из AltForge · нарезка с подделками · на этом сервисе в 2 пресетах",
+          "detail": "из AltForge",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": true,
+          "is_current": true,
+          "name": "General FakeSplit · из AltForge",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "work",
+          "strategy_id": "general_fakesplit_altforge",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.\n\nРаньше называлась: ALT11 старая\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "s_dfe2db7497//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 3 пресетах, у вас работает · 2",
+          "badge_text": "у вас работает · 2",
+          "badge_tone": "personal",
+          "caption": "из Steam · нарезка с подделками · на этом сервисе в 3 пресетах",
+          "detail": "из Steam",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit",
+          "title": "General FakeSplit",
+          "tooltip": "Универсальная стратегия: подделка и нарезка TLS.\n\nFakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.\n\nАвтор: bob\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "s_dfe2db7497//general fakesplit"
+         },
+         {
+          "accessible_text": "General FakeSplit · из Epic Games, не выбрана, способ: нарезка с подделками, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Epic Games · нарезка с подделками · на этом сервисе в 1 пресете",
+          "detail": "из Epic Games",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit_epic",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nНерабочей — на 2 профилях.\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 3 сервисах.\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": "s_dfe2db7497//general fakesplit"
+         },
+         {
+          "accessible_text": "General PreSend · из Steam, не выбрана, способ: Своя, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Steam · Своя · на этом сервисе в 2 пресетах",
+          "detail": "из Steam",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General PreSend · из Steam",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "general_presend",
+          "title": "General PreSend",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=presend:1 --payload=tls",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General MSDisorder №17, не выбрана, способ: перестановка, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "перестановка",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General MSDisorder №17",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "general_msdisorder",
+          "title": "General MSDisorder №17",
+          "tooltip": "MultiDisorder: перестановка нескольких частей данных\n\n--lua-desync=fakedmultidisorder --payload=tls",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "General"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "",
+      "icon_name": "fa5s.tag",
+      "key": "s_672c346d8f",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Quake MSDisorder №7, не выбрана, в избранном, способ: перестановка, на 2 сервисах, у вас работает · 1",
+          "badge_text": "у вас работает · 1",
+          "badge_tone": "personal",
+          "caption": "перестановка · на 2 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake MSDisorder №7",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "quake_msdisorder",
+          "title": "Quake MSDisorder №7",
+          "tooltip": "Разборка очереди UDP-потока.\n\nMultiDisorder: перестановка нескольких частей данных\n\nВы отметили её рабочей на 1 другом профиле. Нерабочей — на 1 профиле.\n\nВ готовых пресетах встречается ещё на 2 сервисах.\n\n--lua-desync=fakedmultidisorder --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen · из Epic Games, не выбрана, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Epic Games · длина пакета",
+          "detail": "из Epic Games",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_epic",
+          "title": "Quake UDPLen",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №40, не выбрана, способ: длина пакета, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "длина пакета",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen №40",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_alt",
+          "title": "Quake UDPLen №40",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:7 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №22, не выбрана, в избранном, не работает, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "длина пакета",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake UDPLen №22",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "notwork",
+          "strategy_id": "quake_udplen",
+          "title": "Quake UDPLen №22",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\nНерабочей — на 3 профилях.\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Quake"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "",
+      "icon_name": "fa5s.tag",
+      "key": "s_2fa1981b4a",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Bridge PSN, не выбрана, способ: нарезка, на 6 сервисах, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "нарезка · на 6 сервисах",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge PSN",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "bridge_nosplit",
+          "title": "Bridge PSN",
+          "tooltip": "MultiSplit: несколько точек разделения данных\n\nВ готовых пресетах встречается ещё на 6 сервисах.\n\n--lua-desync=multisplit",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge FakeSplit · из EG新闻网, не выбрана, способ: перестановка с подделками, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "из EG新闻网 · перестановка с подделками",
+          "detail": "из EG新闻网",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge FakeSplit · из EG新闻网",
+          "payload_badge": "",
+          "plain_label": "перестановка с подделками",
+          "rating": "",
+          "strategy_id": "bridge_fakesplit_uwu",
+          "title": "Bridge FakeSplit",
+          "tooltip": "FakedDisorder: перестановка частей данных с поддельными копиями\n\n--lua-desync=fakeddisorder",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge · из Xbox Live, не выбрана, не работает, способ: нарезка, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Xbox Live · нарезка · на этом сервисе в 1 пресете",
+          "detail": "из Xbox Live",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge · из Xbox Live",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "notwork",
+          "strategy_id": "bridge_xbox",
+          "title": "Bridge",
+          "tooltip": "Split: разделение данных\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 8 сервисах.\n\nАвтор: bob\n\n--lua-desync=split:3",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Bridge"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "",
+      "icon_name": "fa5s.tag",
+      "key": "s_88052a47e5",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "HOPm NE240HOP · из Steam, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "из Steam · нарезка",
+          "detail": "из Steam",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_1",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": "s_88052a47e5//hopm ne240hop"
+         },
+         {
+          "accessible_text": "HOPm NE240HOP · из Windows Update, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "из Windows Update · нарезка",
+          "detail": "из Windows Update",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Windows Update",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_2",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": "s_88052a47e5//hopm ne240hop"
+         },
+         {
+          "accessible_text": "HOPm NE240HOP №104, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "нарезка",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP №104",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_3",
+          "title": "HOPm NE240HOP №104",
+          "tooltip": "Split: разделение данных\n\n--lua-desync=split:2 --ipset=@hop.txt",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "HOPm"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "серии из одной-двух стратегий",
+      "icon_name": "fa5s.ellipsis-h",
+      "key": "s_other",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "HTTP МOD ONLY, не выбрана, работает, способ: Своя, на 8 сервисах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "Своя · на 8 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "HTTP МOD ONLY",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "work",
+          "strategy_id": "http_only_noop",
+          "title": "HTTP МOD ONLY",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nВ готовых пресетах встречается ещё на 8 сервисах.\n\n--lua-desync=hseq:60,min-5",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Pass-through, не выбрана, способ: Своя, у вас работает · 3",
+          "badge_text": "у вас работает · 3",
+          "badge_tone": "personal",
+          "caption": "Своя",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Pass-through",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "pass_silent",
+          "title": "Pass-through",
+          "tooltip": "Ничего не делать: трафик идёт без обхода.\n\nготовая стратегия не распознана по --lua-desync\n\nВы отметили её рабочей на 3 других профилях. Нерабочей — на 1 профиле.",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "rTNF ProMod composite, не выбрана, способ: длина пакета, на этом сервисе в 4 пресетах, типы пакетов: tls · udp",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "длина пакета · на этом сервисе в 4 пресетах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "rTNF ProMod composite",
+          "payload_badge": "tls · udp",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "rtnf_promod_composite",
+          "title": "rTNF ProMod composite",
+          "tooltip": "Составная: TLS и UDP ветки.\n\nUDPLen: изменение длины UDP-пакета\n\nСтоит на этом сервисе в 4 готовых пресетах. В готовых пресетах встречается ещё на 3 сервисах.\n\n--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "sinALTER 自动 copy, не выбрана, способ: данные в первом пакете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "данные в первом пакете",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "sinALTER 自动 copy",
+          "payload_badge": "",
+          "plain_label": "данные в первом пакете",
+          "rating": "",
+          "strategy_id": "sin_autocopy",
+          "title": "sinALTER 自动 copy",
+          "tooltip": "自动选择\n\nSyndata: добавление данных в SYN\n\n--lua-desync=syndata:1",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Остальные серии"
+     }
+    ],
+    "narrowed": false,
+    "narrowed_by_query": false,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 19
+   },
+   "source_all": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "source",
+    "groups": [
+     {
+      "color": "#9aa6b2",
+      "description": "",
+      "icon_name": "fa5s.share-square",
+      "key": "o_bf2903b55e",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 3 пресетах, у вас работает · 2",
+          "badge_text": "у вас работает · 2",
+          "badge_tone": "personal",
+          "caption": "нарезка с подделками · на этом сервисе в 3 пресетах",
+          "detail": "",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit",
+          "title": "General FakeSplit",
+          "tooltip": "Универсальная стратегия: подделка и нарезка TLS.\n\nFakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.\n\nАвтор: bob\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General PreSend · из Steam, не выбрана, способ: Своя, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "Своя · на этом сервисе в 2 пресетах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General PreSend · из Steam",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "general_presend",
+          "title": "General PreSend",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=presend:1 --payload=tls",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "HOPm NE240HOP · из Steam, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "нарезка",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_1",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Steam"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "",
+      "icon_name": "fa5s.share-square",
+      "key": "o_8549bc4512",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Quake UDPLen · из Epic Games, не выбрана, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "длина пакета",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_epic",
+          "title": "Quake UDPLen",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General FakeSplit · из Epic Games, не выбрана, способ: нарезка с подделками, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "нарезка с подделками · на этом сервисе в 1 пресете",
+          "detail": "",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Epic Games",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit_epic",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nНерабочей — на 2 профилях.\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 3 сервисах.\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Epic Games"
+     },
+     {
+      "color": "#9aa6b2",
+      "description": "в названии источник не указан",
+      "icon_name": "fa5s.ellipsis-h",
+      "key": "o_none",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "Bridge PSN, не выбрана, способ: нарезка, на 6 сервисах, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "нарезка · на 6 сервисах",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge PSN",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "bridge_nosplit",
+          "title": "Bridge PSN",
+          "tooltip": "MultiSplit: несколько точек разделения данных\n\nВ готовых пресетах встречается ещё на 6 сервисах.\n\n--lua-desync=multisplit",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge FakeSplit · из EG新闻网, не выбрана, способ: перестановка с подделками, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "из EG新闻网 · перестановка с подделками",
+          "detail": "из EG新闻网",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge FakeSplit · из EG新闻网",
+          "payload_badge": "",
+          "plain_label": "перестановка с подделками",
+          "rating": "",
+          "strategy_id": "bridge_fakesplit_uwu",
+          "title": "Bridge FakeSplit",
+          "tooltip": "FakedDisorder: перестановка частей данных с поддельными копиями\n\n--lua-desync=fakeddisorder",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Bridge · из Xbox Live, не выбрана, не работает, способ: нарезка, на этом сервисе в 1 пресете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из Xbox Live · нарезка · на этом сервисе в 1 пресете",
+          "detail": "из Xbox Live",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "Bridge · из Xbox Live",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "notwork",
+          "strategy_id": "bridge_xbox",
+          "title": "Bridge",
+          "tooltip": "Split: разделение данных\n\nСтоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 8 сервисах.\n\nАвтор: bob\n\n--lua-desync=split:3",
+          "twin_key": ""
+         }
+        ],
+        "key": "o_none/bridge",
+        "title": "Bridge"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "Quake MSDisorder №7, не выбрана, в избранном, способ: перестановка, на 2 сервисах, у вас работает · 1",
+          "badge_text": "у вас работает · 1",
+          "badge_tone": "personal",
+          "caption": "перестановка · на 2 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake MSDisorder №7",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "quake_msdisorder",
+          "title": "Quake MSDisorder №7",
+          "tooltip": "Разборка очереди UDP-потока.\n\nMultiDisorder: перестановка нескольких частей данных\n\nВы отметили её рабочей на 1 другом профиле. Нерабочей — на 1 профиле.\n\nВ готовых пресетах встречается ещё на 2 сервисах.\n\n--lua-desync=fakedmultidisorder --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №40, не выбрана, способ: длина пакета, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "длина пакета",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Quake UDPLen №40",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "quake_udplen_alt",
+          "title": "Quake UDPLen №40",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\n--lua-desync=udplen:7 --payload=udp",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Quake UDPLen №22, не выбрана, в избранном, не работает, способ: длина пакета",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "длина пакета",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": true,
+          "is_current": false,
+          "name": "Quake UDPLen №22",
+          "payload_badge": "",
+          "plain_label": "длина пакета",
+          "rating": "notwork",
+          "strategy_id": "quake_udplen",
+          "title": "Quake UDPLen №22",
+          "tooltip": "UDPLen: изменение длины UDP-пакета\n\nНерабочей — на 3 профилях.\n\n--lua-desync=udplen:2 --payload=udp",
+          "twin_key": ""
+         }
+        ],
+        "key": "o_none/quake",
+        "title": "Quake"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из AltForge, выбрана, в избранном, работает, способ: нарезка с подделками, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "из AltForge · нарезка с подделками · на этом сервисе в 2 пресетах",
+          "detail": "из AltForge",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": true,
+          "is_current": true,
+          "name": "General FakeSplit · из AltForge",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "work",
+          "strategy_id": "general_fakesplit_altforge",
+          "title": "General FakeSplit",
+          "tooltip": "FakedSplit: разделение данных с поддельными копиями частей\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.\n\nРаньше называлась: ALT11 старая\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General MSDisorder №17, не выбрана, способ: перестановка, осторожно",
+          "badge_text": "осторожно",
+          "badge_tone": "warning",
+          "caption": "перестановка",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General MSDisorder №17",
+          "payload_badge": "",
+          "plain_label": "перестановка",
+          "rating": "",
+          "strategy_id": "general_msdisorder",
+          "title": "General MSDisorder №17",
+          "tooltip": "MultiDisorder: перестановка нескольких частей данных\n\n--lua-desync=fakedmultidisorder --payload=tls",
+          "twin_key": ""
+         }
+        ],
+        "key": "o_none/general",
+        "title": "General"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "HOPm NE240HOP · из Windows Update, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "из Windows Update · нарезка",
+          "detail": "из Windows Update",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Windows Update",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_2",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "HOPm NE240HOP №104, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "нарезка",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP №104",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_3",
+          "title": "HOPm NE240HOP №104",
+          "tooltip": "Split: разделение данных\n\n--lua-desync=split:2 --ipset=@hop.txt",
+          "twin_key": ""
+         }
+        ],
+        "key": "o_none/hopm",
+        "title": "HOPm"
+       },
+       {
+        "items": [
+         {
+          "accessible_text": "HTTP МOD ONLY, не выбрана, работает, способ: Своя, на 8 сервисах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "Своя · на 8 сервисах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "HTTP МOD ONLY",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "work",
+          "strategy_id": "http_only_noop",
+          "title": "HTTP МOD ONLY",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nВ готовых пресетах встречается ещё на 8 сервисах.\n\n--lua-desync=hseq:60,min-5",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "Pass-through, не выбрана, способ: Своя, у вас работает · 3",
+          "badge_text": "у вас работает · 3",
+          "badge_tone": "personal",
+          "caption": "Своя",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "Pass-through",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "pass_silent",
+          "title": "Pass-through",
+          "tooltip": "Ничего не делать: трафик идёт без обхода.\n\nготовая стратегия не распознана по --lua-desync\n\nВы отметили её рабочей на 3 других профилях. Нерабочей — на 1 профиле.",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "rTNF ProMod composite, не выбрана, способ: длина пакета, на этом сервисе в 4 пресетах, типы пакетов: tls · udp",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "длина пакета · на этом сервисе в 4 пресетах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "rTNF ProMod composite",
+          "payload_badge": "tls · udp",
+          "plain_label": "длина пакета",
+          "rating": "",
+          "strategy_id": "rtnf_promod_composite",
+          "title": "rTNF ProMod composite",
+          "tooltip": "Составная: TLS и UDP ветки.\n\nUDPLen: изменение длины UDP-пакета\n\nСтоит на этом сервисе в 4 готовых пресетах. В готовых пресетах встречается ещё на 3 сервисах.\n\n--filter-tcp=443 --new --filter-udp=443 --payload=udp --lua-desync=udplen:1",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "sinALTER 自动 copy, не выбрана, способ: данные в первом пакете",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "данные в первом пакете",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "sinALTER 自动 copy",
+          "payload_badge": "",
+          "plain_label": "данные в первом пакете",
+          "rating": "",
+          "strategy_id": "sin_autocopy",
+          "title": "sinALTER 自动 copy",
+          "tooltip": "自动选择\n\nSyndata: добавление данных в SYN\n\n--lua-desync=syndata:1",
+          "twin_key": ""
+         }
+        ],
+        "key": "o_none/",
+        "title": "Остальные"
+       }
+      ],
+      "title": "Без источника"
+     }
+    ],
+    "narrowed": false,
+    "narrowed_by_query": false,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 19
+   },
+   "source_query": {
+    "current_strategy_id": "general_fakesplit_altforge",
+    "grouping": "source",
+    "groups": [
+     {
+      "color": "#9aa6b2",
+      "description": "",
+      "icon_name": "fa5s.share-square",
+      "key": "o_bf2903b55e",
+      "sections": [
+       {
+        "items": [
+         {
+          "accessible_text": "General FakeSplit · из Steam, не выбрана, способ: нарезка с подделками, на этом сервисе в 3 пресетах, у вас работает · 2",
+          "badge_text": "у вас работает · 2",
+          "badge_tone": "personal",
+          "caption": "нарезка с подделками · на этом сервисе в 3 пресетах",
+          "detail": "",
+          "family_color": "#6fb8ff",
+          "family_key": "fake_split",
+          "favorite": false,
+          "is_current": false,
+          "name": "General FakeSplit · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка с подделками",
+          "rating": "",
+          "strategy_id": "general_fakesplit",
+          "title": "General FakeSplit",
+          "tooltip": "Универсальная стратегия: подделка и нарезка TLS.\n\nFakedSplit: разделение данных с поддельными копиями частей\n\nВы отметили её рабочей на 2 других профилях.\n\nСтоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.\n\nАвтор: bob\n\n--fake=2 --fake-seqovl=2 --fake-strat=2 --fake-file=quic.bin --lua-desync=fakedsplit:4",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "General PreSend · из Steam, не выбрана, способ: Своя, на этом сервисе в 2 пресетах",
+          "badge_text": "",
+          "badge_tone": "",
+          "caption": "Своя · на этом сервисе в 2 пресетах",
+          "detail": "",
+          "family_color": "#9aa6b2",
+          "family_key": "other",
+          "favorite": false,
+          "is_current": false,
+          "name": "General PreSend · из Steam",
+          "payload_badge": "",
+          "plain_label": "Своя",
+          "rating": "",
+          "strategy_id": "general_presend",
+          "title": "General PreSend",
+          "tooltip": "готовая стратегия не распознана по --lua-desync\n\nСтоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=presend:1 --payload=tls",
+          "twin_key": ""
+         },
+         {
+          "accessible_text": "HOPm NE240HOP · из Steam, не выбрана, способ: нарезка, опытная",
+          "badge_text": "опытная",
+          "badge_tone": "neutral",
+          "caption": "нарезка",
+          "detail": "",
+          "family_color": "#4cc2ff",
+          "family_key": "split",
+          "favorite": false,
+          "is_current": false,
+          "name": "HOPm NE240HOP · из Steam",
+          "payload_badge": "",
+          "plain_label": "нарезка",
+          "rating": "",
+          "strategy_id": "hopm_ne240hop_1",
+          "title": "HOPm NE240HOP",
+          "tooltip": "Split: разделение данных\n\nВ готовых пресетах встречается ещё на 1 сервисе.\n\n--lua-desync=split:1 --ipset=@hop.txt",
+          "twin_key": ""
+         }
+        ],
+        "key": "",
+        "title": ""
+       }
+      ],
+      "title": "Steam"
+     }
+    ],
+    "narrowed": true,
+    "narrowed_by_query": true,
+    "queue": [
+     "pass_silent",
+     "general_fakesplit",
+     "quake_msdisorder",
+     "rtnf_promod_composite",
+     "general_fakesplit_altforge",
+     "general_presend",
+     "bridge_xbox",
+     "http_only_noop",
+     "bridge_nosplit",
+     "hopm_ne240hop_1",
+     "hopm_ne240hop_2",
+     "hopm_ne240hop_3",
+     "bridge_fakesplit_uwu",
+     "general_msdisorder",
+     "quake_udplen_epic",
+     "quake_udplen_alt",
+     "sin_autocopy",
+     "general_fakesplit_epic",
+     "quake_udplen"
+    ],
+    "recommended_count": 6,
+    "tab_counts": [
+     [
+      "recommended",
+      6
+     ],
+     [
+      "works",
+      2
+     ],
+     [
+      "favorite",
+      3
+     ],
+     [
+      "all",
+      19
+     ]
+    ],
+    "total_count": 19,
+    "visible_count": 3
+   }
+  },
+  "recommended_queue": [
+   "rtnf_promod_composite",
+   "general_fakesplit",
+   "general_fakesplit_altforge",
+   "general_presend",
+   "bridge_xbox",
+   "general_fakesplit_epic"
+  ],
+  "tab_lookup": [
+   6,
+   2,
+   3,
+   19,
+   0
+  ],
+  "try_progress": [
+   [
+    4,
+    19
+   ],
+   [
+    0,
+    19
+   ]
+  ],
+  "try_stage": [
+   [
+    "r",
+    "e",
+    "c",
+    "o",
+    "m",
+    "m",
+    "e",
+    "n",
+    "d",
+    "e",
+    "d",
+    1
+   ],
+   [
+    "r",
+    "e",
+    "c",
+    "o",
+    "m",
+    "m",
+    "e",
+    "n",
+    "d",
+    "e",
+    "d",
+    0
+   ]
+  ],
+  "try_stage_flat": [
+   [
+    "recommended",
+    1,
+    6
+   ],
+   [
+    "recommended",
+    0,
+    6
+   ]
+  ],
+  "usage_captions": [
+   "на этом сервисе в 3 пресетах",
+   "на этом сервисе в 2 пресетах",
+   "на этом сервисе в 1 пресете",
+   "на этом сервисе в 1 пресете",
+   "на 6 сервисах",
+   "на 2 сервисах",
+   "",
+   "",
+   "",
+   "на этом сервисе в 4 пресетах",
+   "на 8 сервисах",
+   "на этом сервисе в 2 пресетах",
+   "",
+   "",
+   "на этом сервисе в 5 пресетах"
+  ],
+  "usage_sentences": [
+   "Стоит на этом сервисе в 3 готовых пресетах. В готовых пресетах встречается ещё на 6 сервисах.",
+   "Стоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 4 сервисах.",
+   "Стоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 3 сервисах.",
+   "Стоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 8 сервисах.",
+   "В готовых пресетах встречается ещё на 6 сервисах.",
+   "В готовых пресетах встречается ещё на 2 сервисах.",
+   "В готовых пресетах встречается ещё на 1 сервисе.",
+   "В готовых пресетах встречается ещё на 1 сервисе.",
+   "",
+   "Стоит на этом сервисе в 4 готовых пресетах. В готовых пресетах встречается ещё на 3 сервисах.",
+   "В готовых пресетах встречается ещё на 8 сервисах.",
+   "Стоит на этом сервисе в 2 готовых пресетах. В готовых пресетах встречается ещё на 1 сервисе.",
+   "",
+   "В готовых пресетах встречается ещё на 1 сервисе.",
+   "В готовых пресетах встречается ещё на 6 сервисах.",
+   "Стоит на этом сервисе в 1 готовом пресете. В готовых пресетах встречается ещё на 3 сервисах."
+  ]
+ },
+ "scenarios": {
+  "bogus_filter": {
+   "grouping": "method",
+   "query": "",
+   "quick_filter": "nope"
+  },
+  "bogus_grouping": {
+   "grouping": "bogus",
+   "query": "",
+   "quick_filter": "all"
+  },
+  "method_all": {
+   "grouping": "method",
+   "query": "",
+   "quick_filter": "all"
+  },
+  "method_favorite": {
+   "grouping": "method",
+   "query": "",
+   "quick_filter": "favorite"
+  },
+  "method_query": {
+   "grouping": "method",
+   "query": "tls",
+   "quick_filter": "all"
+  },
+  "method_recommended": {
+   "grouping": "method",
+   "query": "",
+   "quick_filter": "recommended"
+  },
+  "method_works": {
+   "grouping": "method",
+   "query": "",
+   "quick_filter": "works"
+  },
+  "series_all": {
+   "grouping": "series",
+   "query": "",
+   "quick_filter": "all"
+  },
+  "source_all": {
+   "grouping": "source",
+   "query": "",
+   "quick_filter": "all"
+  },
+  "source_query": {
+   "grouping": "source",
+   "query": "steam",
+   "quick_filter": "all"
+  }
+ },
+ "states": {
+  "bridge_xbox": {
+   "favorite": false,
+   "rating": "notwork"
+  },
+  "general_fakesplit_altforge": {
+   "favorite": true,
+   "rating": "work"
+  },
+  "http_only_noop": {
+   "favorite": false,
+   "rating": "work"
+  },
+  "quake_msdisorder": {
+   "favorite": true,
+   "rating": ""
+  },
+  "quake_udplen": {
+   "favorite": true,
+   "rating": "notwork"
+  }
+ },
+ "usage": {
+  "bridge_nosplit": {
+   "same_service": 0,
+   "services": 6
+  },
+  "bridge_xbox": {
+   "same_service": 1,
+   "services": 9
+  },
+  "general_fakesplit": {
+   "same_service": 3,
+   "services": 7
+  },
+  "general_fakesplit_altforge": {
+   "same_service": 2,
+   "services": 5
+  },
+  "general_fakesplit_epic": {
+   "same_service": 1,
+   "services": 4
+  },
+  "general_presend": {
+   "same_service": 2,
+   "services": 2
+  },
+  "hopm_ne240hop_1": {
+   "same_service": 0,
+   "services": 1
+  },
+  "hopm_ne240hop_2": {
+   "same_service": 0,
+   "services": 1
+  },
+  "http_only_noop": {
+   "same_service": 0,
+   "services": 8
+  },
+  "quake_msdisorder": {
+   "same_service": 0,
+   "services": 2
+  },
+  "quake_udplen": {
+   "same_service": 0,
+   "services": 0
+  },
+  "rtnf_promod_composite": {
+   "same_service": 4,
+   "services": 4
+  }
+ },
+ "usage_order": [
+  "general_fakesplit",
+  "general_fakesplit_altforge",
+  "general_fakesplit_epic",
+  "bridge_xbox",
+  "bridge_nosplit",
+  "quake_msdisorder",
+  "hopm_ne240hop_1",
+  "hopm_ne240hop_2",
+  "quake_udplen",
+  "rtnf_promod_composite",
+  "http_only_noop",
+  "general_presend"
+ ]
+}

@@ -28,6 +28,8 @@ Desktop.ini
 
 # Rust
 /rust/target/
+.cargo/config.toml
+
 rust/Cargo.lock
 
 .world-model-mcp

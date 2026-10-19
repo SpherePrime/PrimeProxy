@@ -1,0 +1,18 @@
+[package]
+name = "primecore-profile"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/profile — модели, разбор стратегий WinWS1/WinWS2."
+
+[dependencies]
+serde_json.workspace = true
+serde.workspace = true
+regex.workspace = true
+primecore-settings = { workspace = true }
+primecore-lists = { workspace = true }
+primecore-mode = { workspace = true }
+fastrand = { workspace = true }
+
+[dev-dependencies]
+once_cell.workspace = true

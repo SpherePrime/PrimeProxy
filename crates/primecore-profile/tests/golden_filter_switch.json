@@ -1,0 +1,266 @@
+{
+ "available_kinds": {
+  "0": {
+   "aliases": [
+    "hostlist",
+    "ipset"
+   ],
+   "empty": [
+    "hostlist"
+   ],
+   "plain": [
+    "hostlist",
+    "ipset"
+   ]
+  },
+  "1": {
+   "aliases": [
+    "ipset"
+   ],
+   "empty": [
+    "ipset"
+   ],
+   "plain": [
+    "ipset"
+   ]
+  },
+  "2": {
+   "aliases": [
+    "hostlist"
+   ],
+   "empty": [
+    "hostlist"
+   ],
+   "plain": [
+    "hostlist"
+   ]
+  },
+  "3": {
+   "aliases": [
+    "ipset"
+   ],
+   "empty": [
+    "ipset"
+   ],
+   "plain": [
+    "ipset"
+   ]
+  }
+ },
+ "available_kinds_twin": {
+  "0": {
+   "plain": [
+    "hostlist",
+    "ipset"
+   ]
+  },
+  "1": {
+   "plain": [
+    "ipset"
+   ]
+  }
+ },
+ "candidates": {
+  "0": {
+   "hostlist": {
+    "filter_kind": "hostlist",
+    "filter_value": "other.txt",
+    "reason": ""
+   },
+   "ipset": {
+    "filter_kind": "ipset",
+    "filter_value": "ipset-all.txt",
+    "reason": ""
+   }
+  },
+  "1": {
+   "hostlist": {
+    "filter_kind": "hostlist",
+    "filter_value": "ru.txt",
+    "reason": ""
+   },
+   "ipset": {
+    "filter_kind": "ipset",
+    "filter_value": "ipset-ru.txt",
+    "reason": ""
+   }
+  },
+  "2": {
+   "hostlist": {
+    "filter_kind": "hostlist",
+    "filter_value": "netrogat.txt",
+    "reason": ""
+   },
+   "ipset": {
+    "filter_kind": "ipset",
+    "filter_value": "",
+    "reason": "missing_pair"
+   }
+  },
+  "3": {
+   "hostlist": {
+    "filter_kind": "hostlist",
+    "filter_value": "",
+    "reason": "missing_pair"
+   },
+   "ipset": {
+    "filter_kind": "ipset",
+    "filter_value": "ipset-ru.txt",
+    "reason": ""
+   }
+  }
+ },
+ "duplicates": {
+  "plain": {
+   "0": {
+    "hostlist": false,
+    "ipset": false
+   },
+   "1": {
+    "hostlist": false,
+    "ipset": false
+   },
+   "2": {
+    "hostlist": false,
+    "ipset": false
+   },
+   "3": {
+    "hostlist": false,
+    "ipset": false
+   }
+  },
+  "twin": {
+   "0": {
+    "hostlist": false,
+    "ipset": false
+   },
+   "1": {
+    "hostlist": true,
+    "ipset": false
+   }
+  }
+ },
+ "ops": {},
+ "resolutions": {
+  "0": {
+   "hostlist": {
+    "allowed": true,
+    "filter_kind": "hostlist",
+    "filter_value": "other.txt",
+    "reason": ""
+   },
+   "ipset": {
+    "allowed": true,
+    "filter_kind": "ipset",
+    "filter_value": "ipset-all.txt",
+    "reason": ""
+   }
+  },
+  "1": {
+   "hostlist": {
+    "allowed": false,
+    "filter_kind": "hostlist",
+    "filter_value": "ru.txt",
+    "reason": "missing_file"
+   },
+   "ipset": {
+    "allowed": true,
+    "filter_kind": "ipset",
+    "filter_value": "ipset-ru.txt",
+    "reason": ""
+   }
+  },
+  "2": {
+   "hostlist": {
+    "allowed": true,
+    "filter_kind": "hostlist",
+    "filter_value": "netrogat.txt",
+    "reason": ""
+   },
+   "ipset": {
+    "allowed": false,
+    "filter_kind": "ipset",
+    "filter_value": "",
+    "reason": "missing_pair"
+   }
+  },
+  "3": {
+   "hostlist": {
+    "allowed": false,
+    "filter_kind": "hostlist",
+    "filter_value": "",
+    "reason": "missing_pair"
+   },
+   "ipset": {
+    "allowed": true,
+    "filter_kind": "ipset",
+    "filter_value": "ipset-ru.txt",
+    "reason": ""
+   }
+  }
+ },
+ "special": {
+  "bogus_kind_from": {
+   "filter_kind": "hostlist",
+   "filter_value": "",
+   "reason": "unsupported_kind"
+  },
+  "bogus_kind_target": {
+   "filter_kind": "hostlist-domains",
+   "filter_value": "",
+   "reason": "unsupported_kind"
+  },
+  "exclude_pair": {
+   "filter_kind": "ipset",
+   "filter_value": "",
+   "reason": "missing_pair"
+  },
+  "missing_file": {
+   "allowed": false,
+   "filter_kind": "ipset",
+   "filter_value": "ipset-steam.txt",
+   "reason": "missing_file"
+  },
+  "missing_root": {
+   "allowed": false,
+   "filter_kind": "ipset",
+   "filter_value": "",
+   "reason": "missing_pair"
+  },
+  "multi_same": {
+   "filter_kind": "hostlist",
+   "filter_value": "steam.txt,other.txt",
+   "reason": ""
+  },
+  "multi_value": {
+   "filter_kind": "ipset",
+   "filter_value": "",
+   "reason": "missing_pair"
+  },
+  "not_editable": {
+   "filter_kind": "ipset",
+   "filter_value": "",
+   "reason": "not_editable"
+  },
+  "paired_hostlist_plain": {
+   "filter_kind": "ipset",
+   "filter_value": "lists\\base/ipset-steam.txt",
+   "reason": ""
+  },
+  "paired_ipset_all_to_hostlist": {
+   "filter_kind": "hostlist",
+   "filter_value": "other.txt",
+   "reason": ""
+  },
+  "paired_ipset_prefix_stem": {
+   "filter_kind": "hostlist",
+   "filter_value": "lists\\user\\heavy.lst",
+   "reason": ""
+  },
+  "paired_other_to_ipset_all": {
+   "filter_kind": "ipset",
+   "filter_value": "ipset-all.txt",
+   "reason": ""
+  }
+ }
+}

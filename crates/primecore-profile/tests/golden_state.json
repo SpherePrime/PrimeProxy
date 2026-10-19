@@ -1,0 +1,201 @@
+{
+ "ops": [
+  [
+   "marks0",
+   {
+    "states": [
+     [
+      "sx",
+      {
+       "rating": "",
+       "favorite": false
+      }
+     ],
+     [
+      "sy",
+      {
+       "rating": "",
+       "favorite": false
+      }
+     ]
+    ],
+    "open_group": null
+   }
+  ],
+  [
+   "set1",
+   {
+    "rating": "work",
+    "favorite": false
+   }
+  ],
+  [
+   "setfav",
+   {
+    "rating": "",
+    "favorite": true
+   }
+  ],
+  [
+   "setbad",
+   {
+    "rating": "",
+    "favorite": false
+   }
+  ],
+  [
+   "setclear",
+   {
+    "rating": "",
+    "favorite": false
+   }
+  ],
+  [
+   "experience",
+   [
+    [
+     "sx",
+     [
+      1,
+      0
+     ]
+    ],
+    [
+     "sy",
+     [
+      0,
+      1
+     ]
+    ],
+    [
+     "zz",
+     [
+      1,
+      0
+     ]
+    ]
+   ]
+  ],
+  [
+   "opengroup",
+   true
+  ],
+  [
+   "opengroup2",
+   false
+  ],
+  [
+   "opengroup_err",
+   "unknown strategy group key"
+  ],
+  [
+   "grouping_set",
+   true
+  ],
+  [
+   "grouping_repeat",
+   false
+  ],
+  [
+   "grouping_bogus",
+   true
+  ],
+  [
+   "marks2",
+   {
+    "states": [],
+    "open_group": "fake_split"
+   }
+  ],
+  [
+   "marks3",
+   {
+    "states": [
+     [
+      "sx",
+      {
+       "rating": "",
+       "favorite": false
+      }
+     ],
+     [
+      "sy",
+      {
+       "rating": "",
+       "favorite": true
+      }
+     ],
+     [
+      "zz",
+      {
+       "rating": "",
+       "favorite": false
+      }
+     ]
+    ],
+    "open_group": "fake_split"
+   }
+  ],
+  [
+   "migrate",
+   false
+  ],
+  [
+   "marks4",
+   {
+    "states": [
+     [
+      "sx",
+      {
+       "rating": "work",
+       "favorite": false
+      }
+     ]
+    ],
+    "open_group": null
+   }
+  ],
+  [
+   "set_err",
+   "profile key is required"
+  ],
+  [
+   "grouping_now",
+   "method"
+  ],
+  [
+   "open_group_l2",
+   null
+  ]
+ ],
+ "final": {
+  "version": 1,
+  "profiles": {
+   "uid:l1": {
+    "strategies": {
+     "sy": {
+      "favorite": true,
+      "rating": ""
+     }
+    },
+    "open_group": "fake_split"
+   },
+   "uid:l2": {
+    "strategies": {
+     "sx": {
+      "favorite": false,
+      "rating": "work"
+     },
+     "sy": {
+      "favorite": false,
+      "rating": "notwork"
+     },
+     "zz": {
+      "favorite": false,
+      "rating": "work"
+     }
+    }
+   }
+  }
+ }
+}

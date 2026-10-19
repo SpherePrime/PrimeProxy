@@ -1,0 +1,614 @@
+[
+ {
+  "title": "base",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "disable0",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--skip\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   false,
+   true
+  ]
+ },
+ {
+  "title": "enable1",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "strategy_lines0",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=x:1\n--lua-desync=y\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "strategy_lines_empty0",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "whole0",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--in-range=1-4\n--out-range=2-6\n--in-range=i-ii\n--lua-desync=fake\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "whole1",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=\"Ветвление\"\n\n--in-range=i-ii\n--lua-desync=fake\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "ready0_composite",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--in-range=1-4\n--out-range=2-6\n--payload=udp\n--lua-desync=a\n--lua-desync=b\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ],
+  "whole": null
+ },
+ {
+  "title": "ready1_simple",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=\"Ветвление\"\n\n--payload=udp,tls\n--lua-desync=f\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ],
+  "whole": [
+   "--payload=udp,tls",
+   "--lua-desync=f"
+  ]
+ },
+ {
+  "title": "user_match0",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--name=Новое\n--filter-udp=53\n--hostlist=lists/all.txt\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Новое",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Новое",
+   "Ветвление"
+  ],
+  "display": [
+   "Новое",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "user_match1",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=\"Ветвление\"\n\n--name=Другое\n--payload=udp\n--filter-tcp=80\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Другое"
+  ],
+  "names": [
+   "Зеркала",
+   "Другое"
+  ],
+  "display": [
+   "Зеркала",
+   "Другое"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "template_top",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--name=Зеркала\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=Зеркала\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=Ветвление\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Зеркала|",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true,
+   true
+  ]
+ },
+ {
+  "title": "template_bottom",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--name=Зеркала\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=Ветвление\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n\n--new=Зеркала\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление",
+   "name:Зеркала|"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление",
+   "Зеркала"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление",
+   "Зеркала"
+  ],
+  "enabled": [
+   true,
+   true,
+   true
+  ]
+ },
+ {
+  "title": "template_index",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--name=Зеркала\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=Ветвление\n\n--skip\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n\n--new=Ветвление\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление",
+   "name:Ветвление|list=video|udp=443"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   false,
+   true
+  ]
+ },
+ {
+  "title": "delete0",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--name=Ветвление\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Ветвление"
+  ],
+  "names": [
+   "Ветвление"
+  ],
+  "display": [
+   "Ветвление"
+  ],
+  "enabled": [
+   true
+  ]
+ },
+ {
+  "title": "dup0",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--name=Зеркала\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=Зеркала копия\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=Ветвление\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Зеркала копия",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Зеркала копия",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Зеркала копия",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true,
+   true
+  ]
+ },
+ {
+  "title": "dup1",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--name=Зеркала\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=Ветвление\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n\n--new=Ветвление копия\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление",
+   "name:Ветвление копия"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление",
+   "Ветвление копия"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление",
+   "Ветвление копия"
+  ],
+  "enabled": [
+   true,
+   true,
+   true
+  ]
+ },
+ {
+  "title": "dupdup1",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--name=Зеркала\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=Ветвление\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n\n--new=Ветвление копия\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n\n--new=Ветвление копия 2\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление",
+   "name:Ветвление копия",
+   "name:Ветвление копия 2"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление",
+   "Ветвление копия",
+   "Ветвление копия 2"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление",
+   "Ветвление копия",
+   "Ветвление копия 2"
+  ],
+  "enabled": [
+   true,
+   true,
+   true,
+   true
+  ]
+ },
+ {
+  "title": "move1_to0",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--name=Ветвление\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n\n--new=Зеркала\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n",
+  "keys": [
+   "name:Ветвление",
+   "name:Зеркала"
+  ],
+  "names": [
+   "Ветвление",
+   "Зеркала"
+  ],
+  "display": [
+   "Ветвление",
+   "Зеркала"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "move0_to1",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "move_same",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n--new=\"Зеркала\"\n\n--payload=tcp\n--in-range=1-4\n--out-range=2-6\n--lua-desync=fake:1=2:flag\n--lua-desync=split:segment=1500\n\n--new=\"Ветвление\"\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "raw0",
+  "engine": "winws2",
+  "source": "",
+  "text": "# Служебный заголовок\n--lua-init=start\n--wf-tcp=443\n\n# комментарий\n--name=Зеркала\n--in-range=5\n--lua-desync=rewrite:1\n\n--new=Ветвление\n\n--payload=udp\n--filter-udp=443\n--hostlist=@C:\\lists\\video.txt\n--lua-desync=hop\n--payload=tls\n--in-range=8\n--lua-desync=pass\nТекстовый хвост\n",
+  "keys": [
+   "name:Зеркала",
+   "name:Ветвление"
+  ],
+  "names": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "display": [
+   "Зеркала",
+   "Ветвление"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "errors",
+  "errors": [
+   "name and ports are required",
+   "protocol must be tcp, udp or l7",
+   "Profile index out of range: 9",
+   "profile text must not be empty",
+   "profile text must contain exactly one profile",
+   "Unsupported template profile position: side"
+  ]
+ },
+ {
+  "title": "base1",
+  "engine": "winws1",
+  "source": "",
+  "text": "# WinWS1 пресет\n--dpi-desync=syndata\n\n--new=\"Главная\"\n\n--filter-tcp=80,443\n--hostlist=@lists\\main.txt\n--dpi-desync=fake,disorder2\n--dup-fooling=badseq\n.foo\n",
+  "keys": [
+   "sig:",
+   "name:Главная"
+  ],
+  "names": [
+   "",
+   "Главная"
+  ],
+  "display": [
+   "Без фильтра",
+   "Главная"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "strategy1",
+  "engine": "winws1",
+  "source": "",
+  "text": "# WinWS1 пресет\n--dpi-desync=ack,split\nextra\n\n--new=\"Главная\"\n\n--filter-tcp=80,443\n--hostlist=@lists\\main.txt\n--dpi-desync=fake,disorder2\n--dup-fooling=badseq\n.foo\n",
+  "keys": [
+   "sig:",
+   "name:Главная"
+  ],
+  "names": [
+   "",
+   "Главная"
+  ],
+  "display": [
+   "Без фильтра",
+   "Главная"
+  ],
+  "enabled": [
+   true,
+   true
+  ]
+ },
+ {
+  "title": "dup1_copy",
+  "engine": "winws1",
+  "source": "",
+  "text": "# WinWS1 пресет\n--dpi-desync=syndata\n\n--new\n\n--comment=Без фильтра копия\n--dpi-desync=syndata\n\n--new\n\n--filter-tcp=80,443\n--hostlist=@lists\\main.txt\n--dpi-desync=fake,disorder2\n--dup-fooling=badseq\n.foo\n",
+  "keys": [
+   "sig:",
+   "name:Без фильтра копия",
+   "sig:list=main|tcp=80,443"
+  ],
+  "names": [
+   "",
+   "Без фильтра копия",
+   ""
+  ],
+  "display": [
+   "Без фильтра",
+   "Без фильтра копия",
+   "TCP 80,443 • hostlist main.txt"
+  ],
+  "enabled": [
+   true,
+   true,
+   true
+  ]
+ },
+ {
+  "title": "winws1_boundary",
+  "engine": "winws1",
+  "source": "",
+  "text": "# WinWS1 пресет\n--comment=Главная\n--filter-tcp=80,443\n--hostlist=@lists\\main.txt\n--dpi-desync=fake,disorder2\n--dup-fooling=badseq\n.foo\n",
+  "keys": [
+   "name:Главная"
+  ],
+  "names": [
+   "Главная"
+  ],
+  "display": [
+   "Главная"
+  ],
+  "enabled": [
+   true
+  ]
+ }
+]

@@ -1,0 +1,11 @@
+[package]
+name = "primecore-mode"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт чистой логики src/settings/mode.py и src/core/paths.py: режимы запуска и пути движков."
+
+[dependencies]
+
+[dev-dependencies]
+serde_json.workspace = true
