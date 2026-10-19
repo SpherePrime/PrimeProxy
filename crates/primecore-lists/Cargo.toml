@@ -6,6 +6,7 @@ license.workspace = true
 description = "Порт списков (lists/core: слои base/user/final, имена файлов списков)."
 
 [dependencies]
+regex = { workspace = true }
 
 [dev-dependencies]
 serde_json.workspace = true

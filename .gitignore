@@ -32,4 +32,7 @@ Desktop.ini
 
 rust/Cargo.lock
 
+# Cargo build output
+/target/
+
 .world-model-mcp

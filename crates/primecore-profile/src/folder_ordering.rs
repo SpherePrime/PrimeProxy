@@ -3,10 +3,9 @@
 
 use serde_json::{json, Value};
 
-use super::folder_store::{normalize_folder_state, as_int_clamped_pub};
-use as_int_clamped_pub as as_int_clamped;
-use super::folders::{COMMON_FOLDER_KEY, PINNED_FOLDER_KEY, build_default_preset_folders, classify_profile_folder};
-use crate::identity::is_profile_uid;
+use super::folder_store::{as_int_clamped_pub, normalize_folder_state};
+use super::folders::{COMMON_FOLDER_KEY, PINNED_FOLDER_KEY, classify_profile_folder};
+use crate::identity::is_profile_uid_text;
 
 /// python FolderOrderView.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -278,8 +277,8 @@ fn resolve_item_folder(meta: &Value, live_item: &LiveItem, folders: &[(String, V
 fn sort_folders(folders: &[(String, Value)]) -> Vec<(String, Value)> {
     let mut sorted = folders.to_vec();
     sorted.sort_by(|(key_a, folder_a), (key_b, folder_b)| {
-        let order_a = as_int_clamped(&field(folder_a, "order"), 0, None, None);
-        let order_b = as_int_clamped(&field(folder_b, "order"), 0, None, None);
+        let order_a = as_int_clamped_pub(&field(folder_a, "order"), 0, None, None);
+        let order_b = as_int_clamped_pub(&field(folder_b, "order"), 0, None, None);
         order_a.cmp(&order_b).then_with(|| {
             let name_a = folder_string(folder_a, "name")
                 .unwrap_or_else(|| key_a.clone())
