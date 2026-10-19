@@ -1,16 +1,26 @@
 //! Порт `src/diagnostics` — проверки BlockCheck и DNS-подмены.
 //!
-//! Модули копируют структуру python-пакета:
-//! `address_kinds` (`utils/address_kinds.py`), `levels`, `limits`,
-//! `subnet_catalog`, `block_kind`, `probe_result` (`diagnostics/tls_probe.py`
-//! без сетевой части), `services`, `verdict`. Движок, пробы и очереди
-//! (`engine`, `run_context`, `registry`, пробы) портируются следом.
+//! Модули копируют структуру python-пакета. Сетевые пробы (TLS-стек, QUIC
+//! Initial, STUN, DoH/DoT, ping, внешняя служба проекта) разнесены по
+//! модулям: каждая держит свои типы, константы и чистый вывод, а сбор
+//! сетевых фактов портируется следом, как только появится HTTPS/TLS-клиент.
 
 pub mod address_kinds;
+pub mod block_cause;
 pub mod block_kind;
+pub mod cert_owner;
+pub mod ipv6_check;
 pub mod levels;
 pub mod limits;
+pub mod outside_check;
 pub mod probe_result;
+pub mod protocol_probe;
+pub mod quic_probe;
 pub mod services;
 pub mod subnet_catalog;
+pub mod subnet_whitelist;
+pub mod telegram_check;
+pub mod udp_burst;
 pub mod verdict;
+pub mod volume_probe;
+pub mod windows_dns_query;
