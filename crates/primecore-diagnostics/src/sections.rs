@@ -1253,6 +1253,111 @@ impl LiveServices {
     }
 }
 
+/// python `_dns_provider`-контракт: (название сервера, его раздел, пометка
+/// состояния). Заполняется слоем DNS-настроек — сам поиск провайдера по адресу
+/// ещё не перенесён.
+pub type ProviderOf<'a> = dyn Fn(&str) -> (String, String, String) + 'a;
+
+/// python `environment_lines` — строки шапки про DNS-серверы системы.
+///
+/// Строка Windows («🖥️ Windows …») добавляется платформенным слоем до этих
+/// строк: номер сборки знает только он. Петлевые адреса (127.0.0.1/::1)
+/// разбирает `provider_of` — там живёт встроенный шифрованный DNS программы.
+#[must_use]
+pub fn environment_lines(servers: &[String], provider_of: &ProviderOf<'_>) -> Vec<String> {
+    let mut lines: Vec<String> = Vec::new();
+    if servers.is_empty() {
+        return lines;
+    }
+    let mut described: Vec<String> = Vec::new();
+    let mut unblock_names: Vec<String> = Vec::new();
+    let mut blocked_names: Vec<String> = Vec::new();
+    for ip in servers {
+        let (name, category, status) = provider_of(ip);
+        described.push(if name.is_empty() {
+            ip.clone()
+        } else {
+            format!("{ip} ({name})")
+        });
+        if category == "Для ИИ" && !unblock_names.contains(&name) {
+            unblock_names.push(name.clone());
+        }
+        if status == "blocked" && !blocked_names.contains(&name) {
+            blocked_names.push(name);
+        }
+    }
+    lines.push(format!("🌐 DNS-серверы системы: {}", described.join(", ")));
+    for name in unblock_names {
+        lines.push(format!(
+            "ℹ️ {name} сам меняет адреса части сайтов, чтобы обходить блокировки. \
+             Такие адреса проверяются по сертификату и подменой не считаются."
+        ));
+    }
+    for name in blocked_names {
+        lines.push(format!(
+            "⚠️ {name} в России блокируется: обычные запросы к нему могут не доходить \
+             или подменяться по дороге. Что отвечает на вашей линии, покажет вкладка «DNS-серверы»."
+        ));
+    }
+    lines
+}
+
+/// python-замыкание `tool_kind(name)` из `utils.bypass_tools`: "vpn" / "proxy".
+pub type KindOf<'a> = dyn Fn(&str) -> String + 'a;
+
+/// python `tools_line` — строка отчёта о запущенных VPN, прокси и программах
+/// обхода. Пусто — их нет.
+#[must_use]
+pub fn tools_line(other_tools: &[String], in_path: &[String], kind_of: &KindOf<'_>) -> String {
+    if other_tools.is_empty() && in_path.is_empty() {
+        return String::new();
+    }
+    let mut parts: Vec<String> = Vec::new();
+    if !in_path.is_empty() {
+        parts.push(format!(
+            "На дороге проверки стоит: {} — результат показывает сеть вместе с этим, \
+             а не «чистую» сеть провайдера.",
+            in_path.join(", ")
+        ));
+    }
+    let idle: Vec<&String> = other_tools
+        .iter()
+        .filter(|name| !in_path.contains(*name))
+        .collect();
+    let proxies: Vec<String> = idle
+        .iter()
+        .filter(|name| kind_of(name) == "proxy")
+        .map(|name| (*name).clone())
+        .collect();
+    let vpns: Vec<String> = idle
+        .iter()
+        .filter(|name| kind_of(name) == "vpn")
+        .map(|name| (*name).clone())
+        .collect();
+    if !vpns.is_empty()
+        && !in_path
+            .iter()
+            .any(|name| name.starts_with("VPN-подключение"))
+    {
+        parts.push(format!(
+            "VPN запущен, но не подключён: {} — интернет идёт мимо него.",
+            vpns.join(", ")
+        ));
+    }
+    if !proxies.is_empty() {
+        parts.push(format!(
+            "Работает прокси: {}. Проверка ходит в сеть напрямую, мимо прокси; браузер \
+             и приложения, которым он назначен, могут открывать то, что здесь закрыто.",
+            proxies.join(", ")
+        ));
+    }
+    if parts.is_empty() {
+        String::new()
+    } else {
+        format!("ℹ️ {}", parts.join(" "))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

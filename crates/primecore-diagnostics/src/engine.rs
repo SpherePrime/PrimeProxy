@@ -358,9 +358,11 @@ pub type CertCollect =
     Arc<dyn Fn(&str, &str, &SocketCancel) -> Result<CertNames, TaskError> + Send + Sync>;
 
 /// python `check_voice(submit, wait, cancel)` — STUN-серверы.
-pub type VoiceCollect = Arc<dyn Fn(&Run) -> Result<Vec<VoiceServer>, TaskError> + Send + Sync>;
-/// python `sections.check_udp_burst(run)` — серии UDP-пакетов.
-pub type BurstCollect = Arc<dyn Fn(&Run) -> Result<BurstVerdict, TaskError> + Send + Sync>;
+pub type VoiceCollect = Arc<dyn Fn(&Arc<Run>) -> Result<Vec<VoiceServer>, TaskError> + Send + Sync>;
+/// python `sections.check_udp_burst(run)` — серии UDP-пакетов. `None` —
+/// проверку сняли или ни один сервер не ответил.
+pub type BurstCollect =
+    Arc<dyn Fn(&Arc<Run>) -> Result<Option<BurstVerdict>, TaskError> + Send + Sync>;
 /// python `check_freeze(submit, wait, download, upload, every, on_server)` —
 /// замер обрыва по хостингам; `targets` и загрузка — внутри замыкания.
 pub type FreezeCheck = Arc<
@@ -373,17 +375,23 @@ pub type FreezeCheck = Arc<
         + Sync,
 >;
 /// python `telegram_check.check_telegram(submit, wait, connect, pause)`.
-pub type TelegramCollect = Arc<dyn Fn(&Run) -> Result<Vec<DcResult>, TaskError> + Send + Sync>;
+pub type TelegramCollect = Arc<dyn Fn(&Arc<Run>) -> Result<Vec<DcResult>, TaskError> + Send + Sync>;
 /// python `sections.check_ipv6(run)`.
 pub type Ipv6Check = Arc<dyn Fn(&Run) -> Result<Ipv6Verdict, TaskError> + Send + Sync>;
 /// python `sections.check_system(run, services, zapret_running, intercept)`.
 pub type SystemCheck = Arc<
-    dyn Fn(&Run, &[(String, Service)], Option<bool>, bool) -> Result<Vec<SystemItem>, TaskError>
+    dyn Fn(
+            &Arc<Run>,
+            &[(String, Service)],
+            Option<bool>,
+            bool,
+        ) -> Result<Vec<SystemItem>, TaskError>
         + Send
         + Sync,
 >;
 /// python `sections.check_subnets(run, emit)` — подтверждение «белых списков».
-pub type SubnetsCheck = Arc<dyn Fn(&Run) -> Result<Option<SubnetVerdict>, TaskError> + Send + Sync>;
+pub type SubnetsCheck =
+    Arc<dyn Fn(&Arc<Run>) -> Result<Option<SubnetVerdict>, TaskError> + Send + Sync>;
 /// python `sections.check_network(run, other_tools)` — готовый словарь «Ваша сеть».
 pub type NetworkCheck = Arc<dyn Fn(&Run, &[String]) -> Value + Send + Sync>;
 /// python `sections.start_registry()` — начал качать список, вернул «ждалку».
@@ -1836,7 +1844,7 @@ pub fn run_blockcheck(
         sections::emit_voice(voice.as_ref(), emit);
 
         let burst = match &burst_future {
-            Some(future) => settle(&run, future, emit, "Серия пакетов UDP")?,
+            Some(future) => settle(&run, future, emit, "Серия пакетов UDP")?.flatten(),
             None => None,
         };
         for line in crate::udp_burst::lines(burst.as_ref()) {

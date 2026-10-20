@@ -1,0 +1,378 @@
+{
+ "stun_parse": [
+  {
+   "name": "xor_v4",
+   "hex": "0101000c2112a442000102030405060708090a0b002000080101f5232010a746",
+   "expected": {
+    "ip": "1.2.3.4",
+    "port": 54321,
+    "family": "IPv4"
+   }
+  },
+  {
+   "name": "mapped_v4",
+   "hex": "0101000c2112a4421415161718191a1b1c1d1e1f0001000801010d96cb007109",
+   "expected": {
+    "ip": "203.0.113.9",
+    "port": 3478,
+    "family": "IPv4"
+   }
+  },
+  {
+   "name": "xor_v6",
+   "hex": "010100182112a44228292a2b2c2d2e2f30313233002000140201112b2113a6412c2c2c2c242424243c3c3c3c",
+   "expected": {
+    "ip": "0.1.2.3",
+    "port": 12345,
+    "family": "IPv4"
+   }
+  },
+  {
+   "name": "mapped_fallback",
+   "hex": "010100142112a4423c3d3e3f40414243444546470020000301020300000100080101005808080404",
+   "expected": {
+    "ip": "8.8.4.4",
+    "port": 88,
+    "family": "IPv4"
+   }
+  },
+  {
+   "name": "not_success",
+   "hex": "011100002112a44216c3863f1064714aa2adc5c1",
+   "expected": null
+  },
+  {
+   "name": "too_short",
+   "hex": "010100",
+   "expected": null
+  },
+  {
+   "name": "empty",
+   "hex": "",
+   "expected": null
+  }
+ ],
+ "stun_request": {
+  "len": 20,
+  "type": 1,
+  "cookie": true,
+  "txid_len": 12
+ },
+ "environment_lines": [
+  {
+   "name": "empty",
+   "servers": [],
+   "providers": {},
+   "expected": []
+  },
+  {
+   "name": "plain",
+   "servers": [
+    "8.8.8.8",
+    "1.1.1.1"
+   ],
+   "providers": {
+    "8.8.8.8": [
+     "",
+     "",
+     ""
+    ],
+    "1.1.1.1": [
+     "",
+     "",
+     ""
+    ]
+   },
+   "expected": [
+    "🌐 DNS-серверы системы: 8.8.8.8, 1.1.1.1"
+   ]
+  },
+  {
+   "name": "named",
+   "servers": [
+    "8.8.8.8",
+    "77.88.8.8"
+   ],
+   "providers": {
+    "8.8.8.8": [
+     "Google Public DNS",
+     "",
+     ""
+    ],
+    "77.88.8.8": [
+     "Yandex DNS",
+     "",
+     ""
+    ]
+   },
+   "expected": [
+    "🌐 DNS-серверы системы: 8.8.8.8 (Google Public DNS), 77.88.8.8 (Yandex DNS)"
+   ]
+  },
+  {
+   "name": "unblock_and_blocked",
+   "servers": [
+    "1.1.1.1",
+    "8.8.8.8",
+    "9.9.9.11"
+   ],
+   "providers": {
+    "1.1.1.1": [
+     "Cloudflare для ИИ",
+     "Для ИИ",
+     ""
+    ],
+    "8.8.8.8": [
+     "Google",
+     "",
+     ""
+    ],
+    "9.9.9.11": [
+     "Quad9",
+     "",
+     "blocked"
+    ]
+   },
+   "expected": [
+    "🌐 DNS-серверы системы: 1.1.1.1 (Cloudflare для ИИ), 8.8.8.8 (Google), 9.9.9.11 (Quad9)",
+    "ℹ️ Cloudflare для ИИ сам меняет адреса части сайтов, чтобы обходить блокировки. Такие адреса проверяются по сертификату и подменой не считаются.",
+    "⚠️ Quad9 в России блокируется: обычные запросы к нему могут не доходить или подменяться по дороге. Что отвечает на вашей линии, покажет вкладка «DNS-серверы»."
+   ]
+  },
+  {
+   "name": "loopback_proxy",
+   "servers": [
+    "127.0.0.1"
+   ],
+   "providers": {}
+  },
+  {
+   "name": "loopback_proxy_mode",
+   "servers": [
+    "::1"
+   ],
+   "providers": {}
+  }
+ ],
+ "tools_line": [
+  {
+   "name": "both_empty",
+   "kinds": {},
+   "other": [],
+   "in_path": [],
+   "expected": ""
+  },
+  {
+   "name": "in_path_only",
+   "kinds": {
+    "Outline": "proxy"
+   },
+   "other": [
+    "Outline"
+   ],
+   "in_path": [
+    "Outline"
+   ],
+   "expected": "ℹ️ На дороге проверки стоит: Outline — результат показывает сеть вместе с этим, а не «чистую» сеть провайдера."
+  },
+  {
+   "name": "vpn_idle",
+   "kinds": {
+    "NordVPN": "vpn"
+   },
+   "other": [
+    "NordVPN"
+   ],
+   "in_path": [],
+   "expected": "ℹ️ VPN запущен, но не подключён: NordVPN — интернет идёт мимо него."
+  },
+  {
+   "name": "proxy_idle",
+   "kinds": {
+    "Outline": "proxy"
+   },
+   "other": [
+    "Outline"
+   ],
+   "in_path": [],
+   "expected": "ℹ️ Работает прокси: Outline. Проверка ходит в сеть напрямую, мимо прокси; браузер и приложения, которым он назначен, могут открывать то, что здесь закрыто."
+  },
+  {
+   "name": "vpn_connected",
+   "kinds": {
+    "NordVPN": "vpn"
+   },
+   "other": [
+    "NordVPN"
+   ],
+   "in_path": [
+    "VPN-подключение"
+   ],
+   "expected": "ℹ️ На дороге проверки стоит: VPN-подключение — результат показывает сеть вместе с этим, а не «чистую» сеть провайдера."
+  },
+  {
+   "name": "mixed",
+   "kinds": {
+    "Outline": "proxy",
+    "NordVPN": "vpn",
+    "Amnezia": "vpn"
+   },
+   "other": [
+    "Outline",
+    "NordVPN",
+    "Amnezia"
+   ],
+   "in_path": [
+    "Amnezia"
+   ],
+   "expected": "ℹ️ На дороге проверки стоит: Amnezia — результат показывает сеть вместе с этим, а не «чистую» сеть провайдера. VPN запущен, но не подключён: NordVPN — интернет идёт мимо него. Работает прокси: Outline. Проверка ходит в сеть напрямую, мимо прокси; браузер и приложения, которым он назначен, могут открывать то, что здесь закрыто."
+  },
+  {
+   "name": "unknown_kind",
+   "kinds": {},
+   "other": [
+    "Что-то"
+   ],
+   "in_path": [],
+   "expected": ""
+  }
+ ],
+ "describe": [
+  {
+   "name": "ok",
+   "status": "OK",
+   "code": "",
+   "detail": "Public IP: 1.2.3.4",
+   "expected": [
+    true,
+    "отвечает",
+    true
+   ]
+  },
+  {
+   "name": "parse_err",
+   "status": "FAIL",
+   "code": "PARSE_ERR",
+   "detail": "Failed to parse",
+   "expected": [
+    true,
+    "отвечает (ответ необычный, но UDP проходит)",
+    true
+   ]
+  },
+  {
+   "name": "empty_code",
+   "status": "FAIL",
+   "code": "",
+   "detail": "",
+   "expected": [
+    true,
+    "отвечает (ответ необычный, но UDP проходит)",
+    true
+   ]
+  },
+  {
+   "name": "timeout",
+   "status": "TIMEOUT",
+   "code": "TIMEOUT",
+   "detail": "UDP timeout",
+   "expected": [
+    false,
+    "не ответил — UDP до него не доходит",
+    true
+   ]
+  },
+  {
+   "name": "dns_err",
+   "status": "FAIL",
+   "code": "DNS_ERR",
+   "detail": "DNS resolution failed",
+   "expected": [
+    false,
+    "не удалось узнать адрес сервера — проверить его не вышло",
+    false
+   ]
+  },
+  {
+   "name": "reset",
+   "status": "FAIL",
+   "code": "RESET",
+   "detail": "Connection reset",
+   "expected": [
+    false,
+    "сервер отклонил запрос (порт закрыт)",
+    true
+   ]
+  },
+  {
+   "name": "cancelled",
+   "status": "ERROR",
+   "code": "CANCELLED",
+   "detail": "Проверку сняли",
+   "expected": [
+    false,
+    "проверку сняли",
+    false
+   ]
+  },
+  {
+   "name": "unreachable",
+   "status": "FAIL",
+   "code": "UNREACHABLE",
+   "detail": "no route",
+   "expected": [
+    false,
+    "до адреса сервера нет дороги — проверить его не вышло",
+    false
+   ]
+  },
+  {
+   "name": "other",
+   "status": "ERROR",
+   "code": "ERROR",
+   "detail": "какая-то ошибка",
+   "expected": [
+    false,
+    "какая-то ошибка",
+    false
+   ]
+  }
+ ],
+ "parse_target": [
+  {
+   "value": "STUN:stun.l.google.com:19302",
+   "expected": [
+    "stun.l.google.com",
+    "19302"
+   ]
+  },
+  {
+   "value": "stun.cloudflare.com:3478",
+   "expected": [
+    "stun.cloudflare.com",
+    "3478"
+   ]
+  },
+  {
+   "value": "stun.example",
+   "expected": [
+    "stun.example",
+    "3478"
+   ]
+  },
+  {
+   "value": "STUN:stunX",
+   "expected": [
+    "stunX",
+    "3478"
+   ]
+  },
+  {
+   "value": "",
+   "expected": [
+    "",
+    "3478"
+   ]
+  }
+ ]
+}

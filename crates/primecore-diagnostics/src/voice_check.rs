@@ -13,6 +13,22 @@ use crate::verdict::Level;
 
 pub const GROUP_TELEGRAM: &str = "telegram";
 
+/// Общий срок пробы одного сервера (python `blockcheck.config.STUN_TIMEOUT`).
+pub const STUN_TIMEOUT_S: f64 = 5.0;
+
+/// python `STUN_TARGETS` — список проверочных серверов: имя, `STUN:хост:порт`, группа.
+pub const STUN_TARGETS: [(&str, &str, &str); 5] = [
+    ("Google STUN", "STUN:stun.l.google.com:19302", "general"),
+    ("CF STUN", "STUN:stun.cloudflare.com:3478", "general"),
+    ("Twilio STUN", "STUN:global.stun.twilio.com:3478", "general"),
+    ("Telegram STUN", "STUN:stun.telegram.org:3478", "telegram"),
+    (
+        "Telegram VoIP STUN",
+        "STUN:stun.voip.telegram.org:3478",
+        "telegram",
+    ),
+];
+
 // Коды `error_code` поштучных проб STUN (blockcheck.stun_tester): как у python.
 const ANSWERED_CODES: [&str; 2] = ["", "PARSE_ERR"];
 

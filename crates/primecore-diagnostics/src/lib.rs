@@ -28,6 +28,7 @@ pub mod limits;
 pub mod my_network;
 pub mod name_speed;
 pub mod net_access;
+pub mod net_transport;
 pub mod outside_check;
 pub mod path_trace;
 pub mod probe_result;
