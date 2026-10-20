@@ -97,3 +97,29 @@
 | diagnostics/verdict.py (перечни Level/ReachState/DnsState/Verdict/PingAnsi, judgements: приговор, нагрузка, протоколы, DNS-сигнатуры, статусы отсылки, гистерезис) | primecore-diagnostics/src/verdict.rs | verdict_golden (34 сценария), goldый ping-ANSI; Default через ReachState::Unknown |
 | diagnostics/{subnet_catalog,subnet_whitelist,cert_owner,quic_probe,ipv6_check,outside_check,telegram_check,volume_probe,udp_burst,protocol_probe,windows_dns_query,block_cause,run_context(.probe),system_state(чист.),problems,report_text(базa)} | primecore-diagnostics | проблемный класт: 42 теста green + golden_collect_problems |
 | diagnostics/problems.py (collect_problems: полный join вердиктов/проб/системых/Telegram, 22 сценария python — byte-for-byte) | primecore-diagnostics/src/problems.rs + tests/problems_golden.rs | golden_collect_problems (22 scenario, burst+reference riêng) |
+
+### Перенесено в Rust — diagnostics (кластер целиком, продолжение)
+
+| Python-эталон | Rust-модуль | Паритет |
+|---|---|---|
+| diagnostics/{history,compare,report_contract,report_upgrade,self_check,rule_passports,limits,levels,block_kind,address_kinds,icmp,services} | primecore-diagnostics/src/*.rs | свои тесты, зелёные |
+| diagnostics/{cert_owner,ip_owner,my_network,dns_reference,chrome_https,browser_hello,tls_probe,reach,net_access} | primecore-diagnostics/src/*.rs | замыкания-транспорты; сеть — живьём не гонялась |
+| diagnostics/{quic_probe,udp_burst,volume_probe,upload_probe,protocol_probe,block_cause,block_kind} | primecore-diagnostics/src/*.rs | транспорта не требуют или замыкания |
+| diagnostics/{freeze_check,voice_check,telegram_check,ipv6_check,crowd_probe,speed_check,name_speed,system_state,registry,outside_check} | primecore-diagnostics/src/*.rs | чистая часть; Run-обёртки в engine-этапе |
+| diagnostics/{dns_place,path_trace,filter_habits,filter_place} | primecore-diagnostics/src/{dns_place,path_trace,filter_habits,filter_place}.rs | TtlAsk/PairOf/HabitSend — замыкания; cuts-as-set дедуп; Counter-ничьи — stable sort |
+| diagnostics/sections.py (чистая часть: dns_finding_parts, finish_dns_servers, dns/speed/crowd_problems, emit_freeze/telegram/system/network/voice, dns_place_verdict, find_filter_place, check_filter_habits, name_speed_report/check_name_speed_report, check_crowd, check_speed, check_network, ask_outside, tcp_reset_seen) | primecore-diagnostics/src/sections.rs (commit 0a5b542) | 10 тестов; данные движка идут замыканиями: pair_of(method,ip,host,name,ttl), connects(ip,ttl), owner_of, traced, dns_ask; ask_outside возвращает список (сервис,сайт,ответ) — движок сам правит probe.outside |
+
+Критичные мосты sections.rs (использовать при переносе engine.py):
+
+* `finish_dns_servers(waited: Result<Value, String>, emit)` — вместо `run.wait`;
+* `Problem.parts: Option<Value>` — title/servers/note из находок DNS;
+* советы Zapret в speed/crowd_problems зависят от `zapret_running == Some(false)` → `start_zapret`;
+* `find_filter_place` — данные от движка только замыканиями (`PairOf`, `connects`, `OwnerOf`, `traced`, `TtlAsk`);
+* `check_filter_habits`: break внутри habits; spare-blocked merge; resting/rests — `&dyn Fn(f64)`;
+* `name_speed_report`: `known(SERVER_HOST)` до скачиваний; `fetches(ip, name)`;
+* `dedup`/`round_fps` — банк-округление (`report_text::py_round0`);
+* `check_crowd` — отложенный замер left-vs-`CROWD_RESERVE_S`;
+* `check_speed` — строки и имена только при `collected && services`;
+* `ask_outside` возвращает список `(сервис, сайт, ответ)`; правка `probe.outside` — на движке.
+
+Осталось перенести (diagnostics): report_text-сборщики отчётных словарей, машина Run/Lane/Live/Steps (run_context.py) и сам engine.py (run_blockcheck / run_dns_check / check_site).
