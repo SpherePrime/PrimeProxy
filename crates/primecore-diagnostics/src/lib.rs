@@ -24,6 +24,7 @@ pub mod dns_reference;
 pub mod problems;
 pub mod report_contract;
 pub mod report_text;
+pub mod report_upgrade;
 pub mod protocol_probe;
 pub mod quic_probe;
 pub mod run_context;
