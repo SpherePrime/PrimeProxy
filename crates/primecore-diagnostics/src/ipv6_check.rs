@@ -105,7 +105,7 @@ mod tests {
 
     #[test]
     fn verdicts() {
-        let mut working = probe("tls", false);
+        let mut working = probe("tls", true);
         working.elapsed_ms = 12.0;
         assert_eq!(judge(&facts_mtls(vec![("g", Some(working))], None)).text, "работает (ответ за 12 мс)");
         assert_eq!(

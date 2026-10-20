@@ -112,16 +112,18 @@ mod tests {
         // Открыты 2 из 3 российских и 0 из 3 зарубежных — белый список подтверждён.
         let verdict = judge(&insert_foreign(synthetic(REGION_RU, 2, 3), 0)).unwrap();
         assert_eq!(verdict.code, CODE_CONFIRMED);
-        assert_eq!(verdict.text(), "из российских сетей отвечают 2 из 3, из зарубежных — 0 из 2");
-        let verdict = judge(&insert_foreign(synthetic(REGION_RU, 3, 3), 2)).unwrap();
+        assert_eq!(verdict.text(), "из российских сетей отвечают 2 из 3, из зарубежных — 0 из 10");
+        // 4 из 10 зарубежных (0.4 ≥ 0.3) — точно не белый список.
+        let verdict = judge(&insert_foreign(synthetic(REGION_RU, 3, 3), 4)).unwrap();
         assert_eq!(verdict.code, CODE_REFUTED);
         let verdict = judge(&insert_foreign(synthetic(REGION_RU, 0, 3), 1)).unwrap();
         assert_eq!(verdict.code, CODE_UNCLEAR);
     }
 
-    /// Приделывает к фактам две зарубежные группы с данным числом открытых.
+    /// Приделывает к фактам десять зарубежных групп с данным числом открытых:
+    /// пороги «неясно» лежат между долями 0.1 и 0.3, на двух группах их не взять.
     fn insert_foreign(mut facts: SubnetFacts, open: usize) -> SubnetFacts {
-        (0..2).for_each(|index| {
+        (0..10).for_each(|index| {
             facts.groups.push((format!("зарубежная {index}"), REGION_FOREIGN.to_string(), index < open));
         });
         facts

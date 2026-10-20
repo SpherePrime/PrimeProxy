@@ -147,8 +147,8 @@ pub fn location_host(location: &str) -> Option<String> {
         authority
     };
     // IPv4-хост с портом: `host:port` → `host`. Для IPv6 в скобках порт отсечён выше.
-    if let Some((bare, _port)) = host.rsplit_once(':') {
-        if !bare.is_empty() && bare.chars().all(|c| c.is_ascii_digit() || c == '.') {
+    if let Some((bare, port)) = host.rsplit_once(':') {
+        if !bare.is_empty() && !port.is_empty() && port.chars().all(|c| c.is_ascii_digit()) {
             return Some(bare.to_lowercase());
         }
     }

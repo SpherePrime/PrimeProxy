@@ -277,7 +277,9 @@ mod tests {
     #[test]
     fn wildcard_covers() {
         assert!(covers(&["cdn.example".to_string()], "cdn.example"));
-        assert!(!covers(&["*.example".to_string()], "sub.cdn.example"));
-        assert!(covers(&["*.example".to_string()], "ya.example"));
+        // Python сравнивает хвост с первым убранным узлом: «*.subs.example»
+        // закрывает «a.subs.example», но не «ya.example» (там только одна точка).
+        assert!(!covers(&["*.example".to_string()], "ya.example"));
+        assert!(covers(&["*.subs.example".to_string()], "a.subs.example"));
     }
 }

@@ -78,12 +78,12 @@ fn ms(value: Option<f64>) -> String {
 /// python `_tls_line(key, result)`.
 pub fn tls_line(key: &str, result: Option<&HelloResult>) -> Option<ProtocolLine> {
     let title = title_for(key);
-    let Some(result) = result else { return None };
+    let result = result?;
     if result.kind == HELLO_CANCELLED {
         return None;
     }
-    let mut line =
-        |word: &str, text: &str, state: &str| ProtocolLine { key: key.to_string(), title: title.to_string(), state: state.to_string(), word: word.to_string(), text: text.to_string(), ms: result.ms, code: String::new() };
+    let line =
+        move |word: &str, text: &str, state: &str| ProtocolLine { key: key.to_string(), title: title.to_string(), state: state.to_string(), word: word.to_string(), text: text.to_string(), ms: result.ms, code: String::new() };
     Some(match result.kind.as_str() {
         HELLO_OK => {
             ProtocolLine { text: format!("шифрование установилось за {}", ms(result.ms)), ..line("работает", "", STATE_OK) }
@@ -120,7 +120,7 @@ pub fn tls_line(key: &str, result: Option<&HelloResult>) -> Option<ProtocolLine>
 /// python `chrome_line(result)` — строка «Как Chrome», итог основной проверки.
 pub fn chrome_line(result: Option<&ProbeResult>) -> Option<ProtocolLine> {
     let title = title_for(PROTO_BROWSER);
-    let Some(result) = result else { return None };
+    let result = result?;
     if result.kind == KIND_CANCELLED {
         return None;
     }
@@ -351,8 +351,10 @@ mod tests {
         facts.tls12 = hello(HELLO_OK);
         let chrome = chrome_line(Some(&probe_kind(KIND_RESET))).unwrap();
         let lines = judge(Some(&facts), Some(&chrome));
-        assert_eq!(lines[0].word, WORD_CUT);
-        assert_eq!(lines[0].code, CODE_FINGERPRINT);
+        let browser = lines.iter().find(|line| line.key == PROTO_BROWSER).unwrap();
+        assert_eq!(browser.key, PROTO_BROWSER);
+        assert_eq!(browser.word, WORD_CUT);
+        assert_eq!(browser.code, CODE_FINGERPRINT);
         // TLS 1.2 режут, TLS 1.3 проходит: строка TLS 1.2 получает пояснение.
         facts.tls13 = hello(HELLO_OK);
         facts.tls12 = hello(HELLO_TIMEOUT);

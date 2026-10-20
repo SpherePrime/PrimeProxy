@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn cut_at_boundaries() {
         assert_eq!(cut_at(&[]), None);
-        assert_eq!(cut_at(&vec![false; PACKETS]), None);
+        assert_eq!(cut_at(&[false; PACKETS]), None);
         assert_eq!(cut_at(&series(PACKETS)), None);
         assert_eq!(cut_at(&series(12)), Some(13));
         assert_eq!(cut_at(&series(3)), None);
