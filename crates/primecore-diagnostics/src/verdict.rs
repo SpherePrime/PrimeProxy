@@ -691,3 +691,47 @@ pub fn summarize_service(
         kind: String::new(),
     }
 }
+
+
+impl Level {
+    /// python `Level(value)` из строки отчёта.
+    #[must_use]
+    pub fn from_ascii(value: &str) -> Self {
+        match value {
+            "ok" => Level::Ok,
+            "warn" => Level::Warn,
+            "fail" => Level::Fail,
+            "unknown" => Level::Unknown,
+            _ => Level::Unknown,
+        }
+    }
+}
+
+impl DnsState {
+    /// python `DnsState(value)` из строки отчёта.
+    #[must_use]
+    pub fn from_ascii(value: &str) -> Self {
+        match value {
+            "ok" => DnsState::Ok,
+            "spoofed" => DnsState::Spoofed,
+            "local" => DnsState::Local,
+            _ => DnsState::Unknown,
+        }
+    }
+}
+
+impl ReachState {
+    /// python `ReachState(value)` из строки отчёта.
+    #[must_use]
+    pub fn from_ascii(value: &str) -> Self {
+        match value {
+            "ok" => ReachState::Ok,
+            "dpi" => ReachState::Dpi,
+            "freeze" => ReachState::Freeze,
+            "ip_block" => ReachState::IpBlock,
+            "cert" => ReachState::Cert,
+            "no_address" => ReachState::NoAddress,
+            _ => ReachState::Unknown,
+        }
+    }
+}

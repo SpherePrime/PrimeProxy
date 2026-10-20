@@ -1,0 +1,1843 @@
+[
+ {
+  "name": "controls_ok",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok",
+    "headline": "Открывается"
+   }
+  },
+  "probes": {},
+  "params": {
+   "zapret_running": false,
+   "reference": [
+    {
+     "label": "Google DoH",
+     "address": "8.8.8.8",
+     "ok": true
+    }
+   ],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "offline",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   },
+   {
+    "key": "youtube",
+    "label": "YouTube",
+    "hosts": [
+     "www.youtube.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "fail",
+    "headline": "VK не открывается",
+    "advice": [
+     "Подберите стратегию"
+    ],
+    "kind": "sni"
+   },
+   "youtube": {
+    "level": "fail",
+    "headline": "YouTube не открывается",
+    "advice": [
+     "Подберите стратегию"
+    ],
+    "kind": "sni"
+   }
+  },
+  "probes": {
+   "ya": [
+    {
+     "host": "ya.ru",
+     "reach_state": "ip_block",
+     "cause_code": "address_silent",
+     "cause_text": "адрес молчит"
+    }
+   ],
+   "google": [
+    {
+     "host": "www.google.com",
+     "reach_state": "ip_block",
+     "tried": [
+      [
+       "64.233.162.1",
+       "connect"
+      ],
+      [
+       "64.233.162.2",
+       "connect"
+      ]
+     ],
+     "tried_silent": true
+    }
+   ],
+   "vk": [
+    {
+     "host": "vk.com",
+     "reach_state": "dpi"
+    }
+   ],
+   "youtube": [
+    {
+     "host": "www.youtube.com",
+     "reach_state": "dpi"
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": false,
+   "reference": [],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "fail",
+     "text": "Открываются только российские сайты (Российский контрольный сайт), а зарубежные контрольные (Зарубежный контрольный сайт) — нет. Похоже на режим «белых списков»: провайдер пропускает только разрешённые адреса",
+     "advice": [
+      "В таком режиме Zapret не помогает: закрыты сами адреса, а не отдельные сайты. Обычно это временное ограничение, чаще в мобильных сетях — проверьте другую сеть."
+     ],
+     "action": "",
+     "target": "",
+     "kind": "network",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "network"
+    }
+   ],
+   "working": [],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "whitelist_confirmed",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "fail",
+    "headline": "VK не открывается",
+    "kind": "sni"
+   }
+  },
+  "probes": {
+   "google": [
+    {
+     "host": "www.google.com",
+     "reach_state": "ip_block"
+    }
+   ],
+   "vk": [
+    {
+     "host": "vk.com",
+     "reach_state": "dpi",
+     "cause_code": "name_whitelist",
+     "cause_text": "проходят только разрешённые имена"
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "subnets": {
+    "code": "confirmed",
+    "ru_open": 24,
+    "ru_total": 24,
+    "foreign_open": 0,
+    "foreign_total": 24
+   },
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "fail",
+     "text": "Открываются только российские сайты (Российский контрольный сайт), а зарубежные контрольные (Зарубежный контрольный сайт) — нет. Это режим «белых списков»: из российских сетей отвечают 24 из 24, из зарубежных — 0 из 24; провайдер пропускает только разрешённые адреса",
+     "advice": [
+      "В таком режиме Zapret не помогает: закрыты сами адреса, а не отдельные сайты. Обычно это временное ограничение, чаще в мобильных сетях — проверьте другую сеть."
+     ],
+     "action": "",
+     "target": "",
+     "kind": "network",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "network"
+    }
+   ],
+   "working": [],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "whitelist_unclear",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "fail",
+    "headline": "VK не открывается",
+    "kind": "sni"
+   }
+  },
+  "probes": {
+   "google": [
+    {
+     "host": "www.google.com",
+     "reach_state": "ip_block"
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "subnets": null,
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "fail",
+     "text": "Открываются только российские сайты (Российский контрольный сайт), а зарубежные контрольные (Зарубежный контрольный сайт) — нет. Похоже на режим «белых списков»: провайдер пропускает только разрешённые адреса",
+     "advice": [
+      "В таком режиме Zapret не помогает: закрыты сами адреса, а не отдельные сайты. Обычно это временное ограничение, чаще в мобильных сетях — проверьте другую сеть."
+     ],
+     "action": "",
+     "target": "",
+     "kind": "network",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "network"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "whitelist_refuted",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "fail",
+    "headline": "VK не открывается",
+    "kind": "sni"
+   }
+  },
+  "probes": {
+   "google": [
+    {
+     "host": "www.google.com",
+     "reach_state": "ip_block"
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "subnets": {
+    "code": "refuted",
+    "ru_open": 0,
+    "ru_total": 24,
+    "foreign_open": 10,
+    "foreign_total": 24
+   },
+   "geo": {}
+  },
+  "expected": {
+   "problems": [],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "unknown_services",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "unknown",
+    "headline": "Проверить не успели",
+    "advice": [
+     "Подберите стратегию"
+    ]
+   }
+  },
+  "probes": {},
+  "params": {
+   "zapret_running": null,
+   "reference": [
+    {
+     "label": "Google DoH",
+     "address": "8.8.8.8",
+     "ok": true
+    }
+   ],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "unknown",
+     "text": "Проверить не успели",
+     "advice": [
+      "Подберите стратегию"
+     ],
+     "action": "",
+     "target": "",
+     "kind": "other",
+     "title": "",
+     "evidence": [],
+     "site": "vk",
+     "section": "services"
+    }
+   ],
+   "working": [],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "freeze",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   }
+  },
+  "probes": {},
+  "params": {
+   "zapret_running": true,
+   "reference": [],
+   "freeze": {
+    "level": "warn",
+    "headline": "Загрузка больше 16 КБ обрывается",
+    "advice": [
+     "Проверьте подключение"
+    ]
+   },
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "Загрузка больше 16 КБ обрывается",
+     "advice": [
+      "Проверьте подключение"
+     ],
+     "action": "strategy",
+     "target": "",
+     "kind": "cut16",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "freeze"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "voice",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   }
+  },
+  "probes": {},
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "voice": {
+    "level": "fail",
+    "headline": "Дороги голосовых звонков закрыты",
+    "advice": [
+     "Подберите стратегию для звонков"
+    ]
+   },
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "fail",
+     "text": "Дороги голосовых звонков закрыты",
+     "advice": [
+      "Подберите стратегию для звонков"
+     ],
+     "action": "strategy_voice",
+     "target": "",
+     "kind": "voice",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "voice"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "telegram",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   }
+  },
+  "probes": {},
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "telegram": {
+    "level": "fail",
+    "headline": "Дата-центры Telegram не принимают соединения: ни один из 1, каждый проверен дважды",
+    "advice": [
+     "Включите встроенный Telegram Proxy: он ведёт приложение другой дорогой."
+    ]
+   },
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "fail",
+     "text": "Дата-центры Telegram не принимают соединения: ни один из 1, каждый проверен дважды",
+     "advice": [
+      "Включите встроенный Telegram Proxy: он ведёт приложение другой дорогой."
+     ],
+     "action": "telegram_proxy",
+     "target": "",
+     "kind": "other",
+     "title": "Telegram",
+     "evidence": [],
+     "site": "",
+     "section": "telegram"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "spoofed_dns",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   },
+   {
+    "key": "youtube",
+    "label": "YouTube",
+    "hosts": [
+     "www.youtube.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   },
+   "youtube": {
+    "level": "ok"
+   }
+  },
+  "probes": {
+   "vk": [
+    {
+     "host": "vk.com",
+     "reach_state": "ok",
+     "judgement_state": "spoofed",
+     "judgement_reason": "ответ от другого адреса"
+    }
+   ],
+   "youtube": [
+    {
+     "host": "www.youtube.com",
+     "reach_state": "ok",
+     "judgement_state": "spoofed",
+     "judgement_reason": "адрес из другого места"
+    }
+   ],
+   "google": [
+    {
+     "host": "www.google.com",
+     "reach_state": "ok",
+     "judgement_state": "spoofed",
+     "judgement_reason": "адрес странного вида"
+    }
+   ],
+   "google2": [
+    {
+     "host": "www.google.com",
+     "reach_state": "ok",
+     "judgement_state": "spoofed",
+     "judgement_reason": "адрес странного вида"
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "DNS подменяет ответы для www.google.com, vk.com, www.youtube.com. Браузер с защищённым DNS этого не замечает, а программы, которые спрашивают адрес у Windows, эти сайты не откроют",
+     "advice": [
+      "Включите DNS с шифрованием (DoH) в разделе «Настройка DNS» — провайдер не сможет подменять ответы."
+     ],
+     "action": "dns",
+     "target": "",
+     "kind": "dns",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "dns"
+    }
+   ],
+   "working": [
+    "VK",
+    "YouTube"
+   ],
+   "spoofed": [
+    "www.google.com",
+    "vk.com",
+    "www.youtube.com"
+   ]
+  }
+ },
+ {
+  "name": "quic_silent_all",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   }
+  },
+  "probes": {
+   "google": [
+    {
+     "host": "www.google.com",
+     "reach_state": "ok",
+     "quic_code": "silent",
+     "quic_text": "сервер не отвечает ни с каким именем — он не поддерживает QUIC или UDP 443 закрыт целиком"
+    },
+    {
+     "host": "www.cloudflare.com",
+     "reach_state": "ok",
+     "quic_code": "silent",
+     "quic_text": "сервер не отвечает"
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "QUIC (UDP 443) не отвечает ни у одного сайта, включая www.cloudflare.com, www.google.com, которые его точно поддерживают, — похоже, UDP 443 закрыт целиком: провайдером, роутером или пресетом Zapret. Сайты открываются обычным соединением, но браузер сначала пробует QUIC и теряет на этом время",
+     "advice": [
+      "В пресете должен быть profile для UDP 443 (QUIC) с этими сайтами. Проще всего выбрать готовый пресет, где он есть, или отключить QUIC в браузере (в Chrome: chrome://flags → Experimental QUIC protocol)."
+     ],
+     "action": "",
+     "target": "",
+     "kind": "quic",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "quic"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "quic_blocked",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   }
+  },
+  "probes": {
+   "vk": [
+    {
+     "host": "vk.com",
+     "reach_state": "ok",
+     "quic_code": "blocked_by_name",
+     "quic_text": "блокируется по имени сайта: пакет с именем vk.com пропадает и на повторе, а с посторонним именем тот же сервер отвечает"
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": true,
+   "reference": [],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "QUIC (UDP 443) не проходит по имени для: VK. Сайты открываются обычным соединением, но браузер сначала пробует QUIC, поэтому открытие и начало видео могут запаздывать. Так режет провайдер, но так же действует и сам Zapret, если в пресете QUIC отключён намеренно",
+     "advice": [
+      "В пресете должен быть profile для UDP 443 (QUIC) с этими сайтами. Проще всего выбрать готовый пресет, где он есть, или отключить QUIC в браузере (в Chrome: chrome://flags → Experimental QUIC protocol)."
+     ],
+     "action": "",
+     "target": "",
+     "kind": "quic",
+     "title": "",
+     "evidence": [],
+     "site": "vk",
+     "section": "quic"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "system_problems",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   }
+  },
+  "probes": {},
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "system": [
+    {
+     "key": "admin",
+     "title": "Права администратора",
+     "level": "fail",
+     "text": "программа запущена без них — драйвер перехвата не запустится",
+     "advice": "Закройте программу и запустите её снова, согласившись на запрос Windows."
+    },
+    {
+     "key": "bfe",
+     "title": "Служба фильтрации Windows (BFE)",
+     "level": "warn",
+     "text": "не работает",
+     "advice": ""
+    },
+    {
+     "key": "antivirus",
+     "title": "Антивирус",
+     "level": "info",
+     "text": "работает Kaspersky",
+     "advice": "Добавьте папку в исключения"
+    },
+    {
+     "key": "clock",
+     "title": "Часы компьютера",
+     "level": "ok",
+     "text": "идут верно",
+     "advice": ""
+    }
+   ],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "fail",
+     "text": "Права администратора: программа запущена без них — драйвер перехвата не запустится",
+     "advice": [
+      "Закройте программу и запустите её снова, согласившись на запрос Windows."
+     ],
+     "action": "",
+     "target": "",
+     "kind": "system",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "system"
+    },
+    {
+     "level": "warn",
+     "text": "Служба фильтрации Windows (BFE): не работает",
+     "advice": [],
+     "action": "",
+     "target": "",
+     "kind": "system",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "system"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "ipv6_broken",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   }
+  },
+  "probes": {},
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "ipv6": {
+    "code": "broken",
+    "text": "настроен, но не работает: Windows считает, что дорога по IPv6 есть, а проверочные сайты по нему не отвечают"
+   },
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "IPv6 настроен, но не работает: Windows считает, что дорога по IPv6 есть, а проверочные сайты по нему не отвечают",
+     "advice": [
+      "Из-за этого сайты могут открываться с задержкой: браузер сначала пробует IPv6. Перезагрузите роутер; если не поможет — снимите галочку «IP версии 6» в свойствах сетевого адаптера Windows."
+     ],
+     "action": "",
+     "target": "",
+     "kind": "network",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "ipv6"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "blocked_reference",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   }
+  },
+  "probes": {},
+  "params": {
+   "zapret_running": null,
+   "reference": [
+    {
+     "label": "Google DoH",
+     "address": "8.8.8.8",
+     "ok": true
+    },
+    {
+     "label": "Cloudflare DoH",
+     "address": "1.1.1.1",
+     "ok": false,
+     "reason": "сбой соединения"
+    }
+   ],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "Шифрованный DNS Cloudflare DoH (1.1.1.1) недоступен: сбой соединения",
+     "advice": [
+      "Похоже, этот сервер закрыт у вашего провайдера. Не выбирайте его для защищённого DNS: Windows молча вернётся к обычным запросам, которые видны и подменяются."
+     ],
+     "action": "dns",
+     "target": "",
+     "kind": "dns",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "dns"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "mixed_causes",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   },
+   {
+    "key": "youtube",
+    "label": "YouTube",
+    "hosts": [
+     "www.youtube.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "fail",
+    "headline": "VK не открывается",
+    "kind": "sni",
+    "advice": [
+     "DNS с шифрованием"
+    ]
+   },
+   "youtube": {
+    "level": "fail",
+    "headline": "YouTube не открывается",
+    "kind": "cut16",
+    "advice": [
+     "Проверить подключение"
+    ]
+   }
+  },
+  "probes": {
+   "vk": [
+    {
+     "host": "vk.com",
+     "reach_state": "dpi",
+     "cause_code": "by_name",
+     "cause_text": "шифрование рвут сразу после приветствия"
+    }
+   ],
+   "youtube": [
+    {
+     "host": "www.youtube.com",
+     "reach_state": "freeze",
+     "volume_code": "cut",
+     "volume_text": "соединение замирает после 16 КБ — дважды подряд",
+     "volume_cut_kb": 16
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": false,
+   "reference": [
+    {
+     "label": "Google DoH",
+     "address": "8.8.8.8",
+     "ok": true
+    }
+   ],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "fail",
+     "text": "VK не открывается",
+     "advice": [
+      "Шифрование рвут сразу после приветствия.",
+      "DNS с шифрованием"
+     ],
+     "action": "start_zapret",
+     "target": "vk.com",
+     "kind": "sni",
+     "title": "VK",
+     "evidence": [
+      "Шифрование рвут сразу после приветствия."
+     ],
+     "site": "vk",
+     "section": "services"
+    },
+    {
+     "level": "fail",
+     "text": "YouTube не открывается",
+     "advice": [
+      "Проверить подключение"
+     ],
+     "action": "start_zapret",
+     "target": "www.youtube.com",
+     "kind": "cut16",
+     "title": "YouTube",
+     "evidence": [],
+     "site": "youtube",
+     "section": "services"
+    }
+   ],
+   "working": [],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "geo_site",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "warn",
+    "headline": "VK открывается не всегда",
+    "kind": "sni",
+    "advice": [
+     "Подберите стратегию",
+     "Включите маршрут через Zapret"
+    ]
+   }
+  },
+  "probes": {
+   "vk": [
+    {
+     "host": "vk.com",
+     "reach_state": "dpi",
+     "cause_code": ""
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": null,
+   "reference": [],
+   "geo": {
+    "vk.com": "vk"
+   }
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "VK открывается не всегда",
+     "advice": [
+      "vk сам ограничивает доступ из России, поэтому стратегия Zapret его не чинит. Включите для него DNS-профиль на странице «Редактор hosts» или смените DNS в разделе «Настройка DNS».",
+      "Подберите стратегию",
+      "Включите маршрут через Zapret"
+     ],
+     "action": "hosts",
+     "target": "vk.com",
+     "kind": "sni",
+     "title": "",
+     "evidence": [],
+     "site": "vk",
+     "section": "services"
+    }
+   ],
+   "working": [],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "hosts_stale",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok",
+    "headline": "Открывается"
+   }
+  },
+  "probes": {
+   "vk": [
+    {
+     "host": "vk.com",
+     "reach_state": "ok",
+     "hosts_stale": true,
+     "cert_code": "hosts",
+     "cert_text": "запись в файле hosts ведёт на чужой сервер",
+     "cert_advice": "Откройте «Редактор hosts»"
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": false,
+   "reference": [
+    {
+     "label": "Google DoH",
+     "address": "8.8.8.8",
+     "ok": true
+    }
+   ],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "shaky_site",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "warn",
+    "headline": "VK открывается не всегда",
+    "kind": "unstable"
+   }
+  },
+  "probes": {
+   "vk": [
+    {
+     "host": "vk.com",
+     "reach_state": "ok",
+     "unstable": "не открывался дважды из шести проверок"
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": null,
+   "reference": [
+    {
+     "label": "Google DoH",
+     "address": "8.8.8.8",
+     "ok": true
+    }
+   ],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "VK открывается не всегда",
+     "advice": [
+      "Не открывался дважды из шести проверок."
+     ],
+     "action": "strategy",
+     "target": "vk.com",
+     "kind": "unstable",
+     "title": "",
+     "evidence": [
+      "Не открывался дважды из шести проверок."
+     ],
+     "site": "vk",
+     "section": "services"
+    }
+   ],
+   "working": [],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "telegram_proxy",
+  "services": [
+   {
+    "key": "ya",
+    "label": "Российский контрольный сайт",
+    "hosts": [
+     "ya.ru"
+    ],
+    "control": true,
+    "domestic": true
+   },
+   {
+    "key": "google",
+    "label": "Зарубежный контрольный сайт",
+    "hosts": [
+     "www.google.com"
+    ],
+    "control": true
+   },
+   {
+    "key": "vk",
+    "label": "VK",
+    "hosts": [
+     "vk.com"
+    ]
+   },
+   {
+    "key": "telegram",
+    "label": "Telegram",
+    "hosts": [
+     "telegram.org"
+    ]
+   }
+  ],
+  "verdicts": {
+   "ya": {
+    "level": "ok"
+   },
+   "google": {
+    "level": "ok"
+   },
+   "vk": {
+    "level": "ok"
+   },
+   "telegram": {
+    "level": "fail",
+    "headline": "Telegram не открывается",
+    "kind": "ip",
+    "advice": []
+   }
+  },
+  "probes": {
+   "telegram": [
+    {
+     "host": "telegram.org",
+     "reach_state": "ip_block",
+     "tried": [
+      [
+       "149.154.167.51",
+       "connect"
+      ],
+      [
+       "149.154.175.53",
+       "connect"
+      ]
+     ],
+     "tried_silent": true
+    }
+   ]
+  },
+  "params": {
+   "zapret_running": false,
+   "reference": [
+    {
+     "label": "Google DoH",
+     "address": "8.8.8.8",
+     "ok": true
+    }
+   ],
+   "geo": {}
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "fail",
+     "text": "Telegram не открывается",
+     "advice": [],
+     "action": "telegram_proxy",
+     "target": "telegram.org",
+     "kind": "ip",
+     "title": "Telegram",
+     "evidence": [],
+     "site": "telegram",
+     "section": "services"
+    }
+   ],
+   "working": [
+    "VK"
+   ],
+   "spoofed": []
+  }
+ },
+ {
+  "name": "burst_freeze",
+  "services": [],
+  "verdicts": {},
+  "probes": {},
+  "params": {
+   "burst": {
+    "code": "freeze",
+    "text": "ответы по UDP прекращаются примерно после 16 пакетов",
+    "servers": [
+     [
+      "Google",
+      [
+       true,
+       true,
+       true,
+       true,
+       true,
+       true,
+       true,
+       true,
+       true,
+       true,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false,
+       false
+      ]
+     ]
+    ]
+   }
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "UDP замирает: ответы по UDP прекращаются примерно после 16 пакетов",
+     "advice": [
+      "Нажмите «Подобрать стратегию для звонков» — нужный пункт «Голосовые звонки» выберется сам."
+     ],
+     "action": "strategy_voice",
+     "target": "",
+     "kind": "voice",
+     "title": "",
+     "evidence": [],
+     "site": "",
+     "section": "voice"
+    }
+   ],
+   "working": [],
+   "spoofed": []
+  },
+  "extra": {
+   "burst_none": []
+  }
+ },
+ {
+  "name": "reference_helpers",
+  "services": [],
+  "verdicts": {},
+  "probes": {},
+  "params": {
+   "reference": [
+    {
+     "label": "Google DoH",
+     "address": "8.8.8.8",
+     "ok": true,
+     "answered": 12,
+     "failed": 0,
+     "reason": ""
+    },
+    {
+     "label": "Cloudflare DoH",
+     "address": "1.1.1.1",
+     "ok": false,
+     "answered": 0,
+     "failed": 3,
+     "reason": "сбой соединения"
+    }
+   ]
+  },
+  "expected": {
+   "problems": [
+    {
+     "level": "warn",
+     "text": "Шифрованный DNS Cloudflare DoH (1.1.1.1) недоступен: сбой соединения",
+     "advice": [
+      "Похоже, этот сервер закрыт у вашего провайдера. Не выбирайте его для защищённого DNS: Windows молча вернётся к обычным запросам, которые видны и подменяются."
+     ],
+     "action": "dns"
+    }
+   ],
+   "working": [],
+   "spoofed": []
+  }
+ }
+]
