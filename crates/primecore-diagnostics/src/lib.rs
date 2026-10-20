@@ -27,6 +27,7 @@ pub mod protocol_probe;
 pub mod quic_probe;
 pub mod run_context;
 pub mod system_state;
+pub mod self_check;
 pub mod services;
 pub mod subnet_catalog;
 pub mod subnet_whitelist;
