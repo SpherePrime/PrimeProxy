@@ -13,6 +13,7 @@ pub mod chrome_https;
 pub mod ip_owner;
 pub mod history;
 pub mod icmp;
+pub mod freeze_check;
 pub mod ipv6_check;
 pub mod levels;
 pub mod limits;
