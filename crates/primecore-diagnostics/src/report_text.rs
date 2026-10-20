@@ -56,6 +56,16 @@ pub fn stages_text(stages: &std::collections::BTreeMap<String, f64>) -> String {
         .join(", ")
 }
 
+/// python `f"{value:.0f}"` — округление .5 к ближайшему чётному (2.5 → «2», 3.5 → «4»).
+pub fn py_round0(value: f64) -> i64 {
+    if (value - value.floor()) == 0.5 {
+        let even = (value.floor() as i64) % 2 == 0;
+        if even { value.floor() as i64 } else { (value.floor() + 1.0) as i64 }
+    } else {
+        value.round() as i64
+    }
+}
+
 /// python `LEVEL_ICON`.
 pub fn level_icon(level: Level) -> &'static str {
     match level {
