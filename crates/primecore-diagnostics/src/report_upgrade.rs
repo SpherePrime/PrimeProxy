@@ -31,7 +31,7 @@ fn for_sites_re() -> &'static Regex {
 }
 
 /// Python-правдивость JSON-значения (`if value:`).
-fn truthy(value: Option<&Value>) -> bool {
+pub fn truthy(value: Option<&Value>) -> bool {
     match value {
         None | Some(Value::Null) => false,
         Some(Value::Bool(flag)) => *flag,
@@ -43,7 +43,7 @@ fn truthy(value: Option<&Value>) -> bool {
 }
 
 /// python `str(value or "")` для скаляров отчёта.
-fn text_scalar(value: Option<&Value>) -> String {
+pub fn text_scalar(value: Option<&Value>) -> String {
     match value {
         None | Some(Value::Null) | Some(Value::Bool(false)) => String::new(),
         Some(Value::Bool(true)) => "True".to_string(),
