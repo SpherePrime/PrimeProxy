@@ -19,6 +19,7 @@ pub mod levels;
 pub mod limits;
 pub mod outside_check;
 pub mod probe_result;
+pub mod registry;
 pub mod my_network;
 pub mod name_speed;
 pub mod compare;

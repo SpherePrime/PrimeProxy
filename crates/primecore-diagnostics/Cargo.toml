@@ -6,6 +6,7 @@ license.workspace = true
 description = "Порт src/diagnostics — проверки BlockCheck и DNS-подмены."
 
 [dependencies]
+blake2b_simd = { workspace = true }
 serde_json.workspace = true
 serde.workspace = true
 regex.workspace = true
