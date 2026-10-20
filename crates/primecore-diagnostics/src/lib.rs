@@ -23,6 +23,7 @@ pub mod probe_result;
 pub mod registry;
 pub mod my_network;
 pub mod name_speed;
+pub mod net_access;
 pub mod compare;
 pub mod crowd_probe;
 pub mod dns_place;
