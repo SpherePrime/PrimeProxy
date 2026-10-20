@@ -7,7 +7,9 @@
 //! Каким способом спрашивать, решает вызывающий: проверка перехвата DNS обязана
 //! идти шифрованным путём, иначе о владельце ответит сам перехватчик.
 
-use primecore_dnswire::{DnsQueryResult, DnsRecord, TYPE_TXT};
+use primecore_dnswire::{DnsQueryResult, TYPE_TXT};
+#[cfg(test)]
+use primecore_dnswire::DnsRecord;
 
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]

@@ -16,6 +16,7 @@ pub mod limits;
 pub mod outside_check;
 pub mod probe_result;
 pub mod my_network;
+pub mod dns_reference;
 pub mod problems;
 pub mod report_text;
 pub mod protocol_probe;

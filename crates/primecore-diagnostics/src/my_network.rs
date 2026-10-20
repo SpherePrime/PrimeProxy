@@ -461,7 +461,7 @@ mod tests {
             Some(("192.168.1.1".to_string(), None)),
             Some(("192.168.1.1".to_string(), Some(1.0))),
         ];
-        let mut index = std::cell::RefCell::new(0usize);
+        let index = std::cell::RefCell::new(0usize);
         let sample = measure_hop(
             &|_ttl| {
                 let got = answers[*index.borrow()].clone();
