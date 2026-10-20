@@ -33,5 +33,6 @@ pub mod subnet_whitelist;
 pub mod telegram_check;
 pub mod udp_burst;
 pub mod verdict;
+pub mod voice_check;
 pub mod volume_probe;
 pub mod windows_dns_query;
