@@ -33,6 +33,7 @@ pub mod run_context;
 pub mod system_state;
 pub mod self_check;
 pub mod services;
+pub mod speed_check;
 pub mod subnet_catalog;
 pub mod subnet_whitelist;
 pub mod telegram_check;
