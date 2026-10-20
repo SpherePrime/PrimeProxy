@@ -1,0 +1,1469 @@
+[
+ {
+  "name": "open_full_main",
+  "kind": "target_report",
+  "input": {
+   "host": "www.youtube.com",
+   "purpose": "сайт",
+   "main": true,
+   "service": "youtube",
+   "reach_state": "ok",
+   "reach_ip": "142.250.74.14",
+   "judgement": {
+    "state": "ok",
+    "reason": ""
+   },
+   "quic": {
+    "code": "ok",
+    "text": "QUIC проходит"
+   },
+   "volume": {
+    "code": "ok",
+    "text": "объём проходит"
+   },
+   "seconds": 6.25,
+   "stages": {
+    "dns": 0.4,
+    "reach": 6.2,
+    "roads": 1.9
+   },
+   "protocols": [
+    {
+     "key": "browser",
+     "title": "Как Chrome",
+     "state": "ok",
+     "word": "работает",
+     "text": "сайт открылся",
+     "ms": 2.25,
+     "code": ""
+    },
+    {
+     "key": "tls12",
+     "title": "TLS 1.2",
+     "state": "ok",
+     "word": "работает",
+     "text": "приветствие прошло",
+     "ms": 11.0,
+     "code": ""
+    },
+    {
+     "key": "tls13",
+     "title": "TLS 1.3",
+     "state": "ok",
+     "word": "работает",
+     "text": "приветствие прошло",
+     "ms": null,
+     "code": ""
+    },
+    {
+     "key": "http",
+     "title": "HTTP",
+     "state": "info",
+     "word": "ответил",
+     "text": "перенаправление на защищённый адрес",
+     "ms": 8.5,
+     "code": ""
+    }
+   ],
+   "tried": [
+    [
+     "142.250.74.14",
+     "ok"
+    ]
+   ]
+  },
+  "expected": {
+   "host": "www.youtube.com",
+   "purpose": "сайт",
+   "main": true,
+   "state": "ok",
+   "ok": true,
+   "text": "открывается (0 мс, 142.250.74.14)",
+   "short": "открывается",
+   "dns_state": "ok",
+   "dns_reason": "",
+   "kind": "",
+   "kind_title": "",
+   "volume": "ok",
+   "volume_text": "объём проходит",
+   "cause": "",
+   "cause_text": "",
+   "quic": "ok",
+   "quic_text": "QUIC проходит",
+   "protocols": [
+    {
+     "key": "browser",
+     "title": "Как Chrome",
+     "state": "ok",
+     "word": "работает",
+     "text": "сайт открылся",
+     "ms": 2.2,
+     "code": "",
+     "hint": "Основная проверка: сайт открывается так, как его открыл бы Chrome, — с тем же началом соединения. Эта строка ближе всего к тому, что вы увидите в браузере."
+    },
+    {
+     "key": "tls12",
+     "title": "TLS 1.2",
+     "state": "ok",
+     "word": "работает",
+     "text": "приветствие прошло",
+     "ms": 11.0,
+     "code": "",
+     "hint": "TLS 1.2 — прежняя версия шифрования. Так подключаются старые программы и устройства; браузеры почти всегда берут TLS 1.3."
+    },
+    {
+     "key": "tls13",
+     "title": "TLS 1.3",
+     "state": "ok",
+     "word": "работает",
+     "text": "приветствие прошло",
+     "ms": null,
+     "code": "",
+     "hint": "TLS 1.3 — нынешняя версия шифрования. Здесь её проверяют простым соединением, каким ходят программы, а не браузер."
+    },
+    {
+     "key": "http",
+     "title": "HTTP",
+     "state": "info",
+     "word": "ответил",
+     "text": "перенаправление на защищённый адрес",
+     "ms": 8.5,
+     "code": "",
+     "hint": "Обычное соединение без шифрования (порт 80). Сайты отвечают на него переходом на защищённый адрес — это норма."
+    }
+   ],
+   "address": "142.250.74.14",
+   "tried": [
+    {
+     "address": "142.250.74.14",
+     "result": "ok"
+    }
+   ],
+   "address_confirmed": false,
+   "hosts_stale": false,
+   "rechecked": "",
+   "outside": "",
+   "unstable": "",
+   "cert": null,
+   "seconds": 6.2,
+   "stages": {
+    "dns": 0.4,
+    "reach": 6.2,
+    "roads": 1.9
+   },
+   "note": ""
+  }
+ },
+ {
+  "name": "fail_by_name",
+  "kind": "target_report",
+  "input": {
+   "host": "discord.com",
+   "purpose": "сайт",
+   "main": true,
+   "service": "discord",
+   "reach_state": "dpi",
+   "reach_ip": "162.159.135.234",
+   "judgement": {
+    "state": "ok",
+    "reason": ""
+   },
+   "cause": {
+    "code": "by_name",
+    "text": "соединение рвут по имени сайта"
+   },
+   "quic": {
+    "code": "blocked_by_name",
+    "text": "QUIC к сайту режут"
+   },
+   "seconds": 12.3,
+   "stages": {
+    "dns": 0.5,
+    "reach": 8.1,
+    "cause": 2.4,
+    "roads": 1.3
+   },
+   "protocols": [
+    {
+     "key": "browser",
+     "title": "Как Chrome",
+     "state": "fail",
+     "word": "сброс",
+     "text": "соединение сброшено при приветствии",
+     "ms": 1.2,
+     "code": ""
+    },
+    {
+     "key": "tls12",
+     "title": "TLS 1.2",
+     "state": "ok",
+     "word": "работает",
+     "text": "приветствие прошло",
+     "ms": 22.0,
+     "code": ""
+    }
+   ],
+   "tried": [
+    [
+     "162.159.135.234",
+     "connect"
+    ],
+    [
+     "162.159.136.234",
+     "connect"
+    ]
+   ],
+   "tried_silent": true
+  },
+  "expected": {
+   "host": "discord.com",
+   "purpose": "сайт",
+   "main": true,
+   "state": "dpi",
+   "ok": false,
+   "text": "не удалось выполнить запрос (162.159.135.234, не ответил ни один из 2 адресов)",
+   "short": "не удалось выполнить запрос",
+   "dns_state": "ok",
+   "dns_reason": "",
+   "kind": "sni",
+   "kind_title": "Блокировка по имени (SNI)",
+   "volume": "",
+   "volume_text": "",
+   "cause": "by_name",
+   "cause_text": "Соединение рвут по имени сайта",
+   "quic": "blocked_by_name",
+   "quic_text": "QUIC к сайту режут",
+   "protocols": [
+    {
+     "key": "browser",
+     "title": "Как Chrome",
+     "state": "fail",
+     "word": "сброс",
+     "text": "соединение сброшено при приветствии",
+     "ms": 1.2,
+     "code": "",
+     "hint": "Основная проверка: сайт открывается так, как его открыл бы Chrome, — с тем же началом соединения. Эта строка ближе всего к тому, что вы увидите в браузере."
+    },
+    {
+     "key": "tls12",
+     "title": "TLS 1.2",
+     "state": "ok",
+     "word": "работает",
+     "text": "приветствие прошло",
+     "ms": 22.0,
+     "code": "",
+     "hint": "TLS 1.2 — прежняя версия шифрования. Так подключаются старые программы и устройства; браузеры почти всегда берут TLS 1.3."
+    }
+   ],
+   "address": "162.159.135.234",
+   "tried": [
+    {
+     "address": "162.159.135.234",
+     "result": "connect"
+    },
+    {
+     "address": "162.159.136.234",
+     "result": "connect"
+    }
+   ],
+   "address_confirmed": true,
+   "hosts_stale": false,
+   "rechecked": "",
+   "outside": "",
+   "unstable": "",
+   "cert": null,
+   "seconds": 12.3,
+   "stages": {
+    "dns": 0.5,
+    "reach": 8.1,
+    "cause": 2.4,
+    "roads": 1.3
+   },
+   "note": ""
+  }
+ },
+ {
+  "name": "cert_and_hosts",
+  "kind": "target_report",
+  "input": {
+   "host": "example.org",
+   "purpose": "сайт",
+   "main": false,
+   "service": "user",
+   "reach_state": "cert",
+   "reach_ip": "192.0.2.55",
+   "judgement": {
+    "state": "ok",
+    "reason": ""
+   },
+   "cert": {
+    "code": "antivirus",
+    "text": "сертификат подменяет антивирус",
+    "advice": "добавьте сайт в исключения антивируса",
+    "subject": "CN=Kaspersky",
+    "issuer": "Kaspersky Root",
+    "names": [
+     "example.org",
+     "*.example.org"
+    ]
+   },
+   "hosts_stale": true,
+   "discovery_note": "адрес из файла hosts",
+   "seconds": 3.45,
+   "tried": [
+    [
+     "192.0.2.55",
+     "cert"
+    ],
+    [
+     "203.0.113.9",
+     "ok"
+    ]
+   ],
+   "tried_silent": false
+  },
+  "expected": {
+   "host": "example.org",
+   "purpose": "сайт",
+   "main": false,
+   "state": "cert",
+   "ok": false,
+   "text": "сертификат подменяет антивирус (192.0.2.55, не ответил ни один из 2 адресов)",
+   "short": "сертификат подменяет антивирус",
+   "dns_state": "ok",
+   "dns_reason": "",
+   "kind": "cert",
+   "kind_title": "Отвечает чужой сервер",
+   "volume": "",
+   "volume_text": "",
+   "cause": "",
+   "cause_text": "",
+   "quic": "",
+   "quic_text": "",
+   "protocols": [],
+   "address": "192.0.2.55",
+   "tried": [
+    {
+     "address": "192.0.2.55",
+     "result": "cert"
+    },
+    {
+     "address": "203.0.113.9",
+     "result": "ok"
+    }
+   ],
+   "address_confirmed": false,
+   "hosts_stale": true,
+   "rechecked": "",
+   "outside": "",
+   "unstable": "",
+   "cert": {
+    "code": "antivirus",
+    "text": "сертификат подменяет антивирус",
+    "advice": "добавьте сайт в исключения антивируса",
+    "subject": "CN=Kaspersky",
+    "issuer": "Kaspersky Root",
+    "names": [
+     "example.org",
+     "*.example.org"
+    ]
+   },
+   "seconds": 3.5,
+   "stages": {},
+   "note": "адрес из файла hosts"
+  }
+ },
+ {
+  "name": "ipv6_only_open",
+  "kind": "target_report",
+  "input": {
+   "host": "cdn.example.net",
+   "purpose": "видео",
+   "main": false,
+   "service": "youtube",
+   "reach_state": "ok",
+   "reach_ip": "2001:db8::17",
+   "judgement": {
+    "state": "unknown",
+    "reason": "эталон не ответил"
+   },
+   "discovery_note": "адрес видеосервера получен от YouTube",
+   "seconds": 2.0,
+   "tried": [
+    [
+     "2001:db8::17",
+     "ok"
+    ]
+   ]
+  },
+  "expected": {
+   "host": "cdn.example.net",
+   "purpose": "видео",
+   "main": false,
+   "state": "ok",
+   "ok": true,
+   "text": "открывается по IPv6, по IPv4 — нет (0 мс, 2001:db8::17)",
+   "short": "открывается только по IPv6",
+   "dns_state": "unknown",
+   "dns_reason": "эталон не ответил",
+   "kind": "",
+   "kind_title": "",
+   "volume": "",
+   "volume_text": "",
+   "cause": "",
+   "cause_text": "",
+   "quic": "",
+   "quic_text": "",
+   "protocols": [],
+   "address": "2001:db8::17",
+   "tried": [
+    {
+     "address": "2001:db8::17",
+     "result": "ok"
+    }
+   ],
+   "address_confirmed": false,
+   "hosts_stale": false,
+   "rechecked": "",
+   "outside": "",
+   "unstable": "",
+   "cert": null,
+   "seconds": 2.0,
+   "stages": {},
+   "note": "адрес видеосервера получен от YouTube"
+  }
+ },
+ {
+  "name": "down_and_unstable",
+  "kind": "target_report",
+  "input": {
+   "host": "mirror.example.com",
+   "purpose": "сайт",
+   "main": true,
+   "service": "mirror",
+   "reach_state": "ip_block",
+   "reach_ip": "198.51.100.7",
+   "judgement": {
+    "state": "ok",
+    "reason": ""
+   },
+   "outside": "down",
+   "rechecked": "unstable",
+   "unstable": "из трёх попыток подряд прошла одна: сбой, успех и снова сбой",
+   "seconds": 9.85,
+   "tried": [
+    [
+     "198.51.100.7",
+     "connect"
+    ],
+    [
+     "198.51.100.8",
+     "connect"
+    ]
+   ],
+   "tried_silent": true
+  },
+  "expected": {
+   "host": "mirror.example.com",
+   "purpose": "сайт",
+   "main": true,
+   "state": "ip_block",
+   "ok": false,
+   "text": "не удалось выполнить запрос (198.51.100.7, не ответил ни один из 2 адресов)",
+   "short": "не удалось выполнить запрос",
+   "dns_state": "ok",
+   "dns_reason": "",
+   "kind": "down",
+   "kind_title": "Сайт не работает сам",
+   "volume": "",
+   "volume_text": "",
+   "cause": "",
+   "cause_text": "",
+   "quic": "",
+   "quic_text": "",
+   "protocols": [],
+   "address": "198.51.100.7",
+   "tried": [
+    {
+     "address": "198.51.100.7",
+     "result": "connect"
+    },
+    {
+     "address": "198.51.100.8",
+     "result": "connect"
+    }
+   ],
+   "address_confirmed": true,
+   "hosts_stale": false,
+   "rechecked": "unstable",
+   "outside": "down",
+   "unstable": "из трёх попыток подряд прошла одна: сбой, успех и снова сбой",
+   "cert": null,
+   "seconds": 9.8,
+   "stages": {},
+   "note": ""
+  }
+ },
+ {
+  "name": "services_report_full",
+  "kind": "services_report",
+  "input": {
+   "services": [
+    {
+     "key": "discord",
+     "label": "Discord",
+     "control": false,
+     "domestic": false
+    },
+    {
+     "key": "youtube",
+     "label": "YouTube",
+     "control": false,
+     "domestic": false
+    },
+    {
+     "key": "control_foreign",
+     "label": "Контрольный сайт",
+     "control": true,
+     "domestic": false
+    },
+    {
+     "key": "control_domestic",
+     "label": "Российский контрольный",
+     "control": true,
+     "domestic": true
+    },
+    {
+     "key": "user",
+     "label": "Свой домен",
+     "control": false,
+     "domestic": false
+    }
+   ],
+   "verdicts": {
+    "discord": {
+     "level": "fail",
+     "headline": "Discord не открывается",
+     "advice": [
+      "Запустите Zapret",
+      "Подберите стратегию"
+     ],
+     "dns_note": "",
+     "kind": "sni"
+    },
+    "youtube": {
+     "level": "ok",
+     "headline": "YouTube открывается",
+     "advice": [],
+     "dns_note": "",
+     "kind": ""
+    },
+    "control_foreign": {
+     "level": "fail",
+     "headline": "Контрольный сайт не открывается",
+     "advice": [
+      "Проверьте подключение"
+     ],
+     "dns_note": "",
+     "kind": ""
+    },
+    "control_domestic": {
+     "level": "ok",
+     "headline": "Российский контрольный открывается",
+     "advice": [],
+     "dns_note": "",
+     "kind": ""
+    },
+    "user": {
+     "level": "warn",
+     "headline": "Свой домен открывается с проблемами",
+     "advice": [
+      "Попробуйте другой адрес"
+     ],
+     "dns_note": "DNS подменяет адрес example.org",
+     "kind": "other"
+    }
+   },
+   "probes": [
+    {
+     "service": "discord",
+     "host": "discord.com",
+     "purpose": "сайт",
+     "main": true,
+     "reach_state": "dpi",
+     "reach_ip": "162.159.135.234",
+     "judgement": {
+      "state": "ok",
+      "reason": ""
+     },
+     "cause": {
+      "code": "by_name",
+      "text": "соединение рвут по имени сайта"
+     },
+     "quic": {
+      "code": "blocked_by_name",
+      "text": "QUIC к сайту режут"
+     },
+     "seconds": 8.0,
+     "protocols": [
+      {
+       "key": "browser",
+       "title": "Как Chrome",
+       "state": "fail",
+       "word": "сброс",
+       "text": "соединение сброшено",
+       "ms": 1.0,
+       "code": ""
+      }
+     ],
+     "tried": [
+      [
+       "162.159.135.234",
+       "connect"
+      ],
+      [
+       "162.159.136.234",
+       "connect"
+      ]
+     ],
+     "tried_silent": true
+    },
+    {
+     "service": "discord",
+     "host": "gateway.discord.gg",
+     "purpose": "чат",
+     "main": false,
+     "reach_state": "ok",
+     "reach_ip": "162.159.134.234",
+     "judgement": {
+      "state": "ok",
+      "reason": ""
+     },
+     "quic": {
+      "code": "ok",
+      "text": "QUIC проходит"
+     },
+     "seconds": 4.2,
+     "protocols": [
+      {
+       "key": "browser",
+       "title": "Как Chrome",
+       "state": "ok",
+       "word": "работает",
+       "text": "сайт открылся",
+       "ms": 3.0,
+       "code": ""
+      }
+     ],
+     "tried": [
+      [
+       "162.159.134.234",
+       "ok"
+      ]
+     ]
+    },
+    {
+     "service": "youtube",
+     "host": "www.youtube.com",
+     "purpose": "сайт",
+     "main": true,
+     "reach_state": "ok",
+     "reach_ip": "142.250.74.14",
+     "judgement": {
+      "state": "ok",
+      "reason": ""
+     },
+     "quic": {
+      "code": "ok",
+      "text": "QUIC проходит"
+     },
+     "seconds": 5.0,
+     "protocols": [
+      {
+       "key": "tls13",
+       "title": "TLS 1.3",
+       "state": "ok",
+       "word": "работает",
+       "text": "приветствие прошло",
+       "ms": null,
+       "code": ""
+      }
+     ],
+     "tried": [
+      [
+       "142.250.74.14",
+       "ok"
+      ]
+     ]
+    },
+    {
+     "service": "control_foreign",
+     "host": "www.wikipedia.org",
+     "purpose": "контрольный",
+     "main": false,
+     "reach_state": "ip_block",
+     "reach_ip": "",
+     "judgement": {
+      "state": "ok",
+      "reason": ""
+     },
+     "seconds": 6.0,
+     "tried": [
+      [
+       "198.35.26.96",
+       "connect"
+      ],
+      [
+       "208.80.154.224",
+       "connect"
+      ]
+     ],
+     "tried_silent": true
+    },
+    {
+     "service": "control_domestic",
+     "host": "ya.ru",
+     "purpose": "контрольный",
+     "main": false,
+     "reach_state": "ok",
+     "reach_ip": "77.88.8.8",
+     "judgement": {
+      "state": "ok",
+      "reason": ""
+     },
+     "seconds": 1.5,
+     "tried": [
+      [
+       "77.88.8.8",
+       "ok"
+      ]
+     ]
+    },
+    {
+     "service": "user",
+     "host": "example.org",
+     "purpose": "свой домен",
+     "main": true,
+     "reach_state": "ok",
+     "reach_ip": "93.184.216.34",
+     "judgement": {
+      "state": "spoofed",
+      "reason": "адрес подменён"
+     },
+     "seconds": 2.5,
+     "volume": {
+      "code": "cut",
+      "text": "загрузка обрывается после 16 КБ"
+     },
+     "tried": [
+      [
+       "93.184.216.34",
+       "ok"
+      ]
+     ]
+    }
+   ]
+  },
+  "expected": [
+   {
+    "key": "discord",
+    "label": "Discord",
+    "control": false,
+    "domestic": false,
+    "level": "fail",
+    "kind": "sni",
+    "status": "По имени (SNI)",
+    "headline": "Discord не открывается",
+    "advice": [
+     "Запустите Zapret",
+     "Подберите стратегию"
+    ],
+    "dns_note": "",
+    "roads": [
+     {
+      "key": "browser",
+      "label": "Chrome",
+      "state": "fail",
+      "word": "сброс",
+      "text": "соединение сброшено",
+      "hint": "Основная проверка: сайт открывается так, как его открыл бы Chrome, — с тем же началом соединения. Эта строка ближе всего к тому, что вы увидите в браузере."
+     },
+     {
+      "key": "quic",
+      "label": "QUIC",
+      "state": "warn",
+      "word": "закрыт",
+      "text": "QUIC к этому сайту режут: сайт откроется обычным способом, чуть медленнее",
+      "hint": "QUIC — быстрый способ соединения поверх UDP: им браузер открывает YouTube и многие крупные сайты. Если он закрыт, браузер сам переходит на обычное соединение."
+     },
+     {
+      "key": "dns",
+      "label": "DNS",
+      "state": "ok",
+      "word": "честный",
+      "text": "адрес сайта DNS выдаёт верно",
+      "hint": "DNS — справочная, которая по имени сайта выдаёт его адрес. Провайдер может подменять её ответы."
+     }
+    ],
+    "tags": [
+     {
+      "key": "cause",
+      "text": "блокировка по имени",
+      "state": "fail"
+     }
+    ],
+    "targets": [
+     {
+      "host": "discord.com",
+      "purpose": "сайт",
+      "main": true,
+      "state": "dpi",
+      "ok": false,
+      "text": "не удалось выполнить запрос (162.159.135.234, не ответил ни один из 2 адресов)",
+      "short": "не удалось выполнить запрос",
+      "dns_state": "ok",
+      "dns_reason": "",
+      "kind": "sni",
+      "kind_title": "Блокировка по имени (SNI)",
+      "volume": "",
+      "volume_text": "",
+      "cause": "by_name",
+      "cause_text": "Соединение рвут по имени сайта",
+      "quic": "blocked_by_name",
+      "quic_text": "QUIC к сайту режут",
+      "protocols": [
+       {
+        "key": "browser",
+        "title": "Как Chrome",
+        "state": "fail",
+        "word": "сброс",
+        "text": "соединение сброшено",
+        "ms": 1.0,
+        "code": "",
+        "hint": "Основная проверка: сайт открывается так, как его открыл бы Chrome, — с тем же началом соединения. Эта строка ближе всего к тому, что вы увидите в браузере."
+       }
+      ],
+      "address": "162.159.135.234",
+      "tried": [
+       {
+        "address": "162.159.135.234",
+        "result": "connect"
+       },
+       {
+        "address": "162.159.136.234",
+        "result": "connect"
+       }
+      ],
+      "address_confirmed": true,
+      "hosts_stale": false,
+      "rechecked": "",
+      "outside": "",
+      "unstable": "",
+      "cert": null,
+      "seconds": 8.0,
+      "stages": {},
+      "note": ""
+     },
+     {
+      "host": "gateway.discord.gg",
+      "purpose": "чат",
+      "main": false,
+      "state": "ok",
+      "ok": true,
+      "text": "открывается (0 мс, 162.159.134.234)",
+      "short": "открывается",
+      "dns_state": "ok",
+      "dns_reason": "",
+      "kind": "",
+      "kind_title": "",
+      "volume": "",
+      "volume_text": "",
+      "cause": "",
+      "cause_text": "",
+      "quic": "ok",
+      "quic_text": "QUIC проходит",
+      "protocols": [
+       {
+        "key": "browser",
+        "title": "Как Chrome",
+        "state": "ok",
+        "word": "работает",
+        "text": "сайт открылся",
+        "ms": 3.0,
+        "code": "",
+        "hint": "Основная проверка: сайт открывается так, как его открыл бы Chrome, — с тем же началом соединения. Эта строка ближе всего к тому, что вы увидите в браузере."
+       }
+      ],
+      "address": "162.159.134.234",
+      "tried": [
+       {
+        "address": "162.159.134.234",
+        "result": "ok"
+       }
+      ],
+      "address_confirmed": false,
+      "hosts_stale": false,
+      "rechecked": "",
+      "outside": "",
+      "unstable": "",
+      "cert": null,
+      "seconds": 4.2,
+      "stages": {},
+      "note": ""
+     }
+    ]
+   },
+   {
+    "key": "youtube",
+    "label": "YouTube",
+    "control": false,
+    "domestic": false,
+    "level": "ok",
+    "kind": "",
+    "status": "Открывается",
+    "headline": "YouTube открывается",
+    "advice": [],
+    "dns_note": "",
+    "roads": [
+     {
+      "key": "tls13",
+      "label": "TLS 1.3",
+      "state": "ok",
+      "word": "работает",
+      "text": "приветствие прошло",
+      "hint": "TLS 1.3 — нынешняя версия шифрования. Здесь её проверяют простым соединением, каким ходят программы, а не браузер."
+     },
+     {
+      "key": "quic",
+      "label": "QUIC",
+      "state": "ok",
+      "word": "работает",
+      "text": "QUIC к этому сайту проходит",
+      "hint": "QUIC — быстрый способ соединения поверх UDP: им браузер открывает YouTube и многие крупные сайты. Если он закрыт, браузер сам переходит на обычное соединение."
+     },
+     {
+      "key": "dns",
+      "label": "DNS",
+      "state": "ok",
+      "word": "честный",
+      "text": "адрес сайта DNS выдаёт верно",
+      "hint": "DNS — справочная, которая по имени сайта выдаёт его адрес. Провайдер может подменять её ответы."
+     }
+    ],
+    "tags": [],
+    "targets": [
+     {
+      "host": "www.youtube.com",
+      "purpose": "сайт",
+      "main": true,
+      "state": "ok",
+      "ok": true,
+      "text": "открывается (0 мс, 142.250.74.14)",
+      "short": "открывается",
+      "dns_state": "ok",
+      "dns_reason": "",
+      "kind": "",
+      "kind_title": "",
+      "volume": "",
+      "volume_text": "",
+      "cause": "",
+      "cause_text": "",
+      "quic": "ok",
+      "quic_text": "QUIC проходит",
+      "protocols": [
+       {
+        "key": "tls13",
+        "title": "TLS 1.3",
+        "state": "ok",
+        "word": "работает",
+        "text": "приветствие прошло",
+        "ms": null,
+        "code": "",
+        "hint": "TLS 1.3 — нынешняя версия шифрования. Здесь её проверяют простым соединением, каким ходят программы, а не браузер."
+       }
+      ],
+      "address": "142.250.74.14",
+      "tried": [
+       {
+        "address": "142.250.74.14",
+        "result": "ok"
+       }
+      ],
+      "address_confirmed": false,
+      "hosts_stale": false,
+      "rechecked": "",
+      "outside": "",
+      "unstable": "",
+      "cert": null,
+      "seconds": 5.0,
+      "stages": {},
+      "note": ""
+     }
+    ]
+   },
+   {
+    "key": "control_foreign",
+    "label": "Контрольный сайт",
+    "control": true,
+    "domestic": false,
+    "level": "fail",
+    "kind": "",
+    "status": "Не открывается",
+    "headline": "Контрольный сайт не открывается",
+    "advice": [
+     "Проверьте подключение"
+    ],
+    "dns_note": "",
+    "roads": [],
+    "tags": [
+     {
+      "key": "control",
+      "text": "контрольный",
+      "state": "info"
+     }
+    ],
+    "targets": [
+     {
+      "host": "www.wikipedia.org",
+      "purpose": "контрольный",
+      "main": false,
+      "state": "ip_block",
+      "ok": false,
+      "text": "не удалось узнать адрес сервера",
+      "short": "не удалось узнать адрес сервера",
+      "dns_state": "ok",
+      "dns_reason": "",
+      "kind": "ip",
+      "kind_title": "Бан по адресу (IP)",
+      "volume": "",
+      "volume_text": "",
+      "cause": "",
+      "cause_text": "",
+      "quic": "",
+      "quic_text": "",
+      "protocols": [],
+      "address": "",
+      "tried": [
+       {
+        "address": "198.35.26.96",
+        "result": "connect"
+       },
+       {
+        "address": "208.80.154.224",
+        "result": "connect"
+       }
+      ],
+      "address_confirmed": true,
+      "hosts_stale": false,
+      "rechecked": "",
+      "outside": "",
+      "unstable": "",
+      "cert": null,
+      "seconds": 6.0,
+      "stages": {},
+      "note": ""
+     }
+    ]
+   },
+   {
+    "key": "control_domestic",
+    "label": "Российский контрольный",
+    "control": true,
+    "domestic": true,
+    "level": "ok",
+    "kind": "",
+    "status": "Открывается",
+    "headline": "Российский контрольный открывается",
+    "advice": [],
+    "dns_note": "",
+    "roads": [],
+    "tags": [
+     {
+      "key": "control",
+      "text": "контрольный",
+      "state": "info"
+     }
+    ],
+    "targets": [
+     {
+      "host": "ya.ru",
+      "purpose": "контрольный",
+      "main": false,
+      "state": "ok",
+      "ok": true,
+      "text": "открывается (0 мс, 77.88.8.8)",
+      "short": "открывается",
+      "dns_state": "ok",
+      "dns_reason": "",
+      "kind": "",
+      "kind_title": "",
+      "volume": "",
+      "volume_text": "",
+      "cause": "",
+      "cause_text": "",
+      "quic": "",
+      "quic_text": "",
+      "protocols": [],
+      "address": "77.88.8.8",
+      "tried": [
+       {
+        "address": "77.88.8.8",
+        "result": "ok"
+       }
+      ],
+      "address_confirmed": false,
+      "hosts_stale": false,
+      "rechecked": "",
+      "outside": "",
+      "unstable": "",
+      "cert": null,
+      "seconds": 1.5,
+      "stages": {},
+      "note": ""
+     }
+    ]
+   },
+   {
+    "key": "user",
+    "label": "Свой домен",
+    "control": false,
+    "domestic": false,
+    "level": "warn",
+    "kind": "other",
+    "status": "Есть проблемы",
+    "headline": "Свой домен открывается с проблемами",
+    "advice": [
+     "Попробуйте другой адрес"
+    ],
+    "dns_note": "DNS подменяет адрес example.org",
+    "roads": [],
+    "tags": [
+     {
+      "key": "cut16",
+      "text": "обрыв на 16 КБ",
+      "state": "warn"
+     }
+    ],
+    "targets": [
+     {
+      "host": "example.org",
+      "purpose": "свой домен",
+      "main": true,
+      "state": "ok",
+      "ok": true,
+      "text": "открывается (0 мс, 93.184.216.34)",
+      "short": "открывается",
+      "dns_state": "spoofed",
+      "dns_reason": "адрес подменён",
+      "kind": "",
+      "kind_title": "",
+      "volume": "cut",
+      "volume_text": "загрузка обрывается после 16 КБ",
+      "cause": "",
+      "cause_text": "",
+      "quic": "",
+      "quic_text": "",
+      "protocols": [],
+      "address": "93.184.216.34",
+      "tried": [
+       {
+        "address": "93.184.216.34",
+        "result": "ok"
+       }
+      ],
+      "address_confirmed": false,
+      "hosts_stale": false,
+      "rechecked": "",
+      "outside": "",
+      "unstable": "",
+      "cert": null,
+      "seconds": 2.5,
+      "stages": {},
+      "note": ""
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "name": "sections_reports",
+  "kind": "sections",
+  "input": {
+   "voice": {
+    "level": "warn",
+    "headline": "Голосовые серверы отвечают не все",
+    "advice": [
+     "Перезапустите Zapret"
+    ],
+    "servers": [
+     {
+      "name": "Telegram voice",
+      "host": "149.154.167.51",
+      "answered": true,
+      "text": "звонок проходит",
+      "decided": true
+     },
+     {
+      "name": "Общий STUN",
+      "host": "stun.l.google.com",
+      "answered": false,
+      "text": "сервер молчит",
+      "decided": true
+     },
+     {
+      "name": "Запасной STUN",
+      "host": "stun1.l.google.com",
+      "answered": false,
+      "text": "адрес не узнали",
+      "decided": false
+     }
+    ]
+   },
+   "burst": {
+    "code": "freeze",
+    "text": "после двадцатого пакета ответы пропали",
+    "servers": [
+     [
+      "Telegram voice",
+      [
+       "✅",
+       "✅",
+       "❌"
+      ]
+     ],
+     [
+      "Общий STUN",
+      [
+       "✅",
+       "✅",
+       "✅"
+      ]
+     ]
+    ]
+   },
+   "freeze": {
+    "level": "fail",
+    "headline": "Загрузка обрывается на 16 КБ",
+    "advice": [
+     "Подберите стратегию для видеосайтов"
+    ],
+    "servers": [
+     {
+      "name": "Видео DE",
+      "state": "freeze",
+      "text": "обрыв после 16 КБ",
+      "direction": "download",
+      "provider": "aws",
+      "host": "cf.example.de",
+      "ident": "DE.AWS-01",
+      "seconds": 7.35
+     },
+     {
+      "name": "Видео RU",
+      "state": "ok",
+      "text": "файл скачался",
+      "direction": "download",
+      "provider": "ru",
+      "host": "cf.example.ru",
+      "ident": "RU.01",
+      "seconds": 2.0
+     }
+    ]
+   },
+   "telegram": {
+    "level": "fail",
+    "headline": "Дата-центры Telegram не отвечают",
+    "advice": [
+     "Проверьте блокировку Telegram"
+    ],
+    "servers": [
+     {
+      "name": "DC1 (Майами)",
+      "address": "149.154.175.53",
+      "connected": true,
+      "ms": 0.4,
+      "attempts": 1
+     },
+     {
+      "name": "DC2 (Амстердам)",
+      "address": "149.154.167.51",
+      "connected": true,
+      "ms": 12.5,
+      "attempts": 2
+     },
+     {
+      "name": "DC3 (Майами)",
+      "address": "149.154.175.100",
+      "connected": false,
+      "ms": null,
+      "attempts": 3
+     },
+     {
+      "name": "DC4 (Амстердам)",
+      "address": "149.154.167.91",
+      "connected": null,
+      "ms": null,
+      "attempts": 1
+     }
+    ]
+   },
+   "system": [
+    {
+     "key": "hosts",
+     "title": "Файл hosts",
+     "level": "warn",
+     "text": "в файле hosts есть записи про YouTube",
+     "advice": "уберите лишние строки из hosts"
+    },
+    {
+     "key": "dns",
+     "title": "DNS",
+     "level": "ok",
+     "text": "адреса DNS заданы вручную",
+     "advice": ""
+    }
+   ]
+  },
+  "expected": {
+   "voice": {
+    "level": "warn",
+    "headline": "Голосовые серверы отвечают не все",
+    "advice": [
+     "Перезапустите Zapret"
+    ],
+    "items": [
+     {
+      "name": "Telegram voice",
+      "ok": true,
+      "state": "ok",
+      "text": "звонок проходит"
+     },
+     {
+      "name": "Общий STUN",
+      "ok": false,
+      "state": "fail",
+      "text": "сервер молчит"
+     },
+     {
+      "name": "Запасной STUN",
+      "ok": false,
+      "state": "unknown",
+      "text": "адрес не узнали"
+     }
+    ],
+    "burst": {
+     "state": "freeze",
+     "text": "после двадцатого пакета ответы пропали",
+     "servers": [
+      {
+       "name": "Telegram voice",
+       "series": [
+        "✅",
+        "✅",
+        "❌"
+       ]
+      },
+      {
+       "name": "Общий STUN",
+       "series": [
+        "✅",
+        "✅",
+        "✅"
+       ]
+      }
+     ]
+    }
+   },
+   "freeze": {
+    "level": "fail",
+    "headline": "Загрузка обрывается на 16 КБ",
+    "advice": [
+     "Подберите стратегию для видеосайтов"
+    ],
+    "items": [
+     {
+      "name": "Видео DE",
+      "ok": false,
+      "state": "freeze",
+      "text": "обрыв после 16 КБ"
+     },
+     {
+      "name": "Видео RU",
+      "ok": true,
+      "state": "ok",
+      "text": "файл скачался"
+     }
+    ],
+    "servers": [
+     {
+      "provider": "aws",
+      "host": "cf.example.de",
+      "id": "DE.AWS-01",
+      "state": "freeze",
+      "text": "обрыв после 16 КБ",
+      "direction": "download",
+      "seconds": 7.3
+     },
+     {
+      "provider": "ru",
+      "host": "cf.example.ru",
+      "id": "RU.01",
+      "state": "ok",
+      "text": "файл скачался",
+      "direction": "download",
+      "seconds": 2.0
+     }
+    ]
+   },
+   "telegram": {
+    "level": "fail",
+    "headline": "Дата-центры Telegram не отвечают",
+    "advice": [
+     "Проверьте блокировку Telegram"
+    ],
+    "items": [
+     {
+      "name": "DC1 (Майами)",
+      "address": "149.154.175.53",
+      "state": "ok",
+      "text": "соединение меньше чем за 1 мс"
+     },
+     {
+      "name": "DC2 (Амстердам)",
+      "address": "149.154.167.51",
+      "state": "ok",
+      "text": "соединение за 12 мс (со второй попытки)"
+     },
+     {
+      "name": "DC3 (Майами)",
+      "address": "149.154.175.100",
+      "state": "fail",
+      "text": "не соединился, попыток: 3"
+     },
+     {
+      "name": "DC4 (Амстердам)",
+      "address": "149.154.167.91",
+      "state": "unknown",
+      "text": "проверку прервали"
+     }
+    ]
+   },
+   "system": [
+    {
+     "key": "hosts",
+     "title": "Файл hosts",
+     "level": "warn",
+     "text": "в файле hosts есть записи про YouTube",
+     "advice": "уберите лишние строки из hosts"
+    },
+    {
+     "key": "dns",
+     "title": "DNS",
+     "level": "ok",
+     "text": "адреса DNS заданы вручную",
+     "advice": ""
+    }
+   ]
+  }
+ }
+]

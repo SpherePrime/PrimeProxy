@@ -75,6 +75,17 @@ pub enum FreezeState {
     Unknown,
 }
 
+impl FreezeState {
+    /// python `FreezeState.value`.
+    pub fn value(self) -> &'static str {
+        match self {
+            FreezeState::Ok => "ok",
+            FreezeState::Freeze => "freeze",
+            FreezeState::Unknown => "unknown",
+        }
+    }
+}
+
 pub const DIRECTION_DOWNLOAD: &str = "download";
 pub const DIRECTION_UPLOAD: &str = "upload";
 

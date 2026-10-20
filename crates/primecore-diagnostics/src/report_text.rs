@@ -465,6 +465,508 @@ pub fn section_level_lines(
     lines
 }
 
+/// python `round(value, 1)` — верное округление точного двоичного значения до
+/// одного знака, при равенстве — к чётному. Так себя ведёт и форматирование
+/// Rust (`{:.1}`), поэтому считаем через строку: масштабный приём
+/// (`py_round0(value * 10)`) расходится с python на значениях вроде 3.45.
+#[must_use]
+pub fn py_round1(value: f64) -> f64 {
+    if !value.is_finite() {
+        return value;
+    }
+    format!("{value:.1}").parse().unwrap_or(value)
+}
+
+/// python `STEP_TITLES` — подписи шагов для строки «сколько шёл каждый шаг».
+#[must_use]
+pub fn step_title(name: &str) -> &str {
+    match name {
+        crate::services::STEP_SITES => "сайты",
+        crate::services::STEP_HOSTINGS => "хостинги",
+        crate::services::STEP_VOICE => "звонки",
+        crate::services::STEP_IPV6 => "IPv6",
+        crate::services::STEP_SYSTEM => "компьютер и сеть",
+        crate::services::STEP_DNS_SERVERS => "DNS-серверы",
+        crate::services::STEP_FILTER => "место фильтра",
+        _ => name,
+    }
+}
+
+/// python `target_report(probe)` — запись о цели для экрана и файла.
+#[must_use]
+pub fn target_report(probe: &Probe) -> serde_json::Value {
+    let kind = probe.kind();
+    let cert = probe.cert.as_ref().map(|cert| {
+        serde_json::json!({
+            "code": cert.code,
+            "text": cert.text,
+            "advice": cert.advice,
+            "subject": cert.subject,
+            "issuer": cert.issuer,
+            "names": cert.names,
+        })
+    });
+    serde_json::json!({
+        "host": probe.host,
+        "purpose": probe.target.purpose,
+        "main": probe.target.main,
+        "state": probe.reach_state.value(),
+        "ok": probe.reach_state == ReachState::Ok,
+        "text": reach_text(probe),
+        "short": short_text(probe),
+        "dns_state": probe.judgement.as_ref().map_or("", |item| item.state.value()),
+        "dns_reason": probe.judgement.as_ref().map_or("", |item| item.reason.as_str()),
+        // Вид блокировки одним словом (ip / sni / cut16 / …) и его название.
+        "kind": kind,
+        "kind_title": if kind.is_empty() {
+            ""
+        } else {
+            block_kind::kind_info_or_other(&kind).title
+        },
+        "volume": probe.volume.as_ref().map_or("", |item| item.code.as_str()),
+        "volume_text": probe.volume.as_ref().map_or("", |item| item.text.as_str()),
+        "cause": probe.cause.as_ref().map_or("", |item| item.code.as_str()),
+        "cause_text": probe.cause.as_ref().map_or(String::new(), |item| sentence(&item.text)),
+        "quic": probe.quic.as_ref().map_or("", |item| item.code.as_str()),
+        "quic_text": probe.quic.as_ref().map_or("", |item| item.text.as_str()),
+        // Тот же адрес по TLS 1.2, TLS 1.3, «как Chrome» и HTTP отдельно.
+        "protocols": probe
+            .protocols
+            .iter()
+            .map(|line| {
+                serde_json::json!({
+                    "key": line.key,
+                    "title": line.title,
+                    "state": line.state,
+                    "word": line.word,
+                    "text": line.text,
+                    "ms": line.ms.map(py_round1),
+                    "code": line.code,
+                    // Что это за дорога — пояснение для подсказки на экране.
+                    "hint": crate::protocol_probe::hint(&line.key),
+                })
+            })
+            .collect::<Vec<_>>(),
+        "address": probe.reach.as_ref().map_or(String::new(), |item| item.ip.clone()),
+        // Какие адреса сайта пробовали и чем кончилось: видно, на чём держится вывод.
+        "tried": probe
+            .tried
+            .iter()
+            .map(|(ip, kind)| serde_json::json!({"address": ip, "result": kind}))
+            .collect::<Vec<_>>(),
+        "address_confirmed": probe.address_confirmed(),
+        "hosts_stale": probe.hosts_stale,
+        // Повторная проверка поодиночке: "opened" — открылся со второго раза, "same" — сбой повторился.
+        "rechecked": probe.rechecked,
+        // Что ответил сервер за рубежом: "up" — сайт жив, "down" — лежит и там. Пусто — не спрашивали.
+        "outside": probe.outside,
+        // Сайт открылся, но через раз или не по каждому адресу: что именно шатается. Пусто — стабилен.
+        "unstable": probe.unstable,
+        // Чужой сертификат: кто ответил вместо сайта и что с этим делать. None — сертификат в порядке.
+        "cert": cert,
+        "seconds": py_round1(probe.seconds),
+        // На что ушло время: части проверки по порядку (названия — в `STAGE_TITLES`).
+        "stages": probe.stages,
+        "note": probe.discovery_note,
+    })
+}
+
+/// python `section_report(report, rows)` — сводка раздела словарём.
+///
+/// `state`: ok / fail / freeze / unknown — «не удалось проверить» не должно
+/// выглядеть как «не работает».
+#[must_use]
+pub fn section_report(
+    level: Level,
+    headline: &str,
+    advice: &[String],
+    rows: &[(String, String, String)],
+) -> serde_json::Value {
+    serde_json::json!({
+        "level": level.value(),
+        "headline": headline,
+        "advice": advice,
+        "items": rows
+            .iter()
+            .map(|(name, state, text)| {
+                serde_json::json!({"name": name, "ok": state == "ok", "state": state, "text": text})
+            })
+            .collect::<Vec<_>>(),
+    })
+}
+
+/// python `service_status(verdict, probes)` — слово итога сайта, одно на всю
+/// программу: карточка, история и сравнение берут его отсюда.
+///
+/// Причина не у провайдера (чужой сертификат, запись в hosts) называется прямо:
+/// общее «Есть проблемы» про неё ничего не говорит.
+#[must_use]
+pub fn service_status(verdict: &crate::verdict::ServiceVerdict, probes: &[Probe]) -> String {
+    if let Some(code) = probes
+        .iter()
+        .find_map(|probe| probe.cert.as_ref().map(|item| item.code.as_str()))
+    {
+        return status_by_cert(code).to_string();
+    }
+    if probes.iter().any(|probe| probe.hosts_stale) {
+        return "Мешает запись в hosts".to_string();
+    }
+    if !verdict.kind.is_empty()
+        && matches!(verdict.level, Level::Warn | Level::Fail)
+        && block_kind::kind_info(&verdict.kind).is_some()
+        && verdict.kind != block_kind::KIND_OTHER
+    {
+        return sentence(block_kind::kind_info_or_other(&verdict.kind).short);
+    }
+    status_by_level(verdict.level).to_string()
+}
+
+/// python `_road(key, label, state, word, text, hint)`.
+#[must_use]
+fn road(
+    key: &str,
+    label: &str,
+    state: &str,
+    word: &str,
+    text: &str,
+    hint: &str,
+) -> serde_json::Value {
+    serde_json::json!({
+        "key": key, "label": label, "state": state, "word": word, "text": text, "hint": hint,
+    })
+}
+
+/// python `_ROAD_LABELS.get(line.key, line.title)`.
+fn road_label(line: &crate::protocol_probe::ProtocolLine) -> &str {
+    match line.key.as_str() {
+        crate::protocol_probe::PROTO_TLS12 => "TLS 1.2",
+        crate::protocol_probe::PROTO_TLS13 => "TLS 1.3",
+        crate::protocol_probe::PROTO_BROWSER => "Chrome",
+        crate::protocol_probe::PROTO_HTTP => "HTTP",
+        _ => line.title.as_str(),
+    }
+}
+
+/// python `service_roads(probes, dns_note)` — дороги к сайту, всегда в одном
+/// порядке: TLS 1.2, TLS 1.3, Chrome, HTTP, QUIC, DNS.
+///
+/// Каждая дорога приходит готовой: состояние, слово для метки, полная фраза и
+/// пояснение, что это за дорога. Экран их только показывает. Пусто — дороги не
+/// проверялись.
+#[must_use]
+pub fn service_roads(probes: &[Probe], dns_note: &str) -> Vec<serde_json::Value> {
+    let main = probes
+        .iter()
+        .find(|probe| probe.target.main)
+        .or_else(|| probes.first());
+    let mut roads: Vec<serde_json::Value> = main
+        .map(|main| {
+            main.protocols
+                .iter()
+                .map(|line| {
+                    road(
+                        &line.key,
+                        road_label(line),
+                        &line.state,
+                        &line.word,
+                        &line.text,
+                        crate::protocol_probe::hint(&line.key),
+                    )
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    if roads.is_empty() {
+        return Vec::new();
+    }
+    let quic_ok = probes
+        .iter()
+        .any(|probe| probe.quic.as_ref().is_some_and(|item| item.code == QUIC_OK));
+    let quic_blocked = probes.iter().any(|probe| {
+        probe
+            .quic
+            .as_ref()
+            .is_some_and(|item| item.code == QUIC_BLOCKED_BY_NAME)
+    });
+    if quic_blocked {
+        roads.push(road(
+            "quic",
+            "QUIC",
+            "warn",
+            "закрыт",
+            "QUIC к этому сайту режут: сайт откроется обычным способом, чуть медленнее",
+            HINT_QUIC,
+        ));
+    } else if quic_ok {
+        roads.push(road(
+            "quic",
+            "QUIC",
+            "ok",
+            "работает",
+            "QUIC к этому сайту проходит",
+            HINT_QUIC,
+        ));
+    } else {
+        roads.push(road(
+            "quic",
+            "QUIC",
+            "unknown",
+            "—",
+            "у этого сайта QUIC не проверялся или сервер его не поддерживает",
+            HINT_QUIC,
+        ));
+    }
+    let dns_spoofed = probes.iter().any(|probe| {
+        probe
+            .judgement
+            .as_ref()
+            .is_some_and(|item| item.state == DnsState::Spoofed)
+    });
+    let dns_any = probes.iter().any(|probe| probe.judgement.is_some());
+    let dns_unknown = probes.iter().any(|probe| {
+        probe
+            .judgement
+            .as_ref()
+            .is_some_and(|item| item.state == DnsState::Unknown)
+    });
+    if !dns_note.is_empty() || dns_spoofed {
+        roads.push(road(
+            "dns",
+            "DNS",
+            "warn",
+            "подменён",
+            "ответ DNS подменён: лечится DNS с шифрованием в разделе «Настройка DNS»",
+            HINT_DNS,
+        ));
+    } else if dns_any && !dns_unknown {
+        roads.push(road(
+            "dns",
+            "DNS",
+            "ok",
+            "честный",
+            "адрес сайта DNS выдаёт верно",
+            HINT_DNS,
+        ));
+    } else {
+        roads.push(road(
+            "dns",
+            "DNS",
+            "unknown",
+            "—",
+            "сверить ответ DNS не удалось",
+            HINT_DNS,
+        ));
+    }
+    roads
+}
+
+/// python `service_tags(service, probes)` — метки сайта о том, чего в дорогах
+/// нет. Метку реестра РКН дописывает `registry.annotate`.
+#[must_use]
+pub fn service_tags(
+    service: &crate::services::Service,
+    probes: &[Probe],
+) -> Vec<serde_json::Value> {
+    let mut tags: Vec<serde_json::Value> = Vec::new();
+    let mut causes: Vec<String> = Vec::new();
+    for probe in probes {
+        if let Some(cause) = &probe.cause {
+            let word = cause_word(&cause.code);
+            if !word.is_empty() && !causes.iter().any(|item| item == word) {
+                causes.push(word.to_string());
+            }
+        }
+    }
+    for word in &causes {
+        tags.push(serde_json::json!({"key": "cause", "text": word, "state": "fail"}));
+    }
+    if probes.iter().any(|probe| {
+        probe
+            .volume
+            .as_ref()
+            .is_some_and(|item| item.code == crate::volume_probe::VOLUME_CUT)
+    }) {
+        tags.push(serde_json::json!({"key": "cut16", "text": "обрыв на 16 КБ", "state": "warn"}));
+    }
+    if probes.iter().any(|probe| probe.hosts_stale) {
+        tags.push(
+            serde_json::json!({"key": "hosts", "text": "запись в hosts устарела", "state": "warn"}),
+        );
+    }
+    if service.control {
+        tags.push(serde_json::json!({"key": "control", "text": "контрольный", "state": "info"}));
+    }
+    tags
+}
+
+/// python `services_report(services, verdicts, collected)` — сервисы с итогом и
+/// всеми их адресами, в том порядке, в каком проверялись.
+///
+/// Всё, что экран показывает о сайте словами (итог, дороги, метки), лежит здесь
+/// готовым: отчёт — единственный источник истины, экран его не дополняет.
+#[must_use]
+pub fn services_report(
+    services: &[(String, crate::services::Service)],
+    verdicts: &std::collections::BTreeMap<String, crate::verdict::ServiceVerdict>,
+    collected: &crate::sections::CollectedProbes,
+) -> Vec<serde_json::Value> {
+    services
+        .iter()
+        .map(|(key, service)| {
+            let default_verdict = crate::verdict::ServiceVerdict {
+                level: Level::Unknown,
+                headline: String::new(),
+                advice: Vec::new(),
+                dns_note: String::new(),
+                kind: String::new(),
+            };
+            let verdict = verdicts.get(key).unwrap_or(&default_verdict);
+            let probes: &[Probe] = collected.get(key).map(Vec::as_slice).unwrap_or_default();
+            serde_json::json!({
+                "key": key,
+                "label": service.label,
+                "control": service.control,
+                "domestic": service.domestic,
+                "level": verdict.level.value(),
+                "kind": verdict.kind,
+                "status": service_status(verdict, probes),
+                "headline": verdict.headline,
+                "advice": verdict.advice,
+                "dns_note": verdict.dns_note,
+                "roads": service_roads(probes, &verdict.dns_note),
+                "tags": service_tags(service, probes),
+                "targets": probes.iter().map(target_report).collect::<Vec<_>>(),
+            })
+        })
+        .collect()
+}
+
+/// python `_voice_section(voice)`.
+#[must_use]
+fn voice_section(voice: &crate::voice_check::VoiceReport) -> serde_json::Value {
+    let rows: Vec<(String, String, String)> = voice
+        .servers
+        .iter()
+        .map(|item| {
+            (
+                item.name.clone(),
+                if item.answered {
+                    "ok".to_string()
+                } else if item.decided {
+                    "fail".to_string()
+                } else {
+                    "unknown".to_string()
+                },
+                item.text.clone(),
+            )
+        })
+        .collect();
+    section_report(voice.level, &voice.headline, &voice.advice, &rows)
+}
+
+/// python `voice_report(voice, burst=None)`.
+#[must_use]
+pub fn voice_report(
+    voice: Option<&crate::voice_check::VoiceReport>,
+    burst: Option<&crate::udp_burst::BurstVerdict>,
+) -> Option<serde_json::Value> {
+    let voice = voice?;
+    let mut report = voice_section(voice);
+    if let Some(burst) = burst {
+        // Серия из тридцати пакетов: не замирает ли UDP после первых двух десятков.
+        report["burst"] = serde_json::json!({
+            "state": burst.code,
+            "text": burst.text,
+            "servers": burst
+                .servers
+                .iter()
+                .map(|(name, series)| serde_json::json!({"name": name, "series": series}))
+                .collect::<Vec<_>>(),
+        });
+    }
+    Some(report)
+}
+
+/// python `freeze_report(freeze)` — обрыв по хостингам: общий итог и запись на
+/// каждый сервер.
+#[must_use]
+pub fn freeze_report(
+    freeze: Option<&crate::freeze_check::FreezeReport>,
+) -> Option<serde_json::Value> {
+    let freeze = freeze?;
+    let rows: Vec<(String, String, String)> = freeze
+        .servers
+        .iter()
+        .map(|item| {
+            (
+                item.name.clone(),
+                item.state.value().to_string(),
+                item.text.clone(),
+            )
+        })
+        .collect();
+    let mut report = section_report(freeze.level, &freeze.headline, &freeze.advice, &rows);
+    // По серверу: провайдер, метка, в какую сторону оборвалось и за сколько проверили.
+    report["servers"] = serde_json::json!(freeze
+        .servers
+        .iter()
+        .map(|item| {
+            serde_json::json!({
+                "provider": item.provider,
+                "host": item.host,
+                "id": item.ident,
+                "state": item.state.value(),
+                "text": item.text,
+                "direction": item.direction,
+                "seconds": py_round1(item.seconds),
+            })
+        })
+        .collect::<Vec<_>>());
+    Some(report)
+}
+
+/// python `telegram_report(telegram)`.
+#[must_use]
+pub fn telegram_report(
+    telegram: Option<&crate::telegram_check::TelegramReport>,
+) -> Option<serde_json::Value> {
+    let telegram = telegram?;
+    Some(serde_json::json!({
+        "level": telegram.level.value(),
+        "headline": telegram.headline,
+        "advice": telegram.advice,
+        "items": telegram
+            .servers
+            .iter()
+            .map(|item| {
+                serde_json::json!({
+                    "name": item.name,
+                    "address": item.address,
+                    "state": telegram_state(item),
+                    "text": telegram_text(item),
+                })
+            })
+            .collect::<Vec<_>>(),
+    }))
+}
+
+/// python `system_report(system)`.
+#[must_use]
+pub fn system_report(system: &[crate::system_state::SystemItem]) -> Vec<serde_json::Value> {
+    system
+        .iter()
+        .map(|item| {
+            serde_json::json!({
+                "key": item.key,
+                "title": item.title,
+                "level": item.level,
+                "text": item.text,
+                "advice": item.advice,
+            })
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
