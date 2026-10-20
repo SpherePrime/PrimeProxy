@@ -19,6 +19,7 @@ pub mod limits;
 pub mod outside_check;
 pub mod probe_result;
 pub mod my_network;
+pub mod name_speed;
 pub mod compare;
 pub mod crowd_probe;
 pub mod dns_place;
