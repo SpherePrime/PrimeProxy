@@ -43,7 +43,8 @@ pub const PRODUCT: &str = "primebypass";
 /// период программы принимают и его: `product=zapret-gui` == наш продукт.
 pub const LEGACY_PRODUCT: &str = "zapret-gui";
 
-/// Переходное правило:_request product指点, что выпуск должен Standard.
+/// Переходное правило: нынешний продукт принимается всегда, а выпуски,
+/// подписанные прежним именем, засчитываются как наши.
 #[must_use]
 pub fn product_accepted(manifest_product: &str, requested: &str) -> bool {
     manifest_product == requested || (requested == PRODUCT && manifest_product == LEGACY_PRODUCT)
