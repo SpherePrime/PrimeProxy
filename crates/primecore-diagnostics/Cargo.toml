@@ -19,3 +19,8 @@ primecore-netfailure = { workspace = true }
 primecore-lists = { workspace = true }
 fastrand.workspace = true
 rustls.workspace = true
+webpki-roots.workspace = true
+flate2.workspace = true
+
+[dev-dependencies]
+rcgen.workspace = true

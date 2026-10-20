@@ -1,0 +1,436 @@
+{
+  "classify": [
+    {
+      "name": "ok_full",
+      "input": {
+        "error_code": 0,
+        "os_failure": "",
+        "message": "",
+        "progress": {
+          "status": 200,
+          "body_len": 5,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": true
+        },
+        "stage": "read"
+      },
+      "expected": {
+        "kind": "ok",
+        "detail": "",
+        "extra": {}
+      }
+    },
+    {
+      "name": "reset_no_answer",
+      "input": {
+        "error_code": 0,
+        "os_failure": "",
+        "message": "",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": false,
+          "secured": false
+        },
+        "stage": "connect"
+      },
+      "expected": {
+        "kind": "reset",
+        "detail": "сервер закрыл соединение без ответа",
+        "extra": {}
+      }
+    },
+    {
+      "name": "stopped_by_us",
+      "input": {
+        "error_code": 23,
+        "os_failure": "",
+        "message": "",
+        "progress": {
+          "status": 200,
+          "body_len": 100,
+          "cancelled": false,
+          "stopped_by_us": true,
+          "tls_started": true,
+          "secured": true
+        },
+        "stage": "read"
+      },
+      "expected": {
+        "kind": "ok",
+        "detail": "",
+        "extra": {}
+      }
+    },
+    {
+      "name": "write_cancel",
+      "input": {
+        "error_code": 23,
+        "os_failure": "",
+        "message": "",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": true,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": false
+        },
+        "stage": "tls"
+      },
+      "expected": {
+        "kind": "cancelled",
+        "detail": "",
+        "extra": {}
+      }
+    },
+    {
+      "name": "cancelled_before",
+      "input": {
+        "error_code": 0,
+        "os_failure": "",
+        "message": "",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": true,
+          "stopped_by_us": false,
+          "tls_started": false,
+          "secured": false
+        },
+        "stage": "connect"
+      },
+      "expected": {
+        "kind": "cancelled",
+        "detail": "",
+        "extra": {}
+      }
+    },
+    {
+      "name": "cert_verify",
+      "input": {
+        "error_code": 60,
+        "os_failure": "",
+        "message": "SSL certificate problem: unable to get local issuer certificate",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": false
+        },
+        "stage": "tls"
+      },
+      "expected": {
+        "kind": "cert",
+        "detail": "SSL certificate problem: unable to get local issuer certificate",
+        "extra": {
+          "cert_problem": "сертификат выдан неизвестным центром"
+        }
+      }
+    },
+    {
+      "name": "cert_problem58",
+      "input": {
+        "error_code": 58,
+        "os_failure": "",
+        "message": "SSL certificate problem: certificate has expired",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": false
+        },
+        "stage": "tls"
+      },
+      "expected": {
+        "kind": "cert",
+        "detail": "SSL certificate problem: certificate has expired",
+        "extra": {
+          "cert_problem": "сертификат просрочен или ещё не действует (проверьте часы Windows)"
+        }
+      }
+    },
+    {
+      "name": "body_cut_timeout",
+      "input": {
+        "error_code": 28,
+        "os_failure": "timeout",
+        "message": "timed out",
+        "progress": {
+          "status": 200,
+          "body_len": 64,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": true
+        },
+        "stage": "read"
+      },
+      "expected": {
+        "kind": "ok",
+        "detail": "timed out",
+        "extra": {
+          "body_cut": true
+        }
+      }
+    },
+    {
+      "name": "body_cut_reset",
+      "input": {
+        "error_code": 56,
+        "os_failure": "",
+        "message": "recv failure",
+        "progress": {
+          "status": 200,
+          "body_len": 64,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": true
+        },
+        "stage": "read"
+      },
+      "expected": {
+        "kind": "ok",
+        "detail": "recv failure",
+        "extra": {
+          "body_cut": true
+        }
+      }
+    },
+    {
+      "name": "connect_timeout",
+      "input": {
+        "error_code": 28,
+        "os_failure": "",
+        "message": "timed out",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": false,
+          "secured": false
+        },
+        "stage": "connect"
+      },
+      "expected": {
+        "kind": "connect",
+        "detail": "сервер не отвечает на подключение",
+        "extra": {
+          "connect_fail": "timeout"
+        }
+      }
+    },
+    {
+      "name": "connect_refused",
+      "input": {
+        "error_code": 7,
+        "os_failure": "refused",
+        "message": "connection refused",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": false,
+          "secured": false
+        },
+        "stage": "connect"
+      },
+      "expected": {
+        "kind": "connect",
+        "detail": "connection refused",
+        "extra": {
+          "connect_fail": "refused"
+        }
+      }
+    },
+    {
+      "name": "connect_other",
+      "input": {
+        "error_code": 7,
+        "os_failure": "",
+        "message": "weird error",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": false,
+          "secured": false
+        },
+        "stage": "connect"
+      },
+      "expected": {
+        "kind": "connect",
+        "detail": "weird error",
+        "extra": {
+          "connect_fail": "other"
+        }
+      }
+    },
+    {
+      "name": "tls_timeout",
+      "input": {
+        "error_code": 28,
+        "os_failure": "timeout",
+        "message": "timed out",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": false
+        },
+        "stage": "tls"
+      },
+      "expected": {
+        "kind": "timeout",
+        "detail": "timed out",
+        "extra": {}
+      }
+    },
+    {
+      "name": "tls_reset",
+      "input": {
+        "error_code": 56,
+        "os_failure": "",
+        "message": "recv failure",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": false
+        },
+        "stage": "tls"
+      },
+      "expected": {
+        "kind": "reset",
+        "detail": "recv failure",
+        "extra": {}
+      }
+    },
+    {
+      "name": "ssl_connect",
+      "input": {
+        "error_code": 35,
+        "os_failure": "",
+        "message": "SSL connect error",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": false
+        },
+        "stage": "tls"
+      },
+      "expected": {
+        "kind": "tls",
+        "detail": "SSL connect error",
+        "extra": {}
+      }
+    },
+    {
+      "name": "http2_error",
+      "input": {
+        "error_code": 16,
+        "os_failure": "",
+        "message": "HTTP/2 failure",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": true
+        },
+        "stage": "read"
+      },
+      "expected": {
+        "kind": "reset",
+        "detail": "HTTP/2 failure",
+        "extra": {}
+      }
+    },
+    {
+      "name": "got_nothing",
+      "input": {
+        "error_code": 52,
+        "os_failure": "",
+        "message": "",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": true
+        },
+        "stage": "read"
+      },
+      "expected": {
+        "kind": "reset",
+        "detail": "",
+        "extra": {}
+      }
+    },
+    {
+      "name": "plain_error",
+      "input": {
+        "error_code": 99,
+        "os_failure": "",
+        "message": "unknown curl trouble",
+        "progress": {
+          "status": null,
+          "body_len": 0,
+          "cancelled": false,
+          "stopped_by_us": false,
+          "tls_started": true,
+          "secured": false
+        },
+        "stage": "tls"
+      },
+      "expected": {
+        "kind": "error",
+        "detail": "unknown curl trouble",
+        "extra": {}
+      }
+    }
+  ],
+  "cert_problem": [
+    {
+      "message": "hostname mismatch",
+      "expected": "сертификат выдан другому сайту"
+    },
+    {
+      "message": "certificate subject does not match",
+      "expected": "сертификат выдан другому сайту"
+    },
+    {
+      "message": "cert has expired",
+      "expected": "сертификат просрочен или ещё не действует (проверьте часы Windows)"
+    },
+    {
+      "message": "self signed certificate",
+      "expected": "самодельный сертификат"
+    },
+    {
+      "message": "unable to get local issuer certificate",
+      "expected": "сертификат выдан неизвестным центром"
+    }
+  ]
+}

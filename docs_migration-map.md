@@ -136,6 +136,17 @@
 * чистые форматтеры sections: `environment_lines(servers, provider_of)` (строка Windows — у платформенного слоя) и `tools_line(other, in_path, kind_of)` — golden против python (monkeypatch net_access/bypass_tools);
 * тесты: tests/net_transport_tests.rs — 23 (golden STUN/шапка + живые TCP/UDP против локальных подставных серверов, включая имитацию заморозки UDP и переподключение Telegram).
 
+TLS/HTTPS-слой — chrome_https.rs (транспорт собран и протестирован):
+
+* классификация исхода `_classify`/`_cert_problem` — дословный порт, golden против python (18 сценариев classify + 5 cert_problem: коды libcurl, вид сбоя системы, что успело прийти; cancelled перекрывает всё, кроме полного ответа);
+* транспорт `ChromeConnection`/`chrome_get` на rustls (в python — curl_cffi chrome150): те же заголовки WINDOWS_HEADERS, IP задаётся явно (SNI и Host — имя сайта), HTTP/1.1 keep-alive, отменяемость между отрезками 0.2 с, лимиты как у libcurl (timeout на подключение/рукопожатие, read_timeout на замирание — `body_cut`, timeout+60 на весь запрос);
+* отображение ошибок rustls/ОС в коды libcurl: обрыв чтения → E_RECV(56), тишина → E_TIMEOUT(28)/E_GOT_NOTHING(52), недокачанное тело → E_PARTIAL_FILE(18), проверка сертификата → E_PEER_VERIFY(60) с текстами словами libcurl (от них cert_problem узнаёт причину), прочий рукопожатийный сбой → E_SSL_CONNECT(35), сбой записи → E_WRITE_ERROR(23);
+* распаковка при decode_body: gzip/deflate (flate2); br/zstd в Rust остаются сжатыми — различие с python отмечено (нужно только разовое чтение страницы движком, исходы проб не зависят);
+* отпечаток приветствия rustls браузерный не повторяет (python даёт это через curl_cffi/BoringSSL) — осознанное различие: выводы опираются только на KIND_*/STAGE_*/body_cut;
+* провайдер шифрования — ring, выбирается явно (в графе бывает включён и aws-lc-rs, тогда rustls сам не выбирает; ring не требует cmake/NASM при сборке под Windows);
+* корни сертификатов — webpki-roots (аналог certifi: и BoringSSL, и rustls хранилище Windows не читают);
+* тесты: tests/chrome_https_tests.rs — golden 23 случая + живые локальные (полный ответ, обрыв «хватит», chunked + keep-alive, замирание тела → body_cut, обрыв тела, ответа нет, «Стоп» посреди тела, отказ соединения, тишина рукопожатия → timeout, самодельный сертификат → cert).
+
 Приватность (как в python): пробы шлют только сами запросы — SYN без данных, STUN из случайных байт, DNS-вопрос об имени сервера; ответы выбрасываются, ничего не сохраняется и не уходит на серверы проекта. Единственная передача данных — необязательная «Сверить с сервером в Нидерландах» (ask_outside, по галочке, только имена неоткрывшихся сайтов).
 
-Осталось в diagnostics (нужен TLS/QUIC-слой): chrome_get/HTTPS (probe_host, freeze-транспорт, clock_skew, network_check, environment через DNS), QUIC-пробы, cert_owner-сбор, volume/cause по HTTPS. OS-слой Windows (zapret_status, routed_adapters, bypass_tools, registry-скачивание, строка Windows) — платформенный слой, как в python (utils.windows_*).
+Осталось в diagnostics (нужен QUIC-слой): QUIC-пробы, cert_owner-сбор по HTTPS-цепочке, clock_skew/network_check/freeze-транспорт поверх chrome_get, volume/cause по HTTPS. OS-слой Windows (zapret_status, routed_adapters, bypass_tools, registry-скачивание, строка Windows) — платформенный слой, как в python (utils.windows_*).
