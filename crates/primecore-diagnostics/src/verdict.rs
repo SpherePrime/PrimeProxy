@@ -79,7 +79,7 @@ impl Level {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum ReachState {
     Ok,
     Dpi,
@@ -87,6 +87,7 @@ pub enum ReachState {
     IpBlock,
     Cert,
     NoAddress,
+    #[default]
     Unknown,
 }
 

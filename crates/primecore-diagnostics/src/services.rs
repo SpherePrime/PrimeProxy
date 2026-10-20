@@ -21,7 +21,7 @@ use std::sync::LazyLock;
 pub const YOUTUBE_HOST: &str = "www.youtube.com";
 pub const GOOGLEVIDEO_FALLBACK_HOST: &str = "redirector.googlevideo.com";
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Target {
     pub host: String,
     pub purpose: &'static str,
