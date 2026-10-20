@@ -449,6 +449,22 @@ pub fn cause_word(code: &str) -> &'static str {
     }
 }
 
+/// python `section_lines(title, report, rows)` — сводка раздела строками:
+/// пустая строка, шапка, строки `(метка, имя, текст)` и итог отчёта.
+pub fn section_level_lines(
+    title: &str,
+    level: Level,
+    headline: &str,
+    rows: &[(String, String, String)],
+) -> Vec<String> {
+    let mut lines = vec![String::new(), format!("━━━━━━━━ {title} ━━━━━━━━")];
+    for (mark, name, text) in rows {
+        lines.push(format!("{mark} {name}: {text}"));
+    }
+    lines.push(format!("{} {headline}", level_icon(level)));
+    lines
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

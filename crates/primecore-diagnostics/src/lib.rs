@@ -40,6 +40,7 @@ pub mod report_text;
 pub mod report_upgrade;
 pub mod rule_passports;
 pub mod run_context;
+pub mod sections;
 pub mod self_check;
 pub mod services;
 pub mod speed_check;

@@ -11,6 +11,8 @@
 //!
 //! Оба требуют, чтобы не ответил ни один эталонный DNS-сервер: это зарубежные
 //! адреса, к которым программа ходит напрямую. В сеть модуль не ходит.
+use serde_json::Value;
+
 use crate::block_cause::{CAUSE_BY_ADDRESS, CAUSE_NAME_WHITELIST};
 use crate::block_kind::{self, KIND_DNS, KIND_DOWN, KIND_OTHER};
 use crate::ipv6_check::{Ipv6Verdict, IPV6_BROKEN};
@@ -91,7 +93,7 @@ pub struct Problem {
     /// На чём основан вывод; эти же фразы стоят первыми в `advice`.
     pub evidence: Vec<String>,
     /// Та же фраза готовыми частями у находок про DNS-серверы (не используется здесь).
-    pub parts: Option<std::collections::BTreeMap<String, String>>,
+    pub parts: Option<Value>,
     /// Ключ сайта из отчёта (у которого подробности), если строка про сайт.
     pub site: String,
     /// Раздел отчёта, из которого выведена строка (`freeze`, `voice`, `ipv6`…).
