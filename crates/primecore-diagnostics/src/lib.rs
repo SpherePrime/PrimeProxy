@@ -8,6 +8,7 @@
 pub mod address_kinds;
 pub mod block_cause;
 pub mod block_kind;
+pub mod browser_hello;
 pub mod cert_owner;
 pub mod chrome_https;
 pub mod ip_owner;
