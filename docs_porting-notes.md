@@ -1,6 +1,6 @@
 # Порядок переноса (continuation guide, не редактировать без нужды)
 
-Осталось (diagnostics, по порядку): path_trace.py, filter_place.py, filter_habits.py, sections.py, engine.py.
+Осталось (diagnostics, по порядку): filter_place.py, sections.py, engine.py. filter_habits.py перенесён (критично: cuts как set — дедуп перед проверкой len==1; финальный контроль после REPEATS-контроля).
 Потом прочие пакеты: dns core (server_check, plans, dns_providers, commands), presets, orchestra, hostlist, block_check, engine Реестра.
 
 path_trace.py:
