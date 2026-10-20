@@ -16,3 +16,4 @@ primecore-socketcancel = { workspace = true }
 primecore-netfailure = { workspace = true }
 primecore-lists = { workspace = true }
 fastrand.workspace = true
+rustls.workspace = true

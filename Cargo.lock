@@ -884,6 +884,7 @@ dependencies = [
  "primecore-settings",
  "primecore-socketcancel",
  "regex",
+ "rustls",
  "serde",
  "serde_json",
 ]
