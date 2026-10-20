@@ -42,7 +42,16 @@ pub fn doh_query(
     timeout_s: f64,
     cancel: Option<&SocketCancel>,
 ) -> DnsQueryResult {
-    query_doh(server, name, rtype, "", 443, "/dns-query", timeout_s, cancel)
+    query_doh(
+        server,
+        name,
+        rtype,
+        "",
+        443,
+        "/dns-query",
+        timeout_s,
+        cancel,
+    )
 }
 
 /// Владелец сети: о нём не должен отвечать перехватчик DNS, поэтому вопрос
@@ -74,7 +83,10 @@ mod tests {
 
     #[test]
     fn resolvers_table_python_order() {
-        let labels: Vec<&str> = REFERENCE_RESOLVERS.iter().map(|resolver| resolver.label).collect();
+        let labels: Vec<&str> = REFERENCE_RESOLVERS
+            .iter()
+            .map(|resolver| resolver.label)
+            .collect();
         assert_eq!(labels, vec!["Cloudflare", "Google", "AdGuard", "OpenDNS"]);
         assert_eq!(REFERENCE_RESOLVERS[2].address, "94.140.14.140");
     }

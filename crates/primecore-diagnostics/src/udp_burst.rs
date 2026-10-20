@@ -12,8 +12,10 @@ pub const BURST_OK: &str = "ok";
 pub const BURST_FREEZE: &str = "freeze";
 pub const BURST_UNKNOWN: &str = "unknown";
 
-pub const SERVERS: [(&str, &str, u16); 2] =
-    [("Google", "stun.l.google.com", 19302), ("Cloudflare", "stun.cloudflare.com", 3478)];
+pub const SERVERS: [(&str, &str, u16); 2] = [
+    ("Google", "stun.l.google.com", 19302),
+    ("Cloudflare", "stun.cloudflare.com", 3478),
+];
 pub const PACKETS: usize = 30;
 pub const GAP_S: f64 = 0.02;
 /// Сколько ждать адрес сервера.
@@ -49,7 +51,9 @@ pub fn cut_at(answered: &[bool]) -> Option<usize> {
 
 /// python `lines(verdict)` — строки для текстового отчёта. Пусто — вывода нет.
 pub fn lines(verdict: Option<&BurstVerdict>) -> Vec<String> {
-    let Some(verdict) = verdict else { return Vec::new() };
+    let Some(verdict) = verdict else {
+        return Vec::new();
+    };
     let icon = match verdict.code.as_str() {
         BURST_OK => "✅",
         BURST_FREEZE => "⚠️",
@@ -90,7 +94,10 @@ pub fn judge(facts: &[(String, Vec<Option<Vec<bool>>>)]) -> Option<BurstVerdict>
     if runs.is_empty() {
         return None;
     }
-    let full = runs.iter().filter(|run| run.iter().filter(|v| **v).count() >= run.len().saturating_sub(2)).count();
+    let full = runs
+        .iter()
+        .filter(|run| run.iter().filter(|v| **v).count() >= run.len().saturating_sub(2))
+        .count();
     if full == runs.len() {
         return Some(BurstVerdict {
             code: BURST_OK.to_string(),
@@ -102,8 +109,10 @@ pub fn judge(facts: &[(String, Vec<Option<Vec<bool>>>)]) -> Option<BurstVerdict>
     }
     let mut cuts_by_server: Vec<Vec<usize>> = Vec::new();
     for (_name, series) in facts {
-        let cuts: Vec<Option<usize>> =
-            series.iter().flat_map(|run| run.as_ref().map(|answer| cut_at(answer))).collect();
+        let cuts: Vec<Option<usize>> = series
+            .iter()
+            .flat_map(|run| run.as_ref().map(|answer| cut_at(answer)))
+            .collect();
         if cuts.len() == REPEATS && cuts.iter().all(Option::is_some) {
             cuts_by_server.push(cuts.iter().map(|cut| cut.unwrap()).collect());
         }
@@ -111,7 +120,8 @@ pub fn judge(facts: &[(String, Vec<Option<Vec<bool>>>)]) -> Option<BurstVerdict>
     let all_cuts: Vec<usize> = cuts_by_server.iter().flatten().copied().collect();
     if cuts_by_server.len() == SERVERS.len()
         && !all_cuts.is_empty()
-        && all_cuts.iter().max().copied().unwrap() - all_cuts.iter().min().copied().unwrap() <= SPREAD
+        && all_cuts.iter().max().copied().unwrap() - all_cuts.iter().min().copied().unwrap()
+            <= SPREAD
     {
         let mut sorted_cuts = all_cuts.clone();
         sorted_cuts.sort_unstable();
@@ -128,9 +138,10 @@ pub fn judge(facts: &[(String, Vec<Option<Vec<bool>>>)]) -> Option<BurstVerdict>
     }
     Some(BurstVerdict {
         code: BURST_UNKNOWN.to_string(),
-        text: "часть пакетов серии осталась без ответа, но одинаковой картины на двух серверах нет — \
+        text:
+            "часть пакетов серии осталась без ответа, но одинаковой картины на двух серверах нет — \
                это похоже на потери или ограничение самого сервера, а не на фильтр"
-            .to_string(),
+                .to_string(),
         servers: shown,
     })
 }
@@ -163,13 +174,20 @@ mod tests {
     fn judge_full_and_freeze() {
         assert_eq!(judge(&facts(vec![])), None);
         assert_eq!(judge(&facts(vec![None, None])), None);
-        let full = judge(&facts(vec![Some(series(PACKETS)), Some(vec![true; PACKETS])])).unwrap();
+        let full = judge(&facts(vec![
+            Some(series(PACKETS)),
+            Some(vec![true; PACKETS]),
+        ]))
+        .unwrap();
         assert_eq!(full.code, BURST_OK);
         let frozen = judge(&facts(vec![Some(series(12)), Some(series(14))])).unwrap();
         assert_eq!(frozen.code, BURST_FREEZE);
         let unclear = judge(&facts(vec![Some(series(12)), None])).unwrap();
         assert_eq!(unclear.code, BURST_UNKNOWN);
-        assert_eq!(lines(Some(&frozen))[0], format!("⚠️ Серия пакетов UDP: {}", frozen.text));
+        assert_eq!(
+            lines(Some(&frozen))[0],
+            format!("⚠️ Серия пакетов UDP: {}", frozen.text)
+        );
         assert!(lines(None).is_empty());
     }
 }

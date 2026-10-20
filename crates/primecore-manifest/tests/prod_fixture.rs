@@ -39,7 +39,10 @@ fn prod_manifest_parses() {
     assert_eq!(manifest.version, "21.1.7.181");
     // Живые сборки публиковались до ребрендинга: продукт — легационный.
     assert_eq!(manifest.product, "zapret-gui");
-    assert!(primecore_manifest::product_accepted(&manifest.product, PRODUCT));
+    assert!(primecore_manifest::product_accepted(
+        &manifest.product,
+        PRODUCT
+    ));
     assert_eq!(manifest.channel, "dev");
     assert!(["gui-2026a", "gui-reserve-1"].contains(&manifest.key.as_str()));
     assert!(!manifest.files.is_empty());
@@ -68,8 +71,11 @@ fn prod_manifest_full_load() {
     assert!(manifest.patches.iter().any(|patch| patch.kind == "bsdiff"));
     // Каждая заплатка ведёт к файлу с кодом нового выпуска: parse уже
     // гарантировал попадание `to` в файлы, проверим поле from у видного.
-    let targets: std::collections::HashSet<&str> =
-        manifest.patches.iter().map(|patch| patch.to_sha256.as_str()).collect();
+    let targets: std::collections::HashSet<&str> = manifest
+        .patches
+        .iter()
+        .map(|patch| patch.to_sha256.as_str())
+        .collect();
     assert!(!targets.is_empty());
 }
 

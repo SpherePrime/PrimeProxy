@@ -7,10 +7,8 @@
 use primecore_diagnostics::block_cause;
 use primecore_diagnostics::cert_owner::CertVerdict;
 use primecore_diagnostics::ipv6_check::Ipv6Verdict;
-use primecore_diagnostics::problems::{
-    self, Entries, Problem, VerdictSays,
-};
 use primecore_diagnostics::probe_result::{ProbeResult, KIND_OK};
+use primecore_diagnostics::problems::{self, Entries, Problem, VerdictSays};
 use primecore_diagnostics::quic_probe::QuicVerdict;
 use primecore_diagnostics::run_context::{Probe, ReferenceReport};
 use primecore_diagnostics::services::{Service, Target};
@@ -194,7 +192,14 @@ struct RefEntry {
 
 impl From<&RefEntry> for ReferenceReport {
     fn from(entry: &RefEntry) -> Self {
-        ReferenceReport::from(&entry.label, &entry.address, entry.ok, entry.answered, entry.failed, &entry.reason)
+        ReferenceReport::from(
+            &entry.label,
+            &entry.address,
+            entry.ok,
+            entry.answered,
+            entry.failed,
+            &entry.reason,
+        )
     }
 }
 
@@ -313,7 +318,11 @@ fn verdict(value: &VerdictEntry) -> ServiceVerdict {
 fn probe(value: &ProbeEntry) -> Probe {
     with_defaults(
         Probe {
-            target: Target { host: value.host.clone(), purpose: "сайт", ..Default::default() },
+            target: Target {
+                host: value.host.clone(),
+                purpose: "сайт",
+                ..Default::default()
+            },
             host: value.host.clone(),
             discovery_note: value.discovery_note.clone(),
             ..Default::default()
@@ -324,72 +333,76 @@ fn probe(value: &ProbeEntry) -> Probe {
 
 /// Поля, которые python ставит по входу сценария.
 fn with_defaults(mut self_data: Probe, value: &ProbeEntry) -> Probe {
-        self_data.dns_nxdomain = value.dns_nxdomain;
-        self_data.hosts_ips = value.hosts_ips.clone();
-        self_data.reference_ips = value.reference_ips.clone();
-        self_data.reference_ok = value.reference_ok;
-        if let Some(reach) = value.reach.as_ref() {
-            self_data.reach = Some(ProbeResult {
-                kind: if reach.kind.is_empty() { KIND_OK.to_string() } else { reach.kind.clone() },
-                ip: reach.ip.clone(),
-                tls_version: reach.tls_version.clone(),
-                elapsed_ms: reach.elapsed_ms,
-                ..Default::default()
-            });
-        }
-        self_data.reach_source = value.reach_source.clone();
-        self_data.attempts = value.attempts;
-        if !value.judgement_state.is_empty() {
-            self_data.judgement = Some(DnsJudgement {
-                state: DnsState::from_ascii(&value.judgement_state),
-                reason: value.judgement_reason.clone(),
-            });
-        }
-        self_data.reach_state = ReachState::from_ascii(&value.reach_state);
-        if !value.cause_code.is_empty() {
-            self_data.cause = Some(block_cause::Cause::new(
-                &value.cause_code,
-                &value.cause_text,
-                true,
-            ));
-        }
-        self_data.unstable = value.unstable.clone();
-        if !value.cert_code.is_empty() {
-            self_data.cert = Some(CertVerdict {
-                code: value.cert_code.clone(),
-                text: value.cert_text.clone(),
-                advice: value.cert_advice.clone(),
-                ..Default::default()
-            });
-        }
-        if !value.quic_code.is_empty() {
-            self_data.quic = Some(QuicVerdict {
-                code: value.quic_code.clone(),
-                text: value.quic_text.clone(),
-            });
-        }
-        if !value.volume_code.is_empty() {
-            self_data.volume = Some(VolumeVerdict {
-                code: value.volume_code.clone(),
-                text: value.volume_text.clone(),
-                cut_kb: value.volume_cut_kb,
-            });
-        }
-        self_data.protocols = value
-            .protocols
-            .iter()
-            .map(|line| primecore_diagnostics::protocol_probe::ProtocolLine {
-                key: line.key.clone(),
-                title: line.title.clone(),
-                state: line.state.clone(),
-                word: line.word.clone(),
-                text: line.text.clone(),
-                ..Default::default()
-            })
-            .collect();
-        self_data.tried = value.tried.clone();
-        self_data.tried_silent = value.tried_silent;
-        self_data.hosts_stale = value.hosts_stale;
+    self_data.dns_nxdomain = value.dns_nxdomain;
+    self_data.hosts_ips = value.hosts_ips.clone();
+    self_data.reference_ips = value.reference_ips.clone();
+    self_data.reference_ok = value.reference_ok;
+    if let Some(reach) = value.reach.as_ref() {
+        self_data.reach = Some(ProbeResult {
+            kind: if reach.kind.is_empty() {
+                KIND_OK.to_string()
+            } else {
+                reach.kind.clone()
+            },
+            ip: reach.ip.clone(),
+            tls_version: reach.tls_version.clone(),
+            elapsed_ms: reach.elapsed_ms,
+            ..Default::default()
+        });
+    }
+    self_data.reach_source = value.reach_source.clone();
+    self_data.attempts = value.attempts;
+    if !value.judgement_state.is_empty() {
+        self_data.judgement = Some(DnsJudgement {
+            state: DnsState::from_ascii(&value.judgement_state),
+            reason: value.judgement_reason.clone(),
+        });
+    }
+    self_data.reach_state = ReachState::from_ascii(&value.reach_state);
+    if !value.cause_code.is_empty() {
+        self_data.cause = Some(block_cause::Cause::new(
+            &value.cause_code,
+            &value.cause_text,
+            true,
+        ));
+    }
+    self_data.unstable = value.unstable.clone();
+    if !value.cert_code.is_empty() {
+        self_data.cert = Some(CertVerdict {
+            code: value.cert_code.clone(),
+            text: value.cert_text.clone(),
+            advice: value.cert_advice.clone(),
+            ..Default::default()
+        });
+    }
+    if !value.quic_code.is_empty() {
+        self_data.quic = Some(QuicVerdict {
+            code: value.quic_code.clone(),
+            text: value.quic_text.clone(),
+        });
+    }
+    if !value.volume_code.is_empty() {
+        self_data.volume = Some(VolumeVerdict {
+            code: value.volume_code.clone(),
+            text: value.volume_text.clone(),
+            cut_kb: value.volume_cut_kb,
+        });
+    }
+    self_data.protocols = value
+        .protocols
+        .iter()
+        .map(|line| primecore_diagnostics::protocol_probe::ProtocolLine {
+            key: line.key.clone(),
+            title: line.title.clone(),
+            state: line.state.clone(),
+            word: line.word.clone(),
+            text: line.text.clone(),
+            ..Default::default()
+        })
+        .collect();
+    self_data.tried = value.tried.clone();
+    self_data.tried_silent = value.tried_silent;
+    self_data.hosts_stale = value.hosts_stale;
     self_data.rechecked = value.rechecked.clone();
     self_data.outside = value.outside.clone();
     self_data
@@ -414,7 +427,11 @@ fn build_services(lines: &[ServiceEntry]) -> Entries<Service> {
                     Service {
                         key: entry.key.clone(),
                         label: entry.label.clone(),
-                        targets: vec![Target { host: entry.key.clone(), purpose: "сайт", ..Default::default() }],
+                        targets: vec![Target {
+                            host: entry.key.clone(),
+                            purpose: "сайт",
+                            ..Default::default()
+                        }],
                         control: entry.control,
                         domestic: entry.domestic,
                     },
@@ -457,12 +474,25 @@ fn run_case(case: &Fixture) {
             })
             .collect(),
     );
-    let reference: Vec<ReferenceReport> = case.params.reference.iter().map(|entry| ReferenceReport::from(&entry.label, &entry.address, entry.ok, entry.answered, entry.failed, &entry.reason)).collect();
-    let ipv6 = case
+    let reference: Vec<ReferenceReport> = case
         .params
-        .ipv6
-        .as_ref()
-        .map(|entry| Ipv6Verdict { code: entry.code.clone(), text: entry.text.clone() });
+        .reference
+        .iter()
+        .map(|entry| {
+            ReferenceReport::from(
+                &entry.label,
+                &entry.address,
+                entry.ok,
+                entry.answered,
+                entry.failed,
+                &entry.reason,
+            )
+        })
+        .collect();
+    let ipv6 = case.params.ipv6.as_ref().map(|entry| Ipv6Verdict {
+        code: entry.code.clone(),
+        text: entry.text.clone(),
+    });
     let subnets = case.params.subnets.as_ref().map(|entry| SubnetVerdict {
         code: entry.code.clone(),
         ru_open: entry.ru_open,
@@ -506,8 +536,19 @@ fn run_case(case: &Fixture) {
         telegram.as_ref(),
         subnets.as_ref(),
     );
-    assert_eq!(case.expected.problems.len(), result.problems.len(), "{}: число проблем", case.name);
-    for (index, (line, actual)) in case.expected.problems.iter().zip(result.problems.iter()).enumerate() {
+    assert_eq!(
+        case.expected.problems.len(),
+        result.problems.len(),
+        "{}: число проблем",
+        case.name
+    );
+    for (index, (line, actual)) in case
+        .expected
+        .problems
+        .iter()
+        .zip(result.problems.iter())
+        .enumerate()
+    {
         assert!(
             line.matches(actual),
             "{}[{}]: ожидалось «{}» / {}",
@@ -517,12 +558,19 @@ fn run_case(case: &Fixture) {
             actual.text
         );
     }
-    assert_eq!(case.expected.working, result.working, "{}: работающие", case.name);
-    assert_eq!(case.expected.spoofed, result.spoofed, "{}: подменённые", case.name);
+    assert_eq!(
+        case.expected.working, result.working,
+        "{}: работающие",
+        case.name
+    );
+    assert_eq!(
+        case.expected.spoofed, result.spoofed,
+        "{}: подменённые",
+        case.name
+    );
 }
 
-const JSON_PATH: &str =
-    concat!(env!("CARGO_MANIFEST_DIR"), "/tests/problems_golden.json");
+const JSON_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/problems_golden.json");
 
 fn fixtures() -> Vec<Fixture> {
     let text = std::fs::read_to_string(JSON_PATH).expect("problems_golden.json рядом с тестом");
@@ -552,9 +600,18 @@ fn golden_burst_problems() {
             servers: Vec::new(),
         };
         let got = problems::burst_problems(Some(&verdict));
-        assert_eq!(got.len(), case.expected.problems.len(), "{}: число проблем burst", case.name);
+        assert_eq!(
+            got.len(),
+            case.expected.problems.len(),
+            "{}: число проблем burst",
+            case.name
+        );
         for line in case.expected.problems.iter() {
-            assert!(line.matches(got.first().unwrap()), "{}: burst mismatch", case.name);
+            assert!(
+                line.matches(got.first().unwrap()),
+                "{}: burst mismatch",
+                case.name
+            );
         }
         assert!(problems::burst_problems(None).is_empty());
     }
@@ -566,20 +623,43 @@ fn golden_reference_helpers() {
         if case.name != "reference_helpers" {
             continue;
         }
-        let reference: Vec<ReferenceReport> = case.params.reference.iter().map(|entry| ReferenceReport::from(&entry.label, &entry.address, entry.ok, entry.answered, entry.failed, &entry.reason)).collect();
-        let blocked = problems::blocked_references(&reference);
-        assert_eq!(blocked.len(), case.expected.problems.len(), "{}: число недоступных", case.name);
-        for line in case
-            .expected
-            .problems
+        let reference: Vec<ReferenceReport> = case
+            .params
+            .reference
             .iter()
-        {
-            assert_eq!(line.text, problems::reference_text(&blocked[0]), "{}: reference_text", case.name);
+            .map(|entry| {
+                ReferenceReport::from(
+                    &entry.label,
+                    &entry.address,
+                    entry.ok,
+                    entry.answered,
+                    entry.failed,
+                    &entry.reason,
+                )
+            })
+            .collect();
+        let blocked = problems::blocked_references(&reference);
+        assert_eq!(
+            blocked.len(),
+            case.expected.problems.len(),
+            "{}: число недоступных",
+            case.name
+        );
+        for line in case.expected.problems.iter() {
+            assert_eq!(
+                line.text,
+                problems::reference_text(&blocked[0]),
+                "{}: reference_text",
+                case.name
+            );
         }
         // Если молчат все — это «нет интернета»: списка нет.
         let all_down: Vec<ReferenceReport> = reference
             .iter()
-            .map(|item| ReferenceReport { ok: false, ..item.clone() })
+            .map(|item| ReferenceReport {
+                ok: false,
+                ..item.clone()
+            })
             .collect();
         assert!(problems::blocked_references(&all_down).is_empty());
     }

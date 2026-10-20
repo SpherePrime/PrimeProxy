@@ -54,15 +54,16 @@ fn read_data(database: &mut SettingsDatabase) -> Value {
 
 /// python _write: заменяет секцию, хранилище само нормализует документ.
 fn write_section(database: &mut SettingsDatabase, section: Value) -> Result<(), String> {
-    database.update_settings(|doc| {
-        if !doc.is_object() {
-            *doc = Value::Object(Map::new());
-        }
-        if let Some(doc_object) = doc.as_object_mut() {
-            doc_object.insert("profile_strategy_state".into(), section);
-        }
-    })
-    .map(|_normalized| ())
+    database
+        .update_settings(|doc| {
+            if !doc.is_object() {
+                *doc = Value::Object(Map::new());
+            }
+            if let Some(doc_object) = doc.as_object_mut() {
+                doc_object.insert("profile_strategy_state".into(), section);
+            }
+        })
+        .map(|_normalized| ())
 }
 
 fn profiles_map(data: &Value) -> Map<String, Value> {
@@ -227,7 +228,12 @@ pub fn strategy_list_marks(
     let open_group = open_group_from_row(profile_row);
     let states = clean_ids
         .iter()
-        .map(|id| (id.clone(), state_from_row(strategy_row_of(profile_row, id).as_ref())))
+        .map(|id| {
+            (
+                id.clone(),
+                state_from_row(strategy_row_of(profile_row, id).as_ref()),
+            )
+        })
         .collect();
     StrategyListMarks { states, open_group }
 }
@@ -311,9 +317,19 @@ pub fn set_strategy_state(
         None => None,
     };
     write_strategy_states(database, |profiles| {
-        apply_state_row(profiles, &clean_profile_key, &clean_strategy_id, wanted_rating, favorite)
+        apply_state_row(
+            profiles,
+            &clean_profile_key,
+            &clean_strategy_id,
+            wanted_rating,
+            favorite,
+        )
     })?;
-    Ok(strategy_state(database, &clean_profile_key, &clean_strategy_id))
+    Ok(strategy_state(
+        database,
+        &clean_profile_key,
+        &clean_strategy_id,
+    ))
 }
 
 /// python: row ищется через setdefault; пустая строка (без оценки и звезды) —
@@ -349,8 +365,13 @@ fn apply_state_row(
         row_object.insert("favorite".into(), Value::Bool(favorite));
     }
     row_object.insert("updated_at".into(), Value::String(now_iso()));
-    let rating_empty = field(&Value::Object(row_object.clone()), "rating").as_str().unwrap_or("").is_empty();
-    let favorite_on = field(&Value::Object(row_object.clone()), "favorite").as_bool().unwrap_or(false);
+    let rating_empty = field(&Value::Object(row_object.clone()), "rating")
+        .as_str()
+        .unwrap_or("")
+        .is_empty();
+    let favorite_on = field(&Value::Object(row_object.clone()), "favorite")
+        .as_bool()
+        .unwrap_or(false);
     if rating_empty && !favorite_on {
         strategies.remove(strategy_id);
     }
@@ -385,10 +406,7 @@ fn section_object(data: Value) -> Map<String, Value> {
     }
 }
 
-fn ensure_entry<'entry>(
-    object: &'entry mut Map<String, Value>,
-    key: &str,
-) -> &'entry mut Value {
+fn ensure_entry<'entry>(object: &'entry mut Map<String, Value>, key: &str) -> &'entry mut Value {
     object
         .entry(key.to_string())
         .or_insert_with(|| Value::Object(Map::new()))
@@ -472,7 +490,8 @@ pub fn get_grouping(database: &mut SettingsDatabase) -> String {
 pub fn set_grouping(database: &mut SettingsDatabase, grouping: &str) -> Result<bool, String> {
     let clean_grouping = crate::strategy_plan::normalize_strategy_grouping(Some(grouping));
     let data = read_data(database);
-    let stored = crate::strategy_plan::normalize_strategy_grouping(field(&data, "grouping").as_str());
+    let stored =
+        crate::strategy_plan::normalize_strategy_grouping(field(&data, "grouping").as_str());
     if stored == clean_grouping {
         return Ok(false);
     }
@@ -485,11 +504,7 @@ pub fn set_grouping(database: &mut SettingsDatabase, grouping: &str) -> Result<b
     Ok(true)
 }
 
-pub fn clear_strategy_state(
-    database: &mut SettingsDatabase,
-    profile_key: &str,
-    strategy_id: &str,
-) {
+pub fn clear_strategy_state(database: &mut SettingsDatabase, profile_key: &str, strategy_id: &str) {
     let clean_profile_key = normalize_profile_key(profile_key);
     let clean_strategy_id = normalize_strategy_id(strategy_id);
     if clean_profile_key.is_empty() || clean_strategy_id.is_empty() {
@@ -508,7 +523,10 @@ pub fn clear_strategy_state(
     }
     let _ = write_strategy_states(database, |profiles| {
         if let Some(profile_row) = profiles.get_mut(clean_profile_key.as_str()) {
-            if let Some(strategies) = profile_row.get_mut("strategies").and_then(Value::as_object_mut) {
+            if let Some(strategies) = profile_row
+                .get_mut("strategies")
+                .and_then(Value::as_object_mut)
+            {
                 strategies.remove(clean_strategy_id.as_str());
             }
             drop_empty_profile_row(profiles, clean_profile_key.as_str());

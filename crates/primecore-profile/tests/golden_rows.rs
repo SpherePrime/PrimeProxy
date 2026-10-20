@@ -5,14 +5,14 @@ use std::collections::HashSet;
 use once_cell::sync::Lazy;
 use serde_json::Value;
 
-use primecore_profile::strategy_plan::{
-    StrategyListPlan, default_open_group, visible_rows,
-};
+use primecore_profile::strategy_plan::{default_open_group, visible_rows, StrategyListPlan};
 
 static GOLDEN: Lazy<Value> = Lazy::new(|| {
-    let source =
-        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/golden_rows.json"))
-            .expect("golden_rows.json");
+    let source = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/golden_rows.json"
+    ))
+    .expect("golden_rows.json");
     serde_json::from_str(&source).expect("json")
 });
 
@@ -20,22 +20,19 @@ fn plan() -> StrategyListPlan {
     serde_json::from_value(GOLDEN["ops"]["plan"].clone()).expect("план")
 }
 
-
-
-
-
-
-
-
-
 #[test]
 fn rows_match_python() {
     let plan = plan();
 
-    for name in ["all_open", "closed", "open_fake", "one_group_only", "twins_open"] {
+    for name in [
+        "all_open",
+        "closed",
+        "open_fake",
+        "one_group_only",
+        "twins_open",
+    ] {
         let key = format!("rows_{name}");
-        let expected = GOLDEN["ops"]
-            [&key]
+        let expected = GOLDEN["ops"][&key]
             .as_array()
             .unwrap_or_else(|| panic!("{key}"))
             .iter()
@@ -62,7 +59,7 @@ fn rows_match_python() {
             .expect("twin_keys")
             .iter()
             .filter_map(|value| value.as_str().map(|value| value.to_string()))
-.take(if name == "twins_open" { 1 } else { 0 })
+            .take(if name == "twins_open" { 1 } else { 0 })
             .collect();
 
         let rows = visible_rows(&plan, open_groups.as_ref(), &open_twins);
@@ -73,7 +70,11 @@ fn rows_match_python() {
                 row.kind,
                 "{key}[{index}]: kind"
             );
-            assert_eq!(expected["key"].as_str().expect("ключ"), row.key, "{key}[{index}]: key");
+            assert_eq!(
+                expected["key"].as_str().expect("ключ"),
+                row.key,
+                "{key}[{index}]: key"
+            );
             assert_eq!(
                 expected["expanded"], row.expanded,
                 "{key}[{index}]: expanded"
@@ -98,15 +99,13 @@ fn rows_match_python() {
                 "{key}[{index}]: group_key"
             );
             assert_eq!(
-                expected["selectable"], row.selectable(),
+                expected["selectable"],
+                row.selectable(),
                 "{key}[{index}]: selectable"
             );
             assert_eq!(
-                expected["shown"]
-                    .as_array()
-                    .cloned()
-                    .unwrap_or_default(),
-                shown_array(&plan, row, &expected),
+                expected["shown"].as_array().cloned().unwrap_or_default(),
+                shown_array(&plan, row, expected),
                 "{key}[{index}]: shown"
             );
         }
@@ -130,7 +129,10 @@ fn shown_array(
             Value::from(twin_count),
             Value::from(twin_open),
         ],
-        Shown::SectionTitle(title, count) => vec![Value::String(format!("section:{title}")), Value::from(count)],
+        Shown::SectionTitle(title, count) => vec![
+            Value::String(format!("section:{title}")),
+            Value::from(count),
+        ],
         Shown::Group(title, description, icon_name, color, count, current_name, expanded) => vec![
             Value::String(title),
             Value::String(description),

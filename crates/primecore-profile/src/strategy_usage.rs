@@ -6,10 +6,10 @@ use std::sync::{Mutex, OnceLock};
 
 use primecore_mode::AppPaths;
 
+use crate::derived_cache::normalize_lines;
 use crate::derived_cache::{entry_composite_identity, entry_identity_lines};
 use crate::match_filters::strategy_catalog_from_match_lines;
 use crate::models::{build_profile_logical_key, Profile, Strategy, ENGINE_WINWS2};
-use crate::derived_cache::normalize_lines;
 use crate::parser::parse_preset_text;
 use crate::strategy_catalog::{StrategyEntry, TreeRow};
 use crate::strategy_shape::{composite_identity, strategy_shape};
@@ -65,7 +65,9 @@ pub struct BuiltinStrategyUsage {
 }
 
 fn dict_get<'a, T>(rows: &'a [(String, T)], key: &str) -> Option<&'a T> {
-    rows.iter().find(|(candidate, _)| candidate == key).map(|(_, value)| value)
+    rows.iter()
+        .find(|(candidate, _)| candidate == key)
+        .map(|(_, value)| value)
 }
 
 fn dict_set(rows: &mut Vec<(String, String)>, key: &str, value: String) {
@@ -105,7 +107,11 @@ impl BuiltinStrategyUsage {
     /// Частота стратегий каталога этого профиля: {id стратегии: частота}.
     ///
     /// Порядок совпадает с порядком python-словаря services.
-    pub fn for_profile(&self, profile: &Profile, catalog_name: Option<&str>) -> Vec<(String, StrategyUsage)> {
+    pub fn for_profile(
+        &self,
+        profile: &Profile,
+        catalog_name: Option<&str>,
+    ) -> Vec<(String, StrategyUsage)> {
         let catalog = match catalog_name {
             Some(value) => value.to_string(),
             None => catalog_name_for_profile(profile),
@@ -195,8 +201,7 @@ impl CatalogIndex {
     /// Id стратегии каталога; пусто, если строки не совпали ровно с одной.
     pub fn strategy_id(&self, lines: &[String]) -> String {
         let matches = if self.engine != ENGINE_WINWS2 {
-            self.plain
-                .get(&normalize_lines(lines.iter().cloned()))
+            self.plain.get(&normalize_lines(lines.iter().cloned()))
         } else {
             let shape = strategy_shape(lines);
             if shape.lua_lines().is_empty() {
@@ -244,7 +249,8 @@ pub fn count_builtin_strategy_usage(
             let index = match indexes.get(&catalog) {
                 Some(index) => index,
                 None => {
-                    let built = CatalogIndex::new(engine, catalogs.get(&catalog).unwrap_or(&Vec::new()));
+                    let built =
+                        CatalogIndex::new(engine, catalogs.get(&catalog).unwrap_or(&Vec::new()));
                     indexes.insert(catalog.clone(), built);
                     indexes.get(&catalog).expect("индекс")
                 }
@@ -285,7 +291,10 @@ pub fn count_builtin_strategy_usage(
                     &mut by_service.last_mut().expect("counts").1
                 }
             };
-            match entry.iter_mut().find(|(candidate, _)| candidate == &vote_key) {
+            match entry
+                .iter_mut()
+                .find(|(candidate, _)| candidate == &vote_key)
+            {
                 Some(slot) => slot.1 += 1,
                 None => entry.push((vote_key, 1)),
             }

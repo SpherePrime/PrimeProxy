@@ -64,12 +64,18 @@ pub struct VolumeVerdict {
 
 /// python `_froze_in_window(run)`.
 pub fn froze_in_window(run: &VolumeRun) -> bool {
-    (run.kind == RUN_STALLED || run.kind == RUN_RESET) && run.received >= CUT_MIN_BYTES && run.received <= CUT_MAX_BYTES
+    (run.kind == RUN_STALLED || run.kind == RUN_RESET)
+        && run.received >= CUT_MIN_BYTES
+        && run.received <= CUT_MAX_BYTES
 }
 
 /// python `judge(facts)`.
 pub fn judge(facts: &VolumeFacts) -> VolumeVerdict {
-    let second_kind = facts.second.as_ref().map(|run| run.kind.clone()).unwrap_or_default();
+    let second_kind = facts
+        .second
+        .as_ref()
+        .map(|run| run.kind.clone())
+        .unwrap_or_default();
     if facts.first.kind == RUN_CANCELLED || second_kind == RUN_CANCELLED {
         return VolumeVerdict {
             code: VOLUME_UNKNOWN.to_string(),
@@ -83,7 +89,10 @@ pub fn judge(facts: &VolumeFacts) -> VolumeVerdict {
     {
         return VolumeVerdict {
             code: VOLUME_OK.to_string(),
-            text: format!("по одному соединению получено {} КБ без обрыва", facts.first.received / 1024),
+            text: format!(
+                "по одному соединению получено {} КБ без обрыва",
+                facts.first.received / 1024
+            ),
             cut_kb: 0,
         };
     }
@@ -110,7 +119,9 @@ pub fn judge(facts: &VolumeFacts) -> VolumeVerdict {
         }
         return VolumeVerdict {
             code: VOLUME_UNKNOWN.to_string(),
-            text: format!("соединение замерло на {kb} КБ, но повтор этого не подтвердил — вывода нет"),
+            text: format!(
+                "соединение замерло на {kb} КБ, но повтор этого не подтвердил — вывода нет"
+            ),
             cut_kb: 0,
         };
     }
@@ -146,38 +157,83 @@ mod tests {
     use super::*;
 
     fn run(kind: &str, received: u64) -> VolumeRun {
-        VolumeRun { kind: kind.to_string(), received, requests: 1 }
+        VolumeRun {
+            kind: kind.to_string(),
+            received,
+            requests: 1,
+        }
     }
 
     #[test]
     fn verdicts() {
-        assert_eq!(judge(&VolumeFacts { first: run(RUN_CANCELLED, 0), second: None }).text, "проверку объёма прервали");
         assert_eq!(
-            judge(&VolumeFacts { first: run(RUN_PASSED, 50000), second: None }).code,
+            judge(&VolumeFacts {
+                first: run(RUN_CANCELLED, 0),
+                second: None
+            })
+            .text,
+            "проверку объёма прервали"
+        );
+        assert_eq!(
+            judge(&VolumeFacts {
+                first: run(RUN_PASSED, 50000),
+                second: None
+            })
+            .code,
             VOLUME_OK
         );
         assert_eq!(
-            judge(&VolumeFacts { first: run(RUN_CLOSED, 50000), second: None }).code,
+            judge(&VolumeFacts {
+                first: run(RUN_CLOSED, 50000),
+                second: None
+            })
+            .code,
             VOLUME_OK
         );
         let first = run(RUN_STALLED, 20000);
         assert_eq!(
-            judge(&VolumeFacts { first: first.clone(), second: Some(run(RUN_STALLED, 21000)) }).code,
+            judge(&VolumeFacts {
+                first: first.clone(),
+                second: Some(run(RUN_STALLED, 21000))
+            })
+            .code,
             VOLUME_CUT
         );
         assert_eq!(
-            judge(&VolumeFacts { first: first.clone(), second: Some(run(RUN_PASSED, 50000)) }).code,
+            judge(&VolumeFacts {
+                first: first.clone(),
+                second: Some(run(RUN_PASSED, 50000))
+            })
+            .code,
             VOLUME_UNKNOWN
         );
-        assert!(judge(&VolumeFacts { first, second: None }).text.contains("вывода нет"));
+        assert!(judge(&VolumeFacts {
+            first,
+            second: None
+        })
+        .text
+        .contains("вывода нет"));
         assert_eq!(
-            judge(&VolumeFacts { first: run(RUN_FAILED, 0), second: None }).text,
+            judge(&VolumeFacts {
+                first: run(RUN_FAILED, 0),
+                second: None
+            })
+            .text,
             "не удалось соединиться повторно — объём не проверен"
         );
         assert_eq!(
-            judge(&VolumeFacts { first: run(RUN_STALLED, 10000), second: None }).code,
+            judge(&VolumeFacts {
+                first: run(RUN_STALLED, 10000),
+                second: None
+            })
+            .code,
             VOLUME_UNKNOWN
         );
-        assert!(judge(&VolumeFacts { first: run(RUN_CLOSED, 10000), second: None }).text.contains("не проверить"));
+        assert!(judge(&VolumeFacts {
+            first: run(RUN_CLOSED, 10000),
+            second: None
+        })
+        .text
+        .contains("не проверить"));
     }
 }

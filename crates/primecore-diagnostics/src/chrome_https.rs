@@ -29,8 +29,8 @@ use primecore_netfailure::{FAILURE_OTHER, FAILURE_RESET, FAILURE_TIMEOUT};
 use primecore_socketcancel::SocketCancel;
 
 use crate::probe_result::{
-    KIND_CANCELLED, KIND_CERT, KIND_CONNECT, KIND_ERROR, KIND_OK, KIND_RESET, KIND_TLS, KIND_TIMEOUT, ProbeResult,
-    STAGE_CONNECT, STAGE_READ, STAGE_TLS,
+    ProbeResult, KIND_CANCELLED, KIND_CERT, KIND_CONNECT, KIND_ERROR, KIND_OK, KIND_RESET,
+    KIND_TIMEOUT, KIND_TLS, STAGE_CONNECT, STAGE_READ, STAGE_TLS,
 };
 
 /// Какой браузер изображать: самая новая версия Chrome из профиля curl_cffi 0.16.
@@ -77,7 +77,14 @@ pub const DEBUG_HEADER_OUT: i32 = 2;
 pub const DEBUG_SSL_DATA_OUT: i32 = 6;
 
 // Соединение оборвали: пустой ответ, ошибка приёма или отправки, обрыв потока HTTP/2.
-pub static RESET_CODES: [i32; 6] = [E_RECV, E_SEND, E_GOT_NOTHING, E_HTTP2, E_HTTP2_STREAM, E_PARTIAL_FILE];
+pub static RESET_CODES: [i32; 6] = [
+    E_RECV,
+    E_SEND,
+    E_GOT_NOTHING,
+    E_HTTP2,
+    E_HTTP2_STREAM,
+    E_PARTIAL_FILE,
+];
 
 /// Что успело произойти: от этого зависит, чем считать сбой.
 ///
@@ -138,12 +145,18 @@ pub struct RequestSpec {
 impl RequestSpec {
     #[must_use]
     pub fn get(path: &str) -> Self {
-        RequestSpec { path: path.to_string(), method: "GET" }
+        RequestSpec {
+            path: path.to_string(),
+            method: "GET",
+        }
     }
 
     #[must_use]
     pub fn head(path: &str) -> Self {
-        RequestSpec { path: path.to_string(), method: "HEAD" }
+        RequestSpec {
+            path: path.to_string(),
+            method: "HEAD",
+        }
     }
 }
 
@@ -175,7 +188,8 @@ impl Exchange {
     /// Соединение оборвали.
     #[must_use]
     pub fn reset(&self) -> bool {
-        self.error_code != 0 && (self.os_failure == FAILURE_RESET || RESET_CODES.contains(&self.error_code))
+        self.error_code != 0
+            && (self.os_failure == FAILURE_RESET || RESET_CODES.contains(&self.error_code))
     }
 
     /// Какой этап дошёл: чтение, рукопожатие или подключение.
@@ -213,11 +227,16 @@ pub fn on_header(progress: &mut Progress, line: &[u8]) {
     progress.header_size += line.len() as u32;
     if line.starts_with(b"HTTP/") {
         // python: line.split() игнорирует разделители и хвостовые пробелы.
-        let mut parts = std::str::from_utf8(line).unwrap_or("").split_ascii_whitespace();
+        let mut parts = std::str::from_utf8(line)
+            .unwrap_or("")
+            .split_ascii_whitespace();
         let _first = parts.next();
         if let Some(second) = parts.next() {
             let digits = second.to_string();
-            if !digits.is_empty() && digits.chars().all(|c| c.is_ascii_digit()) && !digits.starts_with('1') {
+            if !digits.is_empty()
+                && digits.chars().all(|c| c.is_ascii_digit())
+                && !digits.starts_with('1')
+            {
                 progress.status = digits.parse::<i64>().ok();
             }
         }
@@ -228,7 +247,12 @@ pub fn on_header(progress: &mut Progress, line: &[u8]) {
 ///
 /// `enough` — «читать дальше незачем» (чтение прерывается без сбоя).
 #[must_use]
-pub fn on_body(progress: &mut Progress, token: &SocketCancel, chunk: &[u8], enough: &mut dyn FnMut(&[u8]) -> bool) -> BodyDecision {
+pub fn on_body(
+    progress: &mut Progress,
+    token: &SocketCancel,
+    chunk: &[u8],
+    enough: &mut dyn FnMut(&[u8]) -> bool,
+) -> BodyDecision {
     progress.body.extend_from_slice(chunk);
     if token.cancelled() {
         progress.cancelled = true;
@@ -262,7 +286,12 @@ pub struct ProbeResultExtra {
 /// Исход по коду libcurl, коду ошибки системы и тому, что успело прийти
 /// (python `_classify`). Точные тексты и ветки — как в python.
 #[must_use]
-pub fn classify(exchange: &Exchange, cancel: &SocketCancel, started: Instant, ip: &str) -> ProbeResult {
+pub fn classify(
+    exchange: &Exchange,
+    cancel: &SocketCancel,
+    started: Instant,
+    ip: &str,
+) -> ProbeResult {
     let build = |kind: &'static str, detail: &str, extra: &ProbeResultExtra| -> ProbeResult {
         let mut extra = extra.clone();
         if cancel.cancelled() && (kind != KIND_OK || extra.body_cut) {
@@ -301,34 +330,56 @@ pub fn classify(exchange: &Exchange, cancel: &SocketCancel, started: Instant, ip
     if progress.cancelled {
         return build(KIND_CANCELLED, "", &ProbeResultExtra::default());
     }
-    if exchange.error_code == 0 || (exchange.error_code == E_WRITE_ERROR && progress.stopped_by_us) {
+    if exchange.error_code == 0 || (exchange.error_code == E_WRITE_ERROR && progress.stopped_by_us)
+    {
         if !got_answer {
-            return build(KIND_RESET, "сервер закрыл соединение без ответа", &ProbeResultExtra::default());
+            return build(
+                KIND_RESET,
+                "сервер закрыл соединение без ответа",
+                &ProbeResultExtra::default(),
+            );
         }
         return build(KIND_OK, "", &ProbeResultExtra::default());
     }
     if exchange.error_code == E_PEER_VERIFY || exchange.error_code == E_SSL_CERTPROBLEM {
-        let extra = ProbeResultExtra { cert_problem: cert_problem(&exchange.message), ..Default::default() };
+        let extra = ProbeResultExtra {
+            cert_problem: cert_problem(&exchange.message),
+            ..Default::default()
+        };
         return build(KIND_CERT, &exchange.message, &extra);
     }
     if got_answer {
         // Заголовок пришёл, а тело оборвалось: сброс, замирание или обрыв HTTP/2.
-        let extra = ProbeResultExtra { body_cut: true, ..Default::default() };
+        let extra = ProbeResultExtra {
+            body_cut: true,
+            ..Default::default()
+        };
         return build(KIND_OK, &exchange.message, &extra);
     }
     if stage == STAGE_CONNECT {
         if exchange.error_code == E_TIMEOUT {
-            let extra = ProbeResultExtra { connect_fail: FAILURE_TIMEOUT, ..Default::default() };
+            let extra = ProbeResultExtra {
+                connect_fail: FAILURE_TIMEOUT,
+                ..Default::default()
+            };
             return build(KIND_CONNECT, "сервер не отвечает на подключение", &extra);
         }
         let extra = ProbeResultExtra {
-            connect_fail: if exchange.os_failure.is_empty() { FAILURE_OTHER } else { exchange.os_failure },
+            connect_fail: if exchange.os_failure.is_empty() {
+                FAILURE_OTHER
+            } else {
+                exchange.os_failure
+            },
             ..Default::default()
         };
         return build(KIND_CONNECT, &exchange.message, &extra);
     }
     if exchange.error_code == E_TIMEOUT || exchange.os_failure == FAILURE_TIMEOUT {
-        return build(KIND_TIMEOUT, &exchange.message, &ProbeResultExtra::default());
+        return build(
+            KIND_TIMEOUT,
+            &exchange.message,
+            &ProbeResultExtra::default(),
+        );
     }
     if exchange.os_failure == FAILURE_RESET || RESET_CODES.contains(&exchange.error_code) {
         return build(KIND_RESET, &exchange.message, &ProbeResultExtra::default());
@@ -350,7 +401,8 @@ mod tests {
     #[test]
     fn headers_like_python() {
         assert_eq!(CHROME_TARGET, "chrome150");
-        assert!(WINDOWS_HEADERS[0].starts_with("sec-ch-ua: \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\""));
+        assert!(WINDOWS_HEADERS[0]
+            .starts_with("sec-ch-ua: \"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\""));
         assert_eq!(WINDOWS_HEADERS[3], "Upgrade-Insecure-Requests: 1");
         assert!(WINDOWS_HEADERS[4].contains("Chrome/150.0.0.0 Safari/537.36"));
         assert!(WINDOWS_HEADERS[10].contains("zstd"));
@@ -359,14 +411,38 @@ mod tests {
 
     #[test]
     fn cert_problems_by_word() {
-        assert_eq!(cert_problem("README: hostname mismatch"), "сертификат выдан другому сайту");
-        assert_eq!(cert_problem("certificate subject does not match"), "сертификат выдан другому сайту");
-        assert_eq!(cert_problem("x name match of z"), "сертификат выдан другому сайту");
-        assert_eq!(cert_problem("cert has expired"), "сертификат просрочен или ещё не действует (проверьте часы Windows)");
-        assert_eq!(cert_problem("self signed certificate"), "самодельный сертификат");
-        assert_eq!(cert_problem("issuer certificate not found"), "сертификат выдан неизвестным центром");
-        assert_eq!(cert_problem("unable to get local issuer"), "сертификат выдан неизвестным центром");
-        assert_eq!(cert_problem("что-то постороннее"), "сертификат не прошёл проверку");
+        assert_eq!(
+            cert_problem("README: hostname mismatch"),
+            "сертификат выдан другому сайту"
+        );
+        assert_eq!(
+            cert_problem("certificate subject does not match"),
+            "сертификат выдан другому сайту"
+        );
+        assert_eq!(
+            cert_problem("x name match of z"),
+            "сертификат выдан другому сайту"
+        );
+        assert_eq!(
+            cert_problem("cert has expired"),
+            "сертификат просрочен или ещё не действует (проверьте часы Windows)"
+        );
+        assert_eq!(
+            cert_problem("self signed certificate"),
+            "самодельный сертификат"
+        );
+        assert_eq!(
+            cert_problem("issuer certificate not found"),
+            "сертификат выдан неизвестным центром"
+        );
+        assert_eq!(
+            cert_problem("unable to get local issuer"),
+            "сертификат выдан неизвестным центром"
+        );
+        assert_eq!(
+            cert_problem("что-то постороннее"),
+            "сертификат не прошёл проверку"
+        );
     }
 
     #[test]
@@ -374,14 +450,38 @@ mod tests {
         let mut progress = Progress::new();
         on_debug(&mut progress, DEBUG_TEXT, b"Try connect to 1.1.1.1...");
         assert!(!progress.tls_started && !progress.secured);
-        on_debug(&mut progress, DEBUG_TEXT, b"SSL connection using TLSv1.3 / TLS_AES");
+        on_debug(
+            &mut progress,
+            DEBUG_TEXT,
+            b"SSL connection using TLSv1.3 / TLS_AES",
+        );
         assert_eq!(progress.tls_version, "TLSv1.3");
         // Замеченный python-порядок: строка «SSL connection using …» уже означает защищённое.
-        assert_eq!(Exchange { progress, error_code: 0, message: String::new(), os_failure: "", reconnected: false }.stage(), STAGE_READ);
+        assert_eq!(
+            Exchange {
+                progress,
+                error_code: 0,
+                message: String::new(),
+                os_failure: "",
+                reconnected: false
+            }
+            .stage(),
+            STAGE_READ
+        );
         let mut raw = Progress::new();
         on_debug(&mut raw, DEBUG_SSL_DATA_OUT, &[0u8, 1, 2]);
         assert!(raw.tls_started);
-        assert_eq!(Exchange { progress: raw, error_code: 0, message: String::new(), os_failure: "", reconnected: false }.stage(), STAGE_TLS);
+        assert_eq!(
+            Exchange {
+                progress: raw,
+                error_code: 0,
+                message: String::new(),
+                os_failure: "",
+                reconnected: false
+            }
+            .stage(),
+            STAGE_TLS
+        );
     }
 
     #[test]
@@ -401,16 +501,25 @@ mod tests {
         let mut progress = Progress::new();
         let mut hit = 0usize;
         assert_eq!(
-            on_body(&mut progress, &token, b"re", &mut |_body| { hit += 1; false }),
+            on_body(&mut progress, &token, b"re", &mut |_body| {
+                hit += 1;
+                false
+            }),
             BodyDecision::Continue
         );
         assert_eq!(hit, 1);
         assert_eq!(progress.body, b"re".to_vec());
-        assert_eq!(on_body(&mut progress, &token, b"st", &mut |_| true), BodyDecision::WriteError);
+        assert_eq!(
+            on_body(&mut progress, &token, b"st", &mut |_| true),
+            BodyDecision::WriteError
+        );
         assert!(progress.stopped_by_us);
         assert!(!progress.cancelled);
         token.cancel();
-        assert_eq!(on_body(&mut progress, &token, b"x", &mut |_| false), BodyDecision::WriteError);
+        assert_eq!(
+            on_body(&mut progress, &token, b"x", &mut |_| false),
+            BodyDecision::WriteError
+        );
         assert!(progress.cancelled);
     }
 
@@ -437,7 +546,13 @@ mod tests {
         on_debug(&mut cut, DEBUG_SSL_DATA_OUT, &[0u8]);
         on_debug(&mut cut, DEBUG_HEADER_OUT, &[0u8]);
         on_header(&mut cut, b"HTTP/2 200\r\n");
-        exchange = Exchange { progress: cut, error_code: E_RECV, message: "reset".to_string(), os_failure: "", reconnected: false };
+        exchange = Exchange {
+            progress: cut,
+            error_code: E_RECV,
+            message: "reset".to_string(),
+            os_failure: "",
+            reconnected: false,
+        };
         assert_eq!(exchange.stage(), STAGE_READ);
         assert!(exchange.reset());
         assert_eq!(exchange.received(), 12);
@@ -455,27 +570,36 @@ mod tests {
             os_failure: "",
             reconnected: false,
         };
-        let result = classify(&exchange, &token, started, "10.0.0.1", );
+        let result = classify(&exchange, &token, started, "10.0.0.1");
         assert_eq!(result.kind, KIND_CONNECT);
         assert_eq!(result.detail, "сервер не отвечает на подключение");
         assert_eq!(result.connect_fail, "timeout");
         // Другой сбой на этапе подключения: «other».
         exchange.error_code = E_COULDNT_CONNECT;
-        let result = classify(&exchange, &token, started, "10.0.0.1", );
+        let result = classify(&exchange, &token, started, "10.0.0.1");
         assert_eq!(result.connect_fail, "other");
 
         // Проверка сертификата: kind cert + человеческая причина.
         exchange.error_code = E_PEER_VERIFY;
         exchange.message = "secure connection: certificate has expired".to_string();
-        let result = classify(&exchange, &token, started, "10.0.0.1", );
+        let result = classify(&exchange, &token, started, "10.0.0.1");
         assert_eq!(result.kind, KIND_CERT);
-        assert_eq!(result.cert_problem, "сертификат просрочен или ещё не действует (проверьте часы Windows)");
+        assert_eq!(
+            result.cert_problem,
+            "сертификат просрочен или ещё не действует (проверьте часы Windows)"
+        );
 
         // Заголовок пришёл, а тело оборвалось: ok + body_cut.
         let mut progress = Progress::new();
         on_debug(&mut progress, DEBUG_HEADER_OUT, &[0u8]);
         on_header(&mut progress, b"HTTP/2 200\r\n");
-        exchange = Exchange { progress, error_code: E_RECV, message: "reset".to_string(), os_failure: "", reconnected: false };
+        exchange = Exchange {
+            progress,
+            error_code: E_RECV,
+            message: "reset".to_string(),
+            os_failure: "",
+            reconnected: false,
+        };
         let result = classify(&exchange, &token, started, "10.0.0.1");
         assert_eq!(result.kind, KIND_OK);
 
@@ -484,14 +608,23 @@ mod tests {
         on_debug(&mut progress_clear, DEBUG_SSL_DATA_OUT, &[0u8]);
         exchange.progress = progress_clear;
         exchange.error_code = E_SSL_CONNECT;
-        let result = classify(&exchange, &token, started, "10.0.0.1", );
+        let result = classify(&exchange, &token, started, "10.0.0.1");
         assert_eq!(result.kind, KIND_TLS);
         exchange.error_code = E_RECV;
-        assert_eq!(classify(&exchange, &token, started, "10.0.0.1", ).kind, KIND_RESET);
+        assert_eq!(
+            classify(&exchange, &token, started, "10.0.0.1",).kind,
+            KIND_RESET
+        );
         exchange.error_code = E_HTTP2_STREAM;
-        assert_eq!(classify(&exchange, &token, started, "10.0.0.1", ).kind, KIND_RESET);
+        assert_eq!(
+            classify(&exchange, &token, started, "10.0.0.1",).kind,
+            KIND_RESET
+        );
         exchange.error_code = 77;
-        assert_eq!(classify(&exchange, &token, started, "10.0.0.1", ).kind, KIND_ERROR);
+        assert_eq!(
+            classify(&exchange, &token, started, "10.0.0.1",).kind,
+            KIND_ERROR
+        );
 
         // «Стоп» mid-запроса — cancelled.
         let stop = SocketCancel::new();
@@ -500,7 +633,10 @@ mod tests {
         progress.cancelled = true;
         exchange.progress = progress;
         exchange.error_code = 0;
-        assert_eq!(classify(&exchange, &stop, started, "10.0.0.1", ).kind, KIND_CANCELLED);
+        assert_eq!(
+            classify(&exchange, &stop, started, "10.0.0.1",).kind,
+            KIND_CANCELLED
+        );
 
         // Отмена<Node Отмена после успешного ответа — всё равно вид KIND_OK.
         let cancelled = SocketCancel::new();
@@ -509,7 +645,7 @@ mod tests {
         on_debug(&mut progress, DEBUG_HEADER_OUT, &[0u8]);
         on_header(&mut progress, b"HTTP/2 200\r\n");
         exchange.progress = progress;
-        let result = classify(&exchange, &cancelled, started, "10.0.0.1", );
+        let result = classify(&exchange, &cancelled, started, "10.0.0.1");
         assert_eq!(result.kind, KIND_OK);
         exchange.progress.body = b"partial".to_vec();
         // «Стоп» посреди тела останавливает запись со своей стороны (E_WRITE_ERROR), а не сеть.

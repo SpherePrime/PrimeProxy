@@ -61,7 +61,8 @@ static BOUND_RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
 /// python _OUT_RANGE_RANGE_RE целиком.
 fn is_range_shape(expr: &str) -> bool {
     let re = BOUND_RE.get_or_init(|| {
-        regex::Regex::new(r"(?i)^(?:[ndspb]\d+(?:-|<)[ndspb]\d+|(?:-|<)[ndspb]\d+|[ndspb]\d+-)$").expect("regex")
+        regex::Regex::new(r"(?i)^(?:[ndspb]\d+(?:-|<)[ndspb]\d+|(?:-|<)[ndspb]\d+|[ndspb]\d+-)$")
+            .expect("regex")
     });
     re.is_match(expr)
 }
@@ -70,9 +71,7 @@ static SIMPLE_RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new()
 
 /// python _OUT_RANGE_SIMPLE_RE: -(n|d)<число>.
 fn is_simple_shape(expr: &str) -> bool {
-    let re = SIMPLE_RE.get_or_init(|| {
-        regex::Regex::new(r"(?i)^-[nd]\d+$").expect("regex")
-    });
+    let re = SIMPLE_RE.get_or_init(|| regex::Regex::new(r"(?i)^-[nd]\d+$").expect("regex"));
     re.is_match(expr)
 }
 

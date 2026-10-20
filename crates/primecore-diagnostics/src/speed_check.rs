@@ -39,7 +39,12 @@ pub struct SpeedServer {
 
 impl SpeedServer {
     fn new(name: &str, host: &str, path: &str, domestic: bool) -> Self {
-        Self { name: name.to_string(), host: host.to_string(), path: path.to_string(), domestic }
+        Self {
+            name: name.to_string(),
+            host: host.to_string(),
+            path: path.to_string(),
+            domestic,
+        }
     }
 }
 
@@ -53,7 +58,12 @@ pub fn foreign() -> Vec<SpeedServer> {
             "/alpine/v3.9/releases/x86_64/alpine-extended-3.9.0-x86_64.iso",
             false,
         ),
-        SpeedServer::new("Cloudflare", "speed.cloudflare.com", "/__down?bytes=5000000", false),
+        SpeedServer::new(
+            "Cloudflare",
+            "speed.cloudflare.com",
+            "/__down?bytes=5000000",
+            false,
+        ),
     ]
 }
 
@@ -77,7 +87,12 @@ pub struct SpeedSample {
 
 impl SpeedSample {
     fn failed(server: SpeedServer) -> Self {
-        Self { server, kbps: None, received: 0, seconds: 0.0 }
+        Self {
+            server,
+            kbps: None,
+            received: 0,
+            seconds: 0.0,
+        }
     }
 }
 
@@ -122,10 +137,18 @@ pub fn check_speed(
         // Мало данных за короткое время — файл кончился, замер не показателен. Мало данных
         // за всё отведённое время — это и есть медленный сервер: выбросить его значило бы
         // не заметить как раз замедление.
-        let enough =
-            received >= MIN_BYTES || (received > 0 && seconds >= SAMPLE_SECONDS * 0.9);
-        let kbps = if enough && seconds > 0.0 { Some(received as f64 / 1024.0 / seconds) } else { None };
-        samples.push(SpeedSample { server: server.clone(), kbps, received, seconds });
+        let enough = received >= MIN_BYTES || (received > 0 && seconds >= SAMPLE_SECONDS * 0.9);
+        let kbps = if enough && seconds > 0.0 {
+            Some(received as f64 / 1024.0 / seconds)
+        } else {
+            None
+        };
+        samples.push(SpeedSample {
+            server: server.clone(),
+            kbps,
+            received,
+            seconds,
+        });
     }
     samples
 }
@@ -133,7 +156,9 @@ pub fn check_speed(
 /// Человекочитаемая скорость (python `speed_text`).
 #[must_use]
 pub fn speed_text(kbps: Option<f64>) -> String {
-    let Some(kbps) = kbps else { return "замер не получился".to_string() };
+    let Some(kbps) = kbps else {
+        return "замер не получился".to_string();
+    };
     let mbit = kbps * 8.0 / 1000.0;
     if mbit >= 10.0 {
         format!("{} Мбит/с", py_round0(mbit))
@@ -157,12 +182,22 @@ fn median(values: &mut [f64]) -> f64 {
 #[must_use]
 pub fn summarize_speed(samples: &[SpeedSample]) -> SpeedReport {
     let samples: Vec<SpeedSample> = samples.to_vec();
-    let domestic: Vec<f64> =
-        samples.iter().filter(|item| item.server.domestic).filter_map(|item| item.kbps).collect();
-    let foreign: Vec<f64> =
-        samples.iter().filter(|item| !item.server.domestic).filter_map(|item| item.kbps).collect();
+    let domestic: Vec<f64> = samples
+        .iter()
+        .filter(|item| item.server.domestic)
+        .filter_map(|item| item.kbps)
+        .collect();
+    let foreign: Vec<f64> = samples
+        .iter()
+        .filter(|item| !item.server.domestic)
+        .filter_map(|item| item.kbps)
+        .collect();
     if domestic.is_empty() || foreign.is_empty() {
-        let missing = if domestic.is_empty() { "российских" } else { "зарубежных" };
+        let missing = if domestic.is_empty() {
+            "российских"
+        } else {
+            "зарубежных"
+        };
         return SpeedReport {
             level: Level::Unknown,
             headline: format!("Скорость сравнить не удалось: нет замера {missing} серверов"),
@@ -173,7 +208,8 @@ pub fn summarize_speed(samples: &[SpeedSample]) -> SpeedReport {
     let abroad = median(&mut foreign.clone());
     // Медленны должны быть все измеренные зарубежные серверы, и их должно быть не меньше двух.
     let foreign_max = foreign.iter().copied().fold(f64::MIN, f64::max);
-    let all_slow = foreign.len() >= 2 && foreign_max * SLOWER_TIMES <= home && foreign_max <= SLOW_KBPS;
+    let all_slow =
+        foreign.len() >= 2 && foreign_max * SLOWER_TIMES <= home && foreign_max <= SLOW_KBPS;
     if all_slow {
         let times = home / abroad.max(0.001);
         return SpeedReport {
@@ -215,20 +251,35 @@ mod tests {
         );
         assert_eq!(
             requested,
-            vec!["Яндекс", "OVH (Франция)", "Selectel", "Leaseweb (Нидерланды)", "Cloudflare"]
+            vec![
+                "Яндекс",
+                "OVH (Франция)",
+                "Selectel",
+                "Leaseweb (Нидерланды)",
+                "Cloudflare"
+            ]
         );
         // Одинаковый список серверов и в замерах.
         assert_eq!(
-            samples.iter().map(|item| item.server.name.clone()).collect::<Vec<_>>(),
+            samples
+                .iter()
+                .map(|item| item.server.name.clone())
+                .collect::<Vec<_>>(),
             requested
         );
-        assert_eq!(samples.first().unwrap().kbps, Some(MIN_BYTES as f64 / 1024.0));
+        assert_eq!(
+            samples.first().unwrap().kbps,
+            Some(MIN_BYTES as f64 / 1024.0)
+        );
     }
 
     #[test]
     fn enough_data_python_branches() {
         // Мало байт за всё время — медленный сервер: замер остаётся.
-        let slow = check_speed(|_server| Some((100_000, SAMPLE_SECONDS * 0.95)), None::<fn() -> bool>);
+        let slow = check_speed(
+            |_server| Some((100_000, SAMPLE_SECONDS * 0.95)),
+            None::<fn() -> bool>,
+        );
         assert!(slow.first().unwrap().kbps.is_some());
         // Мало байт за короткое время — файл кончился: замера нет.
         let short = check_speed(|_server| Some((100_000, 1.0)), None::<fn() -> bool>);
@@ -268,15 +319,26 @@ mod tests {
 
     #[test]
     fn summarize_python_verdicts() {
-        let sample = |server: SpeedServer, kbps: f64| SpeedSample { server, kbps: Some(kbps), received: MIN_BYTES, seconds: 3.0 };
+        let sample = |server: SpeedServer, kbps: f64| SpeedSample {
+            server,
+            kbps: Some(kbps),
+            received: MIN_BYTES,
+            seconds: 3.0,
+        };
         // Не с чем сравнивать.
         let report = summarize_speed(&[]);
         assert_eq!(report.level, Level::Unknown);
-        assert_eq!(report.headline, "Скорость сравнить не удалось: нет замера российских серверов");
+        assert_eq!(
+            report.headline,
+            "Скорость сравнить не удалось: нет замера российских серверов"
+        );
         let dom = domestic();
         let frn = foreign();
         let report = summarize_speed(&[sample(dom[0].clone(), 4000.0)]);
-        assert_eq!(report.headline, "Скорость сравнить не удалось: нет замера зарубежных серверов");
+        assert_eq!(
+            report.headline,
+            "Скорость сравнить не удалось: нет замера зарубежных серверов"
+        );
         // Хорошая скорость: ok.
         let report = summarize_speed(&[
             sample(dom[0].clone(), 4000.0),

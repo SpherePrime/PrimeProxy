@@ -8,15 +8,21 @@
 use std::collections::BTreeMap;
 
 use crate::models::{
-    build_profile_logical_key, build_profile_persistent_key, Profile, ProfileMatch,
-    ProfileSegment, Preset, Strategy, ENGINE_WINWS1, ENGINE_WINWS2,
+    build_profile_logical_key, build_profile_persistent_key, Preset, Profile, ProfileMatch,
+    ProfileSegment, Strategy, ENGINE_WINWS1, ENGINE_WINWS2,
 };
 use crate::winws1::parse_winws1_strategy;
 use crate::winws2::parse_winws2_strategy;
 
 /// Служебные директивы профиля (python _DIRECTIVE_PREFIXES).
-pub const DIRECTIVE_PREFIXES: [&str; 6] =
-    ["--name", "--template", "--import", "--skip", "--comment", "--cookie"];
+pub const DIRECTIVE_PREFIXES: [&str; 6] = [
+    "--name",
+    "--template",
+    "--import",
+    "--skip",
+    "--comment",
+    "--cookie",
+];
 
 /// Match-префиксы (python _MATCH_PREFIXES).
 pub const MATCH_PREFIXES: [&str; 10] = [
@@ -39,11 +45,7 @@ pub fn normalize_text(text: &str) -> String {
     text.replace("\r\n", "\n").replace('\r', "\n")
 }
 
-pub fn parse_preset_text(
-    text: &str,
-    engine: &str,
-    source_name: &str,
-) -> Result<Preset, String> {
+pub fn parse_preset_text(text: &str, engine: &str, source_name: &str) -> Result<Preset, String> {
     let normalized_engine = normalize_engine(engine)?;
     let (header_lines, body_lines) = split_header_and_body(text);
     let (preamble_lines, raw_profiles, footer_lines) =
@@ -51,7 +53,9 @@ pub fn parse_preset_text(
     let mut profiles: Vec<Profile> = raw_profiles
         .into_iter()
         .enumerate()
-        .map(|(index, (new_line, lines))| parse_profile(&lines, &normalized_engine, index, &new_line))
+        .map(|(index, (new_line, lines))| {
+            parse_profile(&lines, &normalized_engine, index, &new_line)
+        })
         .collect();
     assign_profile_keys(&mut profiles);
     Ok(Preset {
@@ -84,7 +88,10 @@ pub fn header_line_count(lines: &[String]) -> usize {
 }
 
 pub fn split_header_and_body(text: &str) -> (Vec<String>, Vec<String>) {
-    let lines: Vec<String> = normalize_text(text).split('\n').map(str_to_string).collect();
+    let lines: Vec<String> = normalize_text(text)
+        .split('\n')
+        .map(str_to_string)
+        .collect();
     let count = header_line_count(&lines);
     (lines[..count].to_vec(), lines[count..].to_vec())
 }
@@ -133,8 +140,10 @@ fn split_preamble_and_profile_indices(
 
     if !current.is_empty() {
         if saw_profile {
-            let content: Vec<String> =
-                current.iter().filter_map(|index| body_lines.get(*index).cloned()).collect();
+            let content: Vec<String> = current
+                .iter()
+                .filter_map(|index| body_lines.get(*index).cloned())
+                .collect();
             if current_new_line.is_some() && !has_profile_content(&content) {
                 footer.extend(current);
             } else {
@@ -152,7 +161,10 @@ fn split_preamble_and_profile_lines(
 ) -> (Vec<String>, Vec<(String, Vec<String>)>, Vec<String>) {
     let (preamble, profiles, footer) = split_preamble_and_profile_indices(body_lines);
     (
-        preamble.iter().map(|index| body_lines[*index].clone()).collect(),
+        preamble
+            .iter()
+            .map(|index| body_lines[*index].clone())
+            .collect(),
         profiles
             .into_iter()
             .map(|(new_line, indexes)| {
@@ -160,11 +172,17 @@ fn split_preamble_and_profile_lines(
                     Some(index) => body_lines[index].trim().to_string(),
                     None => String::new(),
                 };
-                let lines = indexes.into_iter().map(|index| body_lines[index].clone()).collect();
+                let lines = indexes
+                    .into_iter()
+                    .map(|index| body_lines[index].clone())
+                    .collect();
                 (name, lines)
             })
             .collect(),
-        footer.iter().map(|index| body_lines[*index].clone()).collect(),
+        footer
+            .iter()
+            .map(|index| body_lines[*index].clone())
+            .collect(),
     )
 }
 
@@ -221,7 +239,9 @@ pub fn profile_line_kind(stripped: &str, engine: &str, saw_strategy: bool) -> &'
 }
 
 fn is_directive(stripped: &str) -> bool {
-    DIRECTIVE_PREFIXES.iter().any(|prefix| stripped.starts_with(prefix))
+    DIRECTIVE_PREFIXES
+        .iter()
+        .any(|prefix| stripped.starts_with(prefix))
 }
 
 /// Имя — у winws1 это --comment, у winws2 — --name.
@@ -234,7 +254,9 @@ fn is_profile_name_directive(engine: &str, directive_name: &str) -> bool {
 }
 
 fn is_match_line(stripped: &str) -> bool {
-    MATCH_PREFIXES.iter().any(|prefix| stripped.starts_with(prefix))
+    MATCH_PREFIXES
+        .iter()
+        .any(|prefix| stripped.starts_with(prefix))
 }
 
 fn is_strategy_filter_line(stripped: &str, engine: &str) -> bool {
@@ -252,7 +274,9 @@ fn is_strategy_line(stripped: &str, engine: &str) -> bool {
     if engine == ENGINE_WINWS2 {
         return lowered.starts_with("--lua-desync=");
     }
-    WINWS1_STRATEGY_PREFIXES.iter().any(|prefix| lowered.starts_with(prefix))
+    WINWS1_STRATEGY_PREFIXES
+        .iter()
+        .any(|prefix| lowered.starts_with(prefix))
 }
 
 /// Разрезка на имя и значение по первому «=» (python _split_option).
@@ -327,34 +351,64 @@ pub fn parse_profile(lines: &[String], engine: &str, index: usize, new_line: &st
                 if option_name == "--skip" {
                     enabled = false;
                 }
-                segments.push(profile_segment("directive", stripped, &option_name, &option_value));
+                segments.push(profile_segment(
+                    "directive",
+                    stripped,
+                    &option_name,
+                    &option_value,
+                ));
             }
             "match" => {
                 add_match_line(&mut match_section, stripped);
                 let (option_name, option_value) = split_option(stripped);
-                segments.push(profile_segment("match", stripped, &option_name, &option_value));
+                segments.push(profile_segment(
+                    "match",
+                    stripped,
+                    &option_name,
+                    &option_value,
+                ));
             }
             "strategy_filter" => {
                 strategy_lines.push(stripped.to_string());
                 saw_strategy = true;
                 let (option_name, option_value) = split_option(stripped);
-                segments.push(profile_segment("strategy_filter", stripped, &option_name, &option_value));
+                segments.push(profile_segment(
+                    "strategy_filter",
+                    stripped,
+                    &option_name,
+                    &option_value,
+                ));
             }
             "strategy" => {
                 strategy_lines.push(stripped.to_string());
                 saw_strategy = true;
                 let (option_name, option_value) = split_option(stripped);
-                segments.push(profile_segment("strategy", stripped, &option_name, &option_value));
+                segments.push(profile_segment(
+                    "strategy",
+                    stripped,
+                    &option_name,
+                    &option_value,
+                ));
             }
             "strategy_tail" => {
                 strategy_lines.push(stripped.to_string());
                 let (option_name, option_value) = split_option(stripped);
-                segments.push(profile_segment("strategy", stripped, &option_name, &option_value));
+                segments.push(profile_segment(
+                    "strategy",
+                    stripped,
+                    &option_name,
+                    &option_value,
+                ));
             }
             _ => {
                 add_match_line(&mut match_section, stripped);
                 let (option_name, option_value) = split_option(stripped);
-                segments.push(profile_segment("match", stripped, &option_name, &option_value));
+                segments.push(profile_segment(
+                    "match",
+                    stripped,
+                    &option_name,
+                    &option_value,
+                ));
             }
         }
     }
@@ -390,7 +444,10 @@ pub fn parse_profile(lines: &[String], engine: &str, index: usize, new_line: &st
 pub fn name_from_new_line(new_line: &str) -> String {
     let stripped = new_line.trim();
     if stripped.to_lowercase().starts_with("--new=") {
-        let value = stripped.split_once('=').map(|(_, value)| value).unwrap_or("");
+        let value = stripped
+            .split_once('=')
+            .map(|(_, value)| value)
+            .unwrap_or("");
         let mut value = value.trim().to_string();
         // python: value.strip().strip('"').strip("'").
         value = value.trim_matches('"').to_string();
@@ -522,8 +579,11 @@ fn signature_option_name(name: &str) -> String {
 /// Значение пересборки: списки файлов — имя файла;
 /// домены/IP — отсортированные токены. None — оставить как есть.
 fn signature_value(name: &str, value: &str) -> Option<String> {
-    if name == "--hostlist" || name == "--hostlist-exclude" || name == "--hostlist-auto"
-        || name == "--ipset" || name == "--ipset-exclude"
+    if name == "--hostlist"
+        || name == "--hostlist-exclude"
+        || name == "--hostlist-auto"
+        || name == "--ipset"
+        || name == "--ipset-exclude"
     {
         let cleaned = value.trim_start_matches('@');
         let cleaned = cleaning_tilde_and_quotes(cleaned);
@@ -624,7 +684,9 @@ fn is_complex_match(match_section: &ProfileMatch) -> bool {
     if list_line_count > 1 {
         return true;
     }
-    if !match_section.hostlist_exclude_lines.is_empty() || !match_section.ipset_exclude_lines.is_empty() {
+    if !match_section.hostlist_exclude_lines.is_empty()
+        || !match_section.ipset_exclude_lines.is_empty()
+    {
         return true;
     }
     if !match_section.hostlist_auto_lines.is_empty() {
@@ -688,10 +750,14 @@ pub struct PresetOutline {
 
 pub fn preset_text_outline(text: &str, engine: &str) -> Result<PresetOutline, String> {
     let normalized_engine = normalize_engine(engine)?;
-    let lines: Vec<String> = normalize_text(text).split('\n').map(str_to_string).collect();
+    let lines: Vec<String> = normalize_text(text)
+        .split('\n')
+        .map(str_to_string)
+        .collect();
     let body_start = header_line_count(&lines);
-    let header: Vec<usize> =
-        (0..body_start).filter(|index| !lines[*index].trim().is_empty()).collect();
+    let header: Vec<usize> = (0..body_start)
+        .filter(|index| !lines[*index].trim().is_empty())
+        .collect();
     let (preamble, raw_profiles, _footer) =
         split_preamble_and_profile_indices(&lines[body_start..]);
 

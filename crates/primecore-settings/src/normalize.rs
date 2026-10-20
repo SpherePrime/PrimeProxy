@@ -36,7 +36,7 @@ pub fn as_bool(value: &Value, default: bool) -> bool {
             // Python: isinstance(value, int) → bool(value); float НЕ int,
             // но в JSON-данных float приходит редко — пусть float тоже
             // даёт false, если это не целое-выглядящее число.
-            nr.as_i64().map_or(false, |n| n != 0)
+            nr.as_i64().is_some_and(|n| n != 0)
         }
         Value::String(text) => {
             let normalized = text.trim().to_lowercase();
@@ -75,7 +75,9 @@ fn python_int(value: &Value) -> Option<i64> {
             if let Some(i) = nr.as_i64() {
                 Some(i)
             } else {
-                nr.as_f64().map(|f| f.trunc() as i64 /* int(float) → floor по модулю */)
+                nr.as_f64().map(
+                    |f| f.trunc() as i64, /* int(float) → floor по модулю */
+                )
             }
         }
         Value::String(text) => {
@@ -119,7 +121,7 @@ pub fn as_str(value: &Value, default: &str) -> String {
 fn python_repr(value: &Value) -> String {
     match value {
         Value::Array(items) => {
-            let parts: Vec<String> = items.iter().map(|item| python_repr_inner(item)).collect();
+            let parts: Vec<String> = items.iter().map(python_repr_inner).collect();
             format!("[{}]", parts.join(", "))
         }
         Value::Object(_) => "{...}".to_string(), // pydict-строку сверять не приходится
@@ -130,7 +132,13 @@ fn python_repr(value: &Value) -> String {
 fn python_repr_inner(value: &Value) -> String {
     match value {
         Value::String(text) => format!("'{text}'"), // по умолчанию '...'
-        Value::Bool(b) => if *b { "True".to_string() } else { "False".to_string() },
+        Value::Bool(b) => {
+            if *b {
+                "True".to_string()
+            } else {
+                "False".to_string()
+            }
+        }
         Value::Null => "None".to_string(),
         other => other.to_string(),
     }
@@ -170,9 +178,7 @@ pub fn normalize_hex_secret(value: &Value) -> String {
 /// Имя домена: leading/trailing точки снимаются, только a-z0-9-, метки
 /// ≤63, всего ≤253, пустые метки запрещены. IDN/русские → "".
 pub fn normalize_domain(value: &Value) -> String {
-    let cleaned = as_clean_str(value, "")
-        .trim_matches('.')
-        .to_lowercase();
+    let cleaned = as_clean_str(value, "").trim_matches('.').to_lowercase();
     if cleaned.is_empty() || cleaned.len() > 253 {
         return String::new();
     }
@@ -195,16 +201,20 @@ pub fn normalize_domain(value: &Value) -> String {
 
 fn raw_items(value: &Value) -> Vec<String> {
     match value {
-        Value::String(text) => text
-            .replace(',', " ")
-            .replace(';', " ")
-            .split_whitespace()
-            .map(|s| s.to_string())
-            .collect(),
+        Value::String(text) =>
+        {
+            #[allow(clippy::collapsible_str_replace)]
+            text.replace(',', " ")
+                .replace(';', " ")
+                .split_whitespace()
+                .map(|s| s.to_string())
+                .collect()
+        }
         Value::Array(items) => {
             let mut collected = Vec::new();
             for item in items {
                 if let Value::String(text) = item {
+                    #[allow(clippy::collapsible_str_replace)]
                     collected.extend(
                         text.replace(',', " ")
                             .replace(';', " ")
@@ -262,10 +272,7 @@ fn is_valid_domain(value: &str) -> bool {
         if label.starts_with('-') || label.ends_with('-') {
             return false;
         }
-        if !label
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '-')
-        {
+        if !label.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
             return false;
         }
     }
@@ -392,9 +399,7 @@ pub fn normalize_custom_dns_servers(value: &Value) -> Vec<serde_json::Map<String
             continue;
         }
         let mut doh = as_clean_str(raw.get("doh").unwrap_or(&Value::Null), "");
-        if !doh.to_lowercase().starts_with("https://")
-            || doh.chars().any(|c| c.is_whitespace())
-        {
+        if !doh.to_lowercase().starts_with("https://") || doh.chars().any(|c| c.is_whitespace()) {
             doh = String::new();
         }
         let id_key = server_id.to_lowercase();

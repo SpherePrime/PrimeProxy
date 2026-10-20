@@ -18,10 +18,8 @@
 /// python `ProbeResult`, виды исхода `KIND_*`, этапы `STAGE_*`, `CONNECT_*` —
 /// реэкспорт из [`crate::probe_result`].
 pub use crate::probe_result::{
-    ProbeResult, STAGE_CONNECT, STAGE_READ, STAGE_TLS,
-    CONNECT_REFUSED, CONNECT_TIMEOUT,
-    KIND_CANCELLED, KIND_CERT, KIND_CONNECT, KIND_ERROR, KIND_OK, KIND_RESET, KIND_TIMEOUT,
-    KIND_TLS,
+    ProbeResult, CONNECT_REFUSED, CONNECT_TIMEOUT, KIND_CANCELLED, KIND_CERT, KIND_CONNECT,
+    KIND_ERROR, KIND_OK, KIND_RESET, KIND_TIMEOUT, KIND_TLS, STAGE_CONNECT, STAGE_READ, STAGE_TLS,
 };
 
 /// python `client_context` — один контекст TLS на процесс.

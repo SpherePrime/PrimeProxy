@@ -21,11 +21,13 @@
 use crate::{
     address_kinds::{address_kind, is_stub_address, AddressKind},
     block_kind::{
-        kind_info_or_other, site_kind, KIND_CUT, KIND_DNS, KIND_DOWN, KIND_NO_CONNECT, KIND_UNSTABLE,
+        kind_info_or_other, site_kind, KIND_CUT, KIND_DNS, KIND_DOWN, KIND_NO_CONNECT,
+        KIND_UNSTABLE,
     },
     limits::{FREEZE_MAX_BYTES, FREEZE_MIN_BYTES},
     probe_result::{
-        ProbeResult, KIND_CANCELLED, KIND_CERT, KIND_CONNECT, KIND_OK, KIND_RESET, KIND_TIMEOUT, KIND_TLS,
+        ProbeResult, KIND_CANCELLED, KIND_CERT, KIND_CONNECT, KIND_OK, KIND_RESET, KIND_TIMEOUT,
+        KIND_TLS,
     },
 };
 
@@ -147,7 +149,8 @@ const ADVICE_STRATEGY_OR_ADDRESS: &str = {
      поможет DNS-профиль в «Редакторе hosts», другой DNS или VPN."
 };
 /// Советы «почини через Zapret»: движок убирает их у гео-сайтов, которым Zapret не помогает.
-pub const ADVICE_VIA_ZAPRET: [&str; 3] = [ADVICE_STRATEGY, ADVICE_START, ADVICE_STRATEGY_OR_ADDRESS];
+pub const ADVICE_VIA_ZAPRET: [&str; 3] =
+    [ADVICE_STRATEGY, ADVICE_START, ADVICE_STRATEGY_OR_ADDRESS];
 
 /// Совет для сервиса, который сам ограничивает доступ из России (каталог hosts).
 pub fn advice_geo_site(service: &str) -> String {
@@ -192,7 +195,11 @@ const FOREIGN_CERT_EVERYWHERE: &str = {
 /// python `_cert_cause(items)` — откуда чужой сервер: из файла hosts, из
 /// подменённого DNS или «по пути».
 fn cert_cause(items: &[&TargetOutcome]) -> Option<DnsState> {
-    let has = |state: DnsState| items.iter().any(|item| item.reach == "cert" && item.dns == state);
+    let has = |state: DnsState| {
+        items
+            .iter()
+            .any(|item| item.reach == "cert" && item.dns == state)
+    };
     if has(DnsState::Local) {
         Some(DnsState::Local)
     } else if has(DnsState::Spoofed) {
@@ -255,12 +262,19 @@ fn advice_for(
     }
     if states.iter().any(|state| state == "cert") {
         // Чужой сертификат только у побочного адреса: сначала совет по главной причине, потом про него.
-        let rest: Vec<String> = states.iter().filter(|state| *state != "cert").cloned().collect();
+        let rest: Vec<String> = states
+            .iter()
+            .filter(|state| *state != "cert")
+            .cloned()
+            .collect();
         let mut advice = advice_for(&rest, zapret_running, cert_state, kind);
         advice.push(cert_advice.to_string());
         return advice;
     }
-    if states.iter().any(|state| state == "dpi" || state == "freeze") {
+    if states
+        .iter()
+        .any(|state| state == "dpi" || state == "freeze")
+    {
         // Вид блокировки важнее: закрытому адресу «запустите Zapret» обещал бы лишнее.
         if kind == "ip" {
             return vec![ADVICE_STRATEGY_OR_ADDRESS.to_string()];
@@ -272,7 +286,12 @@ fn advice_for(
         return vec![ADVICE_STRATEGY.to_string()];
     }
     if states.iter().any(|state| state == "ip_block") {
-        return vec![(if kind == "ip" { ADVICE_IP } else { ADVICE_NO_CONNECT }).to_string()];
+        return vec![(if kind == "ip" {
+            ADVICE_IP
+        } else {
+            ADVICE_NO_CONNECT
+        })
+        .to_string()];
     }
     vec!["Повторите проверку через минуту.".to_string()]
 }
@@ -320,7 +339,10 @@ pub fn judge_dns(args: JudgeDnsArgs) -> DnsJudgement {
                 ),
             };
         }
-        return DnsJudgement { state: DnsState::Local, reason: note };
+        return DnsJudgement {
+            state: DnsState::Local,
+            reason: note,
+        };
     }
 
     // Провайдер подсовывает «сайта нет» наперегонки с настоящим ответом: иногда
@@ -360,7 +382,10 @@ pub fn judge_dns(args: JudgeDnsArgs) -> DnsJudgement {
                 ),
             };
         }
-        return DnsJudgement { state: DnsState::Unknown, reason: "DNS-сервер не дал адрес, сравнить не с чем".to_string() };
+        return DnsJudgement {
+            state: DnsState::Unknown,
+            reason: "DNS-сервер не дал адрес, сравнить не с чем".to_string(),
+        };
     }
 
     let fake_ips: Vec<&String> = system_ips
@@ -384,7 +409,11 @@ pub fn judge_dns(args: JudgeDnsArgs) -> DnsJudgement {
         .iter()
         .filter(|ip| address_kind(ip) == AddressKind::LOCAL)
         .collect();
-    if !home.is_empty() && !system_ips.iter().any(|ip| address_kind(ip) == AddressKind::BLOCK_STUB) {
+    if !home.is_empty()
+        && !system_ips
+            .iter()
+            .any(|ip| address_kind(ip) == AddressKind::BLOCK_STUB)
+    {
         return DnsJudgement {
             state: DnsState::Local,
             reason: format!(
@@ -399,7 +428,10 @@ pub fn judge_dns(args: JudgeDnsArgs) -> DnsJudgement {
     if !stubs.is_empty() {
         return DnsJudgement {
             state: DnsState::Spoofed,
-            reason: format!("DNS вернул адрес-заглушку {} вместо настоящего сервера", stubs[0]),
+            reason: format!(
+                "DNS вернул адрес-заглушку {} вместо настоящего сервера",
+                stubs[0]
+            ),
         };
     }
 
@@ -408,7 +440,10 @@ pub fn judge_dns(args: JudgeDnsArgs) -> DnsJudgement {
         // проверка именно этого другого адреса: чужой сертификат на нём значит,
         // что часть ответов подменена.
         if foreign_everywhere {
-            return DnsJudgement { state: DnsState::Unknown, reason: FOREIGN_CERT_EVERYWHERE.to_string() };
+            return DnsJudgement {
+                state: DnsState::Unknown,
+                reason: FOREIGN_CERT_EVERYWHERE.to_string(),
+            };
         }
         if check_kind == KIND_CERT {
             let problem = if check_cert_problem.is_empty() {
@@ -424,7 +459,10 @@ pub fn judge_dns(args: JudgeDnsArgs) -> DnsJudgement {
                 ),
             };
         }
-        return DnsJudgement { state: DnsState::Ok, reason: "адрес совпадает с эталоном".to_string() };
+        return DnsJudgement {
+            state: DnsState::Ok,
+            reason: "адрес совпадает с эталоном".to_string(),
+        };
     }
 
     if check_kind == KIND_OK {
@@ -461,7 +499,10 @@ pub fn judge_dns(args: JudgeDnsArgs) -> DnsJudgement {
             };
         }
         if foreign_everywhere {
-            return DnsJudgement { state: DnsState::Unknown, reason: FOREIGN_CERT_EVERYWHERE.to_string() };
+            return DnsJudgement {
+                state: DnsState::Unknown,
+                reason: FOREIGN_CERT_EVERYWHERE.to_string(),
+            };
         }
         return DnsJudgement {
             state: DnsState::Spoofed,
@@ -500,7 +541,8 @@ pub fn judge_reach(result: Option<&ProbeResult>) -> ReachState {
     };
     match result.kind.as_str() {
         KIND_OK => {
-            if result.body_cut && (FREEZE_MIN_BYTES..=FREEZE_MAX_BYTES).contains(&result.body_size) {
+            if result.body_cut && (FREEZE_MIN_BYTES..=FREEZE_MAX_BYTES).contains(&result.body_size)
+            {
                 ReachState::Freeze
             } else {
                 ReachState::Ok
@@ -529,7 +571,11 @@ pub fn describe_reach(result: Option<&ProbeResult>, timeout: f64) -> String {
         );
     }
     if state == ReachState::Cert {
-        let problem = if result.cert_problem.is_empty() { "не прошёл проверку" } else { &result.cert_problem };
+        let problem = if result.cert_problem.is_empty() {
+            "не прошёл проверку"
+        } else {
+            &result.cert_problem
+        };
         return format!(
             "чужой сертификат ({problem}) — трафик перехватывает антивирус, прокси или провайдер"
         );
@@ -538,7 +584,8 @@ pub fn describe_reach(result: Option<&ProbeResult>, timeout: f64) -> String {
         return "не удалось соединиться с сервером".to_string();
     }
     if result.kind == KIND_TLS {
-        return "соединение рвётся при установке шифрования — так обычно режет фильтр провайдера".to_string();
+        return "соединение рвётся при установке шифрования — так обычно режет фильтр провайдера"
+            .to_string();
     }
     if result.kind == KIND_RESET {
         return "соединение сброшено — так обычно режет фильтр провайдера".to_string();
@@ -571,7 +618,10 @@ pub fn summarize_service(
         dns_note: String::new(),
         kind: String::new(),
     };
-    let main = targets.iter().find(|item| item.main).or_else(|| targets.first());
+    let main = targets
+        .iter()
+        .find(|item| item.main)
+        .or_else(|| targets.first());
     let Some(main) = main else {
         return unknown_verdict(format!("{label}: проверка не выполнилась"));
     };
@@ -592,8 +642,10 @@ pub fn summarize_service(
     }
 
     let broken = |item: &TargetOutcome| BROKEN.contains(&item.reach.as_str());
-    let secondary_broken: Vec<&TargetOutcome> =
-        targets.iter().filter(|item| *item != main && broken(item)).collect();
+    let secondary_broken: Vec<&TargetOutcome> = targets
+        .iter()
+        .filter(|item| *item != main && broken(item))
+        .collect();
 
     if main.reach == "ok" {
         let mut own_kind = String::new();
@@ -612,13 +664,22 @@ pub fn summarize_service(
                  браузер пойдёт на него и сайт не откроет"
             );
             advice = vec![ADVICE_HOSTS_STALE.to_string()];
-        } else if secondary_broken.is_empty() && targets.iter().any(|item| item.unstable && item.reach == "ok") {
+        } else if secondary_broken.is_empty()
+            && targets
+                .iter()
+                .any(|item| item.unstable && item.reach == "ok")
+        {
             // Не «открывается» и не «заблокирован»: третий исход, которого человеку и не хватает,
             // когда сайт то грузится, то нет.
             level = Level::Warn;
             headline = format!("{label} открывается через раз");
             advice = vec![
-                (if zapret_running == Some(false) { ADVICE_START } else { ADVICE_STRATEGY }).to_string(),
+                (if zapret_running == Some(false) {
+                    ADVICE_START
+                } else {
+                    ADVICE_STRATEGY
+                })
+                .to_string(),
                 ADVICE_UNSTABLE.to_string(),
             ];
             own_kind = KIND_UNSTABLE.to_string();
@@ -632,26 +693,50 @@ pub fn summarize_service(
             );
             advice = Vec::new();
         } else if secondary_broken.is_empty() {
-            level = if spoofed.is_empty() { Level::Ok } else { Level::Warn };
+            level = if spoofed.is_empty() {
+                Level::Ok
+            } else {
+                Level::Warn
+            };
             headline = format!("{label} открывается");
             advice = Vec::new();
         } else {
             level = Level::Warn;
-            let parts: Vec<&str> = secondary_broken.iter().map(|item| item.purpose.as_str()).collect();
-            let states: Vec<String> = secondary_broken.iter().map(|item| item.reach.clone()).collect();
+            let parts: Vec<&str> = secondary_broken
+                .iter()
+                .map(|item| item.purpose.as_str())
+                .collect();
+            let states: Vec<String> = secondary_broken
+                .iter()
+                .map(|item| item.reach.clone())
+                .collect();
             let cause = cert_cause(&secondary_broken);
             headline = format!(
                 "{label} открывается, но не работают {}: {}",
                 parts.join(", "),
                 reason_for(&secondary_broken, cause)
             );
-            advice = advice_for(&states, zapret_running, cause, &leading_kind(&secondary_broken));
+            advice = advice_for(
+                &states,
+                zapret_running,
+                cause,
+                &leading_kind(&secondary_broken),
+            );
         }
         let advice = append_dns_advice(advice, &spoofed);
         // python: `own_kind or _leading_kind(secondary_broken)`.
-        let kind =
-            if own_kind.is_empty() { leading_kind(&secondary_broken) } else { own_kind };
-        return ServiceVerdict { level, headline, advice, dns_note, kind };
+        let kind = if own_kind.is_empty() {
+            leading_kind(&secondary_broken)
+        } else {
+            own_kind
+        };
+        return ServiceVerdict {
+            level,
+            headline,
+            advice,
+            dns_note,
+            kind,
+        };
     }
 
     if broken(main) {
@@ -661,16 +746,32 @@ pub fn summarize_service(
         let cause = cert_cause(&broken_items);
         let kind = leading_kind(&broken_items);
         // При обрыве сайт «открывается» на первые килобайты: честнее сказать, что он не догружается.
-        let opens = if kind == KIND_CUT { "грузится не до конца" } else { "не открывается" };
+        let opens = if kind == KIND_CUT {
+            "грузится не до конца"
+        } else {
+            "не открывается"
+        };
         let mut headline = format!("{label} {opens}: {}", reason_for(&broken_items, cause));
-        if (main.reach == "dpi" || main.reach == "freeze") && zapret_running == Some(true) && kind != KIND_DOWN {
+        if (main.reach == "dpi" || main.reach == "freeze")
+            && zapret_running == Some(true)
+            && kind != KIND_DOWN
+        {
             headline.push_str(" — Zapret запущен, но эту блокировку не обходит");
         }
         let advice = append_dns_advice(advice_for(&states, zapret_running, cause, &kind), &spoofed);
         // «Причина не ясна» и «не работает сам» — не установленная блокировка: замечание, а не тревога.
-        let level =
-            if kind == KIND_NO_CONNECT || kind == KIND_DOWN { Level::Warn } else { Level::Fail };
-        return ServiceVerdict { level, headline, advice, dns_note, kind };
+        let level = if kind == KIND_NO_CONNECT || kind == KIND_DOWN {
+            Level::Warn
+        } else {
+            Level::Fail
+        };
+        return ServiceVerdict {
+            level,
+            headline,
+            advice,
+            dns_note,
+            kind,
+        };
     }
 
     if main.reach == "no_address" {
@@ -678,7 +779,10 @@ pub fn summarize_service(
         return ServiceVerdict {
             level: Level::Fail,
             headline: format!("{label} не открывается: не удалось узнать адрес сервера"),
-            advice: vec!["Проверьте подключение к интернету.".to_string(), ADVICE_DNS.to_string()],
+            advice: vec![
+                "Проверьте подключение к интернету.".to_string(),
+                ADVICE_DNS.to_string(),
+            ],
             dns_note,
             kind: KIND_DNS.to_string(),
         };
@@ -691,7 +795,6 @@ pub fn summarize_service(
         kind: String::new(),
     }
 }
-
 
 impl Level {
     /// python `Level(value)` из строки отчёта.

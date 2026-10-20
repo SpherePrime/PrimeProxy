@@ -6,7 +6,7 @@
 
 use std::collections::{BTreeMap, VecDeque};
 
-use crate::models::{Profile, Preset};
+use crate::models::{Preset, Profile};
 
 /// python PresetProfileMoveResult: (profile_key, key_map).
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
@@ -23,11 +23,7 @@ impl PresetProfileMoveResult {
 }
 
 /// Стабильная ссылка на элемент списка профилей.
-pub fn profile_reference_key(
-    in_preset: bool,
-    persistent_key: &str,
-    key: &str,
-) -> String {
+pub fn profile_reference_key(in_preset: bool, persistent_key: &str, key: &str) -> String {
     if in_preset {
         let persistent = persistent_key.trim();
         if !persistent.is_empty() {
@@ -42,16 +38,10 @@ pub fn resolve_preset_profile_row_index(preset: &Preset, profile_key: &str) -> O
     if key.is_empty() {
         return None;
     }
-    preset
-        .profiles
-        .iter()
-        .position(|profile| profile.id == key)
+    preset.profiles.iter().position(|profile| profile.id == key)
 }
 
-pub fn resolve_preset_profile_reference_index(
-    preset: &Preset,
-    profile_key: &str,
-) -> Option<usize> {
+pub fn resolve_preset_profile_reference_index(preset: &Preset, profile_key: &str) -> Option<usize> {
     if let Some(row_index) = resolve_preset_profile_row_index(preset, profile_key) {
         return Some(row_index);
     }
@@ -108,10 +98,7 @@ pub fn find_profile_list_source_index(
 /// Карта перестановок ключей по подписи содержимого профиля.
 pub type ProfileKeyMap = BTreeMap<String, String>;
 
-pub fn build_preset_profile_key_map(
-    before: &[Profile],
-    after: &[Profile],
-) -> ProfileKeyMap {
+pub fn build_preset_profile_key_map(before: &[Profile], after: &[Profile]) -> ProfileKeyMap {
     // Подпись содержимого → очередь ключей "after".
     let mut candidates: BTreeMap<String, VecDeque<String>> = BTreeMap::new();
     for profile in after {
@@ -150,10 +137,19 @@ pub fn remap_profile_item_rows(
     items: &[ProfileItemRow],
     key_map: &ProfileKeyMap,
 ) -> Vec<ProfileItemRow> {
-    remap_item_keys_by(items, key_map, |(key, _, _)| (*key).clone(), |row, new_key, index| {
-        let (_, _, order) = row;
-        (new_key.clone(), profile_index_from_key(&new_key, index as i64), order)
-    })
+    remap_item_keys_by(
+        items,
+        key_map,
+        |(key, _, _)| (*key).clone(),
+        |row, new_key, index| {
+            let (_, _, order) = row;
+            (
+                new_key.clone(),
+                profile_index_from_key(&new_key, index as i64),
+                order,
+            )
+        },
+    )
 }
 
 /// Общая форма: элементы с ключом, мапа key_map, конструктор новой строки.
@@ -208,7 +204,11 @@ pub fn remap_profile_operation_keys(
         return operation.clone();
     }
     let mut result = operation.clone();
-    for field in ["profile_key", "source_profile_key", "destination_profile_key"] {
+    for field in [
+        "profile_key",
+        "source_profile_key",
+        "destination_profile_key",
+    ] {
         let Some(value) = result.get(field).cloned() else {
             continue;
         };
@@ -234,9 +234,7 @@ pub fn preset_profile_move_result_key(result_key: &str) -> String {
     result_key.trim().to_string()
 }
 
-pub fn preset_profile_move_key_map(
-    result: &PresetProfileMoveResult,
-) -> ProfileKeyMap {
+pub fn preset_profile_move_key_map(result: &PresetProfileMoveResult) -> ProfileKeyMap {
     result.key_map.clone()
 }
 
@@ -245,7 +243,11 @@ pub fn profile_content_signature(profile: &Profile) -> Vec<String> {
     // `--new=Name` хранится в `profile.new_line`, а при переносе на первое
     // место сериализатор превращает его в `--name=Name` внутри segments.
     let engine = profile.engine.trim().to_lowercase();
-    let name_directive = if engine == "winws1" { "--comment" } else { "--name" };
+    let name_directive = if engine == "winws1" {
+        "--comment"
+    } else {
+        "--name"
+    };
     let mut signature = vec![format!("profile-name:{}", profile.name.trim())];
     for segment in &profile.segments {
         let text = segment.text.trim();
@@ -269,4 +271,3 @@ pub fn profile_index_from_key(key: &str, fallback: i64) -> i64 {
     }
     fallback
 }
-

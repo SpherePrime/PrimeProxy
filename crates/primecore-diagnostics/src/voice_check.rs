@@ -78,20 +78,44 @@ pub fn describe(result: &StunOutcome) -> (bool, String, bool) {
         return (true, "отвечает".to_string(), true);
     }
     if ANSWERED_CODES.contains(&code) {
-        return (true, "отвечает (ответ необычный, но UDP проходит)".to_string(), true);
+        return (
+            true,
+            "отвечает (ответ необычный, но UDP проходит)".to_string(),
+            true,
+        );
     }
     match code {
-        "TIMEOUT" => (false, "не ответил — UDP до него не доходит".to_string(), true),
-        "DNS_ERR" => (false, "не удалось узнать адрес сервера — проверить его не вышло".to_string(), false),
-        "RESET" => (false, "сервер отклонил запрос (порт закрыт)".to_string(), true),
+        "TIMEOUT" => (
+            false,
+            "не ответил — UDP до него не доходит".to_string(),
+            true,
+        ),
+        "DNS_ERR" => (
+            false,
+            "не удалось узнать адрес сервера — проверить его не вышло".to_string(),
+            false,
+        ),
+        "RESET" => (
+            false,
+            "сервер отклонил запрос (порт закрыт)".to_string(),
+            true,
+        ),
         "CANCELLED" => (false, "проверку сняли".to_string(), false),
         "UNREACHABLE" => {
             // Нет маршрута (часто — нет IPv6 или сети вовсе): о закрытом UDP это ничего не говорит.
-            (false, "до адреса сервера нет дороги — проверить его не вышло".to_string(), false)
+            (
+                false,
+                "до адреса сервера нет дороги — проверить его не вышло".to_string(),
+                false,
+            )
         }
         _ => (
             false,
-            if result.detail.is_empty() { "ошибка проверки".to_string() } else { result.detail.clone() },
+            if result.detail.is_empty() {
+                "ошибка проверки".to_string()
+            } else {
+                result.detail.clone()
+            },
             false,
         ),
     }
@@ -112,7 +136,11 @@ pub fn plan_targets(targets: &[(&str, &str, &str)]) -> StunPlan {
                 name.to_string(),
                 host,
                 port,
-                if group.is_empty() { "general".to_string() } else { group.to_string() },
+                if group.is_empty() {
+                    "general".to_string()
+                } else {
+                    group.to_string()
+                },
             )
         })
         .collect()
@@ -120,7 +148,10 @@ pub fn plan_targets(targets: &[(&str, &str, &str)]) -> StunPlan {
 
 /// Вывод по серверам-планам: результат каждой пробы уже получен.
 #[must_use]
-pub fn collect_servers(plan: &[(String, String, u16, String)], outcome_of: impl Fn(&str, u16) -> Option<StunOutcome>) -> Vec<VoiceServer> {
+pub fn collect_servers(
+    plan: &[(String, String, u16, String)],
+    outcome_of: impl Fn(&str, u16) -> Option<StunOutcome>,
+) -> Vec<VoiceServer> {
     let mut servers = Vec::new();
     for (name, host, port, group) in plan {
         let outcome = outcome_of(host, *port);
@@ -167,23 +198,41 @@ pub fn summarize_voice(servers: &[VoiceServer]) -> VoiceReport {
     if decided.is_empty() {
         return VoiceReport {
             level: Level::Unknown,
-            headline: "Голосовые серверы проверить не удалось: не получилось узнать их адреса".to_string(),
+            headline: "Голосовые серверы проверить не удалось: не получилось узнать их адреса"
+                .to_string(),
             servers: servers_owned,
             advice: vec![
-                "Повторите проверку. Если повторяется — проверьте DNS в разделе «Настройка DNS».".to_string()
+                "Повторите проверку. Если повторяется — проверьте DNS в разделе «Настройка DNS»."
+                    .to_string(),
             ],
         };
     }
-    let telegram_list: Vec<&&VoiceServer> = decided.iter().filter(|item| item.group == GROUP_TELEGRAM).collect();
-    let general: Vec<&&VoiceServer> = decided.iter().filter(|item| item.group != GROUP_TELEGRAM).collect();
-    let general_ok = if general.is_empty() { true } else { general.iter().any(|item| item.answered) };
-    let telegram_ok = if telegram_list.is_empty() { true } else { telegram_list.iter().any(|item| item.answered) };
+    let telegram_list: Vec<&&VoiceServer> = decided
+        .iter()
+        .filter(|item| item.group == GROUP_TELEGRAM)
+        .collect();
+    let general: Vec<&&VoiceServer> = decided
+        .iter()
+        .filter(|item| item.group != GROUP_TELEGRAM)
+        .collect();
+    let general_ok = if general.is_empty() {
+        true
+    } else {
+        general.iter().any(|item| item.answered)
+    };
+    let telegram_ok = if telegram_list.is_empty() {
+        true
+    } else {
+        telegram_list.iter().any(|item| item.answered)
+    };
     let strategy_advice =
         vec!["Нажмите «Подобрать стратегию для звонков» — нужный пункт «Голосовые звонки» выберется сам.".to_string()];
     if !general_ok {
         return VoiceReport {
             level: Level::Fail,
-            headline: "Голосовые звонки могут не работать: проверочные серверы (STUN) не отвечают по UDP".to_string(),
+            headline:
+                "Голосовые звонки могут не работать: проверочные серверы (STUN) не отвечают по UDP"
+                    .to_string(),
             servers: servers_owned,
             advice: strategy_advice,
         };
@@ -219,7 +268,11 @@ mod tests {
             name: name.to_string(),
             host: host.to_string(),
             answered,
-            text: if answered { "отвечает".to_string() } else { "не ответил".to_string() },
+            text: if answered {
+                "отвечает".to_string()
+            } else {
+                "не ответил".to_string()
+            },
             decided,
             group: group.to_string(),
         }
@@ -227,37 +280,84 @@ mod tests {
 
     #[test]
     fn parse_python_cases() {
-        assert_eq!(parse_target("stun:dns.google.com:443"), ("dns.google.com".to_string(), 443));
+        assert_eq!(
+            parse_target("stun:dns.google.com:443"),
+            ("dns.google.com".to_string(), 443)
+        );
         assert_eq!(parse_target("stun:1.2.3.4"), ("1.2.3.4".to_string(), 3478));
         assert_eq!(parse_target("12345"), (String::new(), 12345));
-        assert_eq!(parse_target("dns.google.com"), ("dns.google.com".to_string(), 3478));
+        assert_eq!(
+            parse_target("dns.google.com"),
+            ("dns.google.com".to_string(), 3478)
+        );
     }
 
     #[test]
     fn describe_all_codes() {
-        let ok = StunOutcome { status: "OK".to_string(), ..Default::default() };
+        let ok = StunOutcome {
+            status: "OK".to_string(),
+            ..Default::default()
+        };
         assert_eq!(describe(&ok), (true, "отвечает".to_string(), true));
-        let parse_err = StunOutcome { error_code: "PARSE_ERR".to_string(), ..Default::default() };
-        assert_eq!(describe(&parse_err), (true, "отвечает (ответ необычный, но UDP проходит)".to_string(), true));
+        let parse_err = StunOutcome {
+            error_code: "PARSE_ERR".to_string(),
+            ..Default::default()
+        };
+        assert_eq!(
+            describe(&parse_err),
+            (
+                true,
+                "отвечает (ответ необычный, но UDP проходит)".to_string(),
+                true
+            )
+        );
         for (code, text, decided) in [
             ("TIMEOUT", "не ответил — UDP до него не доходит", true),
-            ("DNS_ERR", "не удалось узнать адрес сервера — проверить его не вышло", false),
+            (
+                "DNS_ERR",
+                "не удалось узнать адрес сервера — проверить его не вышло",
+                false,
+            ),
             ("RESET", "сервер отклонил запрос (порт закрыт)", true),
             ("CANCELLED", "проверку сняли", false),
-            ("UNREACHABLE", "до адреса сервера нет дороги — проверить его не вышло", false),
+            (
+                "UNREACHABLE",
+                "до адреса сервера нет дороги — проверить его не вышло",
+                false,
+            ),
         ] {
-            let outcome = StunOutcome { error_code: code.to_string(), ..Default::default() };
-            assert_eq!(describe(&outcome), (false, text.to_string(), decided), "{code}");
+            let outcome = StunOutcome {
+                error_code: code.to_string(),
+                ..Default::default()
+            };
+            assert_eq!(
+                describe(&outcome),
+                (false, text.to_string(), decided),
+                "{code}"
+            );
         }
-        let strange = StunOutcome { error_code: "другой".to_string(), detail: "текст сбоя".to_string(), ..Default::default() };
+        let strange = StunOutcome {
+            error_code: "другой".to_string(),
+            detail: "текст сбоя".to_string(),
+            ..Default::default()
+        };
         assert_eq!(describe(&strange), (false, "текст сбоя".to_string(), false));
-        let empty_detail = StunOutcome { error_code: "другой".to_string(), ..Default::default() };
-        assert_eq!(describe(&empty_detail), (false, "ошибка проверки".to_string(), false));
+        let empty_detail = StunOutcome {
+            error_code: "другой".to_string(),
+            ..Default::default()
+        };
+        assert_eq!(
+            describe(&empty_detail),
+            (false, "ошибка проверки".to_string(), false)
+        );
     }
 
     #[test]
     fn plan_targets_table() {
-        let plan = plan_targets(&[("Telegram", "stun:tg.example:3479", "telegram"), ("Прочий", "stun:x.example", "")]);
+        let plan = plan_targets(&[
+            ("Telegram", "stun:tg.example:3479", "telegram"),
+            ("Прочий", "stun:x.example", ""),
+        ]);
         assert_eq!(plan[0].3, GROUP_TELEGRAM);
         assert_eq!(plan[0].1, "tg.example");
         assert_eq!(plan[0].2, 3479);
@@ -277,10 +377,16 @@ mod tests {
         let general_ok_any = stun("Лин", "d", true, true, "general");
         let good = summarize_voice(std::slice::from_ref(&general_ok_any));
         assert_eq!(good.level, Level::Ok);
-        assert_eq!(good.headline, "Проверочные серверы звонков отвечают по UDP (1 из 1)");
+        assert_eq!(
+            good.headline,
+            "Проверочные серверы звонков отвечают по UDP (1 из 1)"
+        );
         assert!(good.advice.is_empty());
         let alive = stun("Telegram", "a", true, true, GROUP_TELEGRAM);
-        assert_eq!(summarize_voice(std::slice::from_ref(&alive)).level, Level::Ok);
+        assert_eq!(
+            summarize_voice(std::slice::from_ref(&alive)).level,
+            Level::Ok
+        );
         let sync: Vec<VoiceServer> = vec![alive.clone(), general_fail.clone()];
         assert_eq!(summarize_voice(&sync).level, Level::Fail);
         let unsync = vec![general_ok_any, only_telegram_fail.clone()];
@@ -291,16 +397,27 @@ mod tests {
         let mute_pair = vec![general_fail, only_telegram_fail];
         let fail_pair = summarize_voice(&mute_pair);
         assert_eq!(fail_pair.level, Level::Fail);
-        assert_eq!(summarize_voice(&[]).headline, "Голосовые серверы не проверялись");
+        assert_eq!(
+            summarize_voice(&[]).headline,
+            "Голосовые серверы не проверялись"
+        );
         let undecided = vec![stun("x", "y", false, false, "general")];
         let cannot = summarize_voice(&undecided);
         assert_eq!(cannot.level, Level::Unknown);
-        assert_eq!(cannot.headline, "Голосовые серверы проверить не удалось: не получилось узнать их адреса");
+        assert_eq!(
+            cannot.headline,
+            "Голосовые серверы проверить не удалось: не получилось узнать их адреса"
+        );
     }
 
     #[test]
     fn collect_servers_pipeline_exception() {
-        let plan = vec![("One".to_string(), "a".to_string(), 3478, "general".to_string())];
+        let plan = vec![(
+            "One".to_string(),
+            "a".to_string(),
+            3478,
+            "general".to_string(),
+        )];
         let servers = collect_servers(&plan, |host, port| {
             assert_eq!(host, "a");
             assert_eq!(port, 3478);
@@ -308,7 +425,12 @@ mod tests {
         });
         assert!(!servers[0].decided);
         assert_eq!(servers[0].text, "ошибка проверки");
-        let servers = collect_servers(&plan, |_host, _port| Some(StunOutcome { status: "OK".to_string(), ..Default::default() }));
+        let servers = collect_servers(&plan, |_host, _port| {
+            Some(StunOutcome {
+                status: "OK".to_string(),
+                ..Default::default()
+            })
+        });
         assert!(servers[0].answered);
         assert_eq!(servers[0].text, "отвечает");
     }

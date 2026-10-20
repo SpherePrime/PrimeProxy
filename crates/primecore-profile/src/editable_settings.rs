@@ -3,13 +3,17 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::models::{Profile, ProfileMatch, ProfileSegment, Preset, ENGINE_WINWS1, ENGINE_WINWS2};
+use crate::models::{Preset, Profile, ProfileMatch, ProfileSegment, ENGINE_WINWS1, ENGINE_WINWS2};
 use crate::parser::parse_preset_text;
 use crate::serializer::serialize_preset;
 use crate::winws2_transport::parse_out_range_expression;
 
-const SERVICE_EXCLUDE_LIST_NAMES: [&str; 4] =
-    ["ipset-ru.txt", "ipset-dns.txt", "ipset-exclude.txt", "netrogat.txt"];
+const SERVICE_EXCLUDE_LIST_NAMES: [&str; 4] = [
+    "ipset-ru.txt",
+    "ipset-dns.txt",
+    "ipset-exclude.txt",
+    "netrogat.txt",
+];
 const LIST_FILE_EXTENSIONS: [&str; 3] = [".txt", ".lst", ".list"];
 
 const DEFAULT_IN_RANGE: &str = "x";
@@ -119,7 +123,10 @@ pub fn with_editable_profile_settings(
     settings: &EditableProfileSettings,
 ) -> Result<Preset, String> {
     if preset.engine != ENGINE_WINWS1 && preset.engine != ENGINE_WINWS2 {
-        return Err(format!("Unsupported profile preset engine: {}", preset.engine));
+        return Err(format!(
+            "Unsupported profile preset engine: {}",
+            preset.engine
+        ));
     }
     let Some(current_profile) = preset.profiles.get(profile_index) else {
         return Err("list index out of range".to_string());
@@ -170,16 +177,10 @@ pub fn with_editable_profile_settings(
     }
 
     if updated.engine == ENGINE_WINWS2 {
-        profile.segments = with_profile_range(
-            profile.segments.clone(),
-            "--in-range",
-            &settings.in_range,
-        )?;
-        profile.segments = with_profile_range(
-            profile.segments.clone(),
-            "--out-range",
-            &settings.out_range,
-        )?;
+        profile.segments =
+            with_profile_range(profile.segments.clone(), "--in-range", &settings.in_range)?;
+        profile.segments =
+            with_profile_range(profile.segments.clone(), "--out-range", &settings.out_range)?;
     }
 
     reparse(&updated)
@@ -258,8 +259,13 @@ fn editable_filter_is_file_based(profile: &Profile) -> bool {
     for segment in &profile.segments {
         let name = segment.name.trim().to_lowercase();
         if segment.kind == "match"
-            && ["--hostlist", "--ipset", "--hostlist-exclude", "--ipset-exclude"]
-                .contains(&name.as_str())
+            && [
+                "--hostlist",
+                "--ipset",
+                "--hostlist-exclude",
+                "--ipset-exclude",
+            ]
+            .contains(&name.as_str())
         {
             return true;
         }
@@ -357,7 +363,8 @@ fn list_file_name(value: &str) -> String {
 
 fn is_service_exclusion_profile(profile: &Profile) -> bool {
     let match_section = profile.match_section();
-    if match_section.hostlist_exclude_lines.is_empty() && match_section.ipset_exclude_lines.is_empty()
+    if match_section.hostlist_exclude_lines.is_empty()
+        && match_section.ipset_exclude_lines.is_empty()
     {
         return false;
     }
@@ -394,11 +401,13 @@ fn effective_range(segments: &[ProfileSegment], before_index: usize, option_name
     let default = default_range(option_name);
     let mut value = default.clone();
     for segment in segments.iter().take(before_index) {
-        if segment.kind == "strategy_filter"
-            && segment.name.trim().to_lowercase() == option_name
-        {
+        if segment.kind == "strategy_filter" && segment.name.trim().to_lowercase() == option_name {
             let clean = segment.value.trim().to_string();
-            value = if clean.is_empty() { default.clone() } else { clean };
+            value = if clean.is_empty() {
+                default.clone()
+            } else {
+                clean
+            };
         }
     }
     value
@@ -520,15 +529,15 @@ fn replace_match_group(
             }
             continue;
         }
-        if strategy_insert_at.is_none() && (segment.kind == "strategy_filter" || segment.kind == "strategy") {
+        if strategy_insert_at.is_none()
+            && (segment.kind == "strategy_filter" || segment.kind == "strategy")
+        {
             strategy_insert_at = Some(result.len());
         }
         result.push(segment);
     }
 
-    let insert_at = insert_at
-        .or(strategy_insert_at)
-        .unwrap_or(result.len());
+    let insert_at = insert_at.or(strategy_insert_at).unwrap_or(result.len());
     result.splice(insert_at..insert_at, replacement);
     result
 }
@@ -568,7 +577,10 @@ pub fn normalize_filter_value(value: &str, filter_kind: &str, filter_role: &str)
 /// python filter_value_is_file_reference: все значения — ссылки на файлы списков.
 pub fn filter_value_is_file_reference(value: &str) -> bool {
     let parts = split_filter_values(value);
-    !parts.is_empty() && parts.iter().all(|part| single_filter_value_is_file_reference(part))
+    !parts.is_empty()
+        && parts
+            .iter()
+            .all(|part| single_filter_value_is_file_reference(part))
 }
 
 fn single_filter_value_is_file_reference(value: &str) -> bool {
@@ -580,11 +592,19 @@ fn single_filter_value_is_file_reference(value: &str) -> bool {
     if raw.is_empty() || raw.contains("://") {
         return false;
     }
-    let file_name = raw.replace('\\', "/").rsplit('/').next().unwrap_or("").trim().to_string();
+    let file_name = raw
+        .replace('\\', "/")
+        .rsplit('/')
+        .next()
+        .unwrap_or("")
+        .trim()
+        .to_string();
     if file_name.is_empty() || file_name == "." || file_name == ".." {
         return false;
     }
-    LIST_FILE_EXTENSIONS.iter().any(|ext| file_name.to_lowercase().ends_with(ext))
+    LIST_FILE_EXTENSIONS
+        .iter()
+        .any(|ext| file_name.to_lowercase().ends_with(ext))
 }
 
 fn filter_option_name(filter_kind: &str, filter_role: &str) -> String {

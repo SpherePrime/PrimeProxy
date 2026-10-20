@@ -23,7 +23,8 @@ use std::path::{Path, PathBuf};
 use serde_json::Map;
 use serde_json::{json, Value};
 
-pub const HOSTS_URL: &str = "https://raw.githubusercontent.com/bol-van/rulist/main/reestr_hostname.txt";
+pub const HOSTS_URL: &str =
+    "https://raw.githubusercontent.com/bol-van/rulist/main/reestr_hostname.txt";
 pub const IPS_URL: &str = "https://raw.githubusercontent.com/bol-van/rulist/main/reestr_ipban4.txt";
 
 pub const MAX_AGE_S: f64 = 24.0 * 3600.0;
@@ -80,7 +81,9 @@ pub fn unix_now() -> f64 {
 
 /// python `_clean`.
 fn clean(host: &str) -> String {
-    host.trim().trim_matches(|c| c == '"' || c == '.').to_lowercase()
+    host.trim()
+        .trim_matches(|c| c == '"' || c == '.')
+        .to_lowercase()
 }
 
 /// python `_key`: blake2b(digest_size=8) от UTF-8 имени.
@@ -231,10 +234,17 @@ impl Index {
         if self.networks.is_empty() || ip.is_empty() || ip.contains(':') {
             return String::new();
         }
-        let Some(value) = ipv4_to_u32(ip) else { return String::new() };
+        let Some(value) = ipv4_to_u32(ip) else {
+            return String::new();
+        };
         // Сети отсортированы по началу; нужная могла начаться раньше — смотрим несколько назад.
-        let position = self.networks.partition_point(|(start, _end, _text)| *start <= value);
-        for (start, end, text) in self.networks[position.saturating_sub(8)..position].iter().rev() {
+        let position = self
+            .networks
+            .partition_point(|(start, _end, _text)| *start <= value);
+        for (start, end, text) in self.networks[position.saturating_sub(8)..position]
+            .iter()
+            .rev()
+        {
             if *start <= value && value <= *end {
                 return text.clone();
             }
@@ -245,7 +255,10 @@ impl Index {
     /// python `Index.match`.
     #[must_use]
     pub fn match_registry(&self, host: &str, ip: &str) -> Match {
-        Match { name: self.find_host(host), network: self.find_ip(ip) }
+        Match {
+            name: self.find_host(host),
+            network: self.find_ip(ip),
+        }
     }
 }
 
@@ -337,7 +350,14 @@ pub fn refresh(
     let mut changed = false;
     let old_hosts = !current.hosts.is_empty();
     let result: std::io::Result<()> = (|| {
-        let Some(hosts) = fetch(HOSTS_URL, &if old_hosts { etag_of(&etags, HOSTS_URL) } else { String::new() }) else {
+        let Some(hosts) = fetch(
+            HOSTS_URL,
+            &if old_hosts {
+                etag_of(&etags, HOSTS_URL)
+            } else {
+                String::new()
+            },
+        ) else {
             return Err(std::io::Error::other("fetch"));
         };
         if !hosts.unchanged {
@@ -357,7 +377,11 @@ pub fn refresh(
         let old_ips = !current.networks.is_empty();
         if let Some(ips) = fetch(
             IPS_URL,
-            &if old_ips { etag_of(&etags, IPS_URL) } else { String::new() },
+            &if old_ips {
+                etag_of(&etags, IPS_URL)
+            } else {
+                String::new()
+            },
         ) {
             if !ips.unchanged {
                 let body = ips.body.clone().unwrap_or_default();
@@ -373,7 +397,11 @@ pub fn refresh(
                 }
             }
         }
-        let updated = if changed || current.updated == 0.0 { moment } else { current.updated };
+        let updated = if changed || current.updated == 0.0 {
+            moment
+        } else {
+            current.updated
+        };
         let mut meta = Map::new();
         meta.insert("updated".into(), json!(updated));
         meta.insert("checked".into(), json!(moment));
@@ -382,7 +410,12 @@ pub fn refresh(
             etag_map.insert(key.clone(), json!(value));
         }
         meta.insert("etags".into(), Value::Object(etag_map));
-        write_file(&folder.join(META_FILE), serde_json::to_string(&Value::Object(meta)).unwrap_or_default().as_bytes())?;
+        write_file(
+            &folder.join(META_FILE),
+            serde_json::to_string(&Value::Object(meta))
+                .unwrap_or_default()
+                .as_bytes(),
+        )?;
         Ok(())
     })();
     if result.is_err() {
@@ -436,7 +469,11 @@ pub fn format_date(seconds: f64) -> String {
 #[must_use]
 pub fn civil_from_days(days: i64) -> (i64, u32, u32) {
     let shifted = days + 719_468;
-    let era = if shifted >= 0 { shifted } else { shifted - 146_096 } / 146_097;
+    let era = if shifted >= 0 {
+        shifted
+    } else {
+        shifted - 146_096
+    } / 146_097;
     let day_of_era = (shifted - era * 146_097) as u64;
     let year_of_era =
         (day_of_era - day_of_era / 1460 + day_of_era / 36_524 - day_of_era / 146_096) / 365;
@@ -445,7 +482,11 @@ pub fn civil_from_days(days: i64) -> (i64, u32, u32) {
     let mp = (5 * day_of_year + 2) / 153;
     let day = day_of_year - (153 * mp + 2) / 5 + 1;
     let month = if mp < 10 { mp + 3 } else { mp - 9 };
-    (if month <= 2 { year + 1 } else { year }, month as u32, day as u32)
+    (
+        if month <= 2 { year + 1 } else { year },
+        month as u32,
+        day as u32,
+    )
 }
 
 /// python `summary` — состояние списка для отчёта: есть ли он, когда скачан и
@@ -465,7 +506,9 @@ pub fn summary(index: &Index, now: Option<f64>) -> Value {
 pub fn lines(services: &[Value], index: &Index, now: Option<f64>) -> Vec<String> {
     let mut out = vec![String::new(), "━━━━━━━━ Реестр РКН ━━━━━━━━".to_string()];
     if index.hosts.is_empty() {
-        out.push("❔ Список реестра скачать не удалось — отметок «в реестре» в этот раз нет".to_string());
+        out.push(
+            "❔ Список реестра скачать не удалось — отметок «в реестре» в этот раз нет".to_string(),
+        );
         return out;
     }
     let when = format_date(index.updated);
@@ -481,7 +524,12 @@ pub fn lines(services: &[Value], index: &Index, now: Option<f64>) -> Vec<String>
     ));
     let mut found = 0;
     for service in services {
-        for target in service.get("targets").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]) {
+        for target in service
+            .get("targets")
+            .and_then(Value::as_array)
+            .map(Vec::as_slice)
+            .unwrap_or(&[])
+        {
             let mark = target.get("registry").cloned().unwrap_or_default();
             if !mark.get("listed").and_then(Value::as_bool).unwrap_or(false) {
                 continue;
@@ -515,7 +563,8 @@ pub fn lines(services: &[Value], index: &Index, now: Option<f64>) -> Vec<String>
         out.push("ℹ️ Ни один из проверенных сайтов в реестре не значится".to_string());
     }
     out.push(
-        "   Сайт могут блокировать и без записи в реестре — так режут, например, YouTube.".to_string(),
+        "   Сайт могут блокировать и без записи в реестре — так режут, например, YouTube."
+            .to_string(),
     );
     out
 }
@@ -538,7 +587,12 @@ pub fn annotate(services: &[Value], index: &Index) -> Vec<Value> {
     let mut marked: Vec<Value> = Vec::new();
     for service in services {
         let mut targets: Vec<Value> = Vec::new();
-        for target in service.get("targets").and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]) {
+        for target in service
+            .get("targets")
+            .and_then(Value::as_array)
+            .map(Vec::as_slice)
+            .unwrap_or(&[])
+        {
             let found = index.match_registry(
                 target.get("host").and_then(Value::as_str).unwrap_or(""),
                 target.get("address").and_then(Value::as_str).unwrap_or(""),
@@ -814,7 +868,10 @@ mod tests {
         // Отчёт без отметок: «ни один не значится».
         let raw = lines(std::slice::from_ref(&service), &index, Some(100.0));
         assert_eq!(raw.len(), 5);
-        assert_eq!(raw[3], "ℹ️ Ни один из проверенных сайтов в реестре не значится");
+        assert_eq!(
+            raw[3],
+            "ℹ️ Ни один из проверенных сайтов в реестре не значится"
+        );
         // Отчёт с отметками: три строки 📕.
         let marked_slice = annotate(std::slice::from_ref(&service), &index);
         let report = lines(&marked_slice, &index, Some(100.0));
@@ -840,11 +897,16 @@ mod tests {
         Index {
             hosts,
             networks: build_networks(
-                ["10.0.0.0/8", "192.168.5.3/32", "212.192.85.0/24", "10.2.0.0/15"]
-                    .iter()
-                    .map(|row| row.to_string())
-                    .collect::<Vec<_>>()
-                    .into_iter(),
+                [
+                    "10.0.0.0/8",
+                    "192.168.5.3/32",
+                    "212.192.85.0/24",
+                    "10.2.0.0/15",
+                ]
+                .iter()
+                .map(|row| row.to_string())
+                .collect::<Vec<_>>()
+                .into_iter(),
             ),
             updated: 0.0,
             checked: 0.0,

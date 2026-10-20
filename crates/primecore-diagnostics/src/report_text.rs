@@ -13,9 +13,9 @@
 use crate::outside_check::{OUTSIDE_DOWN, OUTSIDE_UP};
 use crate::quic_probe::{QUIC_BLOCKED_BY_NAME, QUIC_OK, QUIC_SILENT};
 use crate::run_context::Probe;
-use crate::{block_kind, cert_owner, limits};
 use crate::telegram_check::DcResult;
-use crate::verdict::{DnsState, Level, ReachState, describe_reach};
+use crate::verdict::{describe_reach, DnsState, Level, ReachState};
+use crate::{block_kind, cert_owner, limits};
 
 /// Молчание по QUIC — не поломка: сервер может его не поддерживать.
 pub fn quic_icon(code: &str) -> &'static str {
@@ -60,7 +60,11 @@ pub fn stages_text(stages: &std::collections::BTreeMap<String, f64>) -> String {
 pub fn py_round0(value: f64) -> i64 {
     if (value - value.floor()) == 0.5 {
         let even = (value.floor() as i64) % 2 == 0;
-        if even { value.floor() as i64 } else { (value.floor() + 1.0) as i64 }
+        if even {
+            value.floor() as i64
+        } else {
+            (value.floor() + 1.0) as i64
+        }
     } else {
         value.round() as i64
     }
@@ -118,7 +122,10 @@ pub fn sentence(text: &str) -> String {
 
 /// python `timed_out_line(deadline)`.
 pub fn timed_out_line(deadline: f64) -> String {
-    format!("⚠️ Часть проверок не уложилась в {:.0} с и была прервана — их результат неизвестен.", deadline)
+    format!(
+        "⚠️ Часть проверок не уложилась в {:.0} с и была прервана — их результат неизвестен.",
+        deadline
+    )
 }
 
 /// python `fail_text(probe)` — почему адрес не открылся, одной фразой.
@@ -142,10 +149,7 @@ pub fn reach_text(probe: &Probe) -> String {
     let result = probe.reach.as_ref();
     if probe.reach_state == ReachState::Ok {
         if let Some(result) = result {
-            let tls = if result
-                .tls_version
-                .is_empty()
-            {
+            let tls = if result.tls_version.is_empty() {
                 String::new()
             } else {
                 format!(", {}", result.tls_version.replace("TLSv", "TLS "))
@@ -165,7 +169,8 @@ pub fn reach_text(probe: &Probe) -> String {
                 stale = format!(" — {what}; браузер пойдёт по этой записи и сайт не откроет");
             }
             let mut again = if probe.rechecked == crate::run_context::RECHECK_OPENED {
-                " — со второй проверки, поодиночке: первый сбой дала нагрузка самой проверки".to_string()
+                " — со второй проверки, поодиночке: первый сбой дала нагрузка самой проверки"
+                    .to_string()
             } else {
                 String::new()
             };
@@ -192,7 +197,11 @@ pub fn reach_text(probe: &Probe) -> String {
     } else {
         String::new()
     };
-    let ipv6 = if probe.ipv6_result.is_some() { ", по IPv6 тоже не открылся" } else { "" };
+    let ipv6 = if probe.ipv6_result.is_some() {
+        ", по IPv6 тоже не открылся"
+    } else {
+        ""
+    };
     let again = if probe.rechecked == crate::run_context::RECHECK_SAME {
         ", повторная проверка поодиночке дала то же"
     } else {
@@ -209,11 +218,19 @@ pub fn dns_detail(probe: &Probe) -> String {
     }
     if !probe.dns.ips.is_empty() {
         let flaky = if probe.dns_nxdomain > 0 {
-            format!(" (а {} из {} раз — «сайта нет»)", probe.dns_nxdomain, limits::DNS_ATTEMPTS)
+            format!(
+                " (а {} из {} раз — «сайта нет»)",
+                probe.dns_nxdomain,
+                limits::DNS_ATTEMPTS
+            )
         } else {
             String::new()
         };
-        parts.push(format!("DNS системы: {}{}", ips_text(&probe.dns.ips, 3), flaky));
+        parts.push(format!(
+            "DNS системы: {}{}",
+            ips_text(&probe.dns.ips, 3),
+            flaky
+        ));
     } else {
         parts.push(format!("DNS системы: нет адреса ({})", probe.dns.detail));
     }
@@ -229,7 +246,11 @@ pub fn dns_detail(probe: &Probe) -> String {
 pub fn dns_lines(probe: &Probe, indent: &str) -> Vec<String> {
     let mut lines: Vec<String> = Vec::new();
     if let Some(judgement) = probe.judgement.as_ref() {
-        lines.push(format!("{indent}{} DNS: {}", dns_icon(judgement.state), judgement.reason));
+        lines.push(format!(
+            "{indent}{} DNS: {}",
+            dns_icon(judgement.state),
+            judgement.reason
+        ));
     }
     lines.push(format!("{indent}   {}", dns_detail(probe)));
     lines
@@ -255,7 +276,11 @@ pub fn probe_lines(probe: &Probe, full: bool) -> Vec<String> {
         lines.extend(dns_lines(probe, "  "));
         return lines;
     }
-    let mut icon = if probe.reach_state == ReachState::Ok { "✅" } else { "❌" };
+    let mut icon = if probe.reach_state == ReachState::Ok {
+        "✅"
+    } else {
+        "❌"
+    };
     if probe.reach_state == ReachState::Unknown {
         icon = "❔";
     }
@@ -266,19 +291,35 @@ pub fn probe_lines(probe: &Probe, full: bool) -> Vec<String> {
     let mut lines = vec![format!("{icon} {title}: {}", reach_text(probe))];
     let kind = probe.kind();
     if !kind.is_empty() {
-        lines.push(format!("   🏷 Вид блокировки: {}", block_kind::kind_info(&kind).map(|info| info.title).unwrap_or_default()));
+        lines.push(format!(
+            "   🏷 Вид блокировки: {}",
+            block_kind::kind_info(&kind)
+                .map(|info| info.title)
+                .unwrap_or_default()
+        ));
     }
     if let Some(cause) = probe.cause.as_ref() {
         lines.push(format!("   🔎 {}", sentence(&cause.text)));
     }
     if let Some(volume) = probe.volume.as_ref() {
         if volume.code != crate::volume_probe::VOLUME_CUT {
-            let volume_icon = if volume.code == crate::volume_probe::VOLUME_OK { "✅" } else { "ℹ️" };
-            lines.push(format!("   {volume_icon} Обрыв после 16 КБ: {}", volume.text));
+            let volume_icon = if volume.code == crate::volume_probe::VOLUME_OK {
+                "✅"
+            } else {
+                "ℹ️"
+            };
+            lines.push(format!(
+                "   {volume_icon} Обрыв после 16 КБ: {}",
+                volume.text
+            ));
         }
     }
     if let Some(quic) = probe.quic.as_ref() {
-        lines.push(format!("   {} QUIC (UDP 443): {}", quic_icon(&quic.code), quic.text));
+        lines.push(format!(
+            "   {} QUIC (UDP 443): {}",
+            quic_icon(&quic.code),
+            quic.text
+        ));
     }
     if !probe.discovery_note.is_empty() {
         lines.push(format!("   ℹ️ {}", probe.discovery_note));
@@ -319,7 +360,12 @@ pub fn telegram_text(item: &DcResult) -> String {
             } else {
                 format!("за {:.0} мс", item.ms.unwrap_or(0.0))
             };
-            format!("соединение {took}") + if item.attempts > 1 { " (со второй попытки)" } else { "" }
+            format!("соединение {took}")
+                + if item.attempts > 1 {
+                    " (со второй попытки)"
+                } else {
+                    ""
+                }
         }
         Some(false) => format!("не соединился, попыток: {}", item.attempts),
     }
@@ -422,9 +468,15 @@ mod tests {
         assert_eq!(dns_icon(DnsState::Spoofed), "❌");
         assert_eq!(quic_icon(QUIC_SILENT), "ℹ️");
         assert_eq!(source_note(limits::SOURCE_HOSTS), ", адрес из файла hosts");
-        assert_eq!(outside_text(OUTSIDE_UP), "открывается — значит, закрыт он именно на вашей линии");
+        assert_eq!(
+            outside_text(OUTSIDE_UP),
+            "открывается — значит, закрыт он именно на вашей линии"
+        );
         assert_eq!(status_by_level(Level::Fail), "Не открывается");
-        assert_eq!(status_by_cert(cert_owner::CERT_OTHER_SITE), "Отвечает другой сайт");
+        assert_eq!(
+            status_by_cert(cert_owner::CERT_OTHER_SITE),
+            "Отвечает другой сайт"
+        );
         assert_eq!(cause_word("stub_page"), "страница провайдера");
     }
 
@@ -447,7 +499,10 @@ mod tests {
         item.ms = Some(12.0);
         assert_eq!(telegram_text(&item), "соединение за 12 мс");
         item.attempts = 2;
-        assert_eq!(telegram_text(&item), "соединение за 12 мс (со второй попытки)");
+        assert_eq!(
+            telegram_text(&item),
+            "соединение за 12 мс (со второй попытки)"
+        );
         item.connected = Some(false);
         assert_eq!(telegram_text(&item), "не соединился, попыток: 2");
         assert_eq!(telegram_state(&item), "fail");

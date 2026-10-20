@@ -28,7 +28,7 @@ use serde_json::Value;
 
 use crate::limits::{FREEZE_MAX_BYTES, FREEZE_MIN_BYTES};
 use crate::probe_result::ProbeResult;
-use crate::upload_probe::{UPLOAD_BULK_STALLS, UPLOAD_OK, UPLOAD_PACKET_LIMIT, UploadVerdict};
+use crate::upload_probe::{UploadVerdict, UPLOAD_BULK_STALLS, UPLOAD_OK, UPLOAD_PACKET_LIMIT};
 use crate::verdict::Level;
 
 pub const READ_LIMIT: u64 = 64 * 1024;
@@ -47,8 +47,16 @@ pub const CANDIDATES_PER_PROVIDER: usize = 3;
 pub const FALLBACK_BUDGET: f64 = 14.0;
 /// Провайдеры в порядке предпочтения: крупные хостинги, у которых ТСПУ
 /// обрывает загрузку чаще всего.
-const PREFERRED_PROVIDERS: [&str; 8] =
-    ["Akamai", "AWS", "Cloudflare", "CDN77", "Hetzner", "OVH", "DigitalOcean", "Fastly"];
+const PREFERRED_PROVIDERS: [&str; 8] = [
+    "Akamai",
+    "AWS",
+    "Cloudflare",
+    "CDN77",
+    "Hetzner",
+    "OVH",
+    "DigitalOcean",
+    "Fastly",
+];
 
 const UNREACHED: [(&str, &str); 6] = [
     ("connect", "нет соединения с сервером"),
@@ -128,21 +136,34 @@ pub fn split_url(url: &str) -> (String, String) {
         None => (rest, ""),
     };
     let path = if path.is_empty() { "/" } else { path };
-    let path = if query.is_empty() { path.to_string() } else { format!("{path}?{query}") };
+    let path = if query.is_empty() {
+        path.to_string()
+    } else {
+        format!("{path}?{query}")
+    };
     (host.to_string(), path)
 }
 
 /// Запись списка целей (python: dict со строками).
 fn item_url(item: &Value) -> String {
-    item.get("url").and_then(Value::as_str).unwrap_or("").to_string()
+    item.get("url")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string()
 }
 
 fn item_provider(item: &Value) -> String {
-    item.get("provider").and_then(Value::as_str).unwrap_or("").to_string()
+    item.get("provider")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string()
 }
 
 fn item_ident(item: &Value) -> String {
-    item.get("id").and_then(Value::as_str).unwrap_or("").to_string()
+    item.get("id")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string()
 }
 
 /// Провайдеры для проверки и до `per_provider` HTTPS-адресов у каждого.
@@ -151,7 +172,11 @@ fn item_ident(item: &Value) -> String {
 /// ответит. Порядок постоянный: сначала крупные хостинги из
 /// `PREFERRED_PROVIDERS`.
 #[must_use]
-pub fn pick_freeze_targets(targets: &[Value], count: usize, per_provider: usize) -> Vec<(String, Vec<Value>)> {
+pub fn pick_freeze_targets(
+    targets: &[Value],
+    count: usize,
+    per_provider: usize,
+) -> Vec<(String, Vec<Value>)> {
     let mut by_provider: Vec<(String, Vec<Value>)> = Vec::new();
     for item in targets {
         if !item_url(item).starts_with("https://") {
@@ -182,9 +207,10 @@ pub fn pick_freeze_targets(targets: &[Value], count: usize, per_provider: usize)
         .into_iter()
         .take(count)
         .filter_map(|name| {
-            by_provider.iter().find(|(provider, _)| *provider == name).map(|(provider, candidates)| {
-                (provider.clone(), candidates.clone())
-            })
+            by_provider
+                .iter()
+                .find(|(provider, _)| *provider == name)
+                .map(|(provider, candidates)| (provider.clone(), candidates.clone()))
         })
         .collect()
 }
@@ -202,7 +228,12 @@ pub fn every_freeze_target(targets: &[Value]) -> Vec<(String, Vec<Value>)> {
 /// Что значит результат загрузки для проверки обрыва (python `classify_download`).
 #[must_use]
 pub fn classify_download(result: Option<&ProbeResult>) -> (FreezeState, String) {
-    let Some(result) = result else { return (FreezeState::Unknown, "не удалось узнать адрес сервера".to_string()) };
+    let Some(result) = result else {
+        return (
+            FreezeState::Unknown,
+            "не удалось узнать адрес сервера".to_string(),
+        );
+    };
     if result.kind != "ok" {
         // Причины здесь не называются: мёртвый или переехавший сервер из списка
         // отвечал бы «чужой сертификат» — и это выглядело бы как перехват трафика.
@@ -211,12 +242,18 @@ pub fn classify_download(result: Option<&ProbeResult>) -> (FreezeState, String) 
             .find(|(code, _)| *code == result.kind)
             .map(|(_, text)| (*text).to_string())
             .unwrap_or_else(|| "сервер не ответил как ожидалось".to_string());
-        return (FreezeState::Unknown, format!("не удалось проверить: {reason}"));
+        return (
+            FreezeState::Unknown,
+            format!("не удалось проверить: {reason}"),
+        );
     }
     let size = result.body_size;
     let kb = size / 1024;
     if result.body_cut && (FREEZE_MIN_BYTES..=FREEZE_MAX_BYTES).contains(&size) {
-        return (FreezeState::Freeze, format!("загрузка оборвалась на {kb} КБ"));
+        return (
+            FreezeState::Freeze,
+            format!("загрузка оборвалась на {kb} КБ"),
+        );
     }
     if size >= FREEZE_MAX_BYTES {
         return (FreezeState::Ok, format!("получено {kb} КБ без обрыва"));
@@ -229,9 +266,15 @@ pub fn classify_download(result: Option<&ProbeResult>) -> (FreezeState, String) 
     }
     let status = result.status.unwrap_or(0);
     if status >= 300 {
-        return (FreezeState::Unknown, format!("сервер не отдал файл (код {status})"));
+        return (
+            FreezeState::Unknown,
+            format!("сервер не отдал файл (код {status})"),
+        );
     }
-    (FreezeState::Unknown, format!("файл слишком маленький ({kb} КБ) — не показательно"))
+    (
+        FreezeState::Unknown,
+        format!("файл слишком маленький ({kb} КБ) — не показательно"),
+    )
 }
 
 /// Обрыв считается обрывом, только если повторился: фильтр режет каждый раз,
@@ -256,7 +299,6 @@ pub fn confirm_cut(first_text: &str, again: (FreezeState, String)) -> (FreezeSta
 ///
 /// Если загрузка прошла без обрыва, на том же сервере проверяется отправка:
 /// ограничение работает в обе стороны.
-#[must_use]
 pub type UploadCheck<'u> = dyn Fn(&str, &str) -> Option<UploadVerdict> + 'static;
 
 pub fn check_provider(
@@ -284,7 +326,10 @@ pub fn check_provider(
         tried += 1;
         (state, text) = classify_download(download(&host, &last_path).as_ref());
         if state == FreezeState::Freeze {
-            (state, text) = confirm_cut(&text, classify_download(download(&host, &last_path).as_ref()));
+            (state, text) = confirm_cut(
+                &text,
+                classify_download(download(&host, &last_path).as_ref()),
+            );
         }
         if state != FreezeState::Unknown {
             break;
@@ -293,12 +338,19 @@ pub fn check_provider(
     if state == FreezeState::Unknown && tried > 1 {
         text = format!("{text} (запасные адреса тоже не помогли, всего адресов: {tried})");
     }
-    let name = if host.is_empty() { provider.to_string() } else { format!("{provider} ({host})") };
+    let name = if host.is_empty() {
+        provider.to_string()
+    } else {
+        format!("{provider} ({host})")
+    };
     let mut direction = DIRECTION_DOWNLOAD.to_string();
     if state == FreezeState::Ok {
         if let Some(upload) = upload {
             match upload(&host, &last_path) {
-                Some(verdict) if verdict.code == UPLOAD_BULK_STALLS || verdict.code == UPLOAD_PACKET_LIMIT => {
+                Some(verdict)
+                    if verdict.code == UPLOAD_BULK_STALLS
+                        || verdict.code == UPLOAD_PACKET_LIMIT =>
+                {
                     state = FreezeState::Freeze;
                     text = format!("загрузка проходит, но {}", verdict.text);
                     direction = DIRECTION_UPLOAD.to_string();
@@ -328,19 +380,23 @@ pub fn check_provider(
 /// запасных. Сколько серверов идёт одновременно, решает движок ( submits по
 /// очереди в `EVERY_AT_ONCE`). `on_server(сервер, готово, всего)` зовётся по
 /// мере готовности — для хода проверки на экране. `when` — время от старта.
+pub type OnServer<'s> = dyn Fn(&FreezeServer, usize, usize) + 's;
 #[must_use]
 pub fn check_freeze(
     targets: &[Value],
     every: bool,
     mut download: impl FnMut(&str, &str) -> Option<ProbeResult>,
     upload: Option<&UploadCheck<'_>>,
-    on_server: Option<&dyn Fn(&FreezeServer, usize, usize)>,
+    on_server: Option<&OnServer<'_>>,
     mut when: impl FnMut() -> f64,
 ) -> Vec<FreezeServer> {
     let started = when();
-    let mut fallback_allowed = || when() - started < FALLBACK_BUDGET;
-    let picked: Vec<(String, Vec<Value>)> =
-        if every { every_freeze_target(targets) } else { pick_freeze_targets(targets, TARGETS_COUNT, CANDIDATES_PER_PROVIDER) };
+    let mut fallback_allowed = move || when() - started < FALLBACK_BUDGET;
+    let picked: Vec<(String, Vec<Value>)> = if every {
+        every_freeze_target(targets)
+    } else {
+        pick_freeze_targets(targets, TARGETS_COUNT, CANDIDATES_PER_PROVIDER)
+    };
     let total = picked.len();
     let done = Mutex::new(0);
     let servers: Vec<FreezeServer> = {
@@ -351,7 +407,7 @@ pub fn check_freeze(
                 provider,
                 candidates,
                 |host, path| download(host, path),
-                || (fallback_allowed)(),
+                &mut fallback_allowed,
                 upload,
             );
             if let Some(on_server) = on_server {
@@ -371,22 +427,27 @@ pub fn check_freeze(
 /// Итог раздела обрыва (python `summarize_freeze`).
 #[must_use]
 pub fn summarize_freeze(servers: &[FreezeServer], zapret_running: Option<bool>) -> FreezeReport {
-    let frozen: Vec<&FreezeServer> = servers.iter().filter(|item| item.state == FreezeState::Freeze).collect();
-    let fine: Vec<&FreezeServer> = servers.iter().filter(|item| item.state == FreezeState::Ok).collect();
+    let frozen: Vec<&FreezeServer> = servers
+        .iter()
+        .filter(|item| item.state == FreezeState::Freeze)
+        .collect();
+    let fine: Vec<&FreezeServer> = servers
+        .iter()
+        .filter(|item| item.state == FreezeState::Ok)
+        .collect();
     if !frozen.is_empty() {
-        let advice: Vec<String> =
-            if zapret_running != Some(false) {
-                vec![
+        let advice: Vec<String> = if zapret_running != Some(false) {
+            vec![
                     "Подберите стратегию для любого сайта, который у вас грузится не до конца: впишите его адрес в \
                      «Подборе стратегии»."
                         .to_string(),
                 ]
-            } else {
-                vec![
+        } else {
+            vec![
                     "Запустите Zapret на странице «Управление Zapret 2» — стратегии обходят этот обрыв."
                         .to_string(),
                 ]
-            };
+        };
         let mut directions: Vec<&str> = frozen.iter().map(|item| item.direction.as_str()).collect();
         directions.dedup();
         let all_upload = directions.len() == 1 && directions[0] == DIRECTION_UPLOAD;
@@ -416,7 +477,11 @@ pub fn summarize_freeze(servers: &[FreezeServer], zapret_running: Option<bool>) 
         let widespread = frozen.len() >= WIDESPREAD_CUTS && frozen.len() * 3 >= decided;
         return FreezeReport {
             level: if widespread { Level::Fail } else { Level::Warn },
-            headline: format!("Обрывается {what}: {} из {} проверенных серверов", frozen.len(), decided),
+            headline: format!(
+                "Обрывается {what}: {} из {} проверенных серверов",
+                frozen.len(),
+                decided
+            ),
             servers: servers.to_vec(),
             advice,
         };
@@ -456,7 +521,8 @@ pub fn summarize_freeze(servers: &[FreezeServer], zapret_running: Option<bool>) 
     }
     FreezeReport {
         level: Level::Unknown,
-        headline: "Обрыв на 16–20 КБ проверить не удалось: тестовые серверы не ответили".to_string(),
+        headline: "Обрыв на 16–20 КБ проверить не удалось: тестовые серверы не ответили"
+            .to_string(),
         servers: servers.to_vec(),
         advice: Vec::new(),
     }
@@ -467,18 +533,33 @@ mod tests {
     use super::*;
 
     fn probe(ok_kind: &str, size: u64, cut: bool, status: Option<i64>) -> ProbeResult {
-        ProbeResult { kind: ok_kind.to_string(), body_size: size, body_cut: cut, status, ..Default::default() }
+        ProbeResult {
+            kind: ok_kind.to_string(),
+            body_size: size,
+            body_cut: cut,
+            status,
+            ..Default::default()
+        }
     }
 
     #[test]
     fn split_url_python() {
-        assert_eq!(split_url("https://cdn.example/files/a.png"), ("cdn.example".to_string(), "/files/a.png".to_string()));
-        assert_eq!(split_url("https://host:8443/"), ("host".to_string(), "/".to_string()));
+        assert_eq!(
+            split_url("https://cdn.example/files/a.png"),
+            ("cdn.example".to_string(), "/files/a.png".to_string())
+        );
+        assert_eq!(
+            split_url("https://host:8443/"),
+            ("host".to_string(), "/".to_string())
+        );
         assert_eq!(
             split_url("https://host/a.js?version=1.5"),
             ("host".to_string(), "/a.js?version=1.5".to_string())
         );
-        assert_eq!(split_url("https://dot.com"), ("dot.com".to_string(), "/".to_string()));
+        assert_eq!(
+            split_url("https://dot.com"),
+            ("dot.com".to_string(), "/".to_string())
+        );
     }
 
     #[test]
@@ -487,12 +568,18 @@ mod tests {
         assert_eq!(classify_download(None).1, "не удалось узнать адрес сервера");
         assert_eq!(
             classify_download(Some(&probe("connect", 0, false, None))),
-            (FreezeState::Unknown, "не удалось проверить: нет соединения с сервером".to_string())
+            (
+                FreezeState::Unknown,
+                "не удалось проверить: нет соединения с сервером".to_string()
+            )
         );
         // Обрыв в окне.
         assert_eq!(
             classify_download(Some(&probe("ok", 17 * 1024, true, Some(200)))),
-            (FreezeState::Freeze, "загрузка оборвалась на 17 КБ".to_string())
+            (
+                FreezeState::Freeze,
+                "загрузка оборвалась на 17 КБ".to_string()
+            )
         );
         // Полный файл.
         assert_eq!(
@@ -505,7 +592,10 @@ mod tests {
             "загрузка оборвалась на 11 КБ — вне окна 12–36 КБ, на этот обрыв не похоже"
         );
         // Обрыв прямо на верхней границе — это окно 12–36 КБ (Python IN).
-        assert_eq!(classify_download(Some(&probe("ok", FREEZE_MAX_BYTES, true, Some(200)))).0, FreezeState::Freeze);
+        assert_eq!(
+            classify_download(Some(&probe("ok", FREEZE_MAX_BYTES, true, Some(200)))).0,
+            FreezeState::Freeze
+        );
         // Редирект.
         assert_eq!(
             classify_download(Some(&probe("ok", 3000, false, Some(302)))).1,
@@ -521,7 +611,14 @@ mod tests {
     #[test]
     fn confirm_cut_decrypts_repeat() {
         assert_eq!(
-            confirm_cut("первая", (FreezeState::Freeze, "загрузка оборвалась на 17 КБ".to_string())).1,
+            confirm_cut(
+                "первая",
+                (
+                    FreezeState::Freeze,
+                    "загрузка оборвалась на 17 КБ".to_string()
+                )
+            )
+            .1,
             "загрузка оборвалась на 17 КБ — дважды подряд"
         );
         assert_eq!(
@@ -533,7 +630,14 @@ mod tests {
             "получено 64 КБ без обрыва со второго раза: первый обрыв был случайным сбоем"
         );
         assert_eq!(
-            confirm_cut("первая", (FreezeState::Unknown, "нет соединения с сервером".to_string())).1,
+            confirm_cut(
+                "первая",
+                (
+                    FreezeState::Unknown,
+                    "нет соединения с сервером".to_string()
+                )
+            )
+            .1,
             "первая, но при повторе обрыв не подтвердился (нет соединения с сервером)"
         );
     }
@@ -566,7 +670,10 @@ mod tests {
 
     #[test]
     fn check_provider_fallback_python() {
-        let candidates = vec![target("A", "Akamai", "https://first.example/a"), target("B", "Akamai", "https://second.example/b")];
+        let candidates = vec![
+            target("A", "Akamai", "https://first.example/a"),
+            target("B", "Akamai", "https://second.example/b"),
+        ];
         // Первый адрес отвечает нормально: запасной не зовётся.
         let mut asked: Vec<String> = Vec::new();
         let server = check_provider(
@@ -645,7 +752,12 @@ mod tests {
             &target,
             |_host, _path| Some(probe("ok", 40 * 1024, false, Some(200))),
             || true,
-            Some(&|_host, _path| Some(UploadVerdict { code: UPLOAD_BULK_STALLS.to_string(), text: "отправка 64 КБ замирает".to_string() })),
+            Some(&|_host, _path| {
+                Some(UploadVerdict {
+                    code: UPLOAD_BULK_STALLS.to_string(),
+                    text: "отправка 64 КБ замирает".to_string(),
+                })
+            }),
         );
         assert_eq!(server.state, FreezeState::Freeze);
         assert_eq!(server.direction, DIRECTION_UPLOAD);
@@ -656,15 +768,26 @@ mod tests {
             &target,
             |_host, _path| Some(probe("ok", 40 * 1024, false, Some(200))),
             || true,
-            Some(&|_host, _path| Some(UploadVerdict { code: UPLOAD_OK.to_string(), text: "отправка данных проходит без обрыва".to_string() })),
+            Some(&|_host, _path| {
+                Some(UploadVerdict {
+                    code: UPLOAD_OK.to_string(),
+                    text: "отправка данных проходит без обрыва".to_string(),
+                })
+            }),
         );
-        assert_eq!(server.text, "получено 40 КБ без обрыва; отправка тоже проходит");
+        assert_eq!(
+            server.text,
+            "получено 40 КБ без обрыва; отправка тоже проходит"
+        );
     }
 
     #[test]
     fn check_freeze_counts_on_server() {
-        let targets = vec![target("A", "Akamai", "https://a.example/a"), target("B", "AWS", "https://b.example/b")];
-        let mut progress: Vec<(usize, usize)> = Vec::new();
+        let targets = vec![
+            target("A", "Akamai", "https://a.example/a"),
+            target("B", "AWS", "https://b.example/b"),
+        ];
+        let progress: Vec<(usize, usize)> = Vec::new();
         let progress = std::cell::RefCell::new(progress);
         let servers = check_freeze(
             &targets,
@@ -684,7 +807,14 @@ mod tests {
             target("A1", "Akamai", "https://a1.example/a"),
             target("A2", "Akamai", "https://a2.example/a"),
         ];
-        let servers = check_freeze(&doubles, true, |_host, _path| Some(probe("ok", 40 * 1024, false, Some(200))), None, None, || 0.0);
+        let servers = check_freeze(
+            &doubles,
+            true,
+            |_host, _path| Some(probe("ok", 40 * 1024, false, Some(200))),
+            None,
+            None,
+            || 0.0,
+        );
         assert_eq!(servers.len(), 2);
         // Бюджет прошёл — запасной не берётся.
         let candidates = vec![
@@ -741,7 +871,10 @@ mod tests {
         );
         // Ни одного ответа.
         let report = summarize_freeze(&[], None);
-        assert_eq!(report.headline, "Обрыв на 16–20 КБ проверить не удалось: тестовые серверы не ответили");
+        assert_eq!(
+            report.headline,
+            "Обрыв на 16–20 КБ проверить не удалось: тестовые серверы не ответили"
+        );
         // Один обрыв при 4 fine: единый сбой.
         let mut one_cut = vec![frozen.clone()];
         one_cut.extend(vec![fine.clone(); 4]);
@@ -752,20 +885,29 @@ mod tests {
             "Обрыва на 16–20 КБ нет: без обрыва 4 из 5 серверов, один оборвался — единичный случай"
         );
         // Обрывы широко: fail + совет (Zapret не запущен).
-        let mut shots = vec![frozen.clone(), frozen.clone(), frozen.clone(), fine.clone()];
+        let shots = vec![frozen.clone(), frozen.clone(), frozen.clone(), fine.clone()];
         let report = summarize_freeze(&shots, Some(false));
         assert_eq!(report.level, Level::Fail);
-        assert_eq!(report.headline, "Обрывается загрузка с зарубежных серверов на 16–20 КБ: 3 из 4 проверенных серверов");
+        assert_eq!(
+            report.headline,
+            "Обрывается загрузка с зарубежных серверов на 16–20 КБ: 3 из 4 проверенных серверов"
+        );
         assert_eq!(report.advice.len(), 1);
         assert!(report.advice[0].starts_with("Запустите Zapret"));
         // Zapret запущен или неизвестно.
         let report = summarize_freeze(&shots, Some(true));
         assert!(report.advice[0].starts_with("Подберите стратегию"));
         // Отправка замирала: другой текст.
-        let mut uploads = vec![FreezeServer { direction: DIRECTION_UPLOAD.to_string(), ..frozen.clone() }];
+        let mut uploads = vec![FreezeServer {
+            direction: DIRECTION_UPLOAD.to_string(),
+            ..frozen.clone()
+        }];
         uploads.push(fine.clone());
         let report = summarize_freeze(&uploads, None);
-        assert_eq!(report.headline, "Обрывается отправка данных на зарубежные серверы: 1 из 2 проверенных серверов");
+        assert_eq!(
+            report.headline,
+            "Обрывается отправка данных на зарубежные серверы: 1 из 2 проверенных серверов"
+        );
         assert_eq!(report.level, Level::Warn);
         // Оба направления.
         let mut mixed = uploads.clone();

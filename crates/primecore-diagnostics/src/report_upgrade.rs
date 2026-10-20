@@ -20,8 +20,12 @@ use serde_json::{json, Map, Value};
 pub const REPORT_VERSION: i64 = 2;
 
 /// Вид проблемы → раздел отчёта, когда сайта у неё нет.
-const KIND_SECTIONS: [(&str, &str); 4] =
-    [("voice", "voice"), ("system", "system"), ("cut16", "freeze"), ("quic", "quic")];
+const KIND_SECTIONS: [(&str, &str); 4] = [
+    ("voice", "voice"),
+    ("system", "system"),
+    ("cut16", "freeze"),
+    ("quic", "quic"),
+];
 /// Виды, при которых закрытому Telegram советовали встроенный прокси.
 const TELEGRAM_PROXY_KINDS: [&str; 3] = ["ip", "other", "noconnect"];
 
@@ -49,7 +53,11 @@ pub fn text_scalar(value: Option<&Value>) -> String {
         Some(Value::Bool(true)) => "True".to_string(),
         Some(Value::Number(number)) => number.to_string(),
         Some(Value::String(text)) => text.clone(),
-        Some(Value::Array(items)) => items.iter().map(Value::to_string).collect::<Vec<_>>().join(", "),
+        Some(Value::Array(items)) => items
+            .iter()
+            .map(Value::to_string)
+            .collect::<Vec<_>>()
+            .join(", "),
         Some(Value::Object(entries)) => entries
             .iter()
             .map(|(key, value)| format!("{key}: {}", text_scalar(Some(value))))
@@ -61,7 +69,9 @@ pub fn text_scalar(value: Option<&Value>) -> String {
 /// `int(report.get("report_version") or 1)`: не число — версия 1.
 fn version_of(value: Option<&Value>) -> i64 {
     let parsed = match value {
-        Some(Value::Number(number)) => number.as_i64().or_else(|| number.as_f64().map(|n| n as i64)),
+        Some(Value::Number(number)) => number
+            .as_i64()
+            .or_else(|| number.as_f64().map(|n| n as i64)),
         Some(Value::String(text)) => text.trim().parse::<i64>().ok(),
         Some(Value::Bool(flag)) => Some(i64::from(*flag)),
         _ => None,
@@ -81,12 +91,24 @@ pub fn upgrade(report: &Value) -> Value {
     let services: Vec<Value> = report
         .get("services")
         .and_then(Value::as_array)
-        .map(|items| items.iter().filter(|item| item.is_object()).cloned().collect())
+        .map(|items| {
+            items
+                .iter()
+                .filter(|item| item.is_object())
+                .cloned()
+                .collect()
+        })
         .unwrap_or_default();
     let problems: Vec<Value> = report
         .get("problems")
         .and_then(Value::as_array)
-        .map(|items| items.iter().filter(|item| item.is_object()).map(|item| problem_v2(item, &services, report)).collect())
+        .map(|items| {
+            items
+                .iter()
+                .filter(|item| item.is_object())
+                .map(|item| problem_v2(item, &services, report))
+                .collect()
+        })
         .unwrap_or_default();
     let mut upgraded = report.as_object().cloned().unwrap_or_default();
     upgraded.insert("problems".to_string(), json!(problems));
@@ -99,9 +121,17 @@ pub fn upgrade(report: &Value) -> Value {
 pub fn problem_v2(problem: &Value, services: &[Value], report: &Value) -> Value {
     let mut upgraded = problem.as_object().cloned().unwrap_or_default();
     let kind = text_scalar(problem.get("kind"));
-    let kind = if kind.is_empty() { "other".to_string() } else { kind };
+    let kind = if kind.is_empty() {
+        "other".to_string()
+    } else {
+        kind
+    };
     let text = text_scalar(problem.get("text"));
-    let site = if truthy(problem.get("site")) { String::new() } else { guess_site(problem, services) };
+    let site = if truthy(problem.get("site")) {
+        String::new()
+    } else {
+        guess_site(problem, services)
+    };
     if !site.is_empty() {
         upgraded.insert("site".to_string(), json!(site));
     }
@@ -109,11 +139,22 @@ pub fn problem_v2(problem: &Value, services: &[Value], report: &Value) -> Value 
         let section = if !site.is_empty() {
             Some("services")
         } else if kind == "dns" {
-            Some(if truthy(report.get("dns_servers")) { "dns_servers" } else { "dns" })
+            Some(if truthy(report.get("dns_servers")) {
+                "dns_servers"
+            } else {
+                "dns"
+            })
         } else if kind == "network" {
-            Some(if text.starts_with("IPv6") { "ipv6" } else { "network" })
+            Some(if text.starts_with("IPv6") {
+                "ipv6"
+            } else {
+                "network"
+            })
         } else {
-            KIND_SECTIONS.iter().find(|(name, _)| *name == kind).map(|(_, section)| *section)
+            KIND_SECTIONS
+                .iter()
+                .find(|(name, _)| *name == kind)
+                .map(|(_, section)| *section)
         };
         if let Some(section) = section {
             upgraded.insert("section".to_string(), json!(section));
@@ -121,7 +162,10 @@ pub fn problem_v2(problem: &Value, services: &[Value], report: &Value) -> Value 
     }
     if !truthy(problem.get("action")) && TELEGRAM_PROXY_KINDS.contains(&kind.as_str()) {
         let title = text_scalar(problem.get("title"));
-        if format!("{title} {text}").to_lowercase().contains("telegram") {
+        if format!("{title} {text}")
+            .to_lowercase()
+            .contains("telegram")
+        {
             upgraded.insert("action".to_string(), json!("telegram_proxy"));
         }
     }
@@ -132,13 +176,16 @@ pub fn problem_v2(problem: &Value, services: &[Value], report: &Value) -> Value 
 #[must_use]
 pub fn guess_site(problem: &Value, services: &[Value]) -> String {
     let kind = text_scalar(problem.get("kind"));
-    let kind = if kind.is_empty() { "other".to_string() } else { kind };
+    let kind = if kind.is_empty() {
+        "other".to_string()
+    } else {
+        kind
+    };
     let text = text_scalar(problem.get("text"));
     let target = text_scalar(problem.get("target"));
     let mut names = vec![
         text_scalar(problem.get("title")),
-        text
-            .split(' ')
+        text.split(' ')
             .next()
             .unwrap_or("")
             .trim_end_matches([',', ':'])
@@ -162,7 +209,12 @@ pub fn guess_site(problem: &Value, services: &[Value]) -> String {
         let hosts: Vec<String> = service
             .get("targets")
             .and_then(Value::as_array)
-            .map(|targets| targets.iter().map(|item| text_scalar(item.get("host"))).collect())
+            .map(|targets| {
+                targets
+                    .iter()
+                    .map(|item| text_scalar(item.get("host")))
+                    .collect()
+            })
             .unwrap_or_default();
         let label = text_scalar(service.get("label"));
         if (names.contains(&label) || (!target.is_empty() && hosts.contains(&target)))
@@ -195,7 +247,12 @@ mod tests {
         assert_eq!(upgrade(&not_dict), not_dict);
         // report_version не число — считается 1.
         let broken = json!({"report_version": "abc", "problems": []});
-        assert_eq!(upgrade(&broken).get("report_version").and_then(Value::as_i64), Some(2));
+        assert_eq!(
+            upgrade(&broken)
+                .get("report_version")
+                .and_then(Value::as_i64),
+            Some(2)
+        );
     }
 
     #[test]
@@ -217,15 +274,36 @@ mod tests {
         });
         let got = upgrade(&report);
         let problems = got.get("problems").and_then(Value::as_array).unwrap();
-        assert_eq!(problems[0].get("section").and_then(Value::as_str), Some("dns_servers"));
-        assert_eq!(problems[1].get("section").and_then(Value::as_str), Some("ipv6"));
-        assert_eq!(problems[2].get("section").and_then(Value::as_str), Some("voice"));
-        assert_eq!(problems[3].get("section").and_then(Value::as_str), Some("services"));
-        assert_eq!(problems[3].get("site").and_then(Value::as_str), Some("youtube"));
+        assert_eq!(
+            problems[0].get("section").and_then(Value::as_str),
+            Some("dns_servers")
+        );
+        assert_eq!(
+            problems[1].get("section").and_then(Value::as_str),
+            Some("ipv6")
+        );
+        assert_eq!(
+            problems[2].get("section").and_then(Value::as_str),
+            Some("voice")
+        );
+        assert_eq!(
+            problems[3].get("section").and_then(Value::as_str),
+            Some("services")
+        );
+        assert_eq!(
+            problems[3].get("site").and_then(Value::as_str),
+            Some("youtube")
+        );
         assert_eq!(problems[4].get("action").and_then(Value::as_str), Some(""));
         // kind=noconnect и «Telegram» в тексте → телеграм-прокси.
-        assert_eq!(problems[5].get("section").and_then(Value::as_str), Some("services"));
-        assert_eq!(problems[5].get("action").and_then(Value::as_str), Some("telegram_proxy"));
+        assert_eq!(
+            problems[5].get("section").and_then(Value::as_str),
+            Some("services")
+        );
+        assert_eq!(
+            problems[5].get("action").and_then(Value::as_str),
+            Some("telegram_proxy")
+        );
         assert_eq!(got.get("report_version").and_then(Value::as_i64), Some(2));
     }
 

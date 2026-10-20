@@ -150,7 +150,12 @@ pub fn strategy_family_key(technique_keys: &[String]) -> String {
             return if has_fake { "fake_split" } else { "split" }.to_string();
         }
         if DISORDER_TECHNIQUES.contains(&key.as_str()) {
-            return if has_fake { "fake_disorder" } else { "disorder" }.to_string();
+            return if has_fake {
+                "fake_disorder"
+            } else {
+                "disorder"
+            }
+            .to_string();
         }
     }
     if has_fake {
@@ -184,10 +189,13 @@ pub fn strategy_family_key_for_entry(entry: &crate::strategy_catalog::StrategyEn
 pub fn strategy_family_keys(
     entries: impl IntoIterator<Item = (String, crate::strategy_catalog::StrategyEntry)>,
 ) -> Vec<(String, String)> {
-    let entries: Vec<(String, crate::strategy_catalog::StrategyEntry)> = entries.into_iter().collect();
+    let entries: Vec<(String, crate::strategy_catalog::StrategyEntry)> =
+        entries.into_iter().collect();
     let mut count: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
     for (_id, entry) in &entries {
-        *count.entry(strategy_family_key_for_entry(entry)).or_insert(0) += 1;
+        *count
+            .entry(strategy_family_key_for_entry(entry))
+            .or_insert(0) += 1;
     }
     entries
         .into_iter()
@@ -203,7 +211,9 @@ pub fn strategy_family_keys(
         .collect()
 }
 
-pub fn strategy_technique_keys_for_entry(entry: &crate::strategy_catalog::StrategyEntry) -> Vec<String> {
+pub fn strategy_technique_keys_for_entry(
+    entry: &crate::strategy_catalog::StrategyEntry,
+) -> Vec<String> {
     strategy_technique_keys(&entry.args)
 }
 
@@ -219,5 +229,3 @@ pub fn strategy_count_text(count: usize) -> String {
     }
     format!("{count} стратегий")
 }
-
-

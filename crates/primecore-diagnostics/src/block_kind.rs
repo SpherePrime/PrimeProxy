@@ -59,7 +59,8 @@ const _IP: KindInfo = KindInfo {
     title: "Бан по адресу (IP)",
     short: "по адресу (IP)",
     reason: "сервер заблокирован по адресу (IP)",
-    about: "Соединение не проходит, каким именем сайта адрес ни называй, — похоже, закрыт сам адрес \
+    about:
+        "Соединение не проходит, каким именем сайта адрес ни называй, — похоже, закрыт сам адрес \
             сервера или вся его сеть.",
     cure: "Стратегия Zapret здесь помогает редко: нужен другой адрес сервера — \
            DNS-профиль в «Редакторе hosts», другой DNS или VPN.",
@@ -213,8 +214,22 @@ const _OTHER: KindInfo = KindInfo {
 
 /// python `KINDS: dict[str, KindInfo]`.
 pub const KINDS: [KindInfo; 16] = [
-    _IP, _SNI, _CUT, _FINGERPRINT, _STUB, _CERT, _NO_CONNECT, _DOWN, _UNSTABLE, _UNCLEAR, _DNS, _QUIC, _VOICE,
-    _NETWORK, _SYSTEM, _OTHER,
+    _IP,
+    _SNI,
+    _CUT,
+    _FINGERPRINT,
+    _STUB,
+    _CERT,
+    _NO_CONNECT,
+    _DOWN,
+    _UNSTABLE,
+    _UNCLEAR,
+    _DNS,
+    _QUIC,
+    _VOICE,
+    _NETWORK,
+    _SYSTEM,
+    _OTHER,
 ];
 
 /// В каком порядке показывать группы: сначала то, что касается сайтов.
@@ -278,7 +293,11 @@ pub fn site_kind(reach: &str, cause: &str, address_confirmed: bool) -> String {
         return KIND_IP.to_string();
     }
     if reach == "ip_block" {
-        return if address_confirmed { KIND_IP.to_string() } else { KIND_NO_CONNECT.to_string() };
+        return if address_confirmed {
+            KIND_IP.to_string()
+        } else {
+            KIND_NO_CONNECT.to_string()
+        };
     }
     if reach == "dpi" {
         return KIND_UNCLEAR.to_string();

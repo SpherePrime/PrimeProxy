@@ -40,10 +40,7 @@ const PROTOCOL_TOOLTIP_NOTES: [(&str, &str); 6] = [
         "L7",
         "L7 — фильтр по протоколу приложения: QUIC, STUN, WireGuard и похожие.",
     ),
-    (
-        "TCP/UDP",
-        "TCP и UDP — профиль покрывает оба вида трафика.",
-    ),
+    ("TCP/UDP", "TCP и UDP — профиль покрывает оба вида трафика."),
     (
         "Voice",
         "Voice — голосовой трафик: Discord Voice, STUN (звонки).",
@@ -118,7 +115,12 @@ fn normalized_profile_types(profile_types: Option<&[String]>) -> Vec<String> {
 }
 
 fn normalized_search_query(query: &str) -> String {
-    query.trim().to_lowercase().split_whitespace().collect::<Vec<_>>().join(" ")
+    query
+        .trim()
+        .to_lowercase()
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn grouped_items(items: &[ProfileDisplayItem]) -> Vec<(String, Vec<ProfileDisplayItem>)> {
@@ -152,9 +154,7 @@ fn initial_group_expanded(items: &[ProfileDisplayItem]) -> Vec<(String, bool)> {
     result
 }
 
-fn ordered_group_keys(
-    grouped: &[(String, Vec<ProfileDisplayItem>)],
-) -> Vec<String> {
+fn ordered_group_keys(grouped: &[(String, Vec<ProfileDisplayItem>)]) -> Vec<String> {
     // Ранг папки назначает резолвер order-а из состояния папок.
     let rated: Vec<(i64, String)> = grouped
         .iter()
@@ -241,7 +241,11 @@ fn title_case(text: &str) -> String {
         } else {
             out.push(ch);
         }
-        if !out.chars().last().is_some_and(|last| last.is_alphanumeric()) {
+        if !out
+            .chars()
+            .last()
+            .is_some_and(|last| last.is_alphanumeric())
+        {
             upper_next = true;
         }
         if ch.is_alphanumeric() {
@@ -293,10 +297,7 @@ fn profile_search_text(item: &ProfileDisplayItem) -> String {
         .to_lowercase()
 }
 
-fn profile_matches_type_filter(
-    item: &ProfileDisplayItem,
-    active_profile_types: &[String],
-) -> bool {
+fn profile_matches_type_filter(item: &ProfileDisplayItem, active_profile_types: &[String]) -> bool {
     if active_profile_types.iter().any(|value| value == "all") {
         return true;
     }
@@ -323,10 +324,17 @@ fn profile_matches_search_query(item: &ProfileDisplayItem, search_query: &str) -
         return true;
     }
     let search_text = profile_search_text(item);
-    query.split_whitespace().all(|part| search_text.contains(part))
+    query
+        .split_whitespace()
+        .all(|part| search_text.contains(part))
 }
 
-fn profile_matches_filter(item: &ProfileDisplayItem, active_profile_types: &[String], search_query: &str, show_only_added: bool) -> bool {
+fn profile_matches_filter(
+    item: &ProfileDisplayItem,
+    active_profile_types: &[String],
+    search_query: &str,
+    show_only_added: bool,
+) -> bool {
     if show_only_added && !item.in_preset {
         return false;
     }
@@ -343,7 +351,7 @@ fn display_row(map: &[(&str, Value)]) -> Map<String, Value> {
 }
 
 fn shared_group_icon(group_items: &[ProfileDisplayItem]) -> Option<(String, String)> {
-    /// Значок значка группы — значок её главного сайта.
+    // Значок значка группы — значок её главного сайта.
     let mut counts: Vec<(String, usize)> = Vec::new();
     let mut specs: Vec<(String, (String, String))> = Vec::new();
     let mut counted_rows: usize = 0;
@@ -361,7 +369,10 @@ fn shared_group_icon(group_items: &[ProfileDisplayItem]) -> Option<(String, Stri
                 None => counts.push((found.icon_name.clone(), 1)),
             }
             if !specs.iter_mut().any(|(name, _)| *name == found.icon_name) {
-                specs.push((found.icon_name.clone(), (found.icon_name.clone(), found.color.clone())));
+                specs.push((
+                    found.icon_name.clone(),
+                    (found.icon_name.clone(), found.color.clone()),
+                ));
             }
             counted_rows += 1;
         } else if found.icon_name.starts_with(INITIALS_ICON_PREFIX) {
@@ -393,7 +404,6 @@ pub fn profile_group_tooltip(group_name: &str, active_count: usize, count: usize
 pub fn profile_group_counter_tooltip(active_count: usize, count: usize) -> String {
     let meter = if count <= PROFILE_METER_MAX_SEGMENTS {
         "Каждое деление полоски — один профиль, в том же порядке, что строки ниже. Закрашенное деление — профиль включён."
-
     } else {
         "Полоска показывает, какая часть профилей группы включена."
     };
@@ -404,13 +414,21 @@ pub fn profile_group_counter_tooltip(active_count: usize, count: usize) -> Strin
 }
 
 pub fn profile_group_chevron_tooltip(expanded: bool) -> &'static str {
-    if expanded { "Свернуть группу" } else { "Развернуть группу" }
+    if expanded {
+        "Свернуть группу"
+    } else {
+        "Развернуть группу"
+    }
 }
 
 pub fn profile_state_tooltip(in_preset: bool, enabled: bool, icon_in_header: bool) -> String {
     let working = in_preset && enabled;
     let marker = if icon_in_header {
-        if working { "Закрашенная точка" } else { "Кольцо" }
+        if working {
+            "Закрашенная точка"
+        } else {
+            "Кольцо"
+        }
     } else if in_preset {
         "Цветной значок"
     } else {
@@ -425,7 +443,13 @@ pub fn profile_state_tooltip(in_preset: bool, enabled: bool, icon_in_header: boo
     }
 }
 
-pub fn profile_strategy_tooltip(in_preset: bool, enabled: bool, strategy_name: &str, rating: &str, favorite: bool) -> String {
+pub fn profile_strategy_tooltip(
+    in_preset: bool,
+    enabled: bool,
+    strategy_name: &str,
+    rating: &str,
+    favorite: bool,
+) -> String {
     if !in_preset {
         return format!("Профиль не добавлен в пресет.\nНажмите на него, чтобы включить и выбрать стратегию, — только если этот сайт у вас не открывается.").to_string();
     }
@@ -471,7 +495,11 @@ pub fn profile_row_tooltip(item: &ProfileDisplayItem) -> String {
 
 pub fn profile_name_inside_group(name: &str, group_title: &str) -> String {
     let name = name.trim().to_string();
-    let prefix = format!("{PROFILE_NAME_ROLE_SEPARATOR_}", PROFILE_NAME_ROLE_SEPARATOR_ = format!("{}{}", group_title.trim(), PROFILE_NAME_ROLE_SEPARATOR));
+    let prefix = format!(
+        "{PROFILE_NAME_ROLE_SEPARATOR_}",
+        PROFILE_NAME_ROLE_SEPARATOR_ =
+            format!("{}{}", group_title.trim(), PROFILE_NAME_ROLE_SEPARATOR)
+    );
     let prefix = format!("{}{}", group_title.trim(), PROFILE_NAME_ROLE_SEPARATOR);
     if prefix.chars().count() <= PROFILE_NAME_ROLE_SEPARATOR.chars().count()
         || !name.to_lowercase().starts_with(&prefix.to_lowercase())
@@ -482,7 +510,8 @@ pub fn profile_name_inside_group(name: &str, group_title: &str) -> String {
     if role.is_empty() {
         return name;
     }
-    format!("{}{}",
+    format!(
+        "{}{}",
         role.chars().next().unwrap_or(' ').to_uppercase(),
         role.chars().skip(1).collect::<String>()
     )
@@ -501,7 +530,10 @@ pub fn row_for_profile(item: &ProfileDisplayItem, header_icon_name: &str) -> Map
     if !item.in_preset {
         tooltip = format!("{}\nПрофиля ещё нет в пресете. Включать его не обязательно: нажмите на него и выберите готовую стратегию, только если этот сайт у вас не открывается.", tooltip);
     } else if !item.enabled {
-        tooltip = format!("{}\nПрофиль есть в пресете, но сейчас выключен. В файле это записано через --skip.", tooltip);
+        tooltip = format!(
+            "{}\nПрофиль есть в пресете, но сейчас выключен. В файле это записано через --skip.",
+            tooltip
+        );
     }
     let found = resolve_profile_icon(&item.display_name, &match_lines);
     let tile_name = profile_name_inside_group(&item.display_name, &item.group_name);
@@ -510,7 +542,10 @@ pub fn row_for_profile(item: &ProfileDisplayItem, header_icon_name: &str) -> Map
     }
     let written_name = item.profile_name.trim().to_string();
     if item.in_preset && !written_name.is_empty() && written_name != item.display_name {
-        tooltip = format!("{}\nВ тексте пресета профиль записан как «{}».", tooltip, written_name);
+        tooltip = format!(
+            "{}\nВ тексте пресета профиль записан как «{}».",
+            tooltip, written_name
+        );
     }
     let description = description_parts
         .iter()
@@ -527,7 +562,12 @@ pub fn row_for_profile(item: &ProfileDisplayItem, header_icon_name: &str) -> Map
         ("description", Value::String(description)),
         ("strategy_id", json!(item.strategy_id)),
         ("strategy_name", json!(item.strategy_name)),
-        ("strategy_payload_badge", Value::String(crate::display_items::strategy_payload_badge(&item.strategy_payload_scopes))),
+        (
+            "strategy_payload_badge",
+            Value::String(crate::display_items::strategy_payload_badge(
+                &item.strategy_payload_scopes,
+            )),
+        ),
         (
             "match_lines",
             Value::Array(match_lines.iter().map(|line| json!(line)).collect()),
@@ -542,7 +582,11 @@ pub fn row_for_profile(item: &ProfileDisplayItem, header_icon_name: &str) -> Map
         ("icon_name", Value::String(found.icon_name.clone())),
         (
             "icon_color",
-            Value::String(if item.in_preset { found.color.clone() } else { "#888888".to_string() }),
+            Value::String(if item.in_preset {
+                found.color.clone()
+            } else {
+                "#888888".to_string()
+            }),
         ),
         (
             "icon_in_header",
@@ -596,7 +640,11 @@ pub fn build_profile_rows_from(
             .iter()
             .map(|item| item.in_preset && item.enabled)
             .collect();
-        let active_count = active_flags.iter().filter(|flag| **flag).count().to_string();
+        let active_count = active_flags
+            .iter()
+            .filter(|flag| **flag)
+            .count()
+            .to_string();
         let active_count = active_count.parse::<usize>().unwrap_or(0);
         let shared_icon = shared_group_icon(&group_items);
         let row = display_row(&[
@@ -612,10 +660,26 @@ pub fn build_profile_rows_from(
             ),
             (
                 "tooltip",
-                Value::String(profile_group_tooltip(&group_name, active_count, group_items.len())),
+                Value::String(profile_group_tooltip(
+                    &group_name,
+                    active_count,
+                    group_items.len(),
+                )),
             ),
-            ("icon_name", json!(shared_icon.as_ref().map(|(name, _)| name.clone()).unwrap_or_default())),
-            ("icon_color", json!(shared_icon.as_ref().map(|(name, color)| color.clone()).unwrap_or_default())),
+            (
+                "icon_name",
+                json!(shared_icon
+                    .as_ref()
+                    .map(|(name, _)| name.clone())
+                    .unwrap_or_default()),
+            ),
+            (
+                "icon_color",
+                json!(shared_icon
+                    .as_ref()
+                    .map(|(name, color)| color.clone())
+                    .unwrap_or_default()),
+            ),
         ]);
         rows.push(row);
         // python: `(icon_name, color)` значка после сжатия.
@@ -662,7 +726,10 @@ pub fn build_profile_list_view_state(
         } else {
             item.group.clone()
         };
-        if !next_group_expanded.iter().any(|(some, _)| *some == group_key) {
+        if !next_group_expanded
+            .iter()
+            .any(|(some, _)| *some == group_key)
+        {
             next_group_expanded.push((group_key, true));
         }
     }
@@ -706,7 +773,11 @@ pub fn apply_profile_folder_state_to_items(
                 item.display_name.clone(),
                 item.match_lines.clone(),
                 item.source_order,
-                if item.source_order != 0 { item.source_order } else { item.profile_index },
+                if item.source_order != 0 {
+                    item.source_order
+                } else {
+                    item.profile_index
+                },
                 item.profile_name.clone(),
             )
         })
@@ -809,10 +880,7 @@ pub fn moved_profile_display_items(
     let mut items_by_folder: Vec<(String, Vec<String>)> = Vec::new();
     let mut folder_by_item: Vec<(String, String)> = Vec::new();
     for (group_key, group_items) in &grouped {
-        let mut ordered: Vec<String> = group_items
-            .iter()
-            .map(|item| item.key.clone())
-            .collect();
+        let mut ordered: Vec<String> = group_items.iter().map(|item| item.key.clone()).collect();
         // python sorted(key=profile_display_sort_key) — стабильная.
         let mut sorted_items: Vec<&ProfileDisplayItem> = group_items.clone();
         sorted_items.sort_by(|a, b| profile_display_sort_key(a).cmp(&profile_display_sort_key(b)));
@@ -835,10 +903,7 @@ pub fn moved_profile_display_items(
     // python: подмешивание state-папок с сохранением настроек.
     if let Some(folder_state) = folder_state {
         if let Some(state_folders) = folder_state.get("folders").and_then(Value::as_object) {
-            let mut keys: Vec<String> = state_folders
-                .keys()
-                .cloned()
-                .collect();
+            let mut keys: Vec<String> = state_folders.keys().cloned().collect();
             let mut state_keys: Vec<String> = keys.clone();
             state_keys.sort_by(|a, b| {
                 let order_for = |key: &str| -> i64 {
@@ -863,8 +928,15 @@ pub fn moved_profile_display_items(
             });
             for (rank, some_key) in state_keys.iter().enumerate() {
                 let folder = state_folders.get(some_key).cloned().unwrap_or(json!({}));
-                let name = folder.get("name").and_then(Value::as_str).unwrap_or(some_key).to_string();
-                let is_collapsed = folder.get("collapsed").and_then(Value::as_bool).unwrap_or(false);
+                let name = folder
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .unwrap_or(some_key)
+                    .to_string();
+                let is_collapsed = folder
+                    .get("collapsed")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false);
                 if !folder_names.iter().any(|(key, _)| *key == *some_key) {
                     folder_names.push((some_key.clone(), name));
                 }

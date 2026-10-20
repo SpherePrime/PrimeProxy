@@ -7,7 +7,7 @@
 
 use regex::Regex;
 
-use crate::models::{Profile, ProfileSegment, Preset, Strategy};
+use crate::models::{Preset, Profile, ProfileSegment, Strategy};
 
 pub const WINWS2_WSSIZE_LINE: &str = "--lua-desync=wssize:wsize=1:scale=6";
 pub const WINWS1_WSSIZE_LINES: [&str; 3] = ["--wssize", "1:6", "--wssize-forced-cutoff=0"];
@@ -29,10 +29,7 @@ fn wssize_targets(preset: &Preset) -> Vec<&Profile> {
 
 /// python set_wssize_enabled: true, если файл переписан. Если целевых
 /// профилей нет — false при включении и true при выключении (idempotent).
-pub fn set_wssize_enabled(
-    preset: &mut Preset,
-    enabled: bool,
-) -> bool {
+pub fn set_wssize_enabled(preset: &mut Preset, enabled: bool) -> bool {
     let targets = wssize_targets_in_place(preset);
     if targets.is_empty() {
         return !enabled;
@@ -115,10 +112,7 @@ pub fn segments_with_wssize(engine: &str, segments: Vec<ProfileSegment>) -> Vec<
 }
 
 /// python _segments_without_wssize: удаляет только строки wssize.
-pub fn segments_without_wssize(
-    engine: &str,
-    segments: &[ProfileSegment],
-) -> Vec<ProfileSegment> {
+pub fn segments_without_wssize(engine: &str, segments: &[ProfileSegment]) -> Vec<ProfileSegment> {
     let strategy_positions: Vec<usize> = segments
         .iter()
         .enumerate()
@@ -165,18 +159,23 @@ pub fn extract_debug_log_file(source_text: &str) -> String {
             continue;
         }
         let value = stripped.split_once('=').map_or("", |(_, rest)| rest.trim());
-        return value.trim_start_matches('@').replace('\\', "/").trim_start_matches('/').to_string();
+        return value
+            .trim_start_matches('@')
+            .replace('\\', "/")
+            .trim_start_matches('/')
+            .to_string();
     }
     String::new()
 }
 
 /// python _build_stable_debug_log_file (DEBUG_LOG_DIR от caller-крeйца).
 pub fn build_stable_debug_log_file(debug_log_dir: &str, preset_name: &str) -> String {
-    static SAFE_NAME: std::sync::LazyLock<Regex> = std::sync::LazyLock::new(|| {
-        Regex::new(r"[^\w.-]+").expect("regex")
-    });
+    static SAFE_NAME: std::sync::LazyLock<Regex> =
+        std::sync::LazyLock::new(|| Regex::new(r"[^\w.-]+").expect("regex"));
     let mut safe_name = SAFE_NAME.replace_all(preset_name.trim(), "_").to_string();
-    safe_name = safe_name.trim_matches(|char| char == '.' || char == '_').to_string();
+    safe_name = safe_name
+        .trim_matches(|char| char == '.' || char == '_')
+        .to_string();
     if safe_name.is_empty() {
         safe_name = "preset".to_string();
     }
@@ -296,9 +295,8 @@ fn remove_wssize_lines_text(engine: &str, lines: &[String]) -> Vec<String> {
     }
 
     // python re.fullmatch(r"\d+\s*:\s*\d+", lowered) — весь шаблон целиком.
-    static VALUE_RE: std::sync::LazyLock<Regex> = std::sync::LazyLock::new(|| {
-        Regex::new(r"\A\d+\s*:\s*\d+\z").expect("regex")
-    });
+    static VALUE_RE: std::sync::LazyLock<Regex> =
+        std::sync::LazyLock::new(|| Regex::new(r"\A\d+\s*:\s*\d+\z").expect("regex"));
     let mut cleaned: Vec<String> = Vec::new();
     let mut skip_next_value = false;
     for line in lines {
@@ -329,9 +327,7 @@ pub fn profile_tcp_includes_443(profile: &Profile) -> bool {
         if !stripped.to_lowercase().starts_with("--filter-tcp=") {
             continue;
         }
-        let value = stripped
-            .split_once('=')
-            .map_or("", |(_, rest)| rest.trim());
+        let value = stripped.split_once('=').map_or("", |(_, rest)| rest.trim());
         if ports_include_443(value) {
             return true;
         }
@@ -350,8 +346,12 @@ pub fn ports_include_443(value: &str) -> bool {
             let Some((start_s, end_s)) = part.split_once('-') else {
                 continue;
             };
-            let Ok(start) = start_s.trim().parse::<i64>() else { continue };
-            let Ok(end) = end_s.trim().parse::<i64>() else { continue };
+            let Ok(start) = start_s.trim().parse::<i64>() else {
+                continue;
+            };
+            let Ok(end) = end_s.trim().parse::<i64>() else {
+                continue;
+            };
             if start <= 443 && 443 <= end {
                 return true;
             }

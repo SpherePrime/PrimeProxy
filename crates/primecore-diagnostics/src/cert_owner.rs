@@ -95,7 +95,10 @@ const ADVICE_ROAD: &str =
      («Настройка DNS») и проверьте, не включён ли в системе прокси.";
 
 fn known(issuer: &str, table: &[(&str, &str)]) -> String {
-    if let Some((_, title)) = table.iter().find(|(word, _)| format!("{issuer} ").to_lowercase().contains(word)) {
+    if let Some((_, title)) = table
+        .iter()
+        .find(|(word, _)| format!("{issuer} ").to_lowercase().contains(word))
+    {
         title.to_string()
     } else {
         String::new()
@@ -126,7 +129,11 @@ pub fn judge(cert: Option<&CertNames>, host: &str, problem: &str, from_hosts: bo
             code: CERT_UNKNOWN.to_string(),
             text: format!(
                 "вместо сайта отвечает кто-то другой ({}); прочитать сам сертификат не удалось",
-                if problem.is_empty() { "сертификат не прошёл проверку" } else { &problem }
+                if problem.is_empty() {
+                    "сертификат не прошёл проверку"
+                } else {
+                    &problem
+                }
             ),
             ..Default::default()
         };
@@ -144,11 +151,16 @@ pub fn judge(cert: Option<&CertNames>, host: &str, problem: &str, from_hosts: bo
         parts.join(" / ")
     };
     let subject = if cert.subject.is_empty() {
-        cert.names.first().cloned().unwrap_or_else(|| "не указан".to_string())
+        cert.names
+            .first()
+            .cloned()
+            .unwrap_or_else(|| "не указан".to_string())
     } else {
         cert.subject.clone()
     };
-    let set_facts = |verdict: CertVerdict| verdict.with_facts(subject.clone(), issuer.clone(), cert.names.clone());
+    let set_facts = |verdict: CertVerdict| {
+        verdict.with_facts(subject.clone(), issuer.clone(), cert.names.clone())
+    };
 
     let antivirus = known(&issuer, &ANTIVIRUS);
     if !antivirus.is_empty() {
@@ -168,7 +180,9 @@ pub fn judge(cert: Option<&CertNames>, host: &str, problem: &str, from_hosts: bo
     if !proxy.is_empty() {
         return set_facts(CertVerdict {
             code: CERT_DEBUG_PROXY.to_string(),
-            text: format!("между компьютером и сайтом стоит отладочный прокси {proxy}: сертификат выдан им"),
+            text: format!(
+                "между компьютером и сайтом стоит отладочный прокси {proxy}: сертификат выдан им"
+            ),
             advice: format!("Закройте {proxy} или уберите его из настроек прокси Windows."),
             ..Default::default()
         });
@@ -190,21 +204,35 @@ pub fn judge(cert: Option<&CertNames>, host: &str, problem: &str, from_hosts: bo
     }
     if cert.self_signed {
         let (where_text, advice) = if from_hosts {
-            ("запись в файле hosts ведёт на сервер, который", ADVICE_HOSTS)
+            (
+                "запись в файле hosts ведёт на сервер, который",
+                ADVICE_HOSTS,
+            )
         } else {
             ("вместо сайта отвечает сервер, который", ADVICE_ROAD)
         };
         return set_facts(CertVerdict {
             code: CERT_SELF_SIGNED.to_string(),
-            text: format!("{where_text} показывает самодельный сертификат (выдан сам себе: {subject})"),
+            text: format!(
+                "{where_text} показывает самодельный сертификат (выдан сам себе: {subject})"
+            ),
             advice: advice.to_string(),
             ..Default::default()
         });
     }
     if !cert.names.is_empty() && !covers(&cert.names, host) {
-        let shown =
-            cert.names.iter().take(3).cloned().collect::<Vec<_>>().join(", ")
-                + if cert.names.len() > 3 { " и другим" } else { "" };
+        let shown = cert
+            .names
+            .iter()
+            .take(3)
+            .cloned()
+            .collect::<Vec<_>>()
+            .join(", ")
+            + if cert.names.len() > 3 {
+                " и другим"
+            } else {
+                ""
+            };
         let (code, where_text, advice) = if from_hosts {
             (
                 CERT_HOSTS,
@@ -212,11 +240,18 @@ pub fn judge(cert: Option<&CertNames>, host: &str, problem: &str, from_hosts: bo
                 ADVICE_HOSTS,
             )
         } else {
-            (CERT_OTHER_SITE, "вместо сайта отвечает чужой сервер", ADVICE_ROAD)
+            (
+                CERT_OTHER_SITE,
+                "вместо сайта отвечает чужой сервер",
+                ADVICE_ROAD,
+            )
         };
         return set_facts(CertVerdict {
             code: code.to_string(),
-            text: format!("{}: его сертификат выдан сайту {shown}, а не {host}", where_text),
+            text: format!(
+                "{}: его сертификат выдан сайту {shown}, а не {host}",
+                where_text
+            ),
             advice: advice.to_string(),
             ..Default::default()
         });
@@ -252,12 +287,44 @@ mod tests {
 
     #[test]
     fn verdict_codes() {
-        assert!(judge(None, "ya.ru", "", false).text.contains("прочитать сам сертификат не удалось"));
+        assert!(judge(None, "ya.ru", "", false)
+            .text
+            .contains("прочитать сам сертификат не удалось"));
         let site = names("Let's Encrypt", "ya.ru", &["ya.ru"], false);
-        assert_eq!(judge(Some(&site), "ya.ru", "", false).code, CERT_UNKNOWN_ISSUER);
-        assert_eq!(judge(Some(&names("Kaspersky Helper", "site", &[], false)), "ya.ru", "", false).code, CERT_ANTIVIRUS);
-        assert_eq!(judge(Some(&names("The mitmproxy CA", "", &[], false)), "ya.ru", "", false).code, CERT_DEBUG_PROXY);
-        assert_eq!(judge(Some(&names("Russian Trusted CA", "", &[], false)), "ya.ru", "", false).code, CERT_STATE);
+        assert_eq!(
+            judge(Some(&site), "ya.ru", "", false).code,
+            CERT_UNKNOWN_ISSUER
+        );
+        assert_eq!(
+            judge(
+                Some(&names("Kaspersky Helper", "site", &[], false)),
+                "ya.ru",
+                "",
+                false
+            )
+            .code,
+            CERT_ANTIVIRUS
+        );
+        assert_eq!(
+            judge(
+                Some(&names("The mitmproxy CA", "", &[], false)),
+                "ya.ru",
+                "",
+                false
+            )
+            .code,
+            CERT_DEBUG_PROXY
+        );
+        assert_eq!(
+            judge(
+                Some(&names("Russian Trusted CA", "", &[], false)),
+                "ya.ru",
+                "",
+                false
+            )
+            .code,
+            CERT_STATE
+        );
     }
 
     #[test]
@@ -265,13 +332,28 @@ mod tests {
         let quiet = names("", "", &[], true);
         let verdict = judge(Some(&quiet), "site.example", "", false);
         assert_eq!(verdict.code, CERT_SELF_SIGNED);
-        assert!(verdict.text.starts_with("вместо сайта отвечает сервер, который"));
+        assert!(verdict
+            .text
+            .starts_with("вместо сайта отвечает сервер, который"));
         let verdict = judge(Some(&quiet), "site.example", "", true);
-        assert!(verdict.text.starts_with("запись в файле hosts ведёт на сервер, который"));
+        assert!(verdict
+            .text
+            .starts_with("запись в файле hosts ведёт на сервер, который"));
         assert!(!verdict.advice.is_empty());
-        let other = names("", "", &["other.example", "extra.example", "ab.example", "cd.example"], false);
-        assert_eq!(judge(Some(&other), "site.example", "", false).code, CERT_OTHER_SITE);
-        assert_eq!(judge(Some(&other), "site.example", "", true).code, CERT_HOSTS);
+        let other = names(
+            "",
+            "",
+            &["other.example", "extra.example", "ab.example", "cd.example"],
+            false,
+        );
+        assert_eq!(
+            judge(Some(&other), "site.example", "", false).code,
+            CERT_OTHER_SITE
+        );
+        assert_eq!(
+            judge(Some(&other), "site.example", "", true).code,
+            CERT_HOSTS
+        );
     }
 
     #[test]

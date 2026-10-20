@@ -154,7 +154,10 @@ pub fn build_profile_logical_key(match_signature: &str) -> String {
         if part.is_empty() {
             continue;
         }
-        if let Some(value) = part.strip_prefix("hostlist=").or_else(|| part.strip_prefix("ipset=")) {
+        if let Some(value) = part
+            .strip_prefix("hostlist=")
+            .or_else(|| part.strip_prefix("ipset="))
+        {
             let normalized = logical_list_value(value);
             if !normalized.is_empty() {
                 parts.push(format!("list={normalized}"));
@@ -182,7 +185,8 @@ pub fn logical_list_value(value: &str) -> String {
     }
     // python: re.sub(r"\.(txt|lst|list|json)$", "", name, flags=re.IGNORECASE)
     static SUFFIX: std::sync::OnceLock<Regex> = std::sync::OnceLock::new();
-    let suffix = SUFFIX.get_or_init(|| Regex::new(r"\.(txt|lst|list|json)$").expect("regex допустим"));
+    let suffix =
+        SUFFIX.get_or_init(|| Regex::new(r"\.(txt|lst|list|json)$").expect("regex допустим"));
     name = suffix.replace(&name, "").into_owned();
     for prefix in ["ipset-", "hostlist-"] {
         if let Some(stripped) = boxed_strip(&name, prefix) {

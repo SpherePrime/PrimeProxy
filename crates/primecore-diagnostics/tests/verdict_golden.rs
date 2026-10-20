@@ -5,11 +5,11 @@
 
 use serde_json::Value;
 
+use primecore_diagnostics::probe_result::ProbeResult;
 use primecore_diagnostics::verdict::{
-    describe_reach, judge_dns, judge_reach, summarize_service, advice_geo_site, JudgeDnsArgs,
+    advice_geo_site, describe_reach, judge_dns, judge_reach, summarize_service, JudgeDnsArgs,
     TargetOutcome,
 };
-use primecore_diagnostics::probe_result::ProbeResult;
 
 fn golden() -> Value {
     let text = include_str!("verdict_golden.json");
@@ -64,7 +64,13 @@ fn item_outcome(item: &Value) -> TargetOutcome {
     }
 }
 
-fn probe(kind: &str, body_cut: bool, body_size: u64, cert_problem: &str, detail: &str) -> ProbeResult {
+fn probe(
+    kind: &str,
+    body_cut: bool,
+    body_size: u64,
+    cert_problem: &str,
+    detail: &str,
+) -> ProbeResult {
     ProbeResult {
         ip: "1.2.3.4".to_string(),
         kind: kind.to_string(),
@@ -87,8 +93,16 @@ fn golden_matches_python() {
 
     for (index, case) in gold["dns"].as_array().unwrap().iter().enumerate() {
         let verdict = judge_dns(socket_args(&case["args"]));
-        assert_eq!(verdict.state.value(), case["out"]["state"].as_str().unwrap(), "dns case {index} state");
-        assert_eq!(verdict.reason, case["out"]["reason"].as_str().unwrap(), "dns case {index} reason");
+        assert_eq!(
+            verdict.state.value(),
+            case["out"]["state"].as_str().unwrap(),
+            "dns case {index} state"
+        );
+        assert_eq!(
+            verdict.reason,
+            case["out"]["reason"].as_str().unwrap(),
+            "dns case {index} reason"
+        );
     }
 
     let probes: [Option<ProbeResult>; 10] = [
@@ -105,7 +119,11 @@ fn golden_matches_python() {
     ];
     for (index, result) in probes.iter().enumerate() {
         let expected = gold["reach"].as_array().unwrap()[index].as_str().unwrap();
-        assert_eq!(judge_reach(result.as_ref()).value(), expected, "reach {index}");
+        assert_eq!(
+            judge_reach(result.as_ref()).value(),
+            expected,
+            "reach {index}"
+        );
     }
 
     // python: describe_reach вызывался без timeout (0.0); порядок исходов — как в скрипте
@@ -126,13 +144,23 @@ fn golden_matches_python() {
         describe_cases.push(Some(probe(kind, body_cut, body_size, cert_problem, detail)));
     }
     for (index, result) in describe_cases.iter().enumerate() {
-        let expected = gold["describe"].as_array().unwrap()[index].as_str().unwrap();
-        assert_eq!(describe_reach(result.as_ref(), 0.0), expected, "describe {index}");
+        let expected = gold["describe"].as_array().unwrap()[index]
+            .as_str()
+            .unwrap();
+        assert_eq!(
+            describe_reach(result.as_ref(), 0.0),
+            expected,
+            "describe {index}"
+        );
     }
 
     for (index, case) in gold["summarize"].as_array().unwrap().iter().enumerate() {
-        let targets: Vec<TargetOutcome> =
-            case["targets"].as_array().unwrap().iter().map(item_outcome).collect();
+        let targets: Vec<TargetOutcome> = case["targets"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(item_outcome)
+            .collect();
         let zapret = case["zapret"].as_bool();
         let verdict = summarize_service(case["label"].as_str().unwrap(), &targets, zapret);
         let expected = &case["verdict"];
@@ -141,7 +169,11 @@ fn golden_matches_python() {
             expected["level"].as_str().unwrap(),
             "summarize {index} level"
         );
-        assert_eq!(verdict.headline, expected["headline"].as_str().unwrap(), "summarize {index} headline");
+        assert_eq!(
+            verdict.headline,
+            expected["headline"].as_str().unwrap(),
+            "summarize {index} headline"
+        );
         assert_eq!(
             verdict.advice,
             expected["advice"]
@@ -152,8 +184,16 @@ fn golden_matches_python() {
                 .collect::<Vec<_>>(),
             "summarize {index} advice"
         );
-        assert_eq!(verdict.dns_note, expected["dns_note"].as_str().unwrap(), "summarize {index} dns_note");
-        assert_eq!(verdict.kind, expected["kind"].as_str().unwrap(), "summarize {index} kind");
+        assert_eq!(
+            verdict.dns_note,
+            expected["dns_note"].as_str().unwrap(),
+            "summarize {index} dns_note"
+        );
+        assert_eq!(
+            verdict.kind,
+            expected["kind"].as_str().unwrap(),
+            "summarize {index} kind"
+        );
     }
 
     assert_eq!(

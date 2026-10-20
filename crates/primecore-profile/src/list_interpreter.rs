@@ -36,7 +36,12 @@ pub fn build_profile_list_sources(
             user_template_key: String::new(),
             resolved_display_name: String::new(),
         };
-        add_preset_source_to_groups(&source, &mut groups, &mut group_aliases, &mut alias_to_groups);
+        add_preset_source_to_groups(
+            &source,
+            &mut groups,
+            &mut group_aliases,
+            &mut alias_to_groups,
+        );
     }
 
     let template_order = preset_profiles.len() as i64;
@@ -53,7 +58,12 @@ pub fn build_profile_list_sources(
             },
             resolved_display_name: String::new(),
         };
-        add_template_source_to_groups(&source, &mut groups, &mut group_aliases, &mut alias_to_groups);
+        add_template_source_to_groups(
+            &source,
+            &mut groups,
+            &mut group_aliases,
+            &mut alias_to_groups,
+        );
     }
 
     let mut selected: Vec<ProfileListSource> = groups
@@ -62,11 +72,16 @@ pub fn build_profile_list_sources(
         .map(select_source)
         .collect();
     selected.sort_by(|left, right| {
-        (left.order, left.resolved_display_name.to_lowercase(), left.key.clone()).cmp(&(
-            right.order,
-            right.resolved_display_name.to_lowercase(),
-            right.key.clone(),
-        ))
+        (
+            left.order,
+            left.resolved_display_name.to_lowercase(),
+            left.key.clone(),
+        )
+            .cmp(&(
+                right.order,
+                right.resolved_display_name.to_lowercase(),
+                right.key.clone(),
+            ))
     });
     selected
 }
@@ -82,7 +97,10 @@ fn add_preset_source_to_groups(
     groups.push(vec![source.clone()]);
     group_aliases.push(aliases.iter().cloned().collect());
     for alias in aliases {
-        alias_to_groups.entry(alias).or_default().insert(group_index);
+        alias_to_groups
+            .entry(alias)
+            .or_default()
+            .insert(group_index);
     }
 }
 
@@ -134,7 +152,10 @@ fn add_source_to_groups(
         groups.push(vec![source.clone()]);
         group_aliases.push(aliases.iter().cloned().collect());
         for alias in aliases {
-            alias_to_groups.entry(alias).or_default().insert(group_index);
+            alias_to_groups
+                .entry(alias)
+                .or_default()
+                .insert(group_index);
         }
         return;
     }
@@ -170,7 +191,10 @@ fn remember_group_aliases(
 ) {
     group_aliases[group_index].extend(aliases.iter().cloned());
     for alias in group_aliases[group_index].clone() {
-        alias_to_groups.entry(alias).or_default().insert(group_index);
+        alias_to_groups
+            .entry(alias)
+            .or_default()
+            .insert(group_index);
     }
 }
 
@@ -180,7 +204,10 @@ fn logical_profile_keys(profile: &Profile) -> Vec<String> {
     if !name.is_empty() {
         // Профиль под прежним стоковым именем — тот же профиль, что шаблон с
         // нынешним именем: иначе в списке стояли бы оба.
-        keys.push(format!("name:{}", crate::stock_names::current_stock_profile_name(&name).to_lowercase()));
+        keys.push(format!(
+            "name:{}",
+            crate::stock_names::current_stock_profile_name(&name).to_lowercase()
+        ));
     }
     let match_key = build_profile_logical_key(&profile.match_signature);
     if !match_key.is_empty() {
@@ -211,12 +238,18 @@ fn select_source(mut candidates: Vec<ProfileListSource>) -> ProfileListSource {
         .find(|source| !source.user_template_key.is_empty())
         .map(|source| source.user_template_key.clone())
         .unwrap_or_default();
-    let preset_sources: Vec<&ProfileListSource> =
-        candidates.iter().filter(|source| source.in_preset).collect();
+    let preset_sources: Vec<&ProfileListSource> = candidates
+        .iter()
+        .filter(|source| source.in_preset)
+        .collect();
     if !preset_sources.is_empty() {
         let mut preset_sources: Vec<&ProfileListSource> = preset_sources;
         preset_sources.sort_by_key(|source| (!source.profile.enabled, source.profile.index));
-        return source_with_resolved_display_name(preset_sources[0].clone(), &candidates, &user_template_key);
+        return source_with_resolved_display_name(
+            preset_sources[0].clone(),
+            &candidates,
+            &user_template_key,
+        );
     }
 
     candidates.sort_by_key(|source| (template_kind_rank(&source.profile), source.order));
@@ -226,7 +259,8 @@ fn select_source(mut candidates: Vec<ProfileListSource>) -> ProfileListSource {
 
 fn template_kind_rank(profile: &Profile) -> u8 {
     let match_section = profile.match_section();
-    if !match_section.hostlist_lines.is_empty() || !match_section.hostlist_exclude_lines.is_empty() {
+    if !match_section.hostlist_lines.is_empty() || !match_section.hostlist_exclude_lines.is_empty()
+    {
         return 0;
     }
     if !match_section.ipset_lines.is_empty() || !match_section.ipset_exclude_lines.is_empty() {

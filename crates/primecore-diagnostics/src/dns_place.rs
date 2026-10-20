@@ -99,7 +99,7 @@ pub fn collect(ask: &TtlAsk, distance: u32, max_ttl: u32, server: &str) -> DnsPl
 /// Где перехватывают DNS. None — проверку сняли.
 #[must_use]
 pub fn judge(facts: Option<&DnsPlaceFacts>) -> Option<DnsPlaceVerdict> {
-    let Some(facts) = facts else { return None };
+    let facts = facts?;
     if facts.cancelled {
         return None;
     }
@@ -155,7 +155,11 @@ pub fn judge(facts: Option<&DnsPlaceFacts>) -> Option<DnsPlaceVerdict> {
 mod tests {
     use super::*;
 
-    fn invalid_facts(answered: Vec<u32>, distance: u32, cancelled: bool) -> Option<DnsPlaceVerdict> {
+    fn invalid_facts(
+        answered: Vec<u32>,
+        distance: u32,
+        cancelled: bool,
+    ) -> Option<DnsPlaceVerdict> {
         judge(Some(&DnsPlaceFacts {
             server: "8.8.8.8".to_string(),
             answered,
@@ -168,11 +172,17 @@ mod tests {
     #[test]
     fn dns_query_wire_matches_python() {
         assert_eq!(
-            dns_query("example.com", 0x1234).iter().map(|byte| format!("{byte:02x}")).collect::<String>(),
+            dns_query("example.com", 0x1234)
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>(),
             "123401000001000000000000076578616d706c6503636f6d0000010001"
         );
         assert_eq!(
-            dns_query("a.b", 1).iter().map(|byte| format!("{byte:02x}")).collect::<String>(),
+            dns_query("a.b", 1)
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>(),
             "000101000001000000000000016101620000010001"
         );
     }
@@ -212,8 +222,12 @@ mod tests {
             "ответ на DNS-запрос к 8.8.8.8 приходит начиная с 6-го узла, но сколько узлов до самого сервера, узнать \
              не удалось — перехват это или сам сервер, не различить"
         );
-        assert!(judge(Some(&DnsPlaceFacts { server: "8.8.8.8".into(), cancelled: true, ..Default::default() }))
-            .is_none());
+        assert!(judge(Some(&DnsPlaceFacts {
+            server: "8.8.8.8".into(),
+            cancelled: true,
+            ..Default::default()
+        }))
+        .is_none());
         assert!(judge(None).is_none());
     }
 
@@ -221,10 +235,8 @@ mod tests {
     fn collect_walks_every_ttl() {
         let facts = collect(
             &|ttl| {
-                if ttl >= 3 && ttl <= 5 {
+                if (3..=5).contains(&ttl) {
                     Some(true)
-                } else if ttl == 2 {
-                    Some(false)
                 } else if ttl < 3 {
                     Some(false)
                 } else {

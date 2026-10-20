@@ -66,8 +66,12 @@ pub fn judge(facts: &SubnetFacts) -> Option<SubnetVerdict> {
         return None;
     }
     let share = |region: &str| -> (usize, usize) {
-        let picked: Vec<bool> =
-            facts.groups.iter().filter(|(_label, area, _open)| area == region).map(|(_l, _r, open)| *open).collect();
+        let picked: Vec<bool> = facts
+            .groups
+            .iter()
+            .filter(|(_label, area, _open)| area == region)
+            .map(|(_l, _r, open)| *open)
+            .collect();
         (picked.iter().filter(|open| **open).count(), picked.len())
     };
     let (ru_open, ru_total) = share(REGION_RU);
@@ -102,17 +106,29 @@ mod tests {
         for index in 0..total {
             groups.push((format!("группа {index}"), region.to_string(), index < open));
         }
-        SubnetFacts { groups, cancelled: false }
+        SubnetFacts {
+            groups,
+            cancelled: false,
+        }
     }
 
     #[test]
     fn judge_codes() {
-        assert_eq!(judge(&SubnetFacts { cancelled: true, ..synthetic(REGION_RU, 1, 1) }), None);
+        assert_eq!(
+            judge(&SubnetFacts {
+                cancelled: true,
+                ..synthetic(REGION_RU, 1, 1)
+            }),
+            None
+        );
         assert_eq!(judge(&synthetic(REGION_RU, 0, 3)), None);
         // Открыты 2 из 3 российских и 0 из 3 зарубежных — белый список подтверждён.
         let verdict = judge(&insert_foreign(synthetic(REGION_RU, 2, 3), 0)).unwrap();
         assert_eq!(verdict.code, CODE_CONFIRMED);
-        assert_eq!(verdict.text(), "из российских сетей отвечают 2 из 3, из зарубежных — 0 из 10");
+        assert_eq!(
+            verdict.text(),
+            "из российских сетей отвечают 2 из 3, из зарубежных — 0 из 10"
+        );
         // 4 из 10 зарубежных (0.4 ≥ 0.3) — точно не белый список.
         let verdict = judge(&insert_foreign(synthetic(REGION_RU, 3, 3), 4)).unwrap();
         assert_eq!(verdict.code, CODE_REFUTED);
@@ -124,7 +140,11 @@ mod tests {
     /// пороги «неясно» лежат между долями 0.1 и 0.3, на двух группах их не взять.
     fn insert_foreign(mut facts: SubnetFacts, open: usize) -> SubnetFacts {
         (0..10).for_each(|index| {
-            facts.groups.push((format!("зарубежная {index}"), REGION_FOREIGN.to_string(), index < open));
+            facts.groups.push((
+                format!("зарубежная {index}"),
+                REGION_FOREIGN.to_string(),
+                index < open,
+            ));
         });
         facts
     }

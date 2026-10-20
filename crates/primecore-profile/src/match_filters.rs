@@ -84,13 +84,13 @@ pub fn ports_label_from_match_lines(match_lines: &[String]) -> String {
 
 /// python filter_values: значения одной опции из match-строк.
 pub fn filter_values(match_lines: &[String], option_name: &str) -> Vec<String> {
-    let prefix = format!("{}=", option_name.to_lowercase().trim_end_matches('=').to_string());
+    let prefix = format!(
+        "{}=",
+        option_name.to_lowercase().trim_end_matches('=').to_string()
+    );
     match_lines
         .iter()
-        .filter(|line| {
-            line.to_lowercase().starts_with(&prefix)
-                && line.split_once('=').is_some()
-        })
+        .filter(|line| line.to_lowercase().starts_with(&prefix) && line.split_once('=').is_some())
         .filter_map(|line| line.split_once('='))
         .map(|(_head, value)| value.trim().to_string())
         .collect()
@@ -98,16 +98,26 @@ pub fn filter_values(match_lines: &[String], option_name: &str) -> Vec<String> {
 
 /// python is_voice_match: голосовой ли профиль.
 pub fn is_voice_match(match_lines: &[String]) -> bool {
-    let l7_values = filter_values(match_lines, "--filter-l7").join(",").to_lowercase();
-    if ["stun", "discord", "wireguard"].iter().any(|token| l7_values.contains(token)) {
+    let l7_values = filter_values(match_lines, "--filter-l7")
+        .join(",")
+        .to_lowercase();
+    if ["stun", "discord", "wireguard"]
+        .iter()
+        .any(|token| l7_values.contains(token))
+    {
         return true;
     }
     let udp_values = filter_values(match_lines, "--filter-udp");
     let match_text = match_lines.join(" ").to_lowercase();
-    if !["discord", "stun", "voice", "голос"].iter().any(|token| match_text.contains(token)) {
+    if !["discord", "stun", "voice", "голос"]
+        .iter()
+        .any(|token| match_text.contains(token))
+    {
         return false;
     }
-    udp_values.iter().any(|value| ports_overlap(value, 50000, 59000))
+    udp_values
+        .iter()
+        .any(|value| ports_overlap(value, 50000, 59000))
 }
 
 /// python is_http80_match: только HTTP на 80-м порту.

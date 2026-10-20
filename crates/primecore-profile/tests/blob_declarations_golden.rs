@@ -30,7 +30,10 @@ fn blob_declarations_golden() {
     assert_eq!(
         declared_blobs(text),
         vec![
-            ("tls_google".to_string(), "tls_google:@bin/g.bin".to_string()),
+            (
+                "tls_google".to_string(),
+                "tls_google:@bin/g.bin".to_string()
+            ),
             ("z".to_string(), "z:@b".to_string()),
         ]
     );
@@ -76,13 +79,18 @@ fn blob_declarations_golden() {
         Some(&catalog),
     );
     assert!(lines.is_empty());
-    assert_eq!(report, BlobDeclarationReport {
-        unknown: vec!["no_such".to_string()],
-        ..Default::default()
-    });
+    assert_eq!(
+        report,
+        BlobDeclarationReport {
+            unknown: vec!["no_such".to_string()],
+            ..Default::default()
+        }
+    );
     assert_eq!(
         report.user_warnings(),
-        vec!["Стратегия ссылается на фейки, которых нет в пресете и в реестре: no_such".to_string()]
+        vec![
+            "Стратегия ссылается на фейки, которых нет в пресете и в реестре: no_such".to_string()
+        ]
     );
 
     // Unknown + реестр не подключён.
@@ -93,21 +101,19 @@ fn blob_declarations_golden() {
     );
     assert!(lines.is_empty());
     assert_eq!(report.unknown, vec!["tls_google".to_string()]);
-    assert_eq!(report.user_warnings(), vec![
+    assert_eq!(
+        report.user_warnings(),
+        vec![
         "Реестр фейков недоступен (реестр не подключён); в пресет не добавлены фейки: tls_google"
             .to_string()
-    ]);
+    ]
+    );
 
     // Место вставки: после последнего --lua-init, пустой разделитель.
-    let preamble: Vec<String> = [
-        "--debug=1",
-        "--lua-init=@bin/init.lua",
-        "",
-        "# подпись",
-    ]
-    .iter()
-    .map(|value: &&str| value.to_string())
-    .collect::<Vec<_>>();
+    let preamble: Vec<String> = ["--debug=1", "--lua-init=@bin/init.lua", "", "# подпись"]
+        .iter()
+        .map(|value: &&str| value.to_string())
+        .collect::<Vec<_>>();
     assert_eq!(
         with_blob_lines_in_preamble(&preamble, &["--blob=tls_google:@bin/g.bin".to_string()]),
         vec![

@@ -29,7 +29,12 @@ impl StepNote {
     pub fn chip(&self) -> String {
         match self.kind.as_str() {
             "protection" => {
-                let head = self.value.chars().next().map(|c| c.to_lowercase().to_string()).unwrap_or_default();
+                let head = self
+                    .value
+                    .chars()
+                    .next()
+                    .map(|c| c.to_lowercase().to_string())
+                    .unwrap_or_default();
                 let tail = self.value.chars().skip(1).collect::<String>();
                 format!("Защита: {head}{tail}")
             }
@@ -102,7 +107,8 @@ impl StrategyStep {
 }
 
 #[allow(dead_code)]
-const SITE_DROPS_FAKES: &str = "Подделки до сайта не доходят или он их отбрасывает, а ваш запрос получает целым.";
+const SITE_DROPS_FAKES: &str =
+    "Подделки до сайта не доходят или он их отбрасывает, а ваш запрос получает целым.";
 
 type FunctionInfo = (&'static str, &'static str, &'static str, &'static str);
 
@@ -419,7 +425,10 @@ const TLS_MODS: [(&str, &str); 4] = [
     ("rnd", "случайные служебные поля"),
     ("rndsni", "случайное имя сайта"),
     ("dupsid", "номер сеанса скопирован из настоящего запроса"),
-    ("padencap", "настоящие данные спрятаны внутри поля-заполнителя"),
+    (
+        "padencap",
+        "настоящие данные спрятаны внутри поля-заполнителя",
+    ),
 ];
 
 const BLOBS: [(&str, &str); 3] = [
@@ -427,8 +436,14 @@ const BLOBS: [(&str, &str); 3] = [
         "fake_default_tls",
         "стандартный запрос защищённого соединения к www.microsoft.com",
     ),
-    ("fake_default_http", "стандартный HTTP-запрос к www.iana.org"),
-    ("fake_default_quic", "заглушка вместо начала соединения QUIC"),
+    (
+        "fake_default_http",
+        "стандартный HTTP-запрос к www.iana.org",
+    ),
+    (
+        "fake_default_quic",
+        "заглушка вместо начала соединения QUIC",
+    ),
 ];
 
 /// python _POSITIONS: места разреза запроса словами.
@@ -452,21 +467,35 @@ const TS_FORWARD: ProtectionInfo = (
 /// python str.partition: до разделителя, сам разделитель, после.
 fn partition(text: &str, separator: char) -> (&str, &str, &str) {
     match text.find(separator) {
-        Some(index) => (&text[..index], &text[index..index + 1], &text[index + separator.len_utf8()..]),
+        Some(index) => (
+            &text[..index],
+            &text[index..index + 1],
+            &text[index + separator.len_utf8()..],
+        ),
         None => (text, "", ""),
     }
 }
 
 fn function_info(function: &str) -> Option<&'static FunctionInfo> {
-    FUNCTIONS.iter().find(|(key, _)| *key == function).map(|(_, value)| value)
+    FUNCTIONS
+        .iter()
+        .find(|(key, _)| *key == function)
+        .map(|(_, value)| value)
 }
 
 fn own_info(function: &str) -> Option<&'static OwnInfo> {
-    OWN_FUNCTIONS.iter().find(|(key, _)| *key == function).map(|(_, value)| value)
+    OWN_FUNCTIONS
+        .iter()
+        .find(|(key, _)| *key == function)
+        .map(|(_, value)| value)
 }
 
 fn scene(function: &str) -> &'static str {
-    SCENES.iter().find(|(key, _)| *key == function).map(|(_, value)| *value).unwrap_or("")
+    SCENES
+        .iter()
+        .find(|(key, _)| *key == function)
+        .map(|(_, value)| *value)
+        .unwrap_or("")
 }
 
 fn protection(key: &str) -> Option<&'static ProtectionInfo> {
@@ -479,11 +508,18 @@ fn protection(key: &str) -> Option<&'static ProtectionInfo> {
         None
     }
     .unwrap_or(key);
-    PROTECTIONS.iter().find(|(probe, _)| *probe == known).map(|(_, value)| value)
+    PROTECTIONS
+        .iter()
+        .find(|(probe, _)| *probe == known)
+        .map(|(_, value)| value)
 }
 
 fn family(function: &str) -> &'static str {
-    FAMILIES.iter().find(|(key, _)| *key == function).map(|(_, value)| *value).unwrap_or("other")
+    FAMILIES
+        .iter()
+        .find(|(key, _)| *key == function)
+        .map(|(_, value)| *value)
+        .unwrap_or("other")
 }
 
 fn sends_fakes(function: &str) -> bool {
@@ -516,11 +552,19 @@ pub fn position_words(value: &str) -> String {
             words.push(format!("после {token}-го байта"));
             continue;
         }
-        if token.starts_with('-') && token[1..].chars().all(|symbol| symbol.is_ascii_digit()) && token.len() > 1 {
+        if token.starts_with('-')
+            && token[1..].chars().all(|symbol| symbol.is_ascii_digit())
+            && token.len() > 1
+        {
             words.push(format!("за {} байт до конца", &token[1..]));
             continue;
         }
-        let base = if token.chars().next().map(|symbol| symbol.is_alphabetic()).unwrap_or(false) {
+        let base = if token
+            .chars()
+            .next()
+            .map(|symbol| symbol.is_alphabetic())
+            .unwrap_or(false)
+        {
             token
                 .replace(['+', '-'], " ")
                 .split_whitespace()
@@ -584,7 +628,9 @@ fn notes_of(function: &str, parameters: &[(String, String)]) -> (Vec<StepNote>, 
                     value: "Ложные байты перед второй частью".to_string(),
                     detail: "Настоящая первая часть потом перезапишет их у сайта.".to_string(),
                 });
-                cautions.push("Перекрытие при перестановке не работает с сайтами на Windows.".to_string());
+                cautions.push(
+                    "Перекрытие при перестановке не работает с сайтами на Windows.".to_string(),
+                );
             } else {
                 notes.push(StepNote {
                     kind: "overlap".to_string(),
@@ -606,18 +652,28 @@ fn notes_of(function: &str, parameters: &[(String, String)]) -> (Vec<StepNote>, 
                 detail: String::new(),
             });
         } else if key == "pos" && !value.is_empty() {
-            let label = if function == "tcpseg" { "Какой кусок" } else { "Где режется запрос" };
+            let label = if function == "tcpseg" {
+                "Какой кусок"
+            } else {
+                "Где режется запрос"
+            };
             notes.push(StepNote {
                 kind: "cut".to_string(),
                 label: label.to_string(),
                 value: position_words(value),
                 detail: String::new(),
             });
-        } else if key == "repeats" && value.chars().all(|symbol| symbol.is_ascii_digit()) && !value.is_empty() {
+        } else if key == "repeats"
+            && value.chars().all(|symbol| symbol.is_ascii_digit())
+            && !value.is_empty()
+        {
             notes.push(StepNote {
                 kind: "repeats".to_string(),
                 label: "Повторы".to_string(),
-                value: format!("{} подряд", plural_times(value.parse::<usize>().expect("число повторов"))),
+                value: format!(
+                    "{} подряд",
+                    plural_times(value.parse::<usize>().expect("число повторов"))
+                ),
                 detail: String::new(),
             });
         } else if key == "tls_mod" && !value.is_empty() {
@@ -678,7 +734,10 @@ pub fn explain_strategy(args: &str, udp: bool) -> Vec<StrategyStep> {
         }
         let rest = &line[PREFIX.len()..];
         let mut parts = rest.split(':');
-        let function = parts.next().map(|part| part.trim().to_lowercase()).unwrap_or_default();
+        let function = parts
+            .next()
+            .map(|part| part.trim().to_lowercase())
+            .unwrap_or_default();
         if function.is_empty() {
             continue;
         }
@@ -693,25 +752,31 @@ pub fn explain_strategy(args: &str, udp: bool) -> Vec<StrategyStep> {
             None => function.clone(),
         };
         let (mut notes, cautions) = notes_of(&base_function, &parameters);
-        let (title, text, why): (String, String, &'static str) = if let Some((base, title, text)) = own_info(&function) {
-            notes.push(StepNote {
-                kind: "origin".to_string(),
-                label: "Откуда приём".to_string(),
-                value: "Добавлен в PrimeBypass".to_string(),
-                detail: "В оригинальном Zapret 2 его нет.".to_string(),
-            });
-            let why = function_info(base).map(|(_t, _x, why, _c)| *why).unwrap_or("");
-            ((*title).to_string(), (*text).to_string(), why)
-        } else if let Some((title, text, why, _caution)) = function_info(&function) {
-            ((*title).to_string(), (*text).to_string(), *why)
-        } else {
-            (
-                function.clone(),
-                "Собственная функция: в оригинальном Zapret 2 её нет, описания для неё нет.".to_string(),
-                "",
-            )
-        };
-        let caution: &str = function_info(&base_function).map(|(_t, _x, _w, caution)| *caution).unwrap_or("");
+        let (title, text, why): (String, String, &'static str) =
+            if let Some((base, title, text)) = own_info(&function) {
+                notes.push(StepNote {
+                    kind: "origin".to_string(),
+                    label: "Откуда приём".to_string(),
+                    value: "Добавлен в PrimeBypass".to_string(),
+                    detail: "В оригинальном Zapret 2 его нет.".to_string(),
+                });
+                let why = function_info(base)
+                    .map(|(_t, _x, why, _c)| *why)
+                    .unwrap_or("");
+                ((*title).to_string(), (*text).to_string(), why)
+            } else if let Some((title, text, why, _caution)) = function_info(&function) {
+                ((*title).to_string(), (*text).to_string(), *why)
+            } else {
+                (
+                    function.clone(),
+                    "Собственная функция: в оригинальном Zapret 2 её нет, описания для неё нет."
+                        .to_string(),
+                    "",
+                )
+            };
+        let caution: &str = function_info(&base_function)
+            .map(|(_t, _x, _w, caution)| *caution)
+            .unwrap_or("");
         let mut own_cautions: Vec<String> = Vec::new();
         if !caution.is_empty() {
             own_cautions.push(caution.to_string());
@@ -719,11 +784,15 @@ pub fn explain_strategy(args: &str, udp: bool) -> Vec<StrategyStep> {
         let udp_fake = udp
             || parameters.iter().any(|(key, value)| {
                 (key == "blob" || key == "fake_blob")
-                    && UDP_BLOB_HINTS.iter().any(|hint| value.to_lowercase().contains(hint))
+                    && UDP_BLOB_HINTS
+                        .iter()
+                        .any(|hint| value.to_lowercase().contains(hint))
             });
         if sends_fakes(&base_function)
             && !udp_fake
-            && !parameters.iter().any(|(key, _value)| protection(key).is_some())
+            && !parameters
+                .iter()
+                .any(|(key, _value)| protection(key).is_some())
         {
             own_cautions.push(UNPROTECTED_FAKE_WARNING.to_string());
         }

@@ -60,8 +60,11 @@ fn sha1_state(data: &[u8]) -> [u32; 5] {
             ]);
         }
         for index in 16..80 {
-            schedule[index] =
-                (schedule[index - 3] ^ schedule[index - 8] ^ schedule[index - 14] ^ schedule[index - 16]).rotate_left(1);
+            schedule[index] = (schedule[index - 3]
+                ^ schedule[index - 8]
+                ^ schedule[index - 14]
+                ^ schedule[index - 16])
+                .rotate_left(1);
         }
         let [mut a, mut b, mut c, mut d, mut e] = state;
         for index in 0..80 {

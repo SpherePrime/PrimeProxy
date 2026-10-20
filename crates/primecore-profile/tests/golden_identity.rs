@@ -46,7 +46,11 @@ fn uid_sets() -> Vec<UidCase> {
             vec![],
         ),
         // 2. Переименование: совпадает только сигнатура.
-        ("renamed", vec![("Сводка Теперь Иначе".into(), SIG_A.into())], vec![]),
+        (
+            "renamed",
+            vec![("Сводка Теперь Иначе".into(), SIG_A.into())],
+            vec![],
+        ),
         // 3. Правка match-строк: совпадает только имя.
         ("edit_match", vec![("Сводка".into(), SIG_B.into())], vec![]),
         // 4. Новый профиль.
@@ -87,7 +91,11 @@ fn uid_sets() -> Vec<UidCase> {
             vec![],
         ),
         // 9. Пробелы чистятся.
-        ("cleanup", vec![("   Слитно   ".into(), format!("  {SIG_B}  "))], vec![]),
+        (
+            "cleanup",
+            vec![("   Слитно   ".into(), format!("  {SIG_B}  "))],
+            vec![],
+        ),
     ]
 }
 
@@ -134,5 +142,8 @@ fn identity_matches_python() {
         .collect::<Vec<_>>());
 
     assert_eq!(out["resolutions"], GOLDEN["resolutions"], "разрешения");
-    assert_eq!(out["normalized"], GOLDEN["normalized"], "нормализация реестра");
+    assert_eq!(
+        out["normalized"], GOLDEN["normalized"],
+        "нормализация реестра"
+    );
 }

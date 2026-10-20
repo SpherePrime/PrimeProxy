@@ -8,9 +8,13 @@
 //! Сбор (`collect`, `_timed_http`) — сетевая часть, портируется с TLS-пробами.
 //! Здесь — чистая часть: строки и вывод `judge`.
 
-use crate::block_cause::{stub_reason, HelloResult, HttpFacts, HELLO_ALERT, HELLO_CANCELLED, HELLO_CONNECT, HELLO_ERROR, HELLO_OK, HELLO_RESET, HELLO_TIMEOUT};
+use crate::block_cause::{
+    stub_reason, HelloResult, HttpFacts, HELLO_ALERT, HELLO_CANCELLED, HELLO_CONNECT, HELLO_ERROR,
+    HELLO_OK, HELLO_RESET, HELLO_TIMEOUT,
+};
 use crate::probe_result::{
-    ProbeResult, KIND_CANCELLED, KIND_CERT, KIND_CONNECT, KIND_OK, KIND_RESET, KIND_TIMEOUT, KIND_TLS,
+    ProbeResult, KIND_CANCELLED, KIND_CERT, KIND_CONNECT, KIND_OK, KIND_RESET, KIND_TIMEOUT,
+    KIND_TLS,
 };
 
 pub const PROTO_TLS12: &str = "tls12";
@@ -82,8 +86,15 @@ pub fn tls_line(key: &str, result: Option<&HelloResult>) -> Option<ProtocolLine>
     if result.kind == HELLO_CANCELLED {
         return None;
     }
-    let line =
-        move |word: &str, text: &str, state: &str| ProtocolLine { key: key.to_string(), title: title.to_string(), state: state.to_string(), word: word.to_string(), text: text.to_string(), ms: result.ms, code: String::new() };
+    let line = move |word: &str, text: &str, state: &str| ProtocolLine {
+        key: key.to_string(),
+        title: title.to_string(),
+        state: state.to_string(),
+        word: word.to_string(),
+        text: text.to_string(),
+        ms: result.ms,
+        code: String::new(),
+    };
     Some(match result.kind.as_str() {
         HELLO_OK => {
             ProtocolLine { text: format!("шифрование установилось за {}", ms(result.ms)), ..line("работает", "", STATE_OK) }
@@ -191,8 +202,7 @@ pub fn chrome_line(result: Option<&ProbeResult>) -> Option<ProtocolLine> {
 /// к тому же адресу с тем же именем проходит — режут по «почерку».
 fn fingerprint_line(chrome: &ProtocolLine, facts: &ProtocolFacts) -> ProtocolLine {
     let plain: Vec<&HelloResult> = facts.tls12.iter().chain(facts.tls13.iter()).collect();
-    let plain_ok =
-        plain.iter().any(|item| item.kind == HELLO_OK);
+    let plain_ok = plain.iter().any(|item| item.kind == HELLO_OK);
     if chrome.word != WORD_CUT || !plain_ok {
         return chrome.clone();
     }
@@ -263,7 +273,11 @@ fn http_line(facts: &ProtocolFacts) -> Option<ProtocolLine> {
 /// python `_old_hello_only(line)` — TLS 1.2 режут, а TLS 1.3 к тому же сайту
 /// проходит: объяснить, кому это мешает и что делать.
 fn old_hello_only(line: &ProtocolLine) -> ProtocolLine {
-    let how = if line.word == "молчит" { "молча глушит (ответа нет)" } else { "обрывает" };
+    let how = if line.word == "молчит" {
+        "молча глушит (ответа нет)"
+    } else {
+        "обрывает"
+    };
     ProtocolLine {
         text: format!(
             "приветствие этой версии фильтр {how}, а TLS 1.3 к тому же сайту проходит. Браузеру это не мешает: он берёт \
@@ -277,10 +291,14 @@ fn old_hello_only(line: &ProtocolLine) -> ProtocolLine {
 /// Без проб (сайт открылся или их сняли) остаётся одна строка «Как Chrome».
 pub fn judge(facts: Option<&ProtocolFacts>, chrome: Option<&ProtocolLine>) -> Vec<ProtocolLine> {
     let Some(facts) = facts else {
-        return chrome.map(|chrome| vec![chrome.clone()]).unwrap_or_default();
+        return chrome
+            .map(|chrome| vec![chrome.clone()])
+            .unwrap_or_default();
     };
     if facts.cancelled {
-        return chrome.map(|chrome| vec![chrome.clone()]).unwrap_or_default();
+        return chrome
+            .map(|chrome| vec![chrome.clone()])
+            .unwrap_or_default();
     }
     let mut found: Vec<ProtocolLine> = [
         tls_line(PROTO_TLS12, facts.tls12.as_ref()),
@@ -291,8 +309,15 @@ pub fn judge(facts: Option<&ProtocolFacts>, chrome: Option<&ProtocolLine>) -> Ve
     .into_iter()
     .flatten()
     .collect();
-    let state_of = |key: &str| found.iter().find(|line| line.key == key).map(|line| line.state.clone());
-    if state_of(PROTO_TLS12).as_deref() == Some(STATE_FAIL) && state_of(PROTO_TLS13).as_deref() == Some(STATE_OK) {
+    let state_of = |key: &str| {
+        found
+            .iter()
+            .find(|line| line.key == key)
+            .map(|line| line.state.clone())
+    };
+    if state_of(PROTO_TLS12).as_deref() == Some(STATE_FAIL)
+        && state_of(PROTO_TLS13).as_deref() == Some(STATE_OK)
+    {
         for line in found.iter_mut() {
             if line.key == PROTO_TLS12 {
                 *line = old_hello_only(line);
@@ -331,23 +356,42 @@ mod tests {
 
     #[test]
     fn chrome_line_cases() {
-        let mut ok = ProbeResult { kind: KIND_OK.to_string(), elapsed_ms: 42.7, ..Default::default() };
+        let mut ok = ProbeResult {
+            kind: KIND_OK.to_string(),
+            elapsed_ms: 42.7,
+            ..Default::default()
+        };
         ok.status = Some(200);
         assert_eq!(chrome_line(Some(&ok)).unwrap().word, "проходит");
         assert!(chrome_line(Some(&ok)).unwrap().text.contains("за 43 мс"));
-        assert_eq!(chrome_line(Some(&probe_kind(KIND_CERT))).unwrap().word, "чужой сертификат");
-        assert_eq!(chrome_line(Some(&probe_kind(KIND_RESET))).unwrap().word, WORD_CUT);
-        assert_eq!(chrome_line(Some(&probe_kind(KIND_CONNECT))).unwrap().state, STATE_UNKNOWN);
+        assert_eq!(
+            chrome_line(Some(&probe_kind(KIND_CERT))).unwrap().word,
+            "чужой сертификат"
+        );
+        assert_eq!(
+            chrome_line(Some(&probe_kind(KIND_RESET))).unwrap().word,
+            WORD_CUT
+        );
+        assert_eq!(
+            chrome_line(Some(&probe_kind(KIND_CONNECT))).unwrap().state,
+            STATE_UNKNOWN
+        );
         assert_eq!(chrome_line(None), None);
     }
 
     fn probe_kind(kind: &str) -> ProbeResult {
-        ProbeResult { kind: kind.to_string(), ..Default::default() }
+        ProbeResult {
+            kind: kind.to_string(),
+            ..Default::default()
+        }
     }
 
     #[test]
     fn fingerprint_and_old_tls12() {
-        let mut facts = ProtocolFacts { host: "site.example".to_string(), ..Default::default() };
+        let mut facts = ProtocolFacts {
+            host: "site.example".to_string(),
+            ..Default::default()
+        };
         facts.tls12 = hello(HELLO_OK);
         let chrome = chrome_line(Some(&probe_kind(KIND_RESET))).unwrap();
         let lines = judge(Some(&facts), Some(&chrome));
@@ -359,7 +403,8 @@ mod tests {
         facts.tls13 = hello(HELLO_OK);
         facts.tls12 = hello(HELLO_TIMEOUT);
         let lines = judge(Some(&facts), None);
-        assert!(lines.iter().any(|line| line.key == PROTO_TLS12 && line.text.contains("TLS 1.3 к тому же сайту проходит")));
+        assert!(lines.iter().any(|line| line.key == PROTO_TLS12
+            && line.text.contains("TLS 1.3 к тому же сайту проходит")));
     }
 
     #[test]
@@ -369,7 +414,10 @@ mod tests {
             http_ms: Some(5.0),
             ..Default::default()
         };
-        facts.http = Some(HttpFacts { status: None, ..Default::default() });
+        facts.http = Some(HttpFacts {
+            status: None,
+            ..Default::default()
+        });
         assert_eq!(judge(Some(&facts), None)[0].word, "не ответил");
         facts.http = Some(HttpFacts {
             status: Some(302),

@@ -67,9 +67,7 @@ pub fn safe_list_file_name(value: &str) -> Option<String> {
 /// python profile_list_file_available: список жив хотя бы в одном слое.
 pub fn profile_list_file_available(lists_root: &Path, file_name: &str) -> Result<bool, String> {
     let paths = layered_list_file(lists_root, file_name)?;
-    Ok(paths.base_path.is_file()
-        || paths.user_path.is_file()
-        || paths.final_path.is_file())
+    Ok(paths.base_path.is_file() || paths.user_path.is_file() || paths.final_path.is_file())
 }
 
 /// python profile_list_file_exists (profile/list_file_editor.py).
@@ -112,10 +110,11 @@ pub struct SegmentNames<'a> {
 }
 
 /// python profile_list_file_reference (принимает сегменты профиля).
-pub fn profile_list_file_reference(
-    segment_names: &[(String, String)],
-) -> ProfileListFileReference {
-    let wanted: [&[&str]; 2] = [&["--hostlist", "--ipset"], &["--hostlist-exclude", "--ipset-exclude"]];
+pub fn profile_list_file_reference(segment_names: &[(String, String)]) -> ProfileListFileReference {
+    let wanted: [&[&str]; 2] = [
+        &["--hostlist", "--ipset"],
+        &["--hostlist-exclude", "--ipset-exclude"],
+    ];
     for group in wanted {
         for (name, value) in segment_names {
             let name = name.trim().to_lowercase();
@@ -127,7 +126,11 @@ pub fn profile_list_file_reference(
             } else {
                 "ipset"
             };
-            let value = value.trim().trim_matches(|chr| chr == '"' || chr == 39u8 as char).trim_start_matches('@').to_string();
+            let value = value
+                .trim()
+                .trim_matches(|chr| chr == '"' || chr == 39u8 as char)
+                .trim_start_matches('@')
+                .to_string();
             if value.is_empty() {
                 return ProfileListFileReference {
                     kind: kind.to_string(),
@@ -180,10 +183,12 @@ pub fn profile_list_file_reference(
         base_display_path: String::new(),
         user_display_path: String::new(),
         editable: false,
-        error_text: "У этого profile нет отдельного hostlist/ipset-файла для редактирования.".to_string(),
+        error_text: "У этого profile нет отдельного hostlist/ipset-файла для редактирования."
+            .to_string(),
     }
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for ProfileListFileReference {
     fn default() -> Self {
         Self {
@@ -211,7 +216,9 @@ pub fn read_profile_list_file_text_parts(
     if !reference.editable || reference.file_name.is_empty() {
         return ProfileListFileText::default();
     }
-    let Ok(paths) = layered_list_file(lists_root, &reference.file_name) else { return ProfileListFileText::default(); };
+    let Ok(paths) = layered_list_file(lists_root, &reference.file_name) else {
+        return ProfileListFileText::default();
+    };
     let user_text = read_text_file_safe(&paths.user_path).unwrap_or_default();
     let base_text = read_text_file_safe(&paths.base_path).unwrap_or_default();
     let final_text = if !base_text.is_empty() || !user_text.is_empty() {
@@ -299,7 +306,11 @@ pub fn validate_profile_list_file_text(kind: &str, text: &str) -> Vec<(usize, St
 }
 
 fn line_trim(raw_line: &str) -> String {
-    raw_line.trim().trim_matches(|chr| chr == '\n' || chr == '\r').trim().to_string()
+    raw_line
+        .trim()
+        .trim_matches(|chr| chr == '\n' || chr == '\r')
+        .trim()
+        .to_string()
 }
 
 /// python count_profile_list_entries.
@@ -330,20 +341,17 @@ fn parse_ip_address(value: &str) -> Option<std::net::IpAddr> {
 }
 
 /// python ipaddress.ip_network(line, strict=False).
-fn parse_ip_network(value: &str) -> Option<u4parser> {
+fn parse_ip_network(value: &str) -> Option<std::net::IpAddr> {
     let Some((addr, prefix)) = value.split_once('/') else {
-        let addr = parse_ip_address(value)?;
-        return Some(addr.into());
+        return parse_ip_address(value);
     };
     let parsed = parse_ip_address(addr)?;
     let prefix_num = prefix.trim().parse::<u8>().ok()?;
     if prefix_num > 128 {
         return None;
     }
-    Some(parsed.into())
+    Some(parsed)
 }
-
-type u4parser = std::net::IpAddr;
 
 /// python _valid_hostlist_line.
 fn valid_hostlist_line(line: &str) -> bool {
@@ -429,7 +437,8 @@ pub fn reconcile_list_file(lists_root: &Path, file_name: &str, _authoritative: b
     let layers_have = base_reads || user_reads;
 
     let ownership_external = !layers_have && {
-        let final_entries = text_entries(&read_text_file_safe(&paths.final_path).unwrap_or_default());
+        let final_entries =
+            text_entries(&read_text_file_safe(&paths.final_path).unwrap_or_default());
         has_effective_entries(&final_entries)
     };
     if !_authoritative && ownership_external {
@@ -504,7 +513,10 @@ pub fn rename_profile_user_list_file(
     if let Some(old_paths) = old_paths {
         if old_paths.user_path.exists() && old_paths.user_path != new_paths.user_path {
             if new_paths.user_path.exists() {
-                return Err(format!("Файл списка уже существует: {}", new_paths.file_name));
+                return Err(format!(
+                    "Файл списка уже существует: {}",
+                    new_paths.file_name
+                ));
             }
             // Владение старым итогом фиксируется ДО переноса user-слоя.
             let old_was_external = !layers_have_effective(lists_root, &old_paths.file_name);
@@ -533,14 +545,12 @@ fn layers_have_effective(lists_root: &Path, file_name: &str) -> bool {
     let Ok(paths) = layered_list_file(lists_root, file_name) else {
         return false;
     };
-    [paths.base_path, paths.user_path]
-        .iter()
-        .any(|layer| {
-            layer.is_file()
-                && has_effective_entries(&text_entries(
-                    &read_text_file_safe(layer).unwrap_or_default(),
-                ))
-        })
+    [paths.base_path, paths.user_path].iter().any(|layer| {
+        layer.is_file()
+            && has_effective_entries(&text_entries(
+                &read_text_file_safe(layer).unwrap_or_default(),
+            ))
+    })
 }
 
 /// python write_text_file: нормализованный utf-8 с финальным переводом.
@@ -551,7 +561,10 @@ pub fn write_text_file(path: &Path, content: &str) {
             std::fs::create_dir_all(parent).ok();
         }
     }
-    if std::fs::read_to_string(path).map(|old| normalize_newlines(&old) == normalized).unwrap_or(false) {
+    if std::fs::read_to_string(path)
+        .map(|old| normalize_newlines(&old) == normalized)
+        .unwrap_or(false)
+    {
         return;
     }
     let _ = std::fs::write(path, &normalized);
@@ -568,12 +581,19 @@ pub fn normalize_newlines(text: &str) -> String {
 
 /// python _text_entries.
 fn text_entries(text: &str) -> Vec<String> {
-    text.replace("\r\n", "\n").replace('\r', "\n").split('\n').map(|line| line.trim().to_string()).filter(|line| !line.is_empty()).collect()
+    text.replace("\r\n", "\n")
+        .replace('\r', "\n")
+        .split('\n')
+        .map(|line| line.trim().to_string())
+        .filter(|line| !line.is_empty())
+        .collect()
 }
 
 /// python _has_effective_entries.
 fn has_effective_entries(entries: &[String]) -> bool {
-    entries.iter().any(|entry| !entry.trim_start().starts_with('#'))
+    entries
+        .iter()
+        .any(|entry| !entry.trim_start().starts_with('#'))
 }
 
 /// python dedup_preserve_order + merge_base_and_user (+ trailing newline).

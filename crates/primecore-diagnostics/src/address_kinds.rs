@@ -119,7 +119,9 @@ fn is_local(ip: std::net::IpAddr) -> bool {
 
 /// Адрес из известного словаря заглушек `BLOCK_STUB_OWNERS`.
 fn block_stub_by_owner(text: &str) -> bool {
-    BLOCK_STUB_OWNERS.iter().any(|(owner_ip, _)| *owner_ip == text)
+    BLOCK_STUB_OWNERS
+        .iter()
+        .any(|(owner_ip, _)| *owner_ip == text)
 }
 
 /// python `BLOCK_STUB_OWNERS.get(ip, "")`.
@@ -127,7 +129,13 @@ pub fn block_stub_owner(ip: &str) -> &str {
     let text = ip.trim();
     BLOCK_STUB_OWNERS
         .iter()
-        .find_map(|(owner_ip, owner)| if *owner_ip == text { Some(*owner) } else { None })
+        .find_map(|(owner_ip, owner)| {
+            if *owner_ip == text {
+                Some(*owner)
+            } else {
+                None
+            }
+        })
         .unwrap_or("")
 }
 
@@ -136,7 +144,11 @@ pub fn block_stub_owner(ip: &str) -> &str {
 pub fn is_stub_address(ip: &str) -> bool {
     matches!(
         address_kind(ip),
-        AddressKind::BLOCK_STUB | AddressKind::SELF | AddressKind::LOCAL | AddressKind::CARRIER | AddressKind::SERVICE
+        AddressKind::BLOCK_STUB
+            | AddressKind::SELF
+            | AddressKind::LOCAL
+            | AddressKind::CARRIER
+            | AddressKind::SERVICE
     )
 }
 

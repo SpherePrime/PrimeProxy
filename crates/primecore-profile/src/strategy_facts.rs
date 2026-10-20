@@ -48,7 +48,9 @@ pub struct StrategyFacts {
 pub fn split_strategy_name(name: &str) -> (String, String) {
     let clean = name.trim().to_string();
     match clean.split_once(NAME_DETAIL_SEPARATOR) {
-        Some((base, detail)) if !base.trim().is_empty() => (base.trim().to_string(), detail.trim().to_string()),
+        Some((base, detail)) if !base.trim().is_empty() => {
+            (base.trim().to_string(), detail.trim().to_string())
+        }
         _ => (clean, String::new()),
     }
 }
@@ -89,12 +91,17 @@ pub fn build_strategy_facts(
     entries: impl IntoIterator<Item = (String, StrategyEntry)>,
 ) -> Vec<(String, StrategyFacts)> {
     let entries: Vec<(String, StrategyEntry)> = entries.into_iter().collect();
-    let family_of: HashMap<String, String> =
-        strategy_family_keys(entries.iter().cloned()).into_iter().collect();
+    let family_of: HashMap<String, String> = strategy_family_keys(entries.iter().cloned())
+        .into_iter()
+        .collect();
     let mut facts: Vec<(String, StrategyFacts)> = Vec::new();
     for (raw_id, entry) in entries {
         let strategy_id = raw_id.trim().to_string();
-        let name = if entry.name.is_empty() { strategy_id.clone() } else { entry.name.clone() };
+        let name = if entry.name.is_empty() {
+            strategy_id.clone()
+        } else {
+            entry.name.clone()
+        };
         let args = entry.args.clone();
         let StrategyVisual {
             technique_keys,

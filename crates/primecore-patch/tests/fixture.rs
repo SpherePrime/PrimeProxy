@@ -1,5 +1,5 @@
-use bzip2::Compression;
 use bzip2::write::BzEncoder;
+use bzip2::Compression;
 use primecore_patch::apply;
 use std::io::Write;
 use std::path::PathBuf;
@@ -29,8 +29,8 @@ fn build_patch(control: &[(i64, i64, i64)], diff: &[u8], extra: &[u8]) -> Vec<u8
     let new_size: i64 = control.iter().map(|(c, i, _)| c + i).sum();
     patch.extend_from_slice(&new_size.to_le_bytes());
     patch.extend(compress(&control_blob));
-    patch.extend(compress(&diff));
-    patch.extend(compress(&extra));
+    patch.extend(compress(diff));
+    patch.extend(compress(extra));
     patch
 }
 

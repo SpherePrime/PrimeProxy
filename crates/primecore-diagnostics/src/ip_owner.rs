@@ -7,10 +7,9 @@
 //! Каким способом спрашивать, решает вызывающий: проверка перехвата DNS обязана
 //! идти шифрованным путём, иначе о владельце ответит сам перехватчик.
 
-use primecore_dnswire::{DnsQueryResult, TYPE_TXT};
 #[cfg(test)]
 use primecore_dnswire::DnsRecord;
-
+use primecore_dnswire::{DnsQueryResult, TYPE_TXT};
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct IpOwner {
@@ -34,15 +33,24 @@ where
 {
     let pointer = primecore_dnswire::reverse_name(ip).ok()?;
     let name = if pointer.ends_with(".in-addr.arpa") {
-        format!("{}.origin.asn.cymru.com", &pointer[..pointer.len() - ".in-addr.arpa".len()])
+        format!(
+            "{}.origin.asn.cymru.com",
+            &pointer[..pointer.len() - ".in-addr.arpa".len()]
+        )
     } else {
-        format!("{}.origin6.asn.cymru.com", &pointer[..pointer.len() - ".ip6.arpa".len()])
+        format!(
+            "{}.origin6.asn.cymru.com",
+            &pointer[..pointer.len() - ".ip6.arpa".len()]
+        )
     };
     let all = texts(ask(&name, TYPE_TXT).as_ref());
     if all.is_empty() {
         return None;
     }
-    let parts: Vec<String> = all[0].split('|').map(|part| part.trim().to_string()).collect();
+    let parts: Vec<String> = all[0]
+        .split('|')
+        .map(|part| part.trim().to_string())
+        .collect();
     let asn = if !parts.is_empty() && !parts[0].is_empty() {
         parts[0].split_whitespace().next().unwrap_or("").to_string()
     } else {
@@ -50,8 +58,16 @@ where
     };
     let info = IpOwner {
         asn: asn.clone(),
-        prefix: if parts.len() > 1 { parts[1].clone() } else { String::new() },
-        country: if parts.len() > 2 { parts[2].clone() } else { String::new() },
+        prefix: if parts.len() > 1 {
+            parts[1].clone()
+        } else {
+            String::new()
+        },
+        country: if parts.len() > 2 {
+            parts[2].clone()
+        } else {
+            String::new()
+        },
         ..IpOwner::default()
     };
     if asn.is_empty() {
@@ -65,7 +81,12 @@ where
         asn: info.asn,
         prefix: info.prefix,
         country: info.country,
-        owner: owners[0].split('|').next_back().unwrap_or("").trim().to_string(),
+        owner: owners[0]
+            .split('|')
+            .next_back()
+            .unwrap_or("")
+            .trim()
+            .to_string(),
     })
 }
 
@@ -80,7 +101,12 @@ mod tests {
         } else {
             "15169 | GOOGLE, US"
         };
-        result.records.push(DnsRecord { name: String::new(), rtype: TYPE_TXT, ttl: 0, value: answer.to_string() });
+        result.records.push(DnsRecord {
+            name: String::new(),
+            rtype: TYPE_TXT,
+            ttl: 0,
+            value: answer.to_string(),
+        });
         Some(result)
     }
 

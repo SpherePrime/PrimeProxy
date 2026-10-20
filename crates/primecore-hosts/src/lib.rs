@@ -71,7 +71,7 @@ pub fn parse_hosts_mapping_line(line: &str) -> Option<(String, Vec<String>, Stri
 }
 
 fn is_end_marker(stripped: &str, markers: &[&str]) -> bool {
-    markers.iter().any(|m| *m == stripped)
+    markers.contains(&stripped)
 }
 
 fn begin_marker_hit(stripped: &str) -> bool {
@@ -165,9 +165,7 @@ pub fn drop_conflicting_foreign_rows(lines: &Lines, rows: &Rows) -> (Lines, Vec<
     let mut wanted: std::collections::BTreeMap<String, Vec<String>> =
         std::collections::BTreeMap::new();
     for (domain, ip) in rows {
-        let entry = wanted
-            .entry(lowered(domain))
-            .or_default();
+        let entry = wanted.entry(lowered(domain)).or_default();
         let key = lowered(ip);
         if !entry.iter().any(|existing| existing == &key) {
             entry.push(key);
@@ -235,11 +233,7 @@ pub fn drop_conflicting_foreign_rows(lines: &Lines, rows: &Rows) -> (Lines, Vec<
 
 /// Добавляет блок программы перед обычными строками hosts. Работает на
 /// уже прочитанных строках файла (тип «keepends»).
-pub fn insert_managed_hosts_block(
-    new_lines: &mut Lines,
-    rows: &Rows,
-    insert_at: Option<usize>,
-) {
+pub fn insert_managed_hosts_block(new_lines: &mut Lines, rows: &Rows, insert_at: Option<usize>) {
     if rows.is_empty() {
         return;
     }
@@ -308,8 +302,7 @@ pub fn is_ipv6_address(ip: &str) -> bool {
 /// IPv6. Возвращает (строки для записи, были ли вообще запрошены строки).
 pub fn filter_desired_hosts_rows(rows: &Rows, allow_ipv6: bool) -> (Rows, bool) {
     let mut desired: Rows = Vec::new();
-    let mut seen: std::collections::BTreeSet<(String, String)> =
-        std::collections::BTreeSet::new();
+    let mut seen: std::collections::BTreeSet<(String, String)> = std::collections::BTreeSet::new();
     let mut had_requested_rows = false;
     for (domain, ip) in rows {
         let (domain, ip) = (domain.trim(), ip.trim());

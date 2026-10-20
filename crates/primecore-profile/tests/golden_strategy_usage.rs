@@ -13,8 +13,8 @@ use primecore_profile::ENGINE_WINWS2;
 use primecore_profile::parser::parse_preset_text;
 use primecore_profile::strategy_catalog::{load_strategy_catalogs, StrategyEntry};
 use primecore_profile::strategy_usage::{
-    CatalogIndex, count_builtin_strategy_usage, load_builtin_strategy_usage, service_key,
-    BuiltinStrategyUsage,
+    count_builtin_strategy_usage, load_builtin_strategy_usage, service_key, BuiltinStrategyUsage,
+    CatalogIndex,
 };
 
 static GOLDEN: Lazy<Value> = Lazy::new(|| {
@@ -108,7 +108,11 @@ const YT_TEXT: &str = concat!(
 
 static FIXTURE: AtomicUsize = AtomicUsize::new(0);
 
-fn set_user_root(suffix: &str, winws2_presets: &[(&str, &str)], winws1_presets: &[(&str, &str)]) -> AppPaths {
+fn set_user_root(
+    suffix: &str,
+    winws2_presets: &[(&str, &str)],
+    winws1_presets: &[(&str, &str)],
+) -> AppPaths {
     let index = FIXTURE.fetch_add(1, Ordering::SeqCst);
     let root = std::env::temp_dir().join(format!("primecore_usage_{index}_{suffix}"));
     let user = root.join("user");
@@ -170,12 +174,15 @@ fn usage_record(usage: &BuiltinStrategyUsage) -> Value {
 }
 
 fn places_record(usage: &BuiltinStrategyUsage, catalog: &str, strategy: &str) -> Value {
-    usage.places(catalog, strategy).first().map_or(Value::Null, |(service, name, count)| {
-        json!({"service": service, "name": name, "count": count})
-    })
+    usage.places(catalog, strategy).first().map_or(
+        Value::Null,
+        |(service, name, count)| json!({"service": service, "name": name, "count": count}),
+    )
 }
 
-fn for_profile_record(mapping: &[(String, primecore_profile::strategy_usage::StrategyUsage)]) -> Value {
+fn for_profile_record(
+    mapping: &[(String, primecore_profile::strategy_usage::StrategyUsage)],
+) -> Value {
     Value::Array(
         mapping
             .iter()
@@ -222,8 +229,7 @@ fn builtin_usage_matches_python() {
         &catalogs,
     );
 
-    let yt_profile =
-        parse_preset_text(YT_TEXT, ENGINE_WINWS2, "open").expect("профиль");
+    let yt_profile = parse_preset_text(YT_TEXT, ENGINE_WINWS2, "open").expect("профиль");
     let mut out = json!({
         "winws2": {
             "usage": usage_record(&usage),

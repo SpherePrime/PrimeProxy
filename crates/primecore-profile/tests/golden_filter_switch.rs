@@ -4,11 +4,12 @@ use once_cell::sync::Lazy;
 use serde_json::Value;
 use std::path::PathBuf;
 
-use primecore_profile::editable_settings::{read_editable_profile_settings, EditableProfileSettings};
+use primecore_profile::editable_settings::{
+    read_editable_profile_settings, EditableProfileSettings,
+};
 use primecore_profile::filter_switch::{
     build_filter_kind_candidate, filter_kind_switch_creates_preset_duplicate,
-    filter_kinds_without_preset_duplicates, resolve_filter_kind_switch,
-    FilterKindSwitchCandidate,
+    filter_kinds_without_preset_duplicates, resolve_filter_kind_switch, FilterKindSwitchCandidate,
 };
 use primecore_profile::models::Profile;
 use primecore_profile::parser::parse_preset_text;
@@ -76,6 +77,7 @@ fn user_root() -> PathBuf {
     root.join("user")
 }
 
+#[allow(dead_code)]
 fn text_settings(json: &Value) -> EditableProfileSettings {
     serde_json::from_value(json.clone()).expect("настройки фильтра")
 }
@@ -106,8 +108,7 @@ fn candidates_and_resolutions_match_python() {
                         &settings,
                         // python Comparator String
                         kind.as_str()
-                    )
-                    // candidate
+                    ) // candidate
                 ),
                 expected_candidate,
                 "кандидат {index}/{kind}"
@@ -119,9 +120,7 @@ fn candidates_and_resolutions_match_python() {
         let settings = read_editable_profile_settings(profile);
         for (kind, expected_resolution) in expected.as_object().expect("типы") {
             assert_eq!(
-                &as_value(
-                    &resolve_filter_kind_switch(&settings, kind.as_str(), &root)
-                ),
+                &as_value(&resolve_filter_kind_switch(&settings, kind.as_str(), &root)),
                 expected_resolution,
                 "разрешение {index}/{kind}"
             );
@@ -135,7 +134,11 @@ fn duplicates_match_python() {
     let preset = plain_preset();
     let twin = twin_preset();
     for (name, expected) in GOLDEN["duplicates"].as_object().expect("дубли") {
-        let scenario = if name == "twin" { twin.clone() } else { preset.clone() };
+        let scenario = if name == "twin" {
+            twin.clone()
+        } else {
+            preset.clone()
+        };
         for (index, cases) in expected.as_object().expect("профили") {
             let profile_position = index.parse::<usize>().expect("индекс");
             let profile: Profile = scenario.profiles[profile_position].clone();
@@ -179,7 +182,11 @@ fn available_kinds_match_python() {
     for (index, expected) in GOLDEN["available_kinds"].as_object().expect("типы") {
         let profile = preset.profiles[index.parse::<usize>().expect("индекс")].clone();
         let settings = read_editable_profile_settings(&profile);
-        for (case_name, kinds) in [("plain", vec!["hostlist", "ipset"]), ("aliases", vec![" hostlist ", " IpSet "]), ("empty", vec![])] {
+        for (case_name, kinds) in [
+            ("plain", vec!["hostlist", "ipset"]),
+            ("aliases", vec![" hostlist ", " IpSet "]),
+            ("empty", vec![]),
+        ] {
             assert_eq!(
                 as_value(&filter_kinds_without_preset_duplicates(
                     &settings,
@@ -193,7 +200,10 @@ fn available_kinds_match_python() {
             );
         }
     }
-    for (index, expected) in GOLDEN["available_kinds_twin"].as_object().expect("типы близнецов") {
+    for (index, expected) in GOLDEN["available_kinds_twin"]
+        .as_object()
+        .expect("типы близнецов")
+    {
         let profile = twin.profiles[index.parse::<usize>().expect("индекс")].clone();
         let settings = read_editable_profile_settings(&profile);
         assert_eq!(
@@ -201,7 +211,7 @@ fn available_kinds_match_python() {
                 &settings,
                 &profile,
                 &twin.profiles,
-                &vec!["hostlist", "ipset"],
+                &["hostlist", "ipset"],
                 &root
             )),
             expected["plain"],

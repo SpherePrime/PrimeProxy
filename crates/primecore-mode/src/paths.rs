@@ -22,11 +22,7 @@ impl EnginePaths {
     pub fn replaced_presets_dir(&self) -> PathBuf {
         self.presets_root_dir
             .join("replaced")
-            .join(
-                self.user_presets_dir
-                    .file_name()
-                    .unwrap_or_default(),
-            )
+            .join(self.user_presets_dir.file_name().unwrap_or_default())
     }
 
     /// Создаёт все три папки (parents=True, exist_ok), возвращает себя.
@@ -83,17 +79,16 @@ impl AppPaths {
 
 /// Python `Path(a) / b` при пустом b возвращает исходную папку,
 /// без двойного слэша — повторяем это.
-fn join_nonempty(dir: &PathBuf, name: &str) -> PathBuf {
+fn join_nonempty(dir: &Path, name: &str) -> PathBuf {
     if name.is_empty() {
-        dir.clone()
+        dir.to_path_buf()
     } else {
         dir.join(name)
     }
 }
 
-/// «replaced» строился по имени папки пользователя; при пустом имени
-/// замыкается на presets_root (`Path / "replaced" / ""` в Python).
-
+// «replaced» строился по имени папки пользователя; при пустом имени
+// замыкается на presets_root (`Path / "replaced" / ""` в Python).
 /// Золотая карта «движок → пути» для мгновенных сравнений с Python.
 pub fn golden_engine_paths(user_root: &Path) -> HashMap<String, EnginePaths> {
     let app = AppPaths {
@@ -102,11 +97,6 @@ pub fn golden_engine_paths(user_root: &Path) -> HashMap<String, EnginePaths> {
     };
     ["winws1", "winws2", "custom"]
         .into_iter()
-        .map(|engine| {
-            (
-                engine.to_string(),
-                app.engine_paths(Some(engine)),
-            )
-        })
+        .map(|engine| (engine.to_string(), app.engine_paths(Some(engine))))
         .collect()
 }

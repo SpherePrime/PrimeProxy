@@ -197,7 +197,11 @@ fn branch_filter_problem(lines: &[String]) -> Option<String> {
 }
 
 fn join_lines(lines: &[&String]) -> String {
-    lines.iter().map(|line| line.as_str()).collect::<Vec<&str>>().join(", ")
+    lines
+        .iter()
+        .map(|line| line.as_str())
+        .collect::<Vec<&str>>()
+        .join(", ")
 }
 
 impl CatalogDraft {
@@ -325,7 +329,10 @@ fn parse_catalog_file(payload: &str, catalog_name: &str) -> Vec<StrategyEntry> {
 
 /// python: повторная запись по ключу остаётся на своём месте.
 fn push_or_replace(ordered: Vec<StrategyEntry>, entry: StrategyEntry) -> Vec<StrategyEntry> {
-    match ordered.iter().position(|known| known.strategy_id == entry.strategy_id) {
+    match ordered
+        .iter()
+        .position(|known| known.strategy_id == entry.strategy_id)
+    {
         Some(index) => {
             let mut ordered = ordered;
             ordered[index] = entry;
@@ -344,7 +351,11 @@ fn load_engine_root(root: &Path) -> Catalogs {
     if let Ok(read) = std::fs::read_dir(root) {
         for entry in read.flatten() {
             let path = entry.path();
-            if path.extension().map(|extension| extension == "txt").unwrap_or(false) {
+            if path
+                .extension()
+                .map(|extension| extension == "txt")
+                .unwrap_or(false)
+            {
                 entries.push(path);
             }
         }
@@ -373,7 +384,10 @@ pub fn load_strategy_catalogs(user_root: &Path, engine: &str) -> Catalogs {
 }
 
 /// Возвращает (ключ кэша, подпись дерева файлов, каталоги).
-pub fn load_strategy_catalogs_with_signature(user_root: &Path, engine: &str) -> (String, Signature, Catalogs) {
+pub fn load_strategy_catalogs_with_signature(
+    user_root: &Path,
+    engine: &str,
+) -> (String, Signature, Catalogs) {
     let engine_key = engine.trim().to_lowercase();
     let engine_root = strategy_catalog_root(user_root).join(&engine_key);
     let cache_key = format!("{}||{}", engine_root.display(), engine_key);

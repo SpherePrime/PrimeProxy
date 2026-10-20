@@ -9,7 +9,9 @@
 //! адресами сайта, повтором после паузы и попыткой по IPv6 — как это сделал
 //! бы браузер.
 
-use crate::limits::{HEAD_START_S, REACH_ADDRESSES, RETRY_PAUSE_S, SOURCE_HOSTS, SOURCE_REFERENCE, SOURCE_SYSTEM};
+use crate::limits::{
+    HEAD_START_S, REACH_ADDRESSES, RETRY_PAUSE_S, SOURCE_HOSTS, SOURCE_REFERENCE, SOURCE_SYSTEM,
+};
 use crate::probe_result::{ProbeResult, KIND_CANCELLED, KIND_CERT, KIND_CONNECT};
 use crate::run_context::Probe;
 use primecore_netfailure::FAILURE_TIMEOUT;
@@ -74,7 +76,11 @@ pub fn reach_order(probe: &Probe, local_ok: bool) -> (Vec<String>, &'static str)
 #[must_use]
 pub fn reach_candidates(probe: &Probe, order: &[String]) -> Vec<String> {
     let mut seen: Vec<String> = Vec::new();
-    for ip in order.iter().chain(probe.dns.ips.iter()).chain(probe.reference_ips.iter()) {
+    for ip in order
+        .iter()
+        .chain(probe.dns.ips.iter())
+        .chain(probe.reference_ips.iter())
+    {
         if !ip.is_empty() && !seen.contains(ip) {
             seen.push(ip.clone());
         }
@@ -113,7 +119,9 @@ pub fn reach_candidates(probe: &Probe, order: &[String]) -> Vec<String> {
 
 /// python `_settled` — хоть одна попытка открыла сайт или проверку прервали.
 fn settled(items: &[ProbeResult]) -> bool {
-    items.iter().any(|item| item.ok() || item.kind == KIND_CANCELLED)
+    items
+        .iter()
+        .any(|item| item.ok() || item.kind == KIND_CANCELLED)
 }
 
 /// python `check_reach` — основной запрос «открывается ли» со всеми попытками.
@@ -226,9 +234,7 @@ pub fn check_reach(
     probe.reach = Some(opened.clone().unwrap_or_else(|| attempts[0].clone()));
     if opened.is_none() && run.dns_cancelled() && probe.tried.len() < 2 {
         // Время вышло раньше перепроверки: один сбой — это «не успели», а не «не открывается».
-        probe.reach = Some(
-            ProbeResult::new(attempts[0].ip.clone(), KIND_CANCELLED)
-        );
+        probe.reach = Some(ProbeResult::new(attempts[0].ip.clone(), KIND_CANCELLED));
         return;
     }
     if let Some(opened) = &opened {
@@ -292,7 +298,8 @@ mod tests {
         assert_eq!(order, vec!["9.9.9.9"]);
         assert_eq!(source, SOURCE_HOSTS);
         // Система и эталон совпадают — система.
-        let (order, source) = reach_order(&probe(&[], &["1.1.1.1", "2.2.2.2"], &["2.2.2.2"]), false);
+        let (order, source) =
+            reach_order(&probe(&[], &["1.1.1.1", "2.2.2.2"], &["2.2.2.2"]), false);
         assert_eq!(order, vec!["2.2.2.2", "1.1.1.1"]);
         assert_eq!(source, SOURCE_SYSTEM);
         // RHS системы с эталоном не совпадает, local_ok=false — эталон.
@@ -320,9 +327,7 @@ mod tests {
             vec![
                 "1.1.1.1",
                 // Разные сети до той же, где уже был первый адрес.
-                "9.9.9.9",
-                "1.1.1.2",
-                "9.9.9.8",
+                "9.9.9.9", "1.1.1.2", "9.9.9.8",
             ]
         );
     }

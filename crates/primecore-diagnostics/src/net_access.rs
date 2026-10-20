@@ -69,11 +69,7 @@ pub type DoHAsk<'q> = dyn FnMut(&ReferenceResolver, &str, u16) -> DnsQueryResult
 
 /// python `doh_ask` — произвольный вопрос к эталону: первый ответивший
 /// сервер. None — не ответил никто.
-pub fn doh_ask(
-    name: &str,
-    record_type: u16,
-    query: &mut DoHAsk<'_>,
-) -> Option<DnsQueryResult> {
+pub fn doh_ask(name: &str, record_type: u16, query: &mut DoHAsk<'_>) -> Option<DnsQueryResult> {
     for resolver in REFERENCE_RESOLVERS.iter() {
         let result = query(resolver, name, record_type);
         if result.answered() {
@@ -84,16 +80,7 @@ pub fn doh_ask(
 }
 
 /// python-замыкание `chrome_get` — сетевой запрос «как браузер».
-pub type ChromeGet<'g> = dyn FnMut(
-    &str,
-    &str,
-    &str,
-    f64,
-    usize,
-    f64,
-    Option<&dyn Fn(&[u8]) -> bool>,
-    bool,
-) -> ProbeResult
+pub type ChromeGet<'g> = dyn FnMut(&str, &str, &str, f64, usize, f64, Option<&dyn Fn(&[u8]) -> bool>, bool) -> ProbeResult
     + 'g;
 
 /// python `fetch` — HTTPS-запрос к сайту `host` по адресу `ip` — так, как его
@@ -111,7 +98,16 @@ pub fn fetch(
     decode_body: bool,
     chrome_get: &mut ChromeGet<'_>,
 ) -> ProbeResult {
-    chrome_get(host, ip, path, timeout, read_limit, read_timeout, body_done, decode_body)
+    chrome_get(
+        host,
+        ip,
+        path,
+        timeout,
+        read_limit,
+        read_timeout,
+        body_done,
+        decode_body,
+    )
 }
 
 /// python `get` — обычный запрос «открывается ли сайт» с общими сроками.
@@ -123,7 +119,17 @@ pub fn get(
     read_limit: usize,
     chrome_get: &mut ChromeGet<'_>,
 ) -> ProbeResult {
-    fetch(host, ip, path, HTTPS_TIMEOUT, read_limit, READ_TIMEOUT, None, false, chrome_get)
+    fetch(
+        host,
+        ip,
+        path,
+        HTTPS_TIMEOUT,
+        read_limit,
+        READ_TIMEOUT,
+        None,
+        false,
+        chrome_get,
+    )
 }
 
 /// python `download_file` — скачивает файл целиком: (содержимое, метка
@@ -213,7 +219,9 @@ pub fn ping_hop(
     ttl: u8,
     trace: &dyn Fn(&str, u8) -> Option<crate::icmp::TraceHopResult>,
 ) -> Result<Option<(String, Option<f64>)>, ()> {
-    let Some(result) = trace(ip, ttl) else { return Err(()) };
+    let Some(result) = trace(ip, ttl) else {
+        return Err(());
+    };
     if result.kind == crate::icmp::HOP_UNSUPPORTED {
         return Err(());
     }
@@ -283,7 +291,9 @@ mod tests {
         assert!(answered);
         assert_eq!(ips, vec!["1.1.1.1", "8.8.4.4", "9.9.9.9"]);
         assert!(noted.len() == REFERENCE_RESOLVERS.len());
-        assert!(noted.iter().all(|row| row.contains(":true") || row.contains(":false")));
+        assert!(noted
+            .iter()
+            .all(|row| row.contains(":true") || row.contains(":false")));
     }
 
     /// python `doh_ask` — ответившего выбирает первый.
@@ -298,7 +308,9 @@ mod tests {
         });
         assert!(found.is_some());
         // Ни один не ответил — None.
-        let none = doh_ask("site.org", TYPE_A, &mut |_resolver, _name, _rtype| DnsQueryResult::default());
+        let none = doh_ask("site.org", TYPE_A, &mut |_resolver, _name, _rtype| {
+            DnsQueryResult::default()
+        });
         assert!(none.is_none());
     }
 
@@ -328,13 +340,25 @@ mod tests {
             vec!["2.2.2.2".to_string()]
         }
         let mut doh_a = doh_list;
-        assert_eq!(&browser_ipv4(&hosts, &system_ok, &mut doh_a, "host-site"), &["5.5.5.5"]);
+        assert_eq!(
+            &browser_ipv4(&hosts, &system_ok, &mut doh_a, "host-site"),
+            &["5.5.5.5"]
+        );
         let mut doh_b = doh_list;
-        assert_eq!(&browser_ipv4(&hosts, &system_ok, &mut doh_b, "site.org"), &["3.3.3.3"]);
+        assert_eq!(
+            &browser_ipv4(&hosts, &system_ok, &mut doh_b, "site.org"),
+            &["3.3.3.3"]
+        );
         let mut doh_c = doh_list;
-        assert_eq!(&browser_ipv4(&hosts, &system_empty, &mut doh_c, "site.org"), &["2.2.2.2"]);
+        assert_eq!(
+            &browser_ipv4(&hosts, &system_empty, &mut doh_c, "site.org"),
+            &["2.2.2.2"]
+        );
         let mut doh_d = doh_list;
-        assert_eq!(&browser_ipv4(&hosts, &no_system, &mut doh_d, "site.org"), &["2.2.2.2"]);
+        assert_eq!(
+            &browser_ipv4(&hosts, &no_system, &mut doh_d, "site.org"),
+            &["2.2.2.2"]
+        );
     }
 
     /// python `known_address`.
@@ -347,7 +371,10 @@ mod tests {
         fn none_at_all(_name: &str) -> Vec<String> {
             Vec::new()
         }
-        assert_eq!(known_address(Some("1.2.3.4".into()), &mut none_at_all, "site.org"), "1.2.3.4");
+        assert_eq!(
+            known_address(Some("1.2.3.4".into()), &mut none_at_all, "site.org"),
+            "1.2.3.4"
+        );
         let mut reactive = take_first;
         assert_eq!(known_address(None, &mut reactive, "site.org"), "9.8.7.6");
         let mut empty = none_at_all;
@@ -396,14 +423,22 @@ mod tests {
     #[test]
     fn wrappers_python() {
         assert_eq!(system_servers(&|| vec!["1.1.1.1".into()]), vec!["1.1.1.1"]);
-        assert_eq!(hosts_ipv4("x", &|_h| vec!["2.2.2.2".into()]), vec!["2.2.2.2"]);
+        assert_eq!(
+            hosts_ipv4("x", &|_h| vec!["2.2.2.2".into()]),
+            vec!["2.2.2.2"]
+        );
     }
 
     /// python `ping_hop` — классификация ответа узла.
     #[test]
     fn ping_hop_python() {
-        let silent = |_ip: &str, _ttl: u8| Some(crate::icmp::TraceHopResult::new(crate::icmp::HOP_SILENT));
-        let unsupported = |_ip: &str, _ttl: u8| Some(crate::icmp::TraceHopResult::new(crate::icmp::HOP_UNSUPPORTED));
+        let silent =
+            |_ip: &str, _ttl: u8| Some(crate::icmp::TraceHopResult::new(crate::icmp::HOP_SILENT));
+        let unsupported = |_ip: &str, _ttl: u8| {
+            Some(crate::icmp::TraceHopResult::new(
+                crate::icmp::HOP_UNSUPPORTED,
+            ))
+        };
         let router = |_ip: &str, _ttl: u8| {
             Some(crate::icmp::TraceHopResult {
                 kind: crate::icmp::HOP_ROUTER,

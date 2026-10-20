@@ -62,7 +62,11 @@ pub fn build_filter_kind_candidate(
             reason: "missing_pair".to_string(),
         };
     }
-    FilterKindSwitchCandidate { filter_kind: target_kind, filter_value: target_value, reason: String::new() }
+    FilterKindSwitchCandidate {
+        filter_kind: target_kind,
+        filter_value: target_value,
+        reason: String::new(),
+    }
 }
 
 /// python resolve_filter_kind_switch: разрешение с проверкой файлов списков.
@@ -115,11 +119,7 @@ fn filter_value_for_kind_switch(settings: &EditableProfileSettings, filter_kind:
     let current_kind = strip_lower(&settings.filter_kind, "hostlist");
     let current_value = settings.filter_value.trim().to_string();
     if filter_kind == current_kind {
-        return normalize_filter_value(
-            &current_value,
-            filter_kind,
-            &settings.filter_role,
-        );
+        return normalize_filter_value(&current_value, filter_kind, &settings.filter_role);
     }
     if settings.filter_role.trim().to_lowercase() == "exclude" {
         // Exclude-фильтры не переключаются между типами: у пары catch-all
@@ -293,7 +293,12 @@ pub fn filter_kinds_without_preset_duplicates(
         if !resolution.allowed {
             continue;
         }
-        if filter_kind_switch_creates_preset_duplicate(profile, preset_profiles, settings, &resolution) {
+        if filter_kind_switch_creates_preset_duplicate(
+            profile,
+            preset_profiles,
+            settings,
+            &resolution,
+        ) {
             continue;
         }
         result.push(normalized);

@@ -57,6 +57,7 @@ primecore-diagnostics = { path = "crates/primecore-diagnostics" }
 primecore-mode = { path = "crates/primecore-mode" }
 fastrand = "2.5"
 blake2b_simd = "1"
+fancy-regex = "0.16"
 
 [profile.release]
 lto = "thin"

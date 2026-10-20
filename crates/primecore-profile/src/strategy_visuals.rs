@@ -95,7 +95,13 @@ pub fn technique(key: &str) -> StrategyTechniqueVisual {
             "#76d0ff",
             "дополнительная отправка данных",
         ),
-        "udplen" => entry("udplen", "UDPLen", "fa5s.ruler", "#b58cff", "изменение длины UDP-пакета"),
+        "udplen" => entry(
+            "udplen",
+            "UDPLen",
+            "fa5s.ruler",
+            "#b58cff",
+            "изменение длины UDP-пакета",
+        ),
         "oob" => entry(
             "oob",
             "OOB",
@@ -103,8 +109,20 @@ pub fn technique(key: &str) -> StrategyTechniqueVisual {
             "#ff78b7",
             "отправка out-of-band данных",
         ),
-        "tcpseg" => entry("tcpseg", "TCPSeg", "fa5s.code-branch", "#f6c945", "изменение TCP-сегментации"),
-        "pass" => entry("pass", "Pass", "fa5s.minus", "#8f9aa6", "строка без активного desync-действия"),
+        "tcpseg" => entry(
+            "tcpseg",
+            "TCPSeg",
+            "fa5s.code-branch",
+            "#f6c945",
+            "изменение TCP-сегментации",
+        ),
+        "pass" => entry(
+            "pass",
+            "Pass",
+            "fa5s.minus",
+            "#8f9aa6",
+            "строка без активного desync-действия",
+        ),
         "hostfakesplit" => entry(
             "hostfakesplit",
             "HostFakeSplit",
@@ -148,7 +166,13 @@ pub fn technique(key: &str) -> StrategyTechniqueVisual {
             "#5eead4",
             "уменьшение TCP-окна, чтобы сервер отвечал мелкими частями",
         ),
-        "pktmod" => entry("pktmod", "PktMod", "fa5s.sliders-h", "#c4a7ff", "изменение полей текущего пакета"),
+        "pktmod" => entry(
+            "pktmod",
+            "PktMod",
+            "fa5s.sliders-h",
+            "#c4a7ff",
+            "изменение полей текущего пакета",
+        ),
         "tamper" => entry(
             "tamper",
             "Tamper",
@@ -160,7 +184,13 @@ pub fn technique(key: &str) -> StrategyTechniqueVisual {
     }
 }
 
-fn entry(key: &str, label: &str, icon: &str, color: &str, description: &str) -> StrategyTechniqueVisual {
+fn entry(
+    key: &str,
+    label: &str,
+    icon: &str,
+    color: &str,
+    description: &str,
+) -> StrategyTechniqueVisual {
     StrategyTechniqueVisual {
         key: key.to_string(),
         label: label.to_string(),
@@ -192,7 +222,9 @@ fn exact_lua_desync(value: &str) -> Option<&'static str> {
         "drop" => Some("drop"),
         "wssize" => Some("wssize"),
         "pktmod" => Some("pktmod"),
-        "dht_dn" | "http_domcase" | "http_hostcase" | "http_methodeol" | "http_unixeol" => Some("tamper"),
+        "dht_dn" | "http_domcase" | "http_hostcase" | "http_methodeol" | "http_unixeol" => {
+            Some("tamper")
+        }
         _ => None,
     }
 }
@@ -248,7 +280,9 @@ pub fn strategy_technique_keys(args_text: &str) -> Vec<String> {
 
 fn lua_regex() -> &'static Regex {
     static REGEX: OnceLock<Regex> = OnceLock::new();
-    REGEX.get_or_init(|| Regex::new(r"(?:^|\s)--lua-desync=([a-zA-Z0-9_-]+)").expect("постоянный шаблон"))
+    REGEX.get_or_init(|| {
+        Regex::new(r"(?:^|\s)--lua-desync=([a-zA-Z0-9_-]+)").expect("постоянный шаблон")
+    })
 }
 
 fn extract_techniques(args_text: &str) -> Vec<String> {

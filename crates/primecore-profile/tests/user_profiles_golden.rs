@@ -1,6 +1,6 @@
 use primecore_profile::user_profiles::{
-    create_user_profile, delete_user_profile, load_user_profile_templates,
-    update_user_profile, validate_user_profile_filter, AppPaths,
+    create_user_profile, delete_user_profile, load_user_profile_templates, update_user_profile,
+    validate_user_profile_filter, AppPaths,
 };
 
 fn temp_root(tag: &str) -> std::path::PathBuf {
@@ -22,7 +22,9 @@ fn user_profiles_crud_golden() {
     // python-сценарий: создать youtube-moi → переименовать → удалить,
     // файлы слоёв и итог тасуются и удаляются вслед.
     let root = temp_root("crud");
-    let paths = AppPaths { user_root: root.clone() };
+    let paths = AppPaths {
+        user_root: root.clone(),
+    };
     let profile_id = create_user_profile(&paths, "YouTube мой", "tcp", "443").unwrap();
     assert_eq!(profile_id, "youtube-moi");
     assert_eq!(
@@ -30,16 +32,22 @@ fn user_profiles_crud_golden() {
         Some("www.example.com\n".to_string())
     );
     assert_eq!(
-        read(&root, "lists/user/ipset-youtube-moi.txt").unwrap_or_default().trim(),
+        read(&root, "lists/user/ipset-youtube-moi.txt")
+            .unwrap_or_default()
+            .trim(),
         "123.123.123.123"
     );
     assert!(root.join("lists/youtube-moi.txt").is_file());
     assert!(root.join("lists/ipset-youtube-moi.txt").is_file());
 
-    let (old_row, new_row): (std::collections::BTreeMap<String, String>, std::collections::BTreeMap<String, String>) = {
+    let (old_row, new_row): (
+        std::collections::BTreeMap<String, String>,
+        std::collections::BTreeMap<String, String>,
+    ) = {
         use serde_json::{Map, Value};
-        let (old, new) = update_user_profile(&paths, &profile_id, "Дискорд мой", "udp", "50000,50002").unwrap();
-        let mut as_map = |row: Map<String, Value>| {
+        let (old, new) =
+            update_user_profile(&paths, &profile_id, "Дискорд мой", "udp", "50000,50002").unwrap();
+        let as_map = |row: Map<String, Value>| {
             row.iter()
                 .map(|(key, value)| (key.clone(), value.as_str().unwrap_or_default().to_string()))
                 .collect::<std::collections::BTreeMap<_, _>>()
@@ -88,7 +96,9 @@ fn user_profiles_validation_golden() {
 #[test]
 fn user_profiles_duplicates_golden() {
     let root = temp_root("dup");
-    let paths = AppPaths { user_root: root.clone() };
+    let paths = AppPaths {
+        user_root: root.clone(),
+    };
     let first = create_user_profile(&paths, "Каналы", "tcp", "80").unwrap();
     assert_eq!(first, "kanaly");
     let duplicate = create_user_profile(&paths, "каналы", "tcp", "81");

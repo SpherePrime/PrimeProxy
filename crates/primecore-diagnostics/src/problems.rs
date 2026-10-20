@@ -16,20 +16,21 @@ use crate::block_kind::{self, KIND_DNS, KIND_DOWN, KIND_OTHER};
 use crate::ipv6_check::{Ipv6Verdict, IPV6_BROKEN};
 use crate::levels::level_rank;
 use crate::quic_probe::{QUIC_BLOCKED_BY_NAME, QUIC_OK, QUIC_SILENT};
+use crate::report_text::sentence;
 use crate::run_context::{Probe, ReferenceReport};
 use crate::services::Service;
 use crate::subnet_whitelist::{SubnetVerdict, CODE_CONFIRMED, CODE_REFUTED};
-use crate::system_state::{SystemItem, problem_level};
+use crate::system_state::{problem_level, SystemItem};
 use crate::telegram_check::TelegramReport;
-use crate::verdict::{DnsState, Level, ReachState, ServiceVerdict, advice_geo_site};
-use crate::report_text::sentence;
+use crate::verdict::{advice_geo_site, DnsState, Level, ReachState, ServiceVerdict};
 
 pub const ADVICE_IPV6: &str =
     "Из-за этого сайты могут открываться с задержкой: браузер сначала пробует IPv6. Перезагрузите роутер; \
      если не поможет — снимите галочку «IP версии 6» в свойствах сетевого адаптера Windows.";
 /// Сайты, которые QUIC поддерживают наверняка: по ним отличают
 /// «у сайта нет QUIC» от «UDP 443 закрыт». python `QUIC_CONTROL_HOSTS`.
-pub const QUIC_CONTROL_HOSTS: [&str; 3] = ["www.google.com", "www.youtube.com", "www.cloudflare.com"];
+pub const QUIC_CONTROL_HOSTS: [&str; 3] =
+    ["www.google.com", "www.youtube.com", "www.cloudflare.com"];
 pub const ADVICE_QUIC: &str =
     "В пресете должен быть profile для UDP 443 (QUIC) с этими сайтами. Проще всего выбрать готовый пресет, \
      где он есть, или отключить QUIC в браузере (в Chrome: chrome://flags → Experimental QUIC protocol).";
@@ -70,7 +71,11 @@ fn no_geo_service(_host: &str) -> String {
 /// python `_zapret_action` — кнопка у обходимой блокировки. «Запустить» — только
 /// когда точно известно, что Zapret не запущен.
 fn zapret_action(zapret_running: Option<bool>) -> &'static str {
-    if zapret_running == Some(false) { "start_zapret" } else { "strategy" }
+    if zapret_running == Some(false) {
+        "start_zapret"
+    } else {
+        "strategy"
+    }
 }
 
 /// python `Problem` — строка итога. `kind` — вид блокировки.
@@ -126,7 +131,9 @@ impl Problem {
 /// python `burst_problems(burst)` — проблема «UDP замирает после первых пакетов».
 /// Пусто — заморозки нет или вывода нет.
 pub fn burst_problems(burst: Option<&crate::udp_burst::BurstVerdict>) -> Vec<Problem> {
-    let Some(burst) = burst else { return Vec::new() };
+    let Some(burst) = burst else {
+        return Vec::new();
+    };
     if burst.code != crate::udp_burst::BURST_FREEZE {
         return Vec::new();
     }
@@ -186,12 +193,22 @@ fn control_keys(services: &Entries<Service>) -> (Vec<String>, Vec<String>, Vec<S
         .collect();
     let foreign: Vec<String> = controls
         .iter()
-        .filter(|key| !services.get(key).map(|service| service.domestic).unwrap_or_default())
+        .filter(|key| {
+            !services
+                .get(key)
+                .map(|service| service.domestic)
+                .unwrap_or_default()
+        })
         .cloned()
         .collect();
     let domestic: Vec<String> = controls
         .iter()
-        .filter(|key| services.get(key).map(|service| service.domestic).unwrap_or_default())
+        .filter(|key| {
+            services
+                .get(key)
+                .map(|service| service.domestic)
+                .unwrap_or_default()
+        })
         .cloned()
         .collect();
     (controls, foreign, domestic)
@@ -228,7 +245,10 @@ pub fn whitelist_suspected(
         && !foreign_reachable(reference);
     let domestic_up = !domestic.is_empty()
         && domestic.iter().all(|key| {
-            verdicts.get(key).map(|verdict| verdict.level == Level::Ok).unwrap_or_default()
+            verdicts
+                .get(key)
+                .map(|verdict| verdict.level == Level::Ok)
+                .unwrap_or_default()
         });
     foreign_down && domestic_up
 }
@@ -237,13 +257,24 @@ pub fn whitelist_suspected(
 /// ответили ни разу, хотя другие отвечали.
 pub fn blocked_references(reference: &[ReferenceReport]) -> Vec<ReferenceReport> {
     let down: Vec<&ReferenceReport> = reference.iter().filter(|item| !item.ok).collect();
-    if down.len() < reference.len() { down.into_iter().cloned().collect() } else { Vec::new() }
+    if down.len() < reference.len() {
+        down.into_iter().cloned().collect()
+    } else {
+        Vec::new()
+    }
 }
 
 /// python `reference_text(item)`.
 pub fn reference_text(item: &ReferenceReport) -> String {
-    let reason = if item.reason.is_empty() { String::new() } else { format!(": {}", item.reason) };
-    format!("Шифрованный DNS {} ({}) недоступен{}", item.label, item.address, reason)
+    let reason = if item.reason.is_empty() {
+        String::new()
+    } else {
+        format!(": {}", item.reason)
+    };
+    format!(
+        "Шифрованный DNS {} ({}) недоступен{}",
+        item.label, item.address, reason
+    )
 }
 
 #[derive(Debug, Default)]
@@ -285,15 +316,27 @@ pub fn collect_problems(
 
     let names = foreign
         .iter()
-        .map(|key| services.get(key).map(|service| service.label.clone()).unwrap_or_default())
+        .map(|key| {
+            services
+                .get(key)
+                .map(|service| service.label.clone())
+                .unwrap_or_default()
+        })
         .collect::<Vec<_>>()
         .join(", ");
     if whitelisted {
-        let confirmed =
-            subnets.is_some() && subnets.map(|subnets| subnets.code == CODE_CONFIRMED).unwrap_or_default();
+        let confirmed = subnets.is_some()
+            && subnets
+                .map(|subnets| subnets.code == CODE_CONFIRMED)
+                .unwrap_or_default();
         let domestic_labels = domestic
             .iter()
-            .map(|key| services.get(key).map(|service| service.label.clone()).unwrap_or_default())
+            .map(|key| {
+                services
+                    .get(key)
+                    .map(|service| service.label.clone())
+                    .unwrap_or_default()
+            })
             .collect::<Vec<_>>()
             .join(", ");
         let sites = format!(
@@ -301,7 +344,10 @@ pub fn collect_problems(
         );
         let how = whitelist_kind(collected, &foreign);
         let text = match (confirmed, subnets) {
-            (true, Some(subnets)) => format!("{sites} Это режим «белых списков»: {}; {how}", subnets.text()),
+            (true, Some(subnets)) => format!(
+                "{sites} Это режим «белых списков»: {}; {how}",
+                subnets.text()
+            ),
             _ => format!("{sites} Похоже на режим «белых списков»: {how}"),
         };
         problems.push(Problem::new(
@@ -323,7 +369,12 @@ pub fn collect_problems(
     } else if offline {
         let controls_labels = controls
             .iter()
-            .map(|key| services.get(key).map(|service| service.label.clone()).unwrap_or_default())
+            .map(|key| {
+                services
+                    .get(key)
+                    .map(|service| service.label.clone())
+                    .unwrap_or_default()
+            })
             .collect::<Vec<_>>()
             .join(", ");
         problems.push(Problem::new(
@@ -354,10 +405,15 @@ pub fn collect_problems(
         if service.control {
             continue;
         }
-        let Some(verdict) = verdicts.get(key) else { continue };
+        let Some(verdict) = verdicts.get(key) else {
+            continue;
+        };
         let empty: Vec<Probe> = Vec::new();
         let probes = collected.get(key).unwrap_or(&empty);
-        let hits: Vec<&Probe> = probes.iter().filter(|probe| probe.reach_state != ReachState::Ok).collect();
+        let hits: Vec<&Probe> = probes
+            .iter()
+            .filter(|probe| probe.reach_state != ReachState::Ok)
+            .collect();
         // Сайт открылся по настоящему адресу, а запись в hosts ведёт на нерабочий: для человека это поломка.
         let stale: Vec<&Probe> = if hits.is_empty() {
             probes.iter().filter(|probe| probe.hosts_stale).collect()
@@ -366,7 +422,10 @@ pub fn collect_problems(
         };
         // Сайт открылся, но через раз: это тоже повод для строки в итоге, и лечится он как блокировка.
         let shaky: Vec<&Probe> = if hits.is_empty() && stale.is_empty() {
-            probes.iter().filter(|probe| !probe.unstable.is_empty()).collect()
+            probes
+                .iter()
+                .filter(|probe| !probe.unstable.is_empty())
+                .collect()
         } else {
             Vec::new()
         };
@@ -397,10 +456,14 @@ pub fn collect_problems(
                 .iter()
                 .find(|probe| BYPASSABLE.contains(&probe.reach_state) && probe.kind() != KIND_DOWN)
                 .copied();
-            let mut action: String =
-                if bypass_probe.is_some() { zapret_action(zapret_running).to_string() } else { String::new() };
-            let mut target: String =
-                bypass_probe.map(|probe| probe.host.clone()).unwrap_or_else(|| broken[0].host.clone());
+            let mut action: String = if bypass_probe.is_some() {
+                zapret_action(zapret_running).to_string()
+            } else {
+                String::new()
+            };
+            let mut target: String = bypass_probe
+                .map(|probe| probe.host.clone())
+                .unwrap_or_else(|| broken[0].host.clone());
             if !stale.is_empty() {
                 action = "hosts".to_string();
             }
@@ -426,7 +489,11 @@ pub fn collect_problems(
                 action = "dns".to_string();
             }
             if action.is_empty() && key == TELEGRAM_SITE {
-                let kind = if verdict.kind.is_empty() { KIND_OTHER.to_string() } else { verdict.kind.clone() };
+                let kind = if verdict.kind.is_empty() {
+                    KIND_OTHER.to_string()
+                } else {
+                    verdict.kind.clone()
+                };
                 if TELEGRAM_PROXY_KINDS.contains(&kind.as_str()) {
                     // Telegram закрывают по адресу: стратегия тут бессильна, а у программы есть свой прокси.
                     action = "telegram_proxy".to_string();
@@ -445,10 +512,14 @@ pub fn collect_problems(
                 .collect();
             dedup(&mut shaky_lines);
             causes.extend(shaky_lines);
-            let certs: Vec<&crate::cert_owner::CertVerdict> =
-                broken.iter().filter_map(|probe| probe.cert.as_ref()).collect();
-            let mut cert_lines: Vec<String> =
-                certs.iter().map(|cert| format!("{}.", sentence(&cert.text))).collect();
+            let certs: Vec<&crate::cert_owner::CertVerdict> = broken
+                .iter()
+                .filter_map(|probe| probe.cert.as_ref())
+                .collect();
+            let mut cert_lines: Vec<String> = certs
+                .iter()
+                .map(|cert| format!("{}.", sentence(&cert.text)))
+                .collect();
             dedup(&mut cert_lines);
             let mut cert_advice: Vec<String> = certs
                 .iter()
@@ -461,13 +532,25 @@ pub fn collect_problems(
             problems.push(Problem::new(
                 verdict.level,
                 verdict.headline.clone(),
-                causes.iter().cloned().chain(advice.iter().cloned()).collect(),
+                causes
+                    .iter()
+                    .cloned()
+                    .chain(advice.iter().cloned())
+                    .collect(),
                 action,
                 target,
-                if verdict.kind.is_empty() { KIND_OTHER } else { verdict.kind.as_str() },
+                if verdict.kind.is_empty() {
+                    KIND_OTHER
+                } else {
+                    verdict.kind.as_str()
+                },
                 // Сервис не открывается целиком — в группе хватит названия;
                 // «открывается, но не работают картинки» нужно сказать полностью.
-                if verdict.level == Level::Fail { service.label.clone() } else { String::new() },
+                if verdict.level == Level::Fail {
+                    service.label.clone()
+                } else {
+                    String::new()
+                },
                 causes,
                 key,
                 SECTION_SERVICES,
@@ -599,13 +682,23 @@ pub fn collect_problems(
     let quic_answers = collected
         .iter()
         .flat_map(|(_key, probes)| probes.iter())
-        .any(|probe| probe.quic.as_ref().is_some_and(|verdict| verdict.code == QUIC_OK));
+        .any(|probe| {
+            probe
+                .quic
+                .as_ref()
+                .is_some_and(|verdict| verdict.code == QUIC_OK)
+        });
     if quic_known.len() >= 2
-        && quic_known.iter().all(|probe| probe.quic.as_ref().map(|quic| quic.code.as_str()) == Some(QUIC_SILENT))
+        && quic_known
+            .iter()
+            .all(|probe| probe.quic.as_ref().map(|quic| quic.code.as_str()) == Some(QUIC_SILENT))
         && !quic_answers
         && !offline
     {
-        let mut known_hosts = quic_known.iter().map(|probe| probe.host.as_str()).collect::<Vec<_>>();
+        let mut known_hosts = quic_known
+            .iter()
+            .map(|probe| probe.host.as_str())
+            .collect::<Vec<_>>();
         known_hosts.sort_unstable();
         problems.push(Problem::new(
             Level::Warn,
@@ -632,7 +725,10 @@ pub fn collect_problems(
         .iter()
         .filter(|(_key, probes)| {
             probes.iter().any(|probe| {
-                probe.quic.as_ref().is_some_and(|verdict| verdict.code == QUIC_BLOCKED_BY_NAME)
+                probe
+                    .quic
+                    .as_ref()
+                    .is_some_and(|verdict| verdict.code == QUIC_BLOCKED_BY_NAME)
                     && probe.reach_state == ReachState::Ok
             })
         })
@@ -640,7 +736,12 @@ pub fn collect_problems(
         .collect::<Vec<_>>();
     let quic_blocked: Vec<String> = quic_blocked_keys
         .iter()
-        .map(|key| services.get(key).map(|service| service.label.clone()).unwrap_or_default())
+        .map(|key| {
+            services
+                .get(key)
+                .map(|service| service.label.clone())
+                .unwrap_or_default()
+        })
         .collect();
     if !quic_blocked.is_empty() && !offline {
         let mut text = format!(
@@ -666,11 +767,17 @@ pub fn collect_problems(
     }
     // Неполадки самого компьютера показываются всегда: они объясняют и «нет интернета».
     for item in system {
-        let Some(level) = problem_level(&item.level) else { continue };
+        let Some(level) = problem_level(&item.level) else {
+            continue;
+        };
         problems.push(Problem::new(
             level,
             format!("{}: {}", item.title, item.text),
-            if item.advice.is_empty() { Vec::new() } else { vec![item.advice.clone()] },
+            if item.advice.is_empty() {
+                Vec::new()
+            } else {
+                vec![item.advice.clone()]
+            },
             "",
             "",
             block_kind::KIND_SYSTEM,
@@ -711,11 +818,16 @@ pub fn collect_problems(
         ));
     }
     problems.sort_by_key(|item| level_rank(item.level.value()));
-    CollectOutput { problems, working, spoofed }
+    CollectOutput {
+        problems,
+        working,
+        spoofed,
+    }
 }
 
 /// python `_TELEGRAM_PROXY_KINDS`.
-const TELEGRAM_PROXY_KINDS: [&str; 3] = [block_kind::KIND_IP, KIND_OTHER, block_kind::KIND_NO_CONNECT];
+const TELEGRAM_PROXY_KINDS: [&str; 3] =
+    [block_kind::KIND_IP, KIND_OTHER, block_kind::KIND_NO_CONNECT];
 
 fn dedup(values: &mut Vec<String>) {
     let mut seen: std::collections::HashSet<String> = Default::default();
@@ -743,7 +855,9 @@ impl<T> Entries<T> {
     }
 
     pub fn get(&self, key: &str) -> Option<&T> {
-        self.items.iter().find_map(|(other, item)| (other == key).then_some(item))
+        self.items
+            .iter()
+            .find_map(|(other, item)| (other == key).then_some(item))
     }
 
     pub fn iter(&self) -> impl Iterator<Item = &(String, T)> {

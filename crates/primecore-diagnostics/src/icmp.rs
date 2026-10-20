@@ -52,7 +52,10 @@ pub struct TraceHopResult {
 
 impl TraceHopResult {
     pub fn new(kind: &'static str) -> Self {
-        TraceHopResult { kind, ..Default::default() }
+        TraceHopResult {
+            kind,
+            ..Default::default()
+        }
     }
 }
 
@@ -83,7 +86,13 @@ pub fn dword_to_ipv4(value: u32) -> String {
 
 /// Сводка ответов пинга: среднее, разброс и «почему не доехало» (python `_summarize`).
 #[must_use]
-pub fn summarize(rtts: &[f64], sent: u32, ip: &str, last_status: Option<u32>, ttl: Option<u32>) -> WindowsPingResult {
+pub fn summarize(
+    rtts: &[f64],
+    sent: u32,
+    ip: &str,
+    last_status: Option<u32>,
+    ttl: Option<u32>,
+) -> WindowsPingResult {
     let received = rtts.len() as u32;
     if received > 0 {
         let average_ms = rtts.iter().sum::<f64>() / rtts.len() as f64;
@@ -127,7 +136,11 @@ fn round_half_away(value: f64) -> i64 {
     // python format spam: 1.5 → "2", 2.5 → "2".
     if value.fract() == 0.5 {
         let floor = value.floor();
-        if (floor as i64) % 2 == 0 { floor as i64 } else { (floor + 1.0) as i64 }
+        if (floor as i64) % 2 == 0 {
+            floor as i64
+        } else {
+            (floor + 1.0) as i64
+        }
     } else {
         value.round() as i64
     }

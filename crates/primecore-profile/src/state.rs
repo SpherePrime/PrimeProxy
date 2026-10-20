@@ -1,7 +1,6 @@
 //! Порт `src/profile/state.py` — неизменяемые элементы payload-ов списка
 //! профилей и setup-страницы, плюс apply-подписи (`setup_apply_signature.py`).
 
-
 use serde_json::Value;
 
 use crate::strategy_catalog::StrategyEntry;
@@ -252,8 +251,16 @@ pub fn profile_setup_apply_signature(payload: Option<&ProfileSetupPayload>) -> V
                 .map(Value::String)
                 .collect(),
         ),
-        Value::String(if payload.in_range.is_empty() { "x".to_string() } else { payload.in_range.clone() }),
-        Value::String(if payload.out_range.is_empty() { "a".to_string() } else { payload.out_range.clone() }),
+        Value::String(if payload.in_range.is_empty() {
+            "x".to_string()
+        } else {
+            payload.in_range.clone()
+        }),
+        Value::String(if payload.out_range.is_empty() {
+            "a".to_string()
+        } else {
+            payload.out_range.clone()
+        }),
         payload
             .current_strategy_state
             .as_ref()

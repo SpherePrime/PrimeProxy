@@ -12,7 +12,6 @@ use primecore_socketcancel::SocketCancel;
 use primecore_dnswire::net::{query_server, query_tcp, query_udp};
 use primecore_dnswire::{STATUS_EMPTY, STATUS_ERROR, STATUS_OK, STATUS_TIMEOUT, TYPE_A};
 
-
 /// Учитывает query id и признак ответа в заглушке (сервер копирует id).
 fn reply_as(packet: Vec<u8>, query_id: u16) -> Vec<u8> {
     let mut reply = packet;
@@ -208,8 +207,8 @@ fn query_server_falls_back_to_tcp_on_truncated() {
     // UDP отдаёт TC-ответ; TCP-сервер слушает на том же номере порта
     // (python query_server мержит и UDP и TCP на том же порту).
     let (udp_port, udp_thread) = udp_server("truncated", false);
-    let listener = TcpListener::bind(("127.0.0.1", udp_port))
-        .expect("TCP на том же номере порта, что и UDP");
+    let listener =
+        TcpListener::bind(("127.0.0.1", udp_port)).expect("TCP на том же номере порта, что и UDP");
     let handle = thread::spawn(move || {
         let (mut stream, _) = listener.accept().expect("TCP-подключение");
         let mut header = [0u8; 2];

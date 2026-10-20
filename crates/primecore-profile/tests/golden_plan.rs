@@ -5,11 +5,11 @@ use std::collections::HashMap;
 use once_cell::sync::Lazy;
 
 use primecore_profile::strategy_catalog::StrategyEntry;
-use primecore_profile::strategy_facts::{StrategyFacts, build_strategy_facts};
+use primecore_profile::strategy_facts::{build_strategy_facts, StrategyFacts};
 use primecore_profile::strategy_plan::{
-    NO_USAGE, PlanRequest, StrategyListPlan, StrategyUsage, build_plan, experience_sentence,
-    full_queue, family_scores, next_to_try, recommended_queue, strategy_badge, try_progress,
-    try_stage, usage_caption, usage_sentence,
+    build_plan, experience_sentence, family_scores, full_queue, next_to_try, recommended_queue,
+    strategy_badge, try_progress, try_stage, usage_caption, usage_sentence, PlanRequest,
+    StrategyListPlan, StrategyUsage, NO_USAGE,
 };
 
 static GOLDEN: Lazy<serde_json::Value> = Lazy::new(|| {
@@ -88,7 +88,10 @@ fn entries_in_order() -> Vec<(String, StrategyEntry)> {
                 old_name: record["old_name"].as_str().expect("old").to_string(),
                 label: record["label"].as_str().expect("label").to_string(),
                 author: record["author"].as_str().expect("author").to_string(),
-                description: record["description"].as_str().expect("description").to_string(),
+                description: record["description"]
+                    .as_str()
+                    .expect("description")
+                    .to_string(),
                 args,
             },
         ));
@@ -152,13 +155,26 @@ fn badges_and_captions_match_python() {
             "badge {row_key}"
         );
     }
-    let labels: [&str; 7] = ["caution", "experimental", "recommended", "stock", "", "game", "pass"];
-    let expected = GOLDEN["ops"]["badges_zero"].as_array().expect("badges_zero");
+    let labels: [&str; 7] = [
+        "caution",
+        "experimental",
+        "recommended",
+        "stock",
+        "",
+        "game",
+        "pass",
+    ];
+    let expected = GOLDEN["ops"]["badges_zero"]
+        .as_array()
+        .expect("badges_zero");
     for (expected, label) in expected.iter().zip(labels.iter()) {
         assert_eq!(
             expected,
             &as_value(&strategy_badge(
-                &StrategyUsage { same_service: 0, services: 5 },
+                &StrategyUsage {
+                    same_service: 0,
+                    services: 5
+                },
                 label,
                 (0, 0)
             ))
@@ -171,14 +187,20 @@ fn badges_and_captions_match_python() {
         .iter()
         .map(|value| value.as_str().expect("ключ").to_string())
         .collect();
-    let mut sources: Vec<StrategyUsage> = usage_order
-        .iter()
-        .map(|key| usage[key])
-        .collect();
+    let mut sources: Vec<StrategyUsage> = usage_order.iter().map(|key| usage[key]).collect();
     sources.extend([
-        StrategyUsage { same_service: 0, services: 0 },
-        StrategyUsage { same_service: 0, services: 1 },
-        StrategyUsage { same_service: 5, services: 0 },
+        StrategyUsage {
+            same_service: 0,
+            services: 0,
+        },
+        StrategyUsage {
+            same_service: 0,
+            services: 1,
+        },
+        StrategyUsage {
+            same_service: 5,
+            services: 0,
+        },
     ]);
     for (expected, item) in expected.iter().zip(sources.iter()) {
         assert_eq!(expected, &as_value(&usage_caption(item)));
@@ -187,20 +209,32 @@ fn badges_and_captions_match_python() {
     let expected = GOLDEN["ops"]["experience_sentences"]
         .as_array()
         .expect("массив");
-    for (expected, pair) in expected.iter().zip([(0, 0), (1, 0), (2, 3), (5, 0), (0, 2)]) {
+    for (expected, pair) in expected
+        .iter()
+        .zip([(0, 0), (1, 0), (2, 3), (5, 0), (0, 2)])
+    {
         assert_eq!(expected, &as_value(&experience_sentence(pair)));
     }
 
     let expected = GOLDEN["ops"]["usage_sentences"].as_array().expect("массив");
-    let mut sources: Vec<StrategyUsage> = usage_order
-        .iter()
-        .map(|key| usage[key])
-        .collect();
+    let mut sources: Vec<StrategyUsage> = usage_order.iter().map(|key| usage[key]).collect();
     sources.extend([
-        StrategyUsage { same_service: 0, services: 0 },
-        StrategyUsage { same_service: 0, services: 1 },
-        StrategyUsage { same_service: 0, services: 6 },
-        StrategyUsage { same_service: 1, services: 4 },
+        StrategyUsage {
+            same_service: 0,
+            services: 0,
+        },
+        StrategyUsage {
+            same_service: 0,
+            services: 1,
+        },
+        StrategyUsage {
+            same_service: 0,
+            services: 6,
+        },
+        StrategyUsage {
+            same_service: 1,
+            services: 4,
+        },
     ]);
     for (expected, item) in expected.iter().zip(sources.iter()) {
         assert_eq!(expected, &as_value(&usage_sentence(item)));
@@ -225,18 +259,37 @@ fn queues_match_python() {
         GOLDEN["ops"]["family_scores"]
     );
     assert_eq!(
-        as_value(&family_scores(&facts, &order, &HashMap::new(), &HashMap::new())),
+        as_value(&family_scores(
+            &facts,
+            &order,
+            &HashMap::new(),
+            &HashMap::new()
+        )),
         GOLDEN["ops"]["family_scores_empty"]
     );
 
     let recommended = recommended_queue(&facts, &order, &usage);
     assert_eq!(
-        as_value(&full_queue(&facts, &order, &usage, &recommended, &HashMap::new(), &HashMap::new())),
+        as_value(&full_queue(
+            &facts,
+            &order,
+            &usage,
+            &recommended,
+            &HashMap::new(),
+            &HashMap::new()
+        )),
         GOLDEN["ops"]["full_queue_plain"],
         "full_queue без опыта"
     );
     assert_eq!(
-        as_value(&full_queue(&facts, &order, &usage, &recommended, &experience, &states)),
+        as_value(&full_queue(
+            &facts,
+            &order,
+            &usage,
+            &recommended,
+            &experience,
+            &states
+        )),
         GOLDEN["ops"]["full_queue_exp"],
         "full_queue с опытом"
     );
@@ -275,8 +328,18 @@ fn plans_match_python() {
         let query = scenario["query"].as_str().expect("запрос");
         let quick_filter = scenario["quick_filter"].as_str().expect("вкладка");
         let grouping = scenario["grouping"].as_str().expect("группировка");
-        let plan = build_plan(&plan_request(facts.clone(), query, quick_filter, grouping, "general_fakesplit_altforge"));
-        checked_plan(&plan, plans.get(name).unwrap_or_else(|| panic!("план {name}")), name);
+        let plan = build_plan(&plan_request(
+            facts.clone(),
+            query,
+            quick_filter,
+            grouping,
+            "general_fakesplit_altforge",
+        ));
+        checked_plan(
+            &plan,
+            plans.get(name).unwrap_or_else(|| panic!("план {name}")),
+            name,
+        );
 
         if name == "method_all" {
             for (expected, key) in GOLDEN["ops"]["tab_lookup"]
@@ -289,7 +352,11 @@ fn plans_match_python() {
             }
 
             let stage = try_stage(&plan, &states_map());
-            assert_eq!(as_value(&stage), GOLDEN["ops"]["try_stage_flat"][0], "try_stage");
+            assert_eq!(
+                as_value(&stage),
+                GOLDEN["ops"]["try_stage_flat"][0],
+                "try_stage"
+            );
         }
     }
 
@@ -300,19 +367,45 @@ fn plans_match_python() {
 #[test]
 fn recommended_tab_and_queue_match_python() {
     let facts = facts_in_order();
-    let extra_plan = build_plan(&plan_request(facts.clone(), "", "recommended", "method", "none"));
+    let extra_plan = build_plan(&plan_request(
+        facts.clone(),
+        "",
+        "recommended",
+        "method",
+        "none",
+    ));
     let expected = &GOLDEN["ops"]["current_recommended"];
     checked_plan(&extra_plan, expected, "current_recommended");
 
-    let plan_recommended = build_plan(&plan_request(facts.clone(), "", "recommended", "method", "none"));
+    let plan_recommended = build_plan(&plan_request(
+        facts.clone(),
+        "",
+        "recommended",
+        "method",
+        "none",
+    ));
     assert_eq!(
-        as_value(&next_to_try(&plan_recommended.queue, &states_map(), &plan_recommended.current_strategy_id)),
+        as_value(&next_to_try(
+            &plan_recommended.queue,
+            &states_map(),
+            &plan_recommended.current_strategy_id
+        )),
         GOLDEN["ops"]["next_to_try"][1],
         "next_to_try по вкладке рекомендованных"
     );
-    let plain_plan = build_plan(&plan_request(facts, "", "all", "method", "general_fakesplit_altforge"));
+    let plain_plan = build_plan(&plan_request(
+        facts,
+        "",
+        "all",
+        "method",
+        "general_fakesplit_altforge",
+    ));
     assert_eq!(
-        as_value(&next_to_try(&plain_plan.queue, &states_map(), &plain_plan.current_strategy_id)),
+        as_value(&next_to_try(
+            &plain_plan.queue,
+            &states_map(),
+            &plain_plan.current_strategy_id
+        )),
         GOLDEN["ops"]["next_to_try"][0],
         "next_to_try"
     );

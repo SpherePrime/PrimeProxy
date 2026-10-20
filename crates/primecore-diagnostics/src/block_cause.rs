@@ -9,7 +9,7 @@
 //! чистая часть: состав проб, сравнение фактов и вывод (`judge`).
 
 use crate::probe_result::{
-    KIND_CONNECT, KIND_RESET, KIND_TIMEOUT, KIND_TLS, STAGE_CONNECT, STAGE_TLS, ProbeResult,
+    ProbeResult, KIND_CONNECT, KIND_RESET, KIND_TIMEOUT, KIND_TLS, STAGE_CONNECT, STAGE_TLS,
 };
 
 pub const CAUSE_STUB_PAGE: &str = "stub_page";
@@ -34,8 +34,13 @@ pub const HTTP_READ_LIMIT: usize = 4096;
 const STATUS_UNAVAILABLE_FOR_LEGAL_REASONS: i64 = 451;
 
 /// Страницы-заглушки операторов: куда уводит перенаправление.
-const STUB_HOSTS: [&str; 5] =
-    ["warning.rt.ru", "block.mts.ru", "blocked.beeline.ru", "block.megafon.ru", "rkn.gov.ru"];
+const STUB_HOSTS: [&str; 5] = [
+    "warning.rt.ru",
+    "block.mts.ru",
+    "blocked.beeline.ru",
+    "block.megafon.ru",
+    "rkn.gov.ru",
+];
 
 /// Признаки в тексте страницы. Только такие, которых на обычном сайте не бывает:
 /// слова вроде «заблокирован» встречаются и на обычных страницах.
@@ -76,7 +81,11 @@ pub struct HelloResult {
 
 impl HelloResult {
     pub fn new(kind: impl Into<String>) -> Self {
-        Self { kind: kind.into(), detail: String::new(), ms: None }
+        Self {
+            kind: kind.into(),
+            detail: String::new(),
+            ms: None,
+        }
     }
     pub fn with_detail(mut self, detail: impl Into<String>) -> Self {
         self.detail = detail.into();
@@ -124,7 +133,11 @@ pub struct Cause {
 
 impl Cause {
     pub fn new(code: impl Into<String>, text: impl Into<String>, confident: bool) -> Self {
-        Self { code: code.into(), text: text.into(), confident }
+        Self {
+            code: code.into(),
+            text: text.into(),
+            confident,
+        }
     }
 }
 
@@ -138,11 +151,18 @@ pub fn same_site(host: &str, other: &str) -> bool {
 
 /// python `urlsplit(location).hostname` — имя узла из Location: `_scheme://host[:port]/path`.
 pub fn location_host(location: &str) -> Option<String> {
-    let rest = location.split_once("://").map_or(location, |(_scheme, rest)| rest);
+    let rest = location
+        .split_once("://")
+        .map_or(location, |(_scheme, rest)| rest);
     let rest = rest.split(['/', '?', '#']).next().unwrap_or(rest);
-    let authority = rest.split_once('@').map_or(rest, |(_credentials, authority)| authority);
+    let authority = rest
+        .split_once('@')
+        .map_or(rest, |(_credentials, authority)| authority);
     let host = if authority.starts_with('[') {
-        authority.split_once(']').map(|(inside, _)| inside).unwrap_or(authority)
+        authority
+            .split_once(']')
+            .map(|(inside, _)| inside)
+            .unwrap_or(authority)
     } else {
         authority
     };
@@ -162,15 +182,21 @@ pub fn location_host(location: &str) -> Option<String> {
 /// python `stub_reason(host, facts)` — почему ответ порта 80 — страница о блокировке.
 /// Пусто, если это обычный ответ.
 pub fn stub_reason(host: &str, facts: Option<&HttpFacts>) -> String {
-    let Some(facts) = facts else { return String::new() };
-    let Some(status) = facts.status else { return String::new() };
+    let Some(facts) = facts else {
+        return String::new();
+    };
+    let Some(status) = facts.status else {
+        return String::new();
+    };
     if status == STATUS_UNAVAILABLE_FOR_LEGAL_REASONS {
         return "код 451 «недоступно по юридическим причинам»".to_string();
     }
     let target = if facts.location.is_empty() {
         String::new()
     } else {
-        location_host(&facts.location).map(|host| host.to_lowercase()).unwrap_or_default()
+        location_host(&facts.location)
+            .map(|host| host.to_lowercase())
+            .unwrap_or_default()
     };
     if !target.is_empty() && !same_site(host, &target) {
         for stub in STUB_HOSTS {
@@ -218,14 +244,22 @@ pub fn needs_refining(result: Option<&ProbeResult>) -> bool {
 }
 
 fn how(result: &ProbeResult) -> &'static str {
-    if result.kind == KIND_TIMEOUT { "молча пропадает" } else { "обрывается" }
+    if result.kind == KIND_TIMEOUT {
+        "молча пропадает"
+    } else {
+        "обрывается"
+    }
 }
 
 /// python `judge(facts)` — вывод о способе блокировки или None, если фактов для него не хватает.
 pub fn judge(facts: &CauseFacts) -> Option<Cause> {
     let stub = stub_reason(&facts.host, facts.http.as_ref());
     if !stub.is_empty() {
-        return Some(Cause::new(CAUSE_STUB_PAGE, format!("провайдер показывает страницу о блокировке: {stub}"), true));
+        return Some(Cause::new(
+            CAUSE_STUB_PAGE,
+            format!("провайдер показывает страницу о блокировке: {stub}"),
+            true,
+        ));
     }
 
     let result = facts.result.as_ref()?;
@@ -288,8 +322,13 @@ pub fn judge(facts: &CauseFacts) -> Option<Cause> {
             .as_ref()
             .map(|item| passed.contains(item))
             .unwrap_or(false);
-        let other = if neutral_passed { "с посторонним именем" } else { "без имени" };
-        let repeated = again.is_some_and(|item| item.kind == HELLO_RESET || item.kind == HELLO_TIMEOUT);
+        let other = if neutral_passed {
+            "с посторонним именем"
+        } else {
+            "без имени"
+        };
+        let repeated =
+            again.is_some_and(|item| item.kind == HELLO_RESET || item.kind == HELLO_TIMEOUT);
         return Some(Cause::new(
             CAUSE_BY_NAME,
             format!(
@@ -302,7 +341,11 @@ pub fn judge(facts: &CauseFacts) -> Option<Cause> {
             facts.real_again.is_none() || repeated,
         ));
     }
-    if facts.real_again.as_ref().is_some_and(|item| item.kind == HELLO_OK) {
+    if facts
+        .real_again
+        .as_ref()
+        .is_some_and(|item| item.kind == HELLO_OK)
+    {
         // Простое приветствие с настоящим именем проходит: ни имя, ни адрес не закрыты. Рвут само
         // соединение основной проверки — например, по почерку браузера (строка «Как Chrome»).
         return None;
@@ -346,7 +389,10 @@ pub fn judge(facts: &CauseFacts) -> Option<Cause> {
             false,
         ));
     }
-    if probes.iter().all(|item| item.kind == HELLO_RESET || item.kind == HELLO_TIMEOUT) {
+    if probes
+        .iter()
+        .all(|item| item.kind == HELLO_RESET || item.kind == HELLO_TIMEOUT)
+    {
         return Some(Cause::new(
             CAUSE_NO_NAME_WORKS,
             format!(
@@ -364,11 +410,20 @@ mod tests {
     use super::*;
 
     fn probe(ip: &str, kind: &str, stage: &'static str) -> ProbeResult {
-        ProbeResult { ip: ip.to_string(), kind: kind.to_string(), stage, ..Default::default() }
+        ProbeResult {
+            ip: ip.to_string(),
+            kind: kind.to_string(),
+            stage,
+            ..Default::default()
+        }
     }
 
     fn facts(base: ProbeResult, mut setup: impl FnMut(&mut CauseFacts)) -> Option<Cause> {
-        let mut value = CauseFacts { host: "site.example".to_string(), result: Some(base.clone()), ..Default::default() };
+        let mut value = CauseFacts {
+            host: "site.example".to_string(),
+            result: Some(base.clone()),
+            ..Default::default()
+        };
         setup(&mut value);
         judge(&value)
     }
@@ -378,8 +433,14 @@ mod tests {
         assert!(same_site("Ya.Ru.", "ya.ru"));
         assert!(same_site("a.ya.ru", "ya.ru"));
         assert!(!same_site("maya.ru", "ya.ru"));
-        assert_eq!(location_host("http://warning.rt.ru/x?y"), Some("warning.rt.ru".to_string()));
-        assert_eq!(location_host("https://user:pw@block.mts.ru:443/"), Some("block.mts.ru".to_string()));
+        assert_eq!(
+            location_host("http://warning.rt.ru/x?y"),
+            Some("warning.rt.ru".to_string())
+        );
+        assert_eq!(
+            location_host("https://user:pw@block.mts.ru:443/"),
+            Some("block.mts.ru".to_string())
+        );
         assert_eq!(location_host("/relative"), None);
     }
 
@@ -390,15 +451,28 @@ mod tests {
             location: String::new(),
             body: b"<?xml?>".to_vec(),
         };
-        assert_eq!(stub_reason("site.example", Some(&http)), "код 451 «недоступно по юридическим причинам»");
-        let redirect = HttpFacts { status: Some(302), location: "http://warning.rt.ru/".to_string(), body: Vec::new() };
-        assert_eq!(stub_reason("site.example", Some(&redirect)), "перенаправление на страницу о блокировке warning.rt.ru");
+        assert_eq!(
+            stub_reason("site.example", Some(&http)),
+            "код 451 «недоступно по юридическим причинам»"
+        );
+        let redirect = HttpFacts {
+            status: Some(302),
+            location: "http://warning.rt.ru/".to_string(),
+            body: Vec::new(),
+        };
+        assert_eq!(
+            stub_reason("site.example", Some(&redirect)),
+            "перенаправление на страницу о блокировке warning.rt.ru"
+        );
         let registry = HttpFacts {
             status: Some(200),
             location: String::new(),
             body: "EAIS.RKN.GOV.RU реестр".as_bytes().to_vec(),
         };
-        assert_eq!(stub_reason("site.example", Some(&registry)), "страница со ссылкой на реестр блокировок");
+        assert_eq!(
+            stub_reason("site.example", Some(&registry)),
+            "страница со ссылкой на реестр блокировок"
+        );
         assert_eq!(stub_reason("site.example", None), "");
     }
 
@@ -406,7 +480,9 @@ mod tests {
     fn needs_refining_cases() {
         assert!(!needs_refining(None));
         assert!(!needs_refining(Some(&probe("", "connect", "connect"))));
-        assert!(needs_refining(Some(&probe("1.2.3.4", "connect", "connect"))));
+        assert!(needs_refining(Some(&probe(
+            "1.2.3.4", "connect", "connect"
+        ))));
         assert!(needs_refining(Some(&probe("1.2.3.4", "reset", "tls"))));
         assert!(!needs_refining(Some(&probe("1.2.3.4", "reset", "read"))));
         assert!(needs_refining(Some(&probe("1.2.3.4", "tls", "tls"))));
@@ -453,10 +529,11 @@ mod tests {
         );
         // Соединение само не установилось, пинг ответил: наблюдение о закрытом 443.
         assert_eq!(
-            facts(
-                probe("1.2.3.4", "connect", "connect"),
-                |facts| facts.http = Some(HttpFacts { status: Some(200), ..Default::default() })
-            )
+            facts(probe("1.2.3.4", "connect", "connect"), |facts| facts.http =
+                Some(HttpFacts {
+                    status: Some(200),
+                    ..Default::default()
+                }))
             .unwrap()
             .code,
             CAUSE_ADDRESS_CLOSED

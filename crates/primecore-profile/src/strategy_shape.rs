@@ -73,9 +73,7 @@ pub fn strategy_shape(lines: &[String]) -> StrategyShape {
         .map(|raw| raw.trim().to_string())
         .filter(|line| !line.is_empty())
         .collect();
-    let first_lua = clean
-        .iter()
-        .position(|line| is_lua_desync_line(line));
+    let first_lua = clean.iter().position(|line| is_lua_desync_line(line));
     let mut profile_ranges: Vec<String> = Vec::new();
     let mut body: Vec<String> = Vec::new();
     for (index, line) in clean.iter().enumerate() {
@@ -93,9 +91,7 @@ pub fn strategy_shape(lines: &[String]) -> StrategyShape {
         && clean
             .iter()
             .enumerate()
-            .filter(|(index, _)| {
-                first_lua.map(|boundary| *index > boundary).unwrap_or(false)
-            })
+            .filter(|(index, _)| first_lua.map(|boundary| *index > boundary).unwrap_or(false))
             .any(|(_, line)| is_filter_line(line));
     StrategyShape {
         payload_scopes: payload_scopes(&body),
@@ -202,7 +198,12 @@ pub fn composite_identity(body_lines: &[String]) -> Vec<(String, String)> {
 }
 
 /// Один `--payload` вместо нескольких веток: объединение типов, all поглощает.
-pub const GAME_PAYLOAD_TOKENS: [&str; 4] = ["wireguard_initiation", "dht", "discord_ip_discovery", "stun"];
+pub const GAME_PAYLOAD_TOKENS: [&str; 4] = [
+    "wireguard_initiation",
+    "dht",
+    "discord_ip_discovery",
+    "stun",
+];
 
 pub fn payload_token_label(token: &str) -> &str {
     match token {
@@ -220,14 +221,19 @@ pub fn payload_token_label(token: &str) -> &str {
     }
 }
 
-
 pub fn payload_scope_label(scope: &str, only: bool) -> String {
     let tokens = payload_tokens(scope);
     if tokens.len() == 1 && tokens[0] == PAYLOAD_ALL {
-        return if only { "всё".to_string() } else { "прочее".to_string() };
+        return if only {
+            "всё".to_string()
+        } else {
+            "прочее".to_string()
+        };
     }
     if tokens.len() == GAME_PAYLOAD_TOKENS.len()
-        && tokens.iter().all(|token| GAME_PAYLOAD_TOKENS.contains(&token.as_str()))
+        && tokens
+            .iter()
+            .all(|token| GAME_PAYLOAD_TOKENS.contains(&token.as_str()))
     {
         return "игры".to_string();
     }

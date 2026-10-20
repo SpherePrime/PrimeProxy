@@ -72,7 +72,9 @@ fn wait_result(
 ) -> Result<Vec<u8>, NetError> {
     loop {
         let remaining = deadline.remaining()?;
-        let slice = remaining.min(Duration::from_millis(200)).max(Duration::from_millis(1));
+        let slice = remaining
+            .min(Duration::from_millis(200))
+            .max(Duration::from_millis(1));
         if cancel.map(SocketCancel::cancelled).unwrap_or(false) {
             return Err(NetError::Cancelled);
         }
@@ -154,8 +156,16 @@ fn spawn_post(
 
 /// Хост для заголовка и SNI: IPv6 держится в скобках (python host_header).
 fn host_authority(host: &str, port: u16) -> String {
-    let host = if host.contains(':') { format!("[{host}]") } else { host.to_string() };
-    if port != 443 { format!("{host}:{port}") } else { host }
+    let host = if host.contains(':') {
+        format!("[{host}]")
+    } else {
+        host.to_string()
+    };
+    if port != 443 {
+        format!("{host}:{port}")
+    } else {
+        host
+    }
 }
 
 /// Шифрованный запрос DNS поверх HTTPS (RFC 8484).
@@ -174,7 +184,11 @@ pub fn query_doh(
     cancel: Option<&SocketCancel>,
 ) -> DnsQueryResult {
     let transport = TRANSPORT_DOH;
-    let timeout_s = if timeout_s > 0.0 { timeout_s } else { ENCRYPTED_TIMEOUT_S };
+    let timeout_s = if timeout_s > 0.0 {
+        timeout_s
+    } else {
+        ENCRYPTED_TIMEOUT_S
+    };
     let (query_id, query) = match prepare_query(server, name, rtype, transport) {
         Ok(prepared) => prepared,
         Err(result) => return result,
@@ -189,12 +203,21 @@ pub fn query_doh(
     if let Err(error) = crate::net::check_not_cancelled(cancel) {
         return failed(transport, &error, cancel);
     }
-    let host = if tls_host.is_empty() { server } else { tls_host };
+    let host = if tls_host.is_empty() {
+        server
+    } else {
+        tls_host
+    };
     let authority = host_authority(host, port);
     let dns_path = if path.is_empty() { "/dns-query" } else { path };
     let url = format!("https://{authority}{dns_path}");
-    let (handle, receiver) =
-        spawn_post(SocketAddr::new(ip, port), url, host.to_string(), query.clone(), timeout_s);
+    let (handle, receiver) = spawn_post(
+        SocketAddr::new(ip, port),
+        url,
+        host.to_string(),
+        query.clone(),
+        timeout_s,
+    );
     let body = match wait_result(receiver, cancel, &deadline) {
         Ok(body) => body,
         Err(net_error) => return failed(transport, &net_error, cancel),

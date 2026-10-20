@@ -2,8 +2,8 @@
 
 use std::collections::HashMap;
 
-use serde::{Deserialize, Serialize};
 use crate::sha1::digest_prefix;
+use serde::{Deserialize, Serialize};
 
 pub const GROUPING_METHOD: &str = "method";
 pub const GROUPING_SERIES: &str = "series";
@@ -191,7 +191,10 @@ pub struct StrategyGroup {
 
 impl StrategyGroup {
     pub fn count(&self) -> usize {
-        self.sections.iter().map(|section| section.items.len()).sum()
+        self.sections
+            .iter()
+            .map(|section| section.items.len())
+            .sum()
     }
 
     pub fn items(&self) -> Vec<&StrategyItem> {
@@ -256,7 +259,11 @@ impl StrategyListPlan {
 
     pub fn group_of(&self, strategy_id: &str) -> String {
         for group in &self.groups {
-            if group.items().iter().any(|item| item.strategy_id == strategy_id) {
+            if group
+                .items()
+                .iter()
+                .any(|item| item.strategy_id == strategy_id)
+            {
                 return group.key.clone();
             }
         }
@@ -288,22 +295,23 @@ fn plural(count: i64, one: &str, few: &str, many: &str) -> String {
     many.to_string()
 }
 
-fn experience_pair(
-    experience: &HashMap<String, (i64, i64)>,
-    strategy_id: &str,
-) -> (i64, i64) {
-    let (works, fails) = experience
-        .get(strategy_id)
-        .copied()
-        .unwrap_or((0, 0));
+fn experience_pair(experience: &HashMap<String, (i64, i64)>, strategy_id: &str) -> (i64, i64) {
+    let (works, fails) = experience.get(strategy_id).copied().unwrap_or((0, 0));
     (works.max(0), fails.max(0))
 }
 
 /// Метка справа на плитке: (текст, тон). Пусто — метки нет.
-pub fn strategy_badge(usage: &StrategyUsage, label: &str, personal: (i64, i64)) -> (String, String) {
+pub fn strategy_badge(
+    usage: &StrategyUsage,
+    label: &str,
+    personal: (i64, i64),
+) -> (String, String) {
     let (works, fails) = personal;
     if works > 0 && works >= fails {
-        return (format!("у вас работает · {works}"), BADGE_PERSONAL.to_string());
+        return (
+            format!("у вас работает · {works}"),
+            BADGE_PERSONAL.to_string(),
+        );
     }
     let same = usage.same_service;
     let services = usage.services;
@@ -324,10 +332,16 @@ pub fn usage_caption(usage: &StrategyUsage) -> String {
     let same = usage.same_service;
     let services = usage.services;
     if same > 0 {
-        return format!("на этом сервисе в {same} {}", plural(same, "пресете", "пресетах", "пресетах"));
+        return format!(
+            "на этом сервисе в {same} {}",
+            plural(same, "пресете", "пресетах", "пресетах")
+        );
     }
     if services >= 2 {
-        return format!("на {services} {}", plural(services, "сервисе", "сервисах", "сервисах"));
+        return format!(
+            "на {services} {}",
+            plural(services, "сервисе", "сервисах", "сервисах")
+        );
     }
     String::new()
 }
@@ -339,7 +353,12 @@ pub fn experience_sentence(personal: (i64, i64)) -> String {
     if works > 0 {
         parts.push(format!(
             "Вы отметили её рабочей на {works} {}.",
-            plural(works, "другом профиле", "других профилях", "других профилях")
+            plural(
+                works,
+                "другом профиле",
+                "других профилях",
+                "других профилях"
+            )
         ));
     }
     if fails > 0 {
@@ -357,13 +376,20 @@ pub fn usage_sentence(usage: &StrategyUsage) -> String {
     let services = usage.services;
     let mut parts: Vec<String> = Vec::new();
     if same > 0 {
-        let word = plural(same, "готовом пресете", "готовых пресетах", "готовых пресетах");
+        let word = plural(
+            same,
+            "готовом пресете",
+            "готовых пресетах",
+            "готовых пресетах",
+        );
         parts.push(format!("Стоит на этом сервисе в {same} {word}."));
     }
     let others = services - if same > 0 { 1 } else { 0 };
     if others > 0 {
         let word = plural(others, "сервисе", "сервисах", "сервисах");
-        parts.push(format!("В готовых пресетах встречается ещё на {others} {word}."));
+        parts.push(format!(
+            "В готовых пресетах встречается ещё на {others} {word}."
+        ));
     }
     parts.join(" ")
 }
@@ -399,7 +425,11 @@ fn priority(
 }
 
 /// Лежит ли стратегия на вкладке.
-fn on_tab(quick_filter: &str, state: Option<&crate::strategy_state::ProfileStrategyState>, recommended: bool) -> bool {
+fn on_tab(
+    quick_filter: &str,
+    state: Option<&crate::strategy_state::ProfileStrategyState>,
+    recommended: bool,
+) -> bool {
     if quick_filter == FILTER_RECOMMENDED {
         return recommended;
     }
@@ -518,7 +548,11 @@ fn named_groups(
                 &key,
                 &title,
                 if is_other { other_description } else { "" },
-                if is_other { "fa5s.ellipsis-h" } else { icon_name },
+                if is_other {
+                    "fa5s.ellipsis-h"
+                } else {
+                    icon_name
+                },
                 NEUTRAL_COLOR,
                 rank,
             ),
@@ -560,7 +594,9 @@ fn recommended_info() -> GroupInfo {
 /// Под каким подзаголовком стратегия стоит внутри своей группы.
 fn section_title(facts: &crate::strategy_facts::StrategyFacts, grouping: &str) -> String {
     if grouping == GROUPING_SERIES {
-        return crate::strategy_families::strategy_family(&facts.family_key).title.to_string();
+        return crate::strategy_families::strategy_family(&facts.family_key)
+            .title
+            .to_string();
     }
     facts.series.clone()
 }
@@ -591,8 +627,15 @@ fn tooltip(
     parts.join("\n\n")
 }
 
-fn status_words(state: Option<&crate::strategy_state::ProfileStrategyState>, is_current: bool) -> Vec<String> {
-    let mut words = vec![if is_current { "Выбрана".to_string() } else { "Не выбрана".to_string() }];
+fn status_words(
+    state: Option<&crate::strategy_state::ProfileStrategyState>,
+    is_current: bool,
+) -> Vec<String> {
+    let mut words = vec![if is_current {
+        "Выбрана".to_string()
+    } else {
+        "Не выбрана".to_string()
+    }];
     if state.map(|state| state.favorite).unwrap_or(false) {
         words.push("В избранном".to_string());
     }
@@ -612,7 +655,11 @@ fn accessible_text(
     usage_text: &str,
 ) -> String {
     let mut parts: Vec<String> = vec![facts.name.clone()];
-    parts.extend(status_words(state, is_current).into_iter().map(|word| word.to_lowercase()));
+    parts.extend(
+        status_words(state, is_current)
+            .into_iter()
+            .map(|word| word.to_lowercase()),
+    );
     if !facts.plain_label.is_empty() {
         parts.push(format!("способ: {}", facts.plain_label));
     }
@@ -660,8 +707,14 @@ fn make_item(
         badge_text,
         badge_tone,
         payload_badge: facts.payload_badge.clone(),
-        rating: state_ref.as_ref().map(|state| state.rating.clone()).unwrap_or_default(),
-        favorite: state_ref.as_ref().map(|state| state.favorite).unwrap_or(false),
+        rating: state_ref
+            .as_ref()
+            .map(|state| state.rating.clone())
+            .unwrap_or_default(),
+        favorite: state_ref
+            .as_ref()
+            .map(|state| state.favorite)
+            .unwrap_or(false),
         is_current,
         tooltip: tooltip(facts, usage, personal),
         accessible_text: accessible_text(
@@ -672,11 +725,12 @@ fn make_item(
             usage_text.as_str(),
         ),
         family_key: facts.family_key.clone(),
-        family_color: crate::strategy_families::strategy_family(&facts.family_key).color.to_string(),
+        family_color: crate::strategy_families::strategy_family(&facts.family_key)
+            .color
+            .to_string(),
         twin_key: String::new(),
     }
 }
-
 
 /// Стратегии с одним названием — один ключ, ставятся рядом.
 fn with_twins(group_key: &str, section_key: &str, items: &[StrategyItem]) -> Vec<StrategyItem> {
@@ -737,7 +791,12 @@ pub fn recommended_queue(
         let right_usage = usage.get(right).copied().unwrap_or(NO_USAGE);
         (-left_usage.same_service, -left_usage.services)
             .cmp(&(-right_usage.same_service, -right_usage.services))
-            .then_with(|| facts[left].name.to_lowercase().cmp(&facts[right].name.to_lowercase()))
+            .then_with(|| {
+                facts[left]
+                    .name
+                    .to_lowercase()
+                    .cmp(&facts[right].name.to_lowercase())
+            })
     });
     recommended
 }
@@ -812,7 +871,9 @@ pub fn full_queue(
     });
     let usual: Vec<String> = queue
         .iter()
-        .filter(|strategy_id| !sorted_proven.contains(strategy_id) && !sorted_doubtful.contains(strategy_id))
+        .filter(|strategy_id| {
+            !sorted_proven.contains(strategy_id) && !sorted_doubtful.contains(strategy_id)
+        })
         .cloned()
         .collect();
     [sorted_proven, usual, sorted_doubtful].concat()
@@ -832,8 +893,7 @@ fn catalog_queue(
         .iter()
         .filter(|strategy_id| facts.contains_key(*strategy_id))
         .filter(|strategy_id| {
-            !recommended.contains(strategy_id)
-                && !NOT_FOR_QUEUE.contains(&strategy_id.as_str())
+            !recommended.contains(strategy_id) && !NOT_FOR_QUEUE.contains(&strategy_id.as_str())
         })
         .cloned()
         .collect();
@@ -850,8 +910,12 @@ fn catalog_queue(
     used.sort_by(|left, right| {
         let left_services = usage.get(left).map(|usage| usage.services).unwrap_or(0);
         let right_services = usage.get(right).map(|usage| usage.services).unwrap_or(0);
-        (-left_services).cmp(&(-right_services))
-            .then_with(|| facts[left].name.to_lowercase().cmp(&facts[right].name.to_lowercase()))
+        (-left_services).cmp(&(-right_services)).then_with(|| {
+            facts[left]
+                .name
+                .to_lowercase()
+                .cmp(&facts[right].name.to_lowercase())
+        })
     });
     let not_used: Vec<String> = rest
         .iter()
@@ -860,7 +924,12 @@ fn catalog_queue(
         .collect();
     let not_used: Vec<String> = {
         let mut ordered = not_used;
-        ordered.sort_by(|left, right| facts[left].name.to_lowercase().cmp(&facts[right].name.to_lowercase()));
+        ordered.sort_by(|left, right| {
+            facts[left]
+                .name
+                .to_lowercase()
+                .cmp(&facts[right].name.to_lowercase())
+        });
         ordered
     };
     let mut by_family: Vec<(String, Vec<String>)> = Vec::new();
@@ -868,7 +937,10 @@ fn catalog_queue(
         let Some(item) = facts.get(strategy_id) else {
             continue;
         };
-        match by_family.iter_mut().find(|(known, _)| known == &item.family_key) {
+        match by_family
+            .iter_mut()
+            .find(|(known, _)| known == &item.family_key)
+        {
             Some((_key, list)) => list.push(strategy_id.clone()),
             None => by_family.push((item.family_key.clone(), vec![strategy_id.clone()])),
         }
@@ -887,7 +959,11 @@ fn catalog_queue(
     let mut queues: Vec<Vec<String>> = ranked.into_iter().map(|(_key, list)| list).collect();
     let mut mixed: Vec<String> = Vec::new();
     while queues.iter().any(|queue| !queue.is_empty()) {
-        queues = queues.iter().filter(|queue| !queue.is_empty()).cloned().collect();
+        queues = queues
+            .iter()
+            .filter(|queue| !queue.is_empty())
+            .cloned()
+            .collect();
         let mut next_round: Vec<Vec<String>> = Vec::new();
         for queue in queues.iter() {
             if let Some(first) = queue.first().cloned() {
@@ -933,7 +1009,10 @@ fn groups_for(
         );
     }
     let mut infos: HashMap<String, GroupInfo> = HashMap::new();
-    for (rank, known) in crate::strategy_families::STRATEGY_FAMILIES.iter().enumerate() {
+    for (rank, known) in crate::strategy_families::STRATEGY_FAMILIES
+        .iter()
+        .enumerate()
+    {
         infos.insert(
             known.key.to_string(),
             group_info(
@@ -971,7 +1050,8 @@ pub fn build_plan(request: &PlanRequest) -> StrategyListPlan {
         .map(|(strategy_id, item)| (strategy_id.clone(), item.clone()))
         .collect();
     let order: Vec<String> = request.facts.iter().map(|(key, _)| key.clone()).collect();
-    let states: HashMap<String, crate::strategy_state::ProfileStrategyState> = request.states.clone();
+    let states: HashMap<String, crate::strategy_state::ProfileStrategyState> =
+        request.states.clone();
     let usage: HashMap<String, StrategyUsage> = request.usage.clone();
     let experience: HashMap<String, (i64, i64)> = request.experience.clone();
     let grouping = normalize_strategy_grouping(Some(&request.grouping));
@@ -979,7 +1059,11 @@ pub fn build_plan(request: &PlanRequest) -> StrategyListPlan {
     let query = request.query.trim().to_lowercase();
     let current_id = {
         let clean = request.current_strategy_id.trim().to_string();
-        if clean.is_empty() { "none".to_string() } else { clean }
+        if clean.is_empty() {
+            "none".to_string()
+        } else {
+            clean
+        }
     };
     let narrowed = !query.is_empty() || quick_filter != FILTER_ALL;
 
@@ -1015,7 +1099,14 @@ pub fn build_plan(request: &PlanRequest) -> StrategyListPlan {
             )
         })
         .collect();
-    let queue = full_queue(&facts, &order, &usage, &recommended_set, &experience, &states);
+    let queue = full_queue(
+        &facts,
+        &order,
+        &usage,
+        &recommended_set,
+        &experience,
+        &states,
+    );
 
     let mut members: Vec<(String, Vec<String>)> = Vec::new();
     for strategy_id in &order {
@@ -1034,12 +1125,9 @@ pub fn build_plan(request: &PlanRequest) -> StrategyListPlan {
     member_keys.sort_by(|left_key, right_key| {
         let left_recommended = left_key == RECOMMENDED_GROUP;
         let right_recommended = right_key == RECOMMENDED_GROUP;
-        (!left_recommended).cmp(&(!right_recommended)).then_with(|| {
-            compare_parts(
-                &infos[left_key].rank,
-                &infos[right_key].rank,
-            )
-        })
+        (!left_recommended)
+            .cmp(&(!right_recommended))
+            .then_with(|| compare_parts(&infos[left_key].rank, &infos[right_key].rank))
     });
     // python sort стабильна: порядок вставки сохраняется для равных ключей.
 
@@ -1053,7 +1141,12 @@ pub fn build_plan(request: &PlanRequest) -> StrategyListPlan {
         let section_names: Vec<(String, String)> = ids
             .iter()
             .filter_map(|strategy_id| facts.get(strategy_id))
-            .map(|facts_item| (facts_item.strategy_id.clone(), section_title(facts_item, &grouping)))
+            .map(|facts_item| {
+                (
+                    facts_item.strategy_id.clone(),
+                    section_title(facts_item, &grouping),
+                )
+            })
             .collect();
         let mut titles: HashMap<String, String> = HashMap::new();
         for (strategy_id, title) in &section_names {
@@ -1067,14 +1160,15 @@ pub fn build_plan(request: &PlanRequest) -> StrategyListPlan {
         let mut section_counts: HashMap<String, usize> = HashMap::new();
         for strategy_id in ids {
             let title = titles[strategy_id].clone();
-            let section = if !title.is_empty() && sizes[title.to_lowercase().as_str()] >= MIN_SECTION {
-                (
-                    format!("{group_key}/{}", title.to_lowercase()),
-                    title.clone(),
-                )
-            } else {
-                (format!("{group_key}/"), "Остальные".to_string())
-            };
+            let section =
+                if !title.is_empty() && sizes[title.to_lowercase().as_str()] >= MIN_SECTION {
+                    (
+                        format!("{group_key}/{}", title.to_lowercase()),
+                        title.clone(),
+                    )
+                } else {
+                    (format!("{group_key}/"), "Остальные".to_string())
+                };
             section_of.insert(strategy_id.clone(), section.clone());
             *section_counts.entry(section.0).or_insert(0) += 1;
         }
@@ -1156,18 +1250,22 @@ pub fn build_plan(request: &PlanRequest) -> StrategyListPlan {
             section_titles.insert(key.clone(), title.clone());
         }
 
-        let mut section_order: Vec<String> = by_section.iter().map(|(key, _)| key.clone()).collect();
+        let mut section_order: Vec<String> =
+            by_section.iter().map(|(key, _)| key.clone()).collect();
         section_order.sort_by(|left_key, right_key| {
             let left_other = left_key.as_str() == format!("{group_key}/").as_str();
             let right_other = right_key.as_str() == format!("{group_key}/").as_str();
-            left_other.cmp(&right_other)
+            left_other
+                .cmp(&right_other)
                 .then_with(|| {
                     let left_count = section_counts.get(left_key).copied().unwrap_or(0);
                     let right_count = section_counts.get(right_key).copied().unwrap_or(0);
                     (-(left_count as i64)).cmp(&(-(right_count as i64)))
                 })
                 .then_with(|| {
-                    section_titles[left_key].to_lowercase().cmp(&section_titles[right_key].to_lowercase())
+                    section_titles[left_key]
+                        .to_lowercase()
+                        .cmp(&section_titles[right_key].to_lowercase())
                 })
         });
 
@@ -1213,7 +1311,6 @@ pub fn build_plan(request: &PlanRequest) -> StrategyListPlan {
         tab_counts,
     }
 }
-
 
 /// Следующая стратегия очереди, которую человек ещё не оценил.
 pub fn next_to_try(
@@ -1350,7 +1447,11 @@ pub enum Shown {
 }
 
 /// python _strategy_rows: строки одной секции с вариантами одного названия.
-fn strategy_rows(group: &StrategyGroup, section: &StrategySection, open_twins: &std::collections::HashSet<String>) -> Vec<VisibleRow> {
+fn strategy_rows(
+    group: &StrategyGroup,
+    section: &StrategySection,
+    open_twins: &std::collections::HashSet<String>,
+) -> Vec<VisibleRow> {
     let mut rows: Vec<VisibleRow> = Vec::new();
     let mut index = 0usize;
     let items = &section.items;
@@ -1380,7 +1481,11 @@ fn strategy_rows(group: &StrategyGroup, section: &StrategySection, open_twins: &
             twins.to_vec()
         } else {
             let fallback = twins[0].clone();
-            vec![twins.iter().find(|twin| twin.is_current).cloned().unwrap_or(fallback)]
+            vec![twins
+                .iter()
+                .find(|twin| twin.is_current)
+                .cloned()
+                .unwrap_or(fallback)]
         };
         for (position, twin) in shown.iter().enumerate() {
             rows.push(VisibleRow {

@@ -92,12 +92,19 @@ fn known_icons(key: &str) -> Option<ProfileIconSpec> {
 /// python _ICON_ALIASES.
 fn icon_alias(identity: &str) -> Option<&'static str> {
     let alias = match identity {
-        "youtube-v2" | "youtubeq" | "youtubegv" | "ytimg" | "i-ytimg" | "russia-youtubeq"
+        "youtube-v2"
+        | "youtubeq"
+        | "youtubegv"
+        | "ytimg"
+        | "i-ytimg"
+        | "russia-youtubeq"
         | "russia-youtube-rtmps" => "youtube",
         "russia-discord" => "discord",
-        "cloudflare-ipset" | "cloudflare-ipset-v6" | "cloudflare1" | "com-cloudflarecp" | "txrevive" => {
-            "cloudflare"
-        }
+        "cloudflare-ipset"
+        | "cloudflare-ipset-v6"
+        | "cloudflare1"
+        | "com-cloudflarecp"
+        | "txrevive" => "cloudflare",
         "cloudfront" => "amazon",
         "usa-google" => "googlecloud",
         "google-backend" => "google",
@@ -141,14 +148,7 @@ fn named_color(identity: &str) -> Option<&'static str> {
 }
 
 const FALLBACK_PALETTE: [&str; 8] = [
-    "#14B8A6",
-    "#3B82F6",
-    "#8B5CF6",
-    "#EC4899",
-    "#F97316",
-    "#22C55E",
-    "#06B6D4",
-    "#EAB308",
+    "#14B8A6", "#3B82F6", "#8B5CF6", "#EC4899", "#F97316", "#22C55E", "#06B6D4", "#EAB308",
 ];
 
 /// python resolve_profile_icon: explicit → semantic → инициалы.
@@ -162,7 +162,10 @@ pub fn resolve_profile_icon(display_name: &str, match_lines: &[String]) -> Profi
     if let Some(semantic) = semantic_icon_from_text(display_name, match_lines, &identities) {
         return semantic;
     }
-    let identity = identities.first().cloned().unwrap_or_else(|| "profile".to_string());
+    let identity = identities
+        .first()
+        .cloned()
+        .unwrap_or_else(|| "profile".to_string());
     let color = named_color(&identity)
         .map(str::to_string)
         .unwrap_or_else(|| color_from_seed(&identity));

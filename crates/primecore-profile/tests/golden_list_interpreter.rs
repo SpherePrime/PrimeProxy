@@ -56,7 +56,10 @@ const USER_TEMPLATES_TEXT: &str = concat!(
     "--lua-desync=multisplit\n",
 );
 
-fn templates_pairs(preset: &primecore_profile::models::Preset, prefix: &str) -> Vec<(String, primecore_profile::models::Profile)> {
+fn templates_pairs(
+    preset: &primecore_profile::models::Preset,
+    prefix: &str,
+) -> Vec<(String, primecore_profile::models::Profile)> {
     preset
         .profiles
         .iter()
@@ -121,7 +124,7 @@ fn list_sources_match_python() {
 
     // dup_enabled: включенный профиль пресета предпочитается.
     let mut dup = parse_preset_text(
-        &concat!(
+        concat!(
             "--new=Startup Advice\n",
             "--filter-tcp=443\n",
             "--hostlist=other.txt\n",
@@ -147,7 +150,10 @@ fn list_sources_match_python() {
     assert_eq!(
         as_value(&build_profile_list_sources(
             &[],
-            &[("user:styles".to_string(), user_templates.profiles[0].clone())]
+            &[(
+                "user:styles".to_string(),
+                user_templates.profiles[0].clone()
+            )]
         )),
         GOLDEN["user_template"],
         "user-шаблон"

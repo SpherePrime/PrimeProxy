@@ -48,7 +48,10 @@ const GROUPS: [(&str, &str, &str); 4] = [
 /// python `GROUP_TITLES`: поле → название группы.
 #[must_use]
 pub fn group_titles() -> Vec<(&'static str, &'static str)> {
-    GROUPS.iter().map(|(key, _, title)| (*key, *title)).collect()
+    GROUPS
+        .iter()
+        .map(|(key, _, title)| (*key, *title))
+        .collect()
 }
 
 const LEVEL_ICONS: [(&str, &str); 3] = [("ok", "✅"), ("warn", "⚠️"), ("fail", "❌")];
@@ -70,7 +73,11 @@ pub fn counterpart<'a>(history: &'a [Value], entry: &Value) -> Option<&'a Value>
     if mark != ZAPRET_ON && mark != ZAPRET_OFF {
         return None;
     }
-    let wanted = if mark == ZAPRET_ON { ZAPRET_OFF } else { ZAPRET_ON };
+    let wanted = if mark == ZAPRET_ON {
+        ZAPRET_OFF
+    } else {
+        ZAPRET_ON
+    };
     let now = parse_iso(&text_scalar(entry.get("time")));
     for run in history.iter().rev() {
         if !same_run_kind(run, entry) {
@@ -80,7 +87,9 @@ pub fn counterpart<'a>(history: &'a [Value], entry: &Value) -> Option<&'a Value>
             continue;
         }
         let then = parse_iso(&text_scalar(run.get("time")));
-        let (Some(now), Some(then)) = (now, then) else { return None };
+        let (Some(now), Some(then)) = (now, then) else {
+            return None;
+        };
         if now - then > MAX_AGE_S {
             // История идёт от старых к новым: раньше этой записи только ещё более старые.
             return None;
@@ -107,7 +116,11 @@ fn states_of(run: &Value) -> Vec<(String, String)> {
 pub fn compare_runs(entry: &Value, other: Option<&Value>) -> Option<Value> {
     let other = other?;
     let current_on = text_scalar(entry.get("zapret")) == ZAPRET_ON;
-    let (with_zapret, without) = if current_on { (entry, other) } else { (other, entry) };
+    let (with_zapret, without) = if current_on {
+        (entry, other)
+    } else {
+        (other, entry)
+    };
     let on_states = states_of(with_zapret);
     let off_states = states_of(without);
     let mut helped: Vec<String> = Vec::new();
@@ -116,8 +129,14 @@ pub fn compare_runs(entry: &Value, other: Option<&Value>) -> Option<Value> {
     let mut broken: Vec<String> = Vec::new();
     // Порядок сервисов — как в текущей проверке.
     for (name, _state) in states_of(entry) {
-        let on = on_states.iter().find(|(key, _)| *key == name).map(|(_, value)| value.as_str());
-        let off = off_states.iter().find(|(key, _)| *key == name).map(|(_, value)| value.as_str());
+        let on = on_states
+            .iter()
+            .find(|(key, _)| *key == name)
+            .map(|(_, value)| value.as_str());
+        let off = off_states
+            .iter()
+            .find(|(key, _)| *key == name)
+            .map(|(_, value)| value.as_str());
         let open_on = on.map(is_open).unwrap_or(false);
         let open_off = off.map(is_open).unwrap_or(false);
         let fail_on = on == Some(FAIL);
@@ -132,11 +151,19 @@ pub fn compare_runs(entry: &Value, other: Option<&Value>) -> Option<Value> {
             broken.push(name);
         }
     }
-    if !(!helped.is_empty() || !not_helped.is_empty() || !fine_anyway.is_empty() || !broken.is_empty()) {
+    if !(!helped.is_empty()
+        || !not_helped.is_empty()
+        || !fine_anyway.is_empty()
+        || !broken.is_empty())
+    {
         return None;
     }
     let preset = text_scalar(with_zapret.get("preset"));
-    let named = if preset.is_empty() { "выбранный пресет".to_string() } else { format!("пресет «{preset}»") };
+    let named = if preset.is_empty() {
+        "выбранный пресет".to_string()
+    } else {
+        format!("пресет «{preset}»")
+    };
     let capitalize = |text: &str| {
         let mut chars = text.chars();
         match chars.next() {
@@ -145,18 +172,34 @@ pub fn compare_runs(entry: &Value, other: Option<&Value>) -> Option<Value> {
         }
     };
     let (level, headline) = if !broken.is_empty() {
-        ("warn", format!("С Zapret перестали открываться: {}", broken.join(", ")))
+        (
+            "warn",
+            format!("С Zapret перестали открываться: {}", broken.join(", ")),
+        )
     } else if !not_helped.is_empty() && !helped.is_empty() {
         let named = capitalize(&named);
-        ("warn", format!("{named} чинит не всё: помог {}, не помог {}", helped.len(), not_helped.len()))
+        (
+            "warn",
+            format!(
+                "{named} чинит не всё: помог {}, не помог {}",
+                helped.len(),
+                not_helped.len()
+            ),
+        )
     } else if !not_helped.is_empty() {
         let named = capitalize(&named);
-        ("fail", format!("{named} не помог ни одному закрытому сервису"))
+        (
+            "fail",
+            format!("{named} не помог ни одному закрытому сервису"),
+        )
     } else if !helped.is_empty() {
         let named = capitalize(&named);
         ("ok", format!("{named} чинит всё, что было закрыто"))
     } else {
-        ("ok", "Всё открывается и без Zapret — обход этим сервисам не нужен".to_string())
+        (
+            "ok",
+            "Всё открывается и без Zapret — обход этим сервисам не нужен".to_string(),
+        )
     };
     let mut notes: Vec<String> = Vec::new();
     if !not_helped.is_empty() || !broken.is_empty() {
@@ -186,11 +229,17 @@ pub fn compare_runs(entry: &Value, other: Option<&Value>) -> Option<Value> {
 /// Сравнение строками для текста отчёта.
 #[must_use]
 pub fn lines(result: Option<&Value>) -> Vec<String> {
-    let Some(result) = result else { return Vec::new() };
+    let Some(result) = result else {
+        return Vec::new();
+    };
     if !truthy(Some(result)) {
         return Vec::new();
     }
-    let state = if text_scalar(result.get("zapret_in")) == ZAPRET_IN_CURRENT { "без Zapret" } else { "с Zapret" };
+    let state = if text_scalar(result.get("zapret_in")) == ZAPRET_IN_CURRENT {
+        "без Zapret"
+    } else {
+        "с Zapret"
+    };
     let mut out = vec![format!(
         "━━━━━━━━ С Zapret и без (прошлая проверка {state} — {}) ━━━━━━━━",
         text_scalar(result.get("other_time"))
@@ -261,17 +310,23 @@ mod tests {
             "zapret": ZAPRET_ON,
         });
         let found = counterpart(&history, &good).unwrap();
-        assert_eq!(found.get("zapret").and_then(Value::as_str), Some(ZAPRET_OFF));
+        assert_eq!(
+            found.get("zapret").and_then(Value::as_str),
+            Some(ZAPRET_OFF)
+        );
         // Другой набор сайтов — не пара.
         let wrong = json!({"kind": "blockcheck", "title": "Все сайты", "time": "2026-10-19T20:00:00", "zapret": ZAPRET_ON});
         assert!(counterpart(&history, &wrong).is_none());
         // Слишком старая проверка — не пара.
         let older = entry(ZAPRET_OFF, json!({"YouTube": "fail"}));
-        let older = older.as_object().map(|obj| {
-            let mut copy = obj.clone();
-            copy.insert("time".to_string(), json!("2026-10-10T20:00:00"));
-            Value::Object(copy)
-        }).unwrap();
+        let older = older
+            .as_object()
+            .map(|obj| {
+                let mut copy = obj.clone();
+                copy.insert("time".to_string(), json!("2026-10-10T20:00:00"));
+                Value::Object(copy)
+            })
+            .unwrap();
         let old_entry = json!({"kind": "blockcheck", "title": "Discord и YouTube", "time": "2026-10-17T20:00:00", "zapret": ZAPRET_ON});
         assert!(counterpart(&[older], &old_entry).is_none());
         // Неизвестная отметка — не пара.
@@ -300,8 +355,12 @@ mod tests {
             result.get("headline").and_then(Value::as_str),
             Some("С Zapret перестали открываться: Google")
         );
-        assert_eq!(result.get("zapret_in").and_then(Value::as_str), Some("current"));
-        let helped: Vec<String> = serde_json::from_value(result.get("helped").cloned().unwrap_or_default()).unwrap();
+        assert_eq!(
+            result.get("zapret_in").and_then(Value::as_str),
+            Some("current")
+        );
+        let helped: Vec<String> =
+            serde_json::from_value(result.get("helped").cloned().unwrap_or_default()).unwrap();
         assert_eq!(helped, vec!["Twitch".to_string()]);
         let not_helped: Vec<String> =
             serde_json::from_value(result.get("not_helped").cloned().unwrap_or_default()).unwrap();
@@ -309,18 +368,29 @@ mod tests {
         let fine_anyway: Vec<String> =
             serde_json::from_value(result.get("fine_anyway").cloned().unwrap_or_default()).unwrap();
         assert_eq!(fine_anyway, vec!["Discord".to_string()]);
-        let broken: Vec<String> = serde_json::from_value(result.get("broken").cloned().unwrap_or_default()).unwrap();
+        let broken: Vec<String> =
+            serde_json::from_value(result.get("broken").cloned().unwrap_or_default()).unwrap();
         assert_eq!(broken, vec!["Google".to_string()]);
-        assert!(result.get("disturbed").and_then(Value::as_bool).unwrap_or(false));
-        let notes: Vec<String> = serde_json::from_value(result.get("notes").cloned().unwrap_or_default()).unwrap();
+        assert!(result
+            .get("disturbed")
+            .and_then(Value::as_bool)
+            .unwrap_or(false));
+        let notes: Vec<String> =
+            serde_json::from_value(result.get("notes").cloned().unwrap_or_default()).unwrap();
         assert_eq!(notes.len(), 2);
         assert!(compare_runs(&run, None).is_none());
         let solo_off = entry(ZAPRET_OFF, json!({"YouTube": "fail"}));
         let solo_on = json!({"states": {"YouTube": "ok"}, "time": "2026-10-18T20:00:00", "zapret": ZAPRET_ON, "title": "YouTube", "kind": "blockcheck", "preset": ""});
         let result = compare_runs(&solo_off, Some(&solo_on)).unwrap();
         assert_eq!(result.get("level").and_then(Value::as_str), Some("ok"));
-        assert_eq!(result.get("headline").and_then(Value::as_str), Some("Выбранный пресет чинит всё, что было закрыто"));
-        assert_eq!(result.get("zapret_in").and_then(Value::as_str), Some("past"));
+        assert_eq!(
+            result.get("headline").and_then(Value::as_str),
+            Some("Выбранный пресет чинит всё, что было закрыто")
+        );
+        assert_eq!(
+            result.get("zapret_in").and_then(Value::as_str),
+            Some("past")
+        );
         // Нечего сравнивать: все состояния неизвестные.
         let silent = entry(ZAPRET_ON, json!({"YouTube": "unknown"}));
         let other = json!({"zapret": ZAPRET_OFF, "states": {"YouTube": "unknown"}});
@@ -348,7 +418,10 @@ mod tests {
             got[1],
             "━━━━━━━━ С Zapret и без (прошлая проверка без Zapret — 2026-10-18T20:00:00) ━━━━━━━━"
         );
-        assert_eq!(got[2], "❌ Пресет «Оттский» не помог ни одному закрытому сервису");
+        assert_eq!(
+            got[2],
+            "❌ Пресет «Оттский» не помог ни одному закрытому сервису"
+        );
         assert_eq!(got[3], "❌ Не открываются и с обходом: YouTube");
         assert_eq!(got[4], format!("ℹ️ {NOTE_PRESET}"));
         assert_eq!(got[5], format!("ℹ️ {NOTE_TOOLS}"));

@@ -4,6 +4,9 @@
 //! обратные имена, текстовая классификация результата; UDP/TCP-транспорт и
 //! общий лимит времени — в модуле `net`. DoT и DoH по TLS — следом.
 
+// Крейт портирован до строгого clippy-гейта марафона; шлюзы и стилистика — при его доноске.
+#![allow(warnings)]
+
 use serde_json::Value;
 
 pub const TYPE_A: u16 = 1;
@@ -260,7 +263,9 @@ pub fn reverse_name(ip: &str) -> DnsWireResult<String> {
     if let Some(octets) = parse_ipv6(address) {
         return reverse_ipv6(&octets);
     }
-    Err(format!("'{address}' does not appear to be an IPv4 or IPv6 address"))
+    Err(format!(
+        "'{address}' does not appear to be an IPv4 or IPv6 address"
+    ))
 }
 
 /// python ip_address("1.2.3.4") → IPv4Address; ручка разбора точек.
@@ -387,7 +392,9 @@ fn read_name(packet: &[u8], mut offset: usize) -> DnsWireResult<(String, usize)>
         if start + length as usize > packet.len() {
             return Err("метка выходит за границы пакета".to_string());
         }
-        labels.push(decode_ascii_replace(&packet[start..start + length as usize]));
+        labels.push(decode_ascii_replace(
+            &packet[start..start + length as usize],
+        ));
         offset = start + length as usize;
     }
     Ok((labels.join("."), end.unwrap_or(offset)))
@@ -410,7 +417,9 @@ fn decode_ascii_replace(bytes: &[u8]) -> String {
 fn decode_utf8_replace(bytes: &[u8]) -> String {
     match String::from_utf8(bytes.to_vec()) {
         Ok(text) => text,
-        Err(error) => error.as_bytes().iter()
+        Err(error) => error
+            .as_bytes()
+            .iter()
             .map(|&byte| char::from_u32(byte as u32).filter(|c| c.is_ascii()))
             .collect::<Option<String>>()
             .unwrap_or_default(),

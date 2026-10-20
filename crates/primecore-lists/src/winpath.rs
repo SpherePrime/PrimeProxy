@@ -53,7 +53,11 @@ fn splitroot(value: &str) -> (String, String, String) {
             )
         } else {
             // Относительный путь с диском, например X:Windows.
-            (normalized[..2].to_string(), String::new(), normalized[2..].to_string())
+            (
+                normalized[..2].to_string(),
+                String::new(),
+                normalized[2..].to_string(),
+            )
         }
     } else {
         // Относительный путь, например Windows.
@@ -80,7 +84,11 @@ impl PureWinPath {
     /// python PureWindowsPath(значение).
     pub fn new(value: &str) -> Self {
         if value.is_empty() {
-            return Self { drive: String::new(), root: String::new(), tail: Vec::new() };
+            return Self {
+                drive: String::new(),
+                root: String::new(),
+                tail: Vec::new(),
+            };
         }
         let (drive, mut root, rel) = splitroot(value);
         let mut tail = tail_from(&rel);

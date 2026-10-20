@@ -5,9 +5,8 @@ use serde::Serialize;
 use serde_json::Value;
 
 use primecore_profile::match_filters::{
-    filter_values, is_http80_match, is_voice_match, l7_transport,
-    ports_label_from_match_lines, protocol_label_from_match_lines,
-    strategy_catalog_from_match_lines,
+    filter_values, is_http80_match, is_voice_match, l7_transport, ports_label_from_match_lines,
+    protocol_label_from_match_lines, strategy_catalog_from_match_lines,
 };
 
 static GOLDEN: Lazy<Value> = Lazy::new(|| {
@@ -30,7 +29,10 @@ static CASES: Lazy<std::collections::HashMap<&'static str, Vec<String>>> = Lazy:
         ("l7_mixed", vec!["--filter-l7=http,quic"]),
         ("l7_empty", vec!["--filter-l7="]),
         ("voice_stun", vec!["--filter-l7=stun"]),
-        ("voice_ports", vec!["--filter-l7=", "--filter-udp=50000-59000", "voice"]),
+        (
+            "voice_ports",
+            vec!["--filter-l7=", "--filter-udp=50000-59000", "voice"],
+        ),
         ("voice_no_ports", vec!["--filter-udp=100", "голос"]),
         ("http80", vec!["--filter-tcp=80"]),
         ("http80_plus", vec!["--filter-tcp=80,443"]),
@@ -38,7 +40,10 @@ static CASES: Lazy<std::collections::HashMap<&'static str, Vec<String>>> = Lazy:
         ("http80_range_big", vec!["--filter-tcp=80-10000"]),
         ("http80_udp", vec!["--filter-tcp=80", "--filter-udp=443"]),
         ("http80_quic", vec!["--filter-tcp=80", "--filter-l7=quic"]),
-        ("ports_mixed", vec!["--filter-tcp=443,80-81,x", "--filter-udp=50000-59001"]),
+        (
+            "ports_mixed",
+            vec!["--filter-tcp=443,80-81,x", "--filter-udp=50000-59001"],
+        ),
         ("ports_bad", vec!["--filter-tcp=-,  ", "--filter-udp=..-3"]),
         ("tcp_range_swap", vec!["--filter-tcp=81-80"]),
         ("voice_discord_udp", vec!["--filter-udp=51000", "Discord"]),
@@ -78,17 +83,36 @@ fn labels_and_catalog_match_python() {
     }
     for (name, expected) in GOLDEN["ops"]["ports_label"].as_object().expect("порты") {
         let lines = &CASES[name.as_str()];
-        assert_eq!(expected, &as_value(&ports_label_from_match_lines(lines)), "порты {name}");
+        assert_eq!(
+            expected,
+            &as_value(&ports_label_from_match_lines(lines)),
+            "порты {name}"
+        );
     }
 }
 
 #[test]
 fn filter_values_and_matches_match_python() {
-    for (name, expected) in GOLDEN["ops"]["filter_values"].as_object().expect("значения") {
+    for (name, expected) in GOLDEN["ops"]["filter_values"]
+        .as_object()
+        .expect("значения")
+    {
         let lines = &CASES[name.as_str()];
-        assert_eq!(as_value(&filter_values(lines, "--filter-tcp")), expected["tcp"], "tcp значения {name}");
-        assert_eq!(as_value(&filter_values(lines, "--filter-udp")), expected["udp"], "udp значения {name}");
-        assert_eq!(as_value(&filter_values(lines, "--filter-l7")), expected["l7"], "l7 значения {name}");
+        assert_eq!(
+            as_value(&filter_values(lines, "--filter-tcp")),
+            expected["tcp"],
+            "tcp значения {name}"
+        );
+        assert_eq!(
+            as_value(&filter_values(lines, "--filter-udp")),
+            expected["udp"],
+            "udp значения {name}"
+        );
+        assert_eq!(
+            as_value(&filter_values(lines, "--filter-l7")),
+            expected["l7"],
+            "l7 значения {name}"
+        );
     }
     for (name, expected) in GOLDEN["ops"]["is_voice"].as_object().expect("voice") {
         let lines = &CASES[name.as_str()];
@@ -96,7 +120,11 @@ fn filter_values_and_matches_match_python() {
     }
     for (name, expected) in GOLDEN["ops"]["is_http80"].as_object().expect("http80") {
         let lines = &CASES[name.as_str()];
-        assert_eq!(expected, &as_value(&is_http80_match(lines)), "http80 {name}");
+        assert_eq!(
+            expected,
+            &as_value(&is_http80_match(lines)),
+            "http80 {name}"
+        );
     }
 }
 
@@ -120,6 +148,10 @@ fn l7_transport_matches_python() {
             "транспорт {values:?}"
         );
         // None и пустая строка в золоте различаются.
-        assert_eq!(pair[1].is_null(), l7_transport(&values).is_none(), "None_transport");
+        assert_eq!(
+            pair[1].is_null(),
+            l7_transport(&values).is_none(),
+            "None_transport"
+        );
     }
 }

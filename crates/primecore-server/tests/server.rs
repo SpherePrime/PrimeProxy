@@ -9,8 +9,8 @@ use reqwest::StatusCode;
 use serde_json::{json, Value};
 use std::io::Write;
 
-use bzip2::Compression;
 use bzip2::write::BzEncoder;
+use bzip2::Compression;
 
 fn fixture(name: &str) -> Vec<u8> {
     std::fs::read(
@@ -49,7 +49,9 @@ fn start_server() -> String {
     let listener = tokio::net::TcpListener::from_std(listener).expect("tokio слушатель");
     drop(guard);
     runtime.spawn(async move {
-        serve(listener, build_router()).await.expect("сервер вертится");
+        serve(listener, build_router())
+            .await
+            .expect("сервер вертится");
     });
     // Рантайм должен пережить тест: не даём ему умереть на выходе.
     std::mem::forget(runtime);
@@ -68,7 +70,8 @@ fn json_response(client: &Client, url: String, method: &str, body: Value) -> (St
 }
 
 fn health(base: &str) {
-    let (status, answer) = json_response(&Client::new(), format!("{base}/health"), "GET", json!({}));
+    let (status, answer) =
+        json_response(&Client::new(), format!("{base}/health"), "GET", json!({}));
     assert_eq!(status, StatusCode::OK);
     assert_eq!(answer["status"], "ok");
     assert_eq!(answer["service"], "primecore-server");
@@ -121,7 +124,10 @@ fn hosts_preview_rewrites_block() {
     assert_eq!(answer["had_requested_rows"], true);
     // Чужая строка с владельцем 10.0.0.8 для включённого имени уходит.
     let dropped = answer["dropped"].as_array().expect("убраны");
-    assert!(dropped.iter().any(|row| row == "10.0.0.8 one.site"), "{answer}");
+    assert!(
+        dropped.iter().any(|row| row == "10.0.0.8 one.site"),
+        "{answer}"
+    );
     let content = answer["content"].as_str().expect("текст");
     assert!(content.contains("10.0.0.5 one.site"), "{content}");
     assert!(content.contains("begin >>>"));
@@ -152,7 +158,7 @@ fn patch_apply_computes_size_and_sha() {
     let tail: Vec<u8> = new[new.len() - 2..].to_vec();
     let diff: Vec<u8> = head
         .into_iter()
-        .chain(std::iter::repeat(0u8).take(new.len() - 6 - tail.len()))
+        .chain(std::iter::repeat_n(0u8, new.len() - 6 - tail.len()))
         .collect();
     // Три тройки: дельты, нулевая копия хвоста, вставка из extra.
     let mut control: Vec<u8> = Vec::new();
@@ -194,7 +200,7 @@ fn patch_apply_computes_size_and_sha() {
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect();
-    assert_eq!(answer["sha256"], json!(format!("{expected}")));
+    assert_eq!(answer["sha256"], json!(expected));
 
     let (status, answer) = json_response(
         &Client::new(),
@@ -230,7 +236,10 @@ fn manifest_verify_with_production_fixture() {
     assert_eq!(answer["version"], json!("21.1.7.181"));
     assert_eq!(answer["channel"], "dev");
     assert!(answer["files"].as_u64().expect("файлы") > 0);
-    assert!(answer["patches"].as_array().is_some() || answer["patches"].as_u64().unwrap_or(0) >= 0);
+    assert!(answer["patches"]
+        .as_array()
+        .map(|v| !v.is_empty())
+        .unwrap_or(true));
 
     // Не тот канал — ошибка product, как в Python-версии.
     let (status, answer) = json_response(
@@ -282,6 +291,5 @@ fn check_lists_mirrors_error_without_network_guarantee() {
     // Рука зеркал без настройки всегда честно говорит «зеркала не настроены»;
     // Forgejo может быть сетевым, поэтому только проверяем поле ok/error.
     let base = start_server();
-    let base = base;
     let _ = &base;
 }

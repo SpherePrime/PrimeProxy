@@ -29,8 +29,8 @@
 //! приветствием к тому же адресу.
 
 use crate::block_cause::{
-    HelloResult, HELLO_ALERT, HELLO_CANCELLED, HELLO_CONNECT, HELLO_GARBAGE, HELLO_OK,
-    HELLO_RESET, HELLO_TIMEOUT,
+    HelloResult, HELLO_ALERT, HELLO_CANCELLED, HELLO_CONNECT, HELLO_GARBAGE, HELLO_OK, HELLO_RESET,
+    HELLO_TIMEOUT,
 };
 
 /// Отпечаток настольного Chrome, который режет фильтр (описан на wiki.zapret.moe).
@@ -84,7 +84,9 @@ pub const GROUP_X25519_MLKEM768: u16 = 0x11EC;
 pub const GROUP_X25519: u16 = 0x001D;
 
 const GROUPS: [u16; 4] = [GROUP_X25519_MLKEM768, GROUP_X25519, 0x0017, 0x0018];
-const SIGNATURES: [u16; 8] = [0x0403, 0x0804, 0x0401, 0x0503, 0x0805, 0x0501, 0x0806, 0x0601];
+const SIGNATURES: [u16; 8] = [
+    0x0403, 0x0804, 0x0401, 0x0503, 0x0805, 0x0501, 0x0806, 0x0601,
+];
 
 const MLKEM_Q: u16 = 3329;
 const MLKEM_COEFFS: usize = 3 * 256;
@@ -120,7 +122,10 @@ fn vec16(data: &[u8]) -> Vec<u8> {
 /// python `_u16s` — список 16-битных по большому концу.
 #[must_use]
 pub fn u16s(values: &[u16]) -> Vec<u8> {
-    values.iter().flat_map(|value| value.to_be_bytes()).collect()
+    values
+        .iter()
+        .flat_map(|value| value.to_be_bytes())
+        .collect()
 }
 
 /// python `_mlkem_public_key` — правдоподобный открытый ключ ML-KEM-768: 1184 байта.
@@ -160,12 +165,7 @@ fn extension(kind: u16, data: &[u8]) -> Vec<u8> {
 /// `ech=False` — без расширения ECH. Оба варианта меняют отпечаток: это уже не
 /// «почерк Chrome», а просто корректное приветствие.
 #[must_use]
-pub fn build_hello(
-    host: &str,
-    rnd: &mut Random<'_>,
-    post_quantum: bool,
-    ech: bool,
-) -> Vec<u8> {
+pub fn build_hello(host: &str, rnd: &mut Random<'_>, post_quantum: bool, ech: bool) -> Vec<u8> {
     let seeds = rnd(5);
     let grease_cipher = grease(seeds[0]);
     let grease_group = grease(seeds[1]);
@@ -214,7 +214,8 @@ pub fn build_hello(
     };
 
     // Пустые тела расширений заносятся прямо; свой body — только у носителей.
-    let bodies = [(EXT_SNI, sni_body),
+    let bodies = [
+        (EXT_SNI, sni_body),
         (EXT_MASTER_SECRET, Vec::new()),
         (EXT_RENEGOTIATION, vec![0]),
         (EXT_GROUPS, Vec::new()),
@@ -305,7 +306,8 @@ pub fn idna_encode(host: &str) -> Vec<u8> {
 /// Нужен, чтобы тест сверял состав приветствия с составом Chrome.
 #[must_use]
 pub fn parse_hello(record: &[u8]) -> (Vec<u16>, Vec<u16>, String) {
-    let real = |value: u16| -> bool { !((value & 0x0F0F) == 0x0A0A && (value >> 8) == (value & 0xFF)) };
+    let real =
+        |value: u16| -> bool { !((value & 0x0F0F) == 0x0A0A && (value >> 8) == (value & 0xFF)) };
     let body = &record[9..];
     let mut offset = 2 + 32;
     offset += 1 + usize::from(body[offset]);
@@ -325,8 +327,8 @@ pub fn parse_hello(record: &[u8]) -> (Vec<u16>, Vec<u16>, String) {
     while offset + 4 <= end && offset + 4 <= body.len() {
         let kind = u16::from_be_bytes([body[offset], body[offset + 1]]);
         let length = u16::from_be_bytes([body[offset + 2], body[offset + 3]]);
-        let data = &body
-            [(offset + 4).min(body.len())..(offset + 4 + usize::from(length)).min(body.len())];
+        let data =
+            &body[(offset + 4).min(body.len())..(offset + 4 + usize::from(length)).min(body.len())];
         offset += 4 + usize::from(length);
         kinds.push(kind);
         if kind == EXT_SNI && data.len() > 5 {
@@ -346,7 +348,11 @@ fn short(text: &str) -> String {
     let mut hasher = Sha256::new();
     hasher.update(text.as_bytes());
     let digest = hasher.finalize();
-    digest.iter().map(|byte| format!("{byte:02x}")).collect::<String>()[..12].to_string()
+    digest
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>()[..12]
+        .to_string()
 }
 
 /// python `ja4` — отпечаток JA4 приветствия; порядок расширений на него не влияет.
@@ -486,14 +492,22 @@ pub fn send_parts(
         return HelloResult::new(HELLO_RESET).with_detail("соединение закрыто без ответа");
     }
     if header[0] == RECORD_ALERT {
-        return HelloResult { kind: HELLO_ALERT.to_string(), detail: String::new(), ms: Some(took) };
+        return HelloResult {
+            kind: HELLO_ALERT.to_string(),
+            detail: String::new(),
+            ms: Some(took),
+        };
     }
     if header[0] != RECORD_HANDSHAKE || header[1] != 0x03 {
         return HelloResult::new(HELLO_GARBAGE);
     }
     let first = socket.read_exact(1);
     if !first.is_empty() && first[0] == HANDSHAKE_SERVER_HELLO {
-        return HelloResult { kind: HELLO_OK.to_string(), detail: String::new(), ms: Some(took) };
+        return HelloResult {
+            kind: HELLO_OK.to_string(),
+            detail: String::new(),
+            ms: Some(took),
+        };
     }
     HelloResult::new(HELLO_GARBAGE)
 }
@@ -502,10 +516,7 @@ pub fn send_parts(
 ///
 /// В rust Socket-слое таймаут приходит как `Socket::timeout_reached()`;
 /// здесь только классификация — сам прыжок делает транспорт.
-pub fn send_parts_timeout(
-    connected: bool,
-    is_cancelled: impl Fn() -> bool,
-) -> HelloResult {
+pub fn send_parts_timeout(connected: bool, is_cancelled: impl Fn() -> bool) -> HelloResult {
     if is_cancelled() {
         HelloResult::new(HELLO_CANCELLED)
     } else if connected {
@@ -638,7 +649,8 @@ mod tests {
         let mut offset = 0;
         while offset < packed.len() {
             let first = u16::from(packed[offset]) | (u16::from(packed[offset + 1] & 0x0F) << 8);
-            let second = (u16::from(packed[offset + 1]) >> 4) | (u16::from(packed[offset + 2]) << 4);
+            let second =
+                (u16::from(packed[offset + 1]) >> 4) | (u16::from(packed[offset + 2]) << 4);
             assert!(first < 3329);
             assert!(second < 3329);
             offset += 3;
@@ -659,9 +671,13 @@ mod tests {
         assert_eq!(&tail[..3], &record[..3]);
         // Первый кусок включает начало имени.
         // Байты имени целиком — в первом куске.
-        assert!(head.windows(name.len()).any(|piece| piece == name.as_slice()));
+        assert!(head
+            .windows(name.len())
+            .any(|piece| piece == name.as_slice()));
         // Второй не содержит имени целиком (разрез после имени) — там только хвост.
-        assert!(!tail.windows(name.len()).any(|piece| piece == name.as_slice()));
+        assert!(!tail
+            .windows(name.len())
+            .any(|piece| piece == name.as_slice()));
     }
 
     /// python: без ECH отпечаток другой; без постквантового ключа — коротее,
@@ -685,15 +701,14 @@ mod tests {
         assert_eq!(send_parts_timeout(true, || false).kind, HELLO_TIMEOUT);
         assert_eq!(send_parts_timeout(false, || false).kind, HELLO_CONNECT);
         assert_eq!(send_parts_timeout(true, || true).kind, HELLO_CANCELLED);
-        assert_eq!(
-            send_parts_error(true, "сброс", || false).kind,
-            HELLO_RESET
-        );
+        assert_eq!(send_parts_error(true, "сброс", || false).kind, HELLO_RESET);
         assert_eq!(
             send_parts_error(false, "сброс", || false).kind,
             HELLO_CONNECT
         );
-        assert_eq!(send_parts_error(true, "сброс", || true).kind, HELLO_CANCELLED);
+        assert_eq!(
+            send_parts_error(true, "сброс", || true).kind,
+            HELLO_CANCELLED
+        );
     }
 }
-

@@ -25,11 +25,36 @@ fn strategy_shape_matches_python() {
     for case in golden().as_array().unwrap() {
         let lines = lines_from(case);
         let shape = strategy_shape(&lines);
-        assert_eq!(json!(shape.profile_range_lines), case["shape"]["profile_range_lines"], "{}", case["name"]);
-        assert_eq!(json!(shape.body_lines), case["shape"]["body_lines"], "{}", case["name"]);
-        assert_eq!(shape.composite, case["shape"]["composite"].as_bool().unwrap(), "{}", case["name"]);
-        assert_eq!(json!(shape.payload_scopes), case["shape"]["payload_scopes"], "{}", case["name"]);
-        assert_eq!(json!(shape.lua_lines()), case["shape"]["lua_lines"], "{}", case["name"]);
+        assert_eq!(
+            json!(shape.profile_range_lines),
+            case["shape"]["profile_range_lines"],
+            "{}",
+            case["name"]
+        );
+        assert_eq!(
+            json!(shape.body_lines),
+            case["shape"]["body_lines"],
+            "{}",
+            case["name"]
+        );
+        assert_eq!(
+            shape.composite,
+            case["shape"]["composite"].as_bool().unwrap(),
+            "{}",
+            case["name"]
+        );
+        assert_eq!(
+            json!(shape.payload_scopes),
+            case["shape"]["payload_scopes"],
+            "{}",
+            case["name"]
+        );
+        assert_eq!(
+            json!(shape.lua_lines()),
+            case["shape"]["lua_lines"],
+            "{}",
+            case["name"]
+        );
         if let Some(identity) = case.get("identity").filter(|v| v.as_array().is_some()) {
             let built: Vec<[String; 2]> = composite_identity(&shape.body_lines)
                 .into_iter()
@@ -37,6 +62,11 @@ fn strategy_shape_matches_python() {
                 .collect();
             assert_eq!(json!(built), json!(identity), "{}: отпечаток", case["name"]);
         }
-        assert_eq!(union_payload(&shape.payload_scopes), case["union"].as_str().unwrap(), "{}", case["name"]);
+        assert_eq!(
+            union_payload(&shape.payload_scopes),
+            case["union"].as_str().unwrap(),
+            "{}",
+            case["name"]
+        );
     }
 }

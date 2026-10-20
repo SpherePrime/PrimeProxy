@@ -43,14 +43,14 @@ const ERRNO: &[(i32, &str)] = &[
 
 #[cfg(target_os = "macos")]
 const ERRNO: &[(i32, &str)] = &[
-    (60, FAILURE_TIMEOUT),      // ETIMEDOUT
-    (61, FAILURE_REFUSED),      // ECONNREFUSED
-    (54, FAILURE_RESET),        // ECONNRESET
-    (53, FAILURE_RESET),        // ECONNABORTED
-    (32, FAILURE_RESET),        // EPIPE
-    (50, FAILURE_UNREACHABLE),  // ENETDOWN
-    (51, FAILURE_UNREACHABLE),  // ENETUNREACH
-    (65, FAILURE_UNREACHABLE),  // EHOSTUNREACH
+    (60, FAILURE_TIMEOUT),     // ETIMEDOUT
+    (61, FAILURE_REFUSED),     // ECONNREFUSED
+    (54, FAILURE_RESET),       // ECONNRESET
+    (53, FAILURE_RESET),       // ECONNABORTED
+    (32, FAILURE_RESET),       // EPIPE
+    (50, FAILURE_UNREACHABLE), // ENETDOWN
+    (51, FAILURE_UNREACHABLE), // ENETUNREACH
+    (65, FAILURE_UNREACHABLE), // EHOSTUNREACH
 ];
 
 #[cfg(target_family = "windows")]
@@ -92,8 +92,7 @@ pub fn classify_os_error(error: &std::io::Error) -> &'static str {
         }
     }
     match error.kind() {
-        std::io::ErrorKind::TimedOut
-        | std::io::ErrorKind::WouldBlock => FAILURE_TIMEOUT,
+        std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock => FAILURE_TIMEOUT,
         std::io::ErrorKind::ConnectionRefused => FAILURE_REFUSED,
         std::io::ErrorKind::ConnectionReset
         | std::io::ErrorKind::ConnectionAborted

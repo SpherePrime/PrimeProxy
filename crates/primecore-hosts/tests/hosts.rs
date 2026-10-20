@@ -12,8 +12,7 @@ fn parses_mapping_line() {
     assert_eq!(domains, vec!["primebypass.site".to_string()]);
     assert_eq!(comment, "последний");
 
-    let (ip, domains, _) =
-        parse_hosts_mapping_line("1.1.1.1  a.ru b.ru").expect("два имени");
+    let (ip, domains, _) = parse_hosts_mapping_line("1.1.1.1  a.ru b.ru").expect("два имени");
     assert_eq!(ip, "1.1.1.1");
     assert_eq!(domains.len(), 2);
 
@@ -139,7 +138,10 @@ fn other_service_line() -> String {
 }
 
 fn max_block() -> (String, Vec<String>) {
-    ("# MAX BLOCKED BY PRIMEBYPASS".to_string(), vec![line("10.0.0.1 max.site")])
+    (
+        "# MAX BLOCKED BY PRIMEBYPASS".to_string(),
+        vec![line("10.0.0.1 max.site")],
+    )
 }
 
 #[test]
@@ -155,10 +157,22 @@ fn drop_conflicts_removes_only_misleading_ip() {
         ("nice.site".to_string(), "10.0.0.6".to_string()),
     ];
     let (kept, dropped) = drop_conflicting_foreign_rows(&lines, &wanted);
-    assert_eq!(dropped, vec!["10.0.0.8 one.site".to_string(), "10.0.0.7 nice.site".to_string()]);
+    assert_eq!(
+        dropped,
+        vec![
+            "10.0.0.8 one.site".to_string(),
+            "10.0.0.7 nice.site".to_string()
+        ]
+    );
     let joined = kept.join("");
-    assert!(joined.contains("nice.org"), "случайная чужая строка не тронута");
-    assert!(!joined.contains("10.0.0.8 one.site"), "мешающая запись убрана");
+    assert!(
+        joined.contains("nice.org"),
+        "случайная чужая строка не тронута"
+    );
+    assert!(
+        !joined.contains("10.0.0.8 one.site"),
+        "мешающая запись убрана"
+    );
     assert!(
         joined.contains("10.0.0.7 mixed.site"),
         "строка на несколько имён сохраняет неизвестное имя"
@@ -190,7 +204,6 @@ fn other_blocks_are_skipped_with_own_end_marker() {
     block_lines.push(line("10.0.0.9 tg.site"));
     let wanted: Rows = vec![("one.site".to_string(), "10.0.0.5".to_string())];
     block_lines.push(line("10.0.0.8 one.site"));
-    let wanted: Rows = vec![("one.site".to_string(), "10.0.0.5".to_string())];
     let (kept, dropped) = drop_conflicting_foreign_rows(&block_lines, &wanted);
     let joined = kept.join("");
     assert_eq!(dropped, vec!["10.0.0.8 one.site".to_string()]);
@@ -200,14 +213,20 @@ fn other_blocks_are_skipped_with_own_end_marker() {
 
 #[test]
 fn telegram_block_is_skipped_up_to_blank() {
-    let mut lines = vec![line("# --- Telegram Proxy (auto-managed by PrimeBypass)"), line("10.0.0.2 tg.site")];
+    let mut lines = vec![
+        line("# --- Telegram Proxy (auto-managed by PrimeBypass)"),
+        line("10.0.0.2 tg.site"),
+    ];
     lines.push(line(""));
     lines.push(line("10.0.0.9 tg.site"));
     let wanted: Rows = vec![("tg.site".to_string(), "10.0.0.2".to_string())];
     let (kept, dropped) = drop_conflicting_foreign_rows(&lines, &wanted);
     let joined = kept.join("");
     assert_eq!(dropped, vec!["10.0.0.9 tg.site".to_string()]);
-    assert!(joined.contains("10.0.0.2 tg.site"), "блок Telegram не тронут");
+    assert!(
+        joined.contains("10.0.0.2 tg.site"),
+        "блок Telegram не тронут"
+    );
 }
 
 #[test]
@@ -232,11 +251,9 @@ fn filters_empty_dupes_and_ipv6() {
     let (desired_with_ipv6, had2) = filter_desired_hosts_rows(&rows, true);
     assert!(had2);
     assert_eq!(desired_with_ipv6.len(), 3);
-    assert!(
-        desired_with_ipv6
-            .iter()
-            .any(|(d, ip)| d == &"two.site" && ip.starts_with("2620:"))
-    );
+    assert!(desired_with_ipv6
+        .iter()
+        .any(|(d, ip)| d.as_str() == "two.site" && ip.starts_with("2620:")));
 }
 
 #[test]
@@ -250,7 +267,10 @@ fn binary_rows_key_compare_is_domain_orderless_dot_aware() {
         ("one.site".to_string(), "10.0.0.5".to_string()),
     ];
     assert_eq!(hosts_rows_key(&one), hosts_rows_key(&two));
-    let three: Rows = vec![("one.site".to_string(), "10.0.0.9".to_string()), ("two.site".to_string(), "10.0.0.6".to_string())];
+    let three: Rows = vec![
+        ("one.site".to_string(), "10.0.0.9".to_string()),
+        ("two.site".to_string(), "10.0.0.6".to_string()),
+    ];
     assert_ne!(hosts_rows_key(&one), hosts_rows_key(&three));
 }
 
@@ -269,10 +289,10 @@ fn decide_refresh_all_zones() {
     let block_rows = block_rows_of(&block);
 
     assert!(block_rows.len() == 1);
-    let (should, reason) = decide_applied_selection_refresh(&Rows::new(), true, true, || vec![]);
+    let (should, reason) = decide_applied_selection_refresh(&Rows::new(), true, true, Vec::new);
     assert!(!should);
     assert!(reason.contains("блока"), "{reason}");
-    let (should, reason) = decide_applied_selection_refresh(&block_rows, false, true, || vec![]);
+    let (should, reason) = decide_applied_selection_refresh(&block_rows, false, true, Vec::new);
     assert!(!should);
     assert!(reason.contains("выбор"), "{reason}");
     let desired: Rows = vec![("one.site".to_string(), "10.0.0.5".to_string())];
@@ -289,7 +309,12 @@ fn decide_refresh_all_zones() {
 
 #[test]
 fn ipv6_block_not_dropped_when_ipv6_down() {
-    let block = format!("{BEGIN}{IP}5{END}", BEGIN = line(MANAGED_HOSTS_BEGIN), IP = "", END = "");
+    let block = format!(
+        "{BEGIN}{IP}5{END}",
+        BEGIN = line(MANAGED_HOSTS_BEGIN),
+        IP = "",
+        END = ""
+    );
     let _ = &block;
     let text = format!(
         "{}10.0.0.5 one.site\n2620:0:2d0:200::7 one.site\n{}",
@@ -305,7 +330,10 @@ fn ipv6_block_not_dropped_when_ipv6_down() {
     let (should, _) = decide_applied_selection_refresh(&block_rows, true, true, || {
         vec![("one.site".to_string(), "10.0.0.5".to_string())]
     });
-    assert!(should, "IPv6 доступен — сверить разница адресов ведёт к записи");
+    assert!(
+        should,
+        "IPv6 доступен — сверить разница адресов ведёт к записи"
+    );
 }
 
 #[test]

@@ -24,9 +24,7 @@ pub fn load_profile_templates(user_root: &Path, engine: &str) -> Vec<(String, Pr
     let Ok(raw_text) = std::fs::read_to_string(&path) else {
         log_debug(&format!(
             "ProfileTemplateCatalog: не удалось прочитать {}: файл не читается",
-            path.file_name()
-                .unwrap_or_default()
-                .to_string_lossy()
+            path.file_name().unwrap_or_default().to_string_lossy()
         ));
         return templates;
     };
@@ -48,7 +46,9 @@ pub fn load_profile_templates(user_root: &Path, engine: &str) -> Vec<(String, Pr
             })
             .unwrap_or(false);
         if has_strategy {
-            log_debug("ProfileTemplateCatalog: all_profiles.txt содержит strategy, шаблон пропущен");
+            log_debug(
+                "ProfileTemplateCatalog: all_profiles.txt содержит strategy, шаблон пропущен",
+            );
             continue;
         }
         let template_id = format!("all_profiles:{}", profile.index);

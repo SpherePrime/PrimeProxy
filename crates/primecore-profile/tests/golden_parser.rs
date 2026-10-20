@@ -84,18 +84,51 @@ fn profile_value(profile: &Profile) -> Value {
 #[test]
 fn parse_preset_text_matches_python() {
     for case in golden().as_array().unwrap() {
-        let Some(preset) = case.get("preset") else { continue };
+        let Some(preset) = case.get("preset") else {
+            continue;
+        };
         let text = case["text"].as_str().unwrap();
         let engine = case["engine"].as_str().unwrap();
         let parsed = parse_preset_text(text, engine, "").expect("пресет разбирается");
-        assert_eq!(json!(parsed.engine), preset["engine"], "{}: движок", case["name"]);
-        assert_eq!(json!(parsed.header_lines), preset["header_lines"], "{}: шапка", case["name"]);
-        assert_eq!(json!(parsed.preamble_lines), preset["preamble_lines"], "{}: preamble", case["name"]);
-        assert_eq!(json!(parsed.footer_lines), preset["footer_lines"], "{}: хвост", case["name"]);
+        assert_eq!(
+            json!(parsed.engine),
+            preset["engine"],
+            "{}: движок",
+            case["name"]
+        );
+        assert_eq!(
+            json!(parsed.header_lines),
+            preset["header_lines"],
+            "{}: шапка",
+            case["name"]
+        );
+        assert_eq!(
+            json!(parsed.preamble_lines),
+            preset["preamble_lines"],
+            "{}: preamble",
+            case["name"]
+        );
+        assert_eq!(
+            json!(parsed.footer_lines),
+            preset["footer_lines"],
+            "{}: хвост",
+            case["name"]
+        );
         let expected_profiles = preset["profiles"].as_array().unwrap();
-        assert_eq!(parsed.profiles.len(), expected_profiles.len(), "{}: профили", case["name"]);
+        assert_eq!(
+            parsed.profiles.len(),
+            expected_profiles.len(),
+            "{}: профили",
+            case["name"]
+        );
         for (profile, expected) in parsed.profiles.iter().zip(expected_profiles) {
-            assert_eq!(profile_value(profile), *expected, "{}: профиль {:?}", case["name"], profile.id);
+            assert_eq!(
+                profile_value(profile),
+                *expected,
+                "{}: профиль {:?}",
+                case["name"],
+                profile.id
+            );
         }
     }
 }

@@ -73,7 +73,10 @@ fn read_and_ranges_match_python() {
 
 #[test]
 fn normalize_and_file_reference_match_python() {
-    for case in GOLDEN["ops"]["normalize_filter_value"].as_array().expect("список") {
+    for case in GOLDEN["ops"]["normalize_filter_value"]
+        .as_array()
+        .expect("список")
+    {
         let value = case[0].as_str().expect("значение");
         let kind = case[1].as_str().expect("тип");
         assert_eq!(
@@ -131,10 +134,8 @@ fn edits_match_python() {
             "range_same_invalid" => settings.in_range = "n6".to_string(),
             other => panic!("неизвестная правка {other}"),
         }
-        let updated =
-            with_editable_profile_settings(&scenario, index, &settings).unwrap_or_else(|error| {
-                panic!("сценарий {name} не применился: {error}")
-            });
+        let updated = with_editable_profile_settings(&scenario, index, &settings)
+            .unwrap_or_else(|error| panic!("сценарий {name} не применился: {error}"));
         assert_eq!(preset_value(&updated), case.1["preset"], "правка {name}");
     }
 }
@@ -157,37 +158,45 @@ fn errors_match_python() {
     for (name, expected) in GOLDEN["ops"]["errors"].as_object().expect("ошибки") {
         let scenario = preset();
         let result = match name.as_str() {
-            "bogus_kind" => {
-                with_editable_profile_settings(&scenario, 0, &EditableProfileSettings {
+            "bogus_kind" => with_editable_profile_settings(
+                &scenario,
+                0,
+                &EditableProfileSettings {
                     filter_kind: "bogus".to_string(),
                     filter_value: "a.txt".to_string(),
                     ..EditableProfileSettings::default()
-                })
-            }
-            "empty_value" => {
-                with_editable_profile_settings(&scenario, 0, &EditableProfileSettings {
+                },
+            ),
+            "empty_value" => with_editable_profile_settings(
+                &scenario,
+                0,
+                &EditableProfileSettings {
                     filter_value: String::new(),
                     ..EditableProfileSettings::default()
-                })
-            }
-            "not_file" => {
-                with_editable_profile_settings(&scenario, 0, &EditableProfileSettings {
+                },
+            ),
+            "not_file" => with_editable_profile_settings(
+                &scenario,
+                0,
+                &EditableProfileSettings {
                     filter_value: ":/not_file".to_string(),
                     ..EditableProfileSettings::default()
-                })
-            }
+                },
+            ),
             "bad_range" => {
                 let mut settings = read_editable_profile_settings(&scenario.profiles[0]);
                 settings.in_range = "n6".to_string();
                 with_editable_profile_settings(&scenario, 0, &settings)
             }
-            "wrong_index" => {
-                with_editable_profile_settings(&scenario, 9, &EditableProfileSettings {
+            "wrong_index" => with_editable_profile_settings(
+                &scenario,
+                9,
+                &EditableProfileSettings {
                     filter_kind: "hostlist".to_string(),
                     filter_value: "a.txt".to_string(),
                     ..EditableProfileSettings::default()
-                })
-            }
+                },
+            ),
             other => panic!("неизвестная ошибка {other}"),
         };
         assert_eq!(
@@ -219,7 +228,9 @@ fn insert_indexes_match_python() {
         "индекс вставки"
     );
     assert_eq!(
-        GOLDEN["ops"]["insert_index_initial"].as_u64().expect("индекс"),
+        GOLDEN["ops"]["insert_index_initial"]
+            .as_u64()
+            .expect("индекс"),
         new_profile_insert_index(&scenario) as u64,
         "индекс вставки в исходный"
     );

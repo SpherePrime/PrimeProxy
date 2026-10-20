@@ -1,8 +1,7 @@
 //! Порт `src/settings/schema.py`: константы настроек и дефолтные секции.
 
-use serde_json::{json, Map, Value};
 use serde_json::Value::Object;
-
+use serde_json::{Map, Value};
 
 /// Секция настроек `program`. Отдаётся как JSON-объект, ключи те же, что
 /// в питоновском `default_program()`.
@@ -80,7 +79,16 @@ pub const CHECK_HISTORY_LEVELS: [&str; 4] = ["ok", "warn", "fail", "unknown"];
 pub const CHECK_HISTORY_ZAPRET: [&str; 3] = ["on", "off", ""];
 
 pub const FAKE_KINDS: [&str; 10] = [
-    "tls", "quic", "http", "stun", "dht", "discord", "wireguard", "dtls", "zeros", "other",
+    "tls",
+    "quic",
+    "http",
+    "stun",
+    "dht",
+    "discord",
+    "wireguard",
+    "dtls",
+    "zeros",
+    "other",
 ];
 
 pub fn string_in(text: &str, set: &[&str]) -> bool {
@@ -108,10 +116,7 @@ pub fn default_program() -> Value {
         ("max_blocked", Value::Bool(false)),
         ("russian_state_media_blocked", Value::Bool(false)),
         ("defender_disabled", Value::Bool(false)),
-        (
-            "last_seen_version",
-            Value::String(String::new()),
-        ),
+        ("last_seen_version", Value::String(String::new())),
     ])
 }
 
@@ -232,10 +237,7 @@ pub fn default_user_profiles() -> Value {
 }
 
 pub fn default_user_fakes() -> Value {
-    json_object([
-        ("version", Value::from(1)),
-        ("fakes", Object(Map::new())),
-    ])
+    json_object([("version", Value::from(1)), ("fakes", Object(Map::new()))])
 }
 
 pub fn default_orchestra_settings() -> Value {
@@ -420,7 +422,11 @@ pub const WINWS1_PRESET_FOLDERS: &[FolderSpec] = &[
 pub const PROFILE_FOLDERS: &[FolderSpec] = &[
     ("youtube", "YouTube", false),
     ("discord", "Discord", false),
-    (FOLDER_VOICE_KEY, "Голосовые звонки (Discord, Telegram)", false),
+    (
+        FOLDER_VOICE_KEY,
+        "Голосовые звонки (Discord, Telegram)",
+        false,
+    ),
     ("github", "GitHub", false),
     ("telegram", "Telegram", false),
     ("whatsapp", "WhatsApp", false),
@@ -467,8 +473,7 @@ fn build_default_state(specs: &[FolderSpec]) -> Value {
 }
 
 pub fn default_preset_folders(scope_key: &str) -> Value {
-    let specs = if scope_key.trim().to_lowercase() == "winws1"
-    {
+    let specs = if scope_key.trim().to_lowercase() == "winws1" {
         WINWS1_PRESET_FOLDERS
     } else {
         WINWS2_PRESET_FOLDERS
@@ -487,7 +492,10 @@ where
     I: IntoIterator<Item = (&'static str, Value)>,
 {
     Object(to_map(
-        entries.into_iter().map(|(k, v)| (k.to_string(), v)).collect(),
+        entries
+            .into_iter()
+            .map(|(k, v)| (k.to_string(), v))
+            .collect(),
     ))
 }
 
@@ -514,7 +522,10 @@ mod tests {
     #[test]
     fn default_cursor_invariants() {
         let settings = build_default_settings();
-        assert_eq!(settings.get("version"), Some(&Value::from(SETTINGS_VERSION)));
+        assert_eq!(
+            settings.get("version"),
+            Some(&Value::from(SETTINGS_VERSION))
+        );
         assert_eq!(
             settings
                 .get("program")
@@ -522,5 +533,4 @@ mod tests {
             Some(&Value::String("zapret2_mode".into()))
         );
     }
-
 }

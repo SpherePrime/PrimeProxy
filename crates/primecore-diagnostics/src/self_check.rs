@@ -53,7 +53,9 @@ pub enum ConnectOutcome {
 #[must_use]
 pub fn collect(outcome: ConnectOutcome) -> SelfFacts {
     match outcome {
-        ConnectOutcome::Accepted => SelfFacts { accepted: Some(true) },
+        ConnectOutcome::Accepted => SelfFacts {
+            accepted: Some(true),
+        },
         ConnectOutcome::Refused { cancelled } => SelfFacts {
             accepted: if cancelled { None } else { Some(false) },
         },
@@ -93,15 +95,27 @@ mod tests {
     #[test]
     fn collect_python_branches() {
         assert_eq!(collect(ConnectOutcome::Accepted).accepted, Some(true));
-        assert_eq!(collect(ConnectOutcome::Refused { cancelled: false }).accepted, Some(false));
-        assert_eq!(collect(ConnectOutcome::Refused { cancelled: true }).accepted, None);
+        assert_eq!(
+            collect(ConnectOutcome::Refused { cancelled: false }).accepted,
+            Some(false)
+        );
+        assert_eq!(
+            collect(ConnectOutcome::Refused { cancelled: true }).accepted,
+            None
+        );
     }
 
     #[test]
     fn judge_only_on_accepted() {
-        assert!(judge(&SelfFacts { accepted: Some(false) }).is_none());
+        assert!(judge(&SelfFacts {
+            accepted: Some(false)
+        })
+        .is_none());
         assert!(judge(&SelfFacts { accepted: None }).is_none());
-        let item = judge(&SelfFacts { accepted: Some(true) }).unwrap();
+        let item = judge(&SelfFacts {
+            accepted: Some(true),
+        })
+        .unwrap();
         assert_eq!(item.key, "self_check");
         assert_eq!(item.title, "Перехват соединений");
         assert_eq!(item.level, LEVEL_WARN);
@@ -111,6 +125,9 @@ mod tests {
              программа на этом компьютере: антивирус с проверкой HTTPS, прокси или VPN. Выводы о блокировках \
              могут быть неверны"
         );
-        assert_eq!(item.advice, "Отключите такую программу на время проверки и повторите её.");
+        assert_eq!(
+            item.advice,
+            "Отключите такую программу на время проверки и повторите её."
+        );
     }
 }

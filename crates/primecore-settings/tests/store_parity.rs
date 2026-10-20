@@ -13,7 +13,9 @@ use std::sync::OnceLock;
 use serde_json::Value;
 
 fn db_dir() -> Option<PathBuf> {
-    std::env::var("PRIMECORE_SETTINGS_DB_DIR").ok().map(PathBuf::from)
+    std::env::var("PRIMECORE_SETTINGS_DB_DIR")
+        .ok()
+        .map(PathBuf::from)
 }
 
 #[test]
@@ -25,8 +27,16 @@ fn fresh_init_matches_python_defaults() {
     }
     let (database, initial) =
         primecore_settings::store::SettingsDatabase::open_with_recovery(&path).expect("fresh open");
-    assert_eq!(database.read_revision().ok(), Some(1), "первая инициализация даёт ревизию 1");
-    assert_eq!(&initial, &primecore_settings::schema::build_default_settings(), "свежая база == дефолты");
+    assert_eq!(
+        database.read_revision().ok(),
+        Some(1),
+        "первая инициализация даёт ревизию 1"
+    );
+    assert_eq!(
+        &initial,
+        &primecore_settings::schema::build_default_settings(),
+        "свежая база == дефолты"
+    );
     // Python-стор проверяется следующим шагом (fresh_dump.json).
     std::fs::write(
         db_dir.join("fresh_dump.json"),
@@ -58,11 +68,23 @@ fn python_db_reads_with_same_sections_revisions_and_settings() {
     assert!(path.exists(), "нет базы: {}", path.display());
     let (database, initial) =
         primecore_settings::store::SettingsDatabase::open_with_recovery(&path).expect("open");
-    assert_eq!(database.read_revision().ok(), Some(3), "ревизия после двух питоновских мутаций");
-    assert_eq!(&initial, &dump()["settings"], "normalize_settings(parsed sections) == python dump");
+    assert_eq!(
+        database.read_revision().ok(),
+        Some(3),
+        "ревизия после двух питоновских мутаций"
+    );
+    assert_eq!(
+        &initial,
+        &dump()["settings"],
+        "normalize_settings(parsed sections) == python dump"
+    );
     // сырые секции тоже должны совпасть: python пишет нормализованные payload
     let raw = database.read_raw_sections().expect("raw");
-    assert_eq!(Value::Object(raw), dump()["settings"], "raw sections == python dump");
+    assert_eq!(
+        Value::Object(raw),
+        dump()["settings"],
+        "raw sections == python dump"
+    );
     let _ = database;
 }
 
@@ -88,7 +110,11 @@ fn rust_write_is_read_by_python_expectations() {
     };
     let updated = database.update_settings(mutator).expect("update");
     let revision_after = database.read_revision().expect("revision");
-    assert_eq!(revision_after, revision_before + 1, "ревизия инкрементируется");
+    assert_eq!(
+        revision_after,
+        revision_before + 1,
+        "ревизия инкрементируется"
+    );
     // Результат письма отдаём для проверки питоновской стороной.
     let out_path = db_dir.join("rust_write.json");
     std::fs::write(

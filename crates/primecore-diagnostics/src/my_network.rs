@@ -83,8 +83,17 @@ pub fn measure_hop_count(probe: &Prober, ttl: u32, count: usize) -> Option<HopSa
             None => continue,
         }
     }
-    let average = if times.is_empty() { None } else { Some(times.iter().sum::<f64>() / times.len() as f64) };
-    Some(HopSample { address, sent: count as u32, answered, avg_ms: average })
+    let average = if times.is_empty() {
+        None
+    } else {
+        Some(times.iter().sum::<f64>() / times.len() as f64)
+    };
+    Some(HopSample {
+        address,
+        sent: count as u32,
+        answered,
+        avg_ms: average,
+    })
 }
 
 /// Факты о сети, собранные вокруг внешнего адреса и пингов.
@@ -113,7 +122,11 @@ pub struct NetworkLine {
 
 impl NetworkLine {
     pub fn new(state: &'static str, name: &'static str, text: &str) -> Self {
-        NetworkLine { state, name, text: text.to_string() }
+        NetworkLine {
+            state,
+            name,
+            text: text.to_string(),
+        }
     }
 }
 
@@ -203,7 +216,11 @@ fn link_lines(facts: &NetworkFacts) -> Vec<NetworkLine> {
         lines.push(NetworkLine::new(
             "ok",
             "Роутер",
-            &format!("{} — отвечает за {}, потерь нет", router.address, ms(router.avg_ms)),
+            &format!(
+                "{} — отвечает за {}, потерь нет",
+                router.address,
+                ms(router.avg_ms)
+            ),
         ));
     }
 
@@ -218,11 +235,23 @@ fn link_lines(facts: &NetworkFacts) -> Vec<NetworkLine> {
                         &format!("{} — ещё один роутер (двойная сеть). Работать не мешает, но входящие соединения усложняет", beyond.address),
                     ));
                 } else if kind == AddressKind::CARRIER {
-                    lines.push(NetworkLine::new("info", "За роутером", &format!("{} — общий адрес провайдера (CGNAT)", beyond.address)));
+                    lines.push(NetworkLine::new(
+                        "info",
+                        "За роутером",
+                        &format!("{} — общий адрес провайдера (CGNAT)", beyond.address),
+                    ));
                 } else if kind == AddressKind::LOCAL {
-                    lines.push(NetworkLine::new("info", "За роутером", &format!("{} — внутренняя сеть провайдера", beyond.address)));
+                    lines.push(NetworkLine::new(
+                        "info",
+                        "За роутером",
+                        &format!("{} — внутренняя сеть провайдера", beyond.address),
+                    ));
                 } else {
-                    lines.push(NetworkLine::new("info", "За роутером", &format!("{} — сеть провайдера", beyond.address)));
+                    lines.push(NetworkLine::new(
+                        "info",
+                        "За роутером",
+                        &format!("{} — сеть провайдера", beyond.address),
+                    ));
                 }
             }
         }
@@ -235,11 +264,20 @@ fn link_lines(facts: &NetworkFacts) -> Vec<NetworkLine> {
             "сервер на пинг не ответил — провайдер может резать пинг, это не поломка",
         ));
     } else if internet.lost() >= LOSS_LIMIT {
-        let where_text = if router_bad { "они начинаются уже до роутера" } else { "до роутера потерь нет — теряется дальше, у провайдера" };
+        let where_text = if router_bad {
+            "они начинаются уже до роутера"
+        } else {
+            "до роутера потерь нет — теряется дальше, у провайдера"
+        };
         lines.push(NetworkLine::new(
             "warn",
             "Связь с интернетом",
-            &format!("теряется {} из {} пакетов ({}). При таких потерях результаты проверки ненадёжны", internet.lost(), internet.sent, where_text),
+            &format!(
+                "теряется {} из {} пакетов ({}). При таких потерях результаты проверки ненадёжны",
+                internet.lost(),
+                internet.sent,
+                where_text
+            ),
         ));
     } else {
         lines.push(NetworkLine::new(
@@ -252,12 +290,18 @@ fn link_lines(facts: &NetworkFacts) -> Vec<NetworkLine> {
 }
 
 fn owner_text(owner: Option<&IpOwner>) -> String {
-    let Some(owner) = owner else { return String::new() };
+    let Some(owner) = owner else {
+        return String::new();
+    };
     let mut parts = vec![owner.owner.clone()];
     if !owner.asn.is_empty() {
         parts.push(format!("AS{}", owner.asn));
     }
-    let kept: Vec<&str> = parts.iter().map(String::as_str).filter(|part| !part.is_empty()).collect();
+    let kept: Vec<&str> = parts
+        .iter()
+        .map(String::as_str)
+        .filter(|part| !part.is_empty())
+        .collect();
     kept.join(" · ")
 }
 
@@ -265,8 +309,16 @@ fn owner_text(owner: Option<&IpOwner>) -> String {
 pub fn judge(facts: &NetworkFacts, bypass_tools: &[String]) -> Vec<NetworkLine> {
     let mut lines = Vec::new();
     if !facts.external_ip.is_empty() {
-        let place = if facts.country.is_empty() { String::new() } else { format!(" ({})", facts.country) };
-        lines.push(NetworkLine::new("info", "Внешний адрес", &format!("{}{}", facts.external_ip, place)));
+        let place = if facts.country.is_empty() {
+            String::new()
+        } else {
+            format!(" ({})", facts.country)
+        };
+        lines.push(NetworkLine::new(
+            "info",
+            "Внешний адрес",
+            &format!("{}{}", facts.external_ip, place),
+        ));
         let owner = owner_text(facts.owner.as_ref());
         if !owner.is_empty() {
             let owner_struct = facts.owner.as_ref().unwrap();
@@ -274,19 +326,38 @@ pub fn judge(facts: &NetworkFacts, bypass_tools: &[String]) -> Vec<NetworkLine> 
             lines.push(NetworkLine::new(
                 "info",
                 "Провайдер",
-                &format!("{owner}{}", if country.is_empty() { String::new() } else { format!(", {country}") }),
+                &format!(
+                    "{owner}{}",
+                    if country.is_empty() {
+                        String::new()
+                    } else {
+                        format!(", {country}")
+                    }
+                ),
             ));
             if !owner_struct.prefix.is_empty() {
                 lines.push(NetworkLine::new("info", "Сеть", &owner_struct.prefix));
             }
         } else {
-            lines.push(NetworkLine::new("unknown", "Провайдер", "узнать не удалось"));
+            lines.push(NetworkLine::new(
+                "unknown",
+                "Провайдер",
+                "узнать не удалось",
+            ));
         }
     } else {
-        lines.push(NetworkLine::new("unknown", "Внешний адрес", "узнать не удалось: сервер Cloudflare не ответил"));
+        lines.push(NetworkLine::new(
+            "unknown",
+            "Внешний адрес",
+            "узнать не удалось: сервер Cloudflare не ответил",
+        ));
     }
 
-    let kind = if facts.local_ip.is_empty() { AddressKind::INVALID } else { address_kind(&facts.local_ip) };
+    let kind = if facts.local_ip.is_empty() {
+        AddressKind::INVALID
+    } else {
+        address_kind(&facts.local_ip)
+    };
     if kind == AddressKind::CARRIER {
         lines.push(NetworkLine::new(
             "info",
@@ -296,13 +367,22 @@ pub fn judge(facts: &NetworkFacts, bypass_tools: &[String]) -> Vec<NetworkLine> 
                 facts.local_ip
             ),
         ));
-    } else if !facts.local_ip.is_empty() && !facts.external_ip.is_empty() && facts.local_ip == facts.external_ip {
+    } else if !facts.local_ip.is_empty()
+        && !facts.external_ip.is_empty()
+        && facts.local_ip == facts.external_ip
+    {
         lines.push(NetworkLine::new(
             "info",
             "Адрес компьютера",
-            &format!("{} — совпадает с внешним, прямое подключение", facts.local_ip),
+            &format!(
+                "{} — совпадает с внешним, прямое подключение",
+                facts.local_ip
+            ),
         ));
-    } else if !facts.local_ip.is_empty() && kind == AddressKind::PUBLIC && !facts.external_ip.is_empty() {
+    } else if !facts.local_ip.is_empty()
+        && kind == AddressKind::PUBLIC
+        && !facts.external_ip.is_empty()
+    {
         // У компьютера свой адрес в интернете, а снаружи виден другой: между ними кто-то есть.
         lines.push(NetworkLine::new(
             "info",
@@ -313,18 +393,29 @@ pub fn judge(facts: &NetworkFacts, bypass_tools: &[String]) -> Vec<NetworkLine> 
             ),
         ));
     } else if !facts.local_ip.is_empty() {
-        lines.push(NetworkLine::new("info", "Адрес компьютера", &format!("{} — за роутером", facts.local_ip)));
+        lines.push(NetworkLine::new(
+            "info",
+            "Адрес компьютера",
+            &format!("{} — за роутером", facts.local_ip),
+        ));
     }
 
     lines.extend(link_lines(facts));
-    let tools: Vec<&String> = bypass_tools.iter().filter(|item| !item.is_empty()).collect();
+    let tools: Vec<&String> = bypass_tools
+        .iter()
+        .filter(|item| !item.is_empty())
+        .collect();
     if !tools.is_empty() {
         lines.push(NetworkLine::new(
             "warn",
             "Другие программы обхода и VPN",
             &format!(
                 "работают: {} — внешний адрес и вся проверка описывают сеть вместе с ними",
-                tools.iter().map(|item| item.as_str()).collect::<Vec<&str>>().join(", ")
+                tools
+                    .iter()
+                    .map(|item| item.as_str())
+                    .collect::<Vec<&str>>()
+                    .join(", ")
             ),
         ));
     }
@@ -351,7 +442,11 @@ pub fn collect(
             }
         }
     }
-    let owner = if external.is_empty() { None } else { owner_of(&external) };
+    let owner = if external.is_empty() {
+        None
+    } else {
+        owner_of(&external)
+    };
     let (router, beyond, internet) = match probe {
         None => (None, None, None),
         Some(prober) => (
@@ -376,7 +471,10 @@ mod tests {
     use super::*;
 
     fn lines_text(lines: &[NetworkLine]) -> Vec<String> {
-        lines.iter().map(|line| format!("{} | {} | {}", line.state, line.name, line.text)).collect()
+        lines
+            .iter()
+            .map(|line| format!("{} | {} | {}", line.state, line.name, line.text))
+            .collect()
     }
 
     #[test]
@@ -391,9 +489,24 @@ mod tests {
                 owner: "YANDEX LLC".to_string(),
             }),
             local_ip: "77.88.8.11".to_string(),
-            router: Some(HopSample { address: "192.168.1.1".to_string(), sent: 5, answered: 5, avg_ms: Some(1.2) }),
-            beyond: Some(HopSample { address: "100.64.0.1".to_string(), sent: 5, answered: 5, avg_ms: Some(8.0) }),
-            internet: Some(HopSample { address: "1.1.1.1".to_string(), sent: 5, answered: 4, avg_ms: Some(22.0) }),
+            router: Some(HopSample {
+                address: "192.168.1.1".to_string(),
+                sent: 5,
+                answered: 5,
+                avg_ms: Some(1.2),
+            }),
+            beyond: Some(HopSample {
+                address: "100.64.0.1".to_string(),
+                sent: 5,
+                answered: 5,
+                avg_ms: Some(8.0),
+            }),
+            internet: Some(HopSample {
+                address: "1.1.1.1".to_string(),
+                sent: 5,
+                answered: 4,
+                avg_ms: Some(22.0),
+            }),
         };
         let got = lines_text(&judge(&facts, &[]));
         assert_eq!(
@@ -415,9 +528,19 @@ mod tests {
         let facts = NetworkFacts {
             external_ip: String::new(),
             local_ip: "192.168.1.5".to_string(),
-            router: Some(HopSample { address: "192.168.1.1".to_string(), sent: 5, answered: 2, avg_ms: Some(2.0) }),
+            router: Some(HopSample {
+                address: "192.168.1.1".to_string(),
+                sent: 5,
+                answered: 2,
+                avg_ms: Some(2.0),
+            }),
             beyond: Some(HopSample::default()),
-            internet: Some(HopSample { address: "1.1.1.1".to_string(), sent: 5, answered: 5, avg_ms: Some(30.0) }),
+            internet: Some(HopSample {
+                address: "1.1.1.1".to_string(),
+                sent: 5,
+                answered: 5,
+                avg_ms: Some(30.0),
+            }),
             ..Default::default()
         };
         let got = lines_text(&judge(&facts, &[]));
@@ -437,19 +560,39 @@ mod tests {
         let facts = NetworkFacts {
             external_ip: "77.88.8.88".to_string(),
             local_ip: "10.0.0.5".to_string(),
-            router: Some(HopSample { address: "192.168.1.1".to_string(), sent: 5, answered: 5, avg_ms: Some(45.0) }),
-            internet: Some(HopSample { address: "1.1.1.1".to_string(), sent: 5, answered: 5, avg_ms: Some(2.0) }),
+            router: Some(HopSample {
+                address: "192.168.1.1".to_string(),
+                sent: 5,
+                answered: 5,
+                avg_ms: Some(45.0),
+            }),
+            internet: Some(HopSample {
+                address: "1.1.1.1".to_string(),
+                sent: 5,
+                answered: 5,
+                avg_ms: Some(2.0),
+            }),
             ..Default::default()
         };
         let got = lines_text(&judge(&facts, &["v2rayN".to_string()]));
-        assert!(got.iter().any(|line| line.starts_with("warn | Роутер | 192.168.1.1 — отвечает медленно (45 мс)")));
-        assert!(got.iter().any(|line| line.starts_with("warn | Другие программы обхода и VPN | работают: v2rayN")));
+        assert!(got.iter().any(
+            |line| line.starts_with("warn | Роутер | 192.168.1.1 — отвечает медленно (45 мс)")
+        ));
+        assert!(got.iter().any(
+            |line| line.starts_with("warn | Другие программы обхода и VPN | работают: v2rayN")
+        ));
     }
 
     #[test]
     fn parse_trace_fields() {
-        assert_eq!(parse_trace(b"ip=77.88.8.88\nloc=ru\nh=cf\n"), ("77.88.8.88".to_string(), "RU".to_string()));
-        assert_eq!(parse_trace(b"ip=not-an-ip\nloc=us\n"), (String::new(), "US".to_string()));
+        assert_eq!(
+            parse_trace(b"ip=77.88.8.88\nloc=ru\nh=cf\n"),
+            ("77.88.8.88".to_string(), "RU".to_string())
+        );
+        assert_eq!(
+            parse_trace(b"ip=not-an-ip\nloc=us\n"),
+            (String::new(), "US".to_string())
+        );
     }
 
     #[test]

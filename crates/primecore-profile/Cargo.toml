@@ -9,6 +9,7 @@ description = "Порт src/profile — модели, разбор страте�
 serde_json.workspace = true
 serde.workspace = true
 regex.workspace = true
+fancy-regex.workspace = true
 primecore-settings = { workspace = true }
 primecore-lists = { workspace = true }
 primecore-mode = { workspace = true }

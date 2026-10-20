@@ -13,8 +13,10 @@ use std::net::{IpAddr, SocketAddr, TcpStream, UdpSocket};
 use std::sync::atomic::{AtomicU16, Ordering};
 use std::time::{Duration, Instant};
 
-use primecore_netfailure::{classify_os_error, FAILURE_CANCELLED, FAILURE_CLOSED, FAILURE_MALFORMED,
-    FAILURE_OTHER, FAILURE_REFUSED, FAILURE_TIMEOUT};
+use primecore_netfailure::{
+    classify_os_error, FAILURE_CANCELLED, FAILURE_CLOSED, FAILURE_MALFORMED, FAILURE_OTHER,
+    FAILURE_REFUSED, FAILURE_TIMEOUT,
+};
 use primecore_socketcancel::SocketCancel;
 
 use crate::{
@@ -37,7 +39,10 @@ pub enum NetError {
     /// Ушли за общий предел времени запроса (python socket.timeout).
     Deadline,
     /// TLS: шифрование не установилось (`tls`) или сертификат чужой (`cert`).
-    Encrypted { failure: &'static str, detail: String },
+    Encrypted {
+        failure: &'static str,
+        detail: String,
+    },
 }
 
 /// Вид сбоя по управляющей ошибке (python _failure_for).
@@ -72,7 +77,11 @@ pub fn failed(transport: &str, error: &NetError, cancel: Option<&SocketCancel>) 
     // Отмена прерывает чтение обычной сетевой ошибкой: без этого «Стоп»
     // выглядел бы сбросом соединения.
     let interrupted = cancel.map(SocketCancel::cancelled).unwrap_or(false);
-    let failure = if interrupted { FAILURE_CANCELLED } else { failure_for(error) };
+    let failure = if interrupted {
+        FAILURE_CANCELLED
+    } else {
+        failure_for(error)
+    };
     if failure == FAILURE_TIMEOUT {
         return DnsQueryResult {
             status: STATUS_TIMEOUT.to_string(),
@@ -81,7 +90,11 @@ pub fn failed(transport: &str, error: &NetError, cancel: Option<&SocketCancel>) 
             ..DnsQueryResult::default()
         };
     }
-    let detail = if failure == FAILURE_CANCELLED { String::new() } else { error_detail(error) };
+    let detail = if failure == FAILURE_CANCELLED {
+        String::new()
+    } else {
+        error_detail(error)
+    };
     DnsQueryResult {
         status: STATUS_ERROR.to_string(),
         transport: transport.to_string(),
@@ -99,7 +112,11 @@ pub fn answered(transport: &str, message: DnsMessage, started: &Instant) -> DnsQ
         rcode: Some(message.rcode),
         records: message.answers.clone(),
         elapsed_ms: Some(started.elapsed().as_secs_f64() * 1000.0),
-        detail: if rcode_accepted { String::new() } else { format!("rcode {}", message.rcode) },
+        detail: if rcode_accepted {
+            String::new()
+        } else {
+            format!("rcode {}", message.rcode)
+        },
         transport: transport.to_string(),
         truncated: message.truncated,
         authoritative: message.authoritative,
@@ -107,7 +124,7 @@ pub fn answered(transport: &str, message: DnsMessage, started: &Instant) -> DnsQ
     }
 }
 
-pub (crate) fn status_for(message: &DnsMessage) -> String {
+pub(crate) fn status_for(message: &DnsMessage) -> String {
     if message.rcode == RCODE_NXDOMAIN {
         return STATUS_NXDOMAIN.to_string();
     }
@@ -124,9 +141,11 @@ pub (crate) fn status_for(message: &DnsMessage) -> String {
 /// Проверка адреса: должен быть IP (python _family / ip_address).
 /// Строка ошибки — как у python ipaddress, чтобы совпадали detail.
 pub fn parse_server_ip(server: &str) -> Result<IpAddr, NetError> {
-    server.parse::<IpAddr>().map_err(|_| NetError::DnsWire(format!(
-        "'{server}' does not appear to be an IPv4 or IPv6 address"
-    )))
+    server.parse::<IpAddr>().map_err(|_| {
+        NetError::DnsWire(format!(
+            "'{server}' does not appear to be an IPv4 or IPv6 address"
+        ))
+    })
 }
 
 /// Общий предел времени на запрос: каждый шаг получает только остаток
@@ -138,7 +157,9 @@ pub struct Deadline {
 
 impl Deadline {
     pub fn new(timeout_s: f64) -> Self {
-        Self { until: Instant::now() + Duration::from_secs_f64(timeout_s.max(0.0)) }
+        Self {
+            until: Instant::now() + Duration::from_secs_f64(timeout_s.max(0.0)),
+        }
     }
 
     pub fn remaining(&self) -> Result<Duration, NetError> {
@@ -153,7 +174,9 @@ impl Deadline {
 /// Отрезок ожидания для std: не больше остатка, но и не ноль
 /// (std не любит нулевой read timeout).
 fn wait_slice(remaining: Duration) -> Duration {
-    remaining.min(Duration::from_millis(200)).max(Duration::from_millis(1))
+    remaining
+        .min(Duration::from_millis(200))
+        .max(Duration::from_millis(1))
 }
 
 fn query_id_random() -> u16 {
@@ -213,10 +236,13 @@ fn check_interrupt(cancel: Option<&SocketCancel>) -> Result<(), NetError> {
 }
 
 fn wildcard_addrs(ip: IpAddr, port: u16) -> SocketAddr {
-    SocketAddr::new(match ip {
-        IpAddr::V4(_) => IpAddr::from([0, 0, 0, 0]),
-        IpAddr::V6(_) => IpAddr::from([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    }, port)
+    SocketAddr::new(
+        match ip {
+            IpAddr::V4(_) => IpAddr::from([0, 0, 0, 0]),
+            IpAddr::V6(_) => IpAddr::from([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        },
+        port,
+    )
 }
 
 /// Один запрос по UDP, без перехода на TCP.
@@ -249,15 +275,22 @@ pub fn query_udp(
         Ok(sock) => sock,
         Err(error) => return failed(transport, &NetError::Io(error), cancel),
     };
-    finish_udp_query(&socket, SocketAddr::new(ip, port), &query, query_id, &deadline, cancel)
-        .map_or_else(
-            // Пауза замера только на удачном ответе (как в python _answered).
-            |error| udp_error(transport, &error, cancel),
-            |answer| {
-                let _ = &started;
-                with_elapsed(answered(transport, answer, &started), &started)
-            },
-        )
+    finish_udp_query(
+        &socket,
+        SocketAddr::new(ip, port),
+        &query,
+        query_id,
+        &deadline,
+        cancel,
+    )
+    .map_or_else(
+        // Пауза замера только на удачном ответе (как в python _answered).
+        |error| udp_error(transport, &error, cancel),
+        |answer| {
+            let _ = &started;
+            with_elapsed(answered(transport, answer, &started), &started)
+        },
+    )
 }
 
 /// Так Windows/Linux сообщают об отказе прямо в recvfrom (ICMP «порт закрыт»).
@@ -265,7 +298,10 @@ fn udp_error(transport: &str, error: &NetError, cancel: Option<&SocketCancel>) -
     // python: except ConnectionResetError здесь особый отказ — refused
     // (а при отмене — обычный путь).
     if let NetError::Io(io_error) = error {
-        if matches!(io_error.kind(), ErrorKind::ConnectionRefused | ErrorKind::ConnectionReset) {
+        if matches!(
+            io_error.kind(),
+            ErrorKind::ConnectionRefused | ErrorKind::ConnectionReset
+        ) {
             return DnsQueryResult {
                 status: STATUS_ERROR.to_string(),
                 transport: transport.to_string(),
@@ -329,7 +365,7 @@ fn finish_udp_query(
 }
 
 /// Вычитывает ровно `size` байт или объявляет соединение закрытым (python _recv_exact).
-pub (in crate) fn recv_exact<S: Read>(
+pub(crate) fn recv_exact<S: Read>(
     stream: &mut S,
     size: usize,
     deadline: &Deadline,
@@ -388,8 +424,8 @@ pub fn exchange_framed<S: Read + Write>(
     }
     let size_header = recv_exact(stream, 2, deadline, cancel)?;
     let size = u16::from_be_bytes([size_header[0], size_header[1]]) as usize;
-    let message = parse_response(&recv_exact(stream, size, deadline, cancel)?)
-        .map_err(NetError::DnsWire)?;
+    let message =
+        parse_response(&recv_exact(stream, size, deadline, cancel)?).map_err(NetError::DnsWire)?;
     if message.query_id != query_id || !message.is_response {
         return Err(NetError::DnsWire("ответ не на наш запрос".to_string()));
     }

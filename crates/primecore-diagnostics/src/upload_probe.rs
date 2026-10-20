@@ -62,7 +62,11 @@ pub struct PostResult {
 #[cfg(test)]
 impl PostResult {
     fn of(kind: &str) -> Self {
-        Self { kind: kind.to_string(), sent: 0, status: None }
+        Self {
+            kind: kind.to_string(),
+            sent: 0,
+            status: None,
+        }
     }
 }
 
@@ -84,7 +88,10 @@ pub struct UploadVerdict {
 
 impl UploadVerdict {
     fn of(code: &str, text: &str) -> Self {
-        Self { code: code.to_string(), text: text.to_string() }
+        Self {
+            code: code.to_string(),
+            text: text.to_string(),
+        }
     }
 }
 
@@ -155,13 +162,20 @@ pub fn collect(
     // Контроль: сервер должен дождаться тела и только потом ответить.
     let first = small();
     if first.kind != POST_ANSWERED {
-        return UploadFacts { small: first, ..Default::default() };
+        return UploadFacts {
+            small: first,
+            ..Default::default()
+        };
     }
     let bulk_trade = split(&random_bytes(BULK_BYTES), BULK_CHUNK);
     let drip_trade = split(&random_bytes(DRIP_BYTES), DRIP_CHUNK);
     let bulk = submit(host, ip, path, bulk_trade, false);
     let drip = submit(host, ip, path, drip_trade, true);
-    UploadFacts { small: first, bulk: Some(bulk), drip: Some(drip) }
+    UploadFacts {
+        small: first,
+        bulk: Some(bulk),
+        drip: Some(drip),
+    }
 }
 
 /// python `os.urandom`:
@@ -173,9 +187,18 @@ fn random_bytes(size: usize) -> Vec<u8> {
 /// python `judge`: вывод по отправке.
 #[must_use]
 pub fn judge(facts: &UploadFacts) -> UploadVerdict {
-    let bulk_kind = facts.bulk.as_ref().map_or(String::new(), |bulk| bulk.kind.clone());
-    let drip_kind = facts.drip.as_ref().map_or(String::new(), |drip| drip.kind.clone());
-    if facts.small.kind == POST_CANCELLED || bulk_kind == POST_CANCELLED || drip_kind == POST_CANCELLED {
+    let bulk_kind = facts
+        .bulk
+        .as_ref()
+        .map_or(String::new(), |bulk| bulk.kind.clone());
+    let drip_kind = facts
+        .drip
+        .as_ref()
+        .map_or(String::new(), |drip| drip.kind.clone());
+    if facts.small.kind == POST_CANCELLED
+        || bulk_kind == POST_CANCELLED
+        || drip_kind == POST_CANCELLED
+    {
         return UploadVerdict::of(UPLOAD_UNKNOWN, "проверку отправки прервали");
     }
     if facts.small.kind == POST_EARLY {
@@ -185,7 +208,10 @@ pub fn judge(facts: &UploadFacts) -> UploadVerdict {
         );
     }
     if facts.small.kind != POST_ANSWERED || facts.bulk.is_none() || facts.drip.is_none() {
-        return UploadVerdict::of(UPLOAD_UNKNOWN, "сервер не принимает отправку данных — проверить её не на чем");
+        return UploadVerdict::of(
+            UPLOAD_UNKNOWN,
+            "сервер не принимает отправку данных — проверить её не на чем",
+        );
     }
     if facts.bulk.as_ref().unwrap().kind == POST_STALLED {
         let kilos = BULK_BYTES / 1024;
@@ -206,9 +232,14 @@ pub fn judge(facts: &UploadFacts) -> UploadVerdict {
             ),
         );
     }
-    if facts.bulk.as_ref().unwrap().kind != POST_ANSWERED || facts.drip.as_ref().unwrap().kind != POST_ANSWERED {
+    if facts.bulk.as_ref().unwrap().kind != POST_ANSWERED
+        || facts.drip.as_ref().unwrap().kind != POST_ANSWERED
+    {
         // Сброс вместо ответа: сервер мог сам отказаться от лишних данных.
-        return UploadVerdict::of(UPLOAD_UNKNOWN, "сервер оборвал отправку сам — это не похоже на замирание");
+        return UploadVerdict::of(
+            UPLOAD_UNKNOWN,
+            "сервер оборвал отправку сам — это не похоже на замирание",
+        );
     }
     UploadVerdict::of(UPLOAD_OK, "отправка данных проходит без обрыва")
 }
@@ -218,7 +249,11 @@ mod tests {
     use super::*;
 
     fn kind(kind: &str, status: Option<u16>) -> PostResult {
-        PostResult { kind: kind.to_string(), sent: 0, status }
+        PostResult {
+            kind: kind.to_string(),
+            sent: 0,
+            status,
+        }
     }
 
     #[test]
@@ -250,36 +285,34 @@ mod tests {
     #[test]
     fn post_confirmed_repeats_stall() {
         let mut calls = 0;
-        let closed = post_confirmed(
-            "h",
-            "i",
-            "/",
-            vec![],
-            |_host, _ip, _path, _chunks| {
-                calls += 1;
-                if calls < 2 { PostResult::of(POST_STALLED) } else { PostResult::of(POST_ANSWERED) }
-            },
-        );
+        let closed = post_confirmed("h", "i", "/", vec![], |_host, _ip, _path, _chunks| {
+            calls += 1;
+            if calls < 2 {
+                PostResult::of(POST_STALLED)
+            } else {
+                PostResult::of(POST_ANSWERED)
+            }
+        });
         assert_eq!(closed.kind, POST_ANSWERED);
         assert_eq!(calls, 2);
         let mut calls = 0;
-        let answered = post_confirmed(
-            "h",
-            "i",
-            "/",
-            vec![],
-            |_host, _ip, _path, _chunks| {
-                calls += 1;
-                PostResult::of(POST_ANSWERED)
-            },
-        );
+        let answered = post_confirmed("h", "i", "/", vec![], |_host, _ip, _path, _chunks| {
+            calls += 1;
+            PostResult::of(POST_ANSWERED)
+        });
         assert_eq!(answered.kind, POST_ANSWERED);
         assert_eq!(calls, 1);
     }
 
     #[test]
     fn collect_skips_when_small_refused() {
-        let facts = collect("h", "i", "/", || PostResult::of(POST_EARLY), |_, _, _, _, _| panic!("не был вызван"));
+        let facts = collect(
+            "h",
+            "i",
+            "/",
+            || PostResult::of(POST_EARLY),
+            |_, _, _, _, _| panic!("не был вызван"),
+        );
         assert_eq!(facts.bulk, None);
         assert_eq!(facts.drip, None);
         let mut calls = 0;
@@ -302,10 +335,20 @@ mod tests {
     fn judge_python_all_paths() {
         let small = kind(POST_ANSWERED, Some(200));
         // Всё хорошо.
-        let facts = UploadFacts { small: small.clone(), bulk: Some(kind(POST_ANSWERED, Some(200))), drip: Some(kind(POST_ANSWERED, Some(200))) };
-        assert_eq!(judge(&facts), UploadVerdict::of(UPLOAD_OK, "отправка данных проходит без обрыва"));
+        let facts = UploadFacts {
+            small: small.clone(),
+            bulk: Some(kind(POST_ANSWERED, Some(200))),
+            drip: Some(kind(POST_ANSWERED, Some(200))),
+        };
+        assert_eq!(
+            judge(&facts),
+            UploadVerdict::of(UPLOAD_OK, "отправка данных проходит без обрыва")
+        );
         // Прервали проверку в разных местах.
-        let facts = UploadFacts { small: kind(POST_CANCELLED, None), ..Default::default() };
+        let facts = UploadFacts {
+            small: kind(POST_CANCELLED, None),
+            ..Default::default()
+        };
         assert_eq!(judge(&facts).text, "проверку отправки прервали");
         let facts = UploadFacts {
             small: small.clone(),
@@ -320,18 +363,35 @@ mod tests {
         };
         assert_eq!(judge(&facts).text, "проверку отправки прервали");
         // Сервер не читает тело.
-        let facts = UploadFacts { small: kind(POST_EARLY, None), bulk: None, drip: None };
+        let facts = UploadFacts {
+            small: kind(POST_EARLY, None),
+            bulk: None,
+            drip: None,
+        };
         assert_eq!(
             judge(&facts).text,
             "сервер отвечает, не дочитав отправленное, — проверить отправку на нём нельзя"
         );
         // Не на чем проверять.
         for small in ["failed", "stalled"] {
-            let facts = UploadFacts { small: kind(small, None), ..Default::default() };
-            assert_eq!(judge(&facts).text, "сервер не принимает отправку данных — проверить её не на чем");
+            let facts = UploadFacts {
+                small: kind(small, None),
+                ..Default::default()
+            };
+            assert_eq!(
+                judge(&facts).text,
+                "сервер не принимает отправку данных — проверить её не на чем"
+            );
         }
-        let facts = UploadFacts { small: small.clone(), bulk: None, drip: None };
-        assert_eq!(judge(&facts).text, "сервер не принимает отправку данных — проверить её не на чем");
+        let facts = UploadFacts {
+            small: small.clone(),
+            bulk: None,
+            drip: None,
+        };
+        assert_eq!(
+            judge(&facts).text,
+            "сервер не принимает отправку данных — проверить её не на чем"
+        );
         // Большая отправка замирает.
         let facts = UploadFacts {
             small: small.clone(),
@@ -356,13 +416,21 @@ mod tests {
              пакетов, а не по объёму"
         );
         // Сервер сам сбросил.
-        for (bulk, drip) in [(POST_FAILED, POST_ANSWERED), (POST_ANSWERED, POST_FAILED), (POST_FAILED, POST_FAILED)] {
+        for (bulk, drip) in [
+            (POST_FAILED, POST_ANSWERED),
+            (POST_ANSWERED, POST_FAILED),
+            (POST_FAILED, POST_FAILED),
+        ] {
             let facts = UploadFacts {
                 small: small.clone(),
                 bulk: Some(kind(bulk, None)),
                 drip: Some(kind(drip, None)),
             };
-            assert_eq!(judge(&facts).text, "сервер оборвал отправку сам — это не похоже на замирание", "{bulk}/{drip}");
+            assert_eq!(
+                judge(&facts).text,
+                "сервер оборвал отправку сам — это не похоже на замирание",
+                "{bulk}/{drip}"
+            );
         }
     }
 }

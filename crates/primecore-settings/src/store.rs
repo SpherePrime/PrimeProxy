@@ -11,9 +11,7 @@ use rusqlite::Connection;
 use serde_json::{Map, Value};
 
 use crate::app_settings::normalize_settings;
-use crate::schema::{
-    build_default_settings, SETTINGS_DATABASE_FILE_NAME, SETTINGS_DIR_NAME,
-};
+use crate::schema::{build_default_settings, SETTINGS_DATABASE_FILE_NAME, SETTINGS_DIR_NAME};
 
 pub const SETTINGS_SCHEMA_VERSION: i64 = 1;
 
@@ -61,14 +59,14 @@ CREATE TABLE IF NOT EXISTS profile_identities (
 /// База настроек: живой sqlite-коннект и путь.
 pub struct SettingsDatabase {
     connection: Connection,
+    #[allow(dead_code)]
     path: PathBuf,
 }
 
 /// python json.dumps(sort_keys=True, separators=(",", ":"), ensure_ascii=False).
 /// serde_json не сортирует ключи по умолчанию — сортируем сами.
 pub fn serialize_section(value: &Value) -> String {
-    let text = serde_json::to_string(value).unwrap_or_default();
-    text
+    serde_json::to_string(value).unwrap_or_default()
 }
 
 impl SettingsDatabase {
@@ -99,7 +97,8 @@ impl SettingsDatabase {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|error| format!("IO error: {error}"))?;
         }
-        let connection = Connection::open(path.as_os_str()).map_err(|error| format!("sqlite: {error}"))?;
+        let connection =
+            Connection::open(path.as_os_str()).map_err(|error| format!("sqlite: {error}"))?;
         connection
             .execute_batch(
                 "PRAGMA journal_mode=WAL;
@@ -115,9 +114,7 @@ impl SettingsDatabase {
             .query_row("PRAGMA quick_check(1)", [], |row| row.get(0))
             .map_err(|error| format!("sqlite quick_check: {error}"))?;
         if quick_check.to_lowercase() != "ok" {
-            return Err(format!(
-                "database disk image is malformed: {quick_check}"
-            ));
+            return Err(format!("database disk image is malformed: {quick_check}"));
         }
         let current_version: i64 = connection
             .query_row("PRAGMA user_version", [], |row| row.get(0))
@@ -133,7 +130,10 @@ impl SettingsDatabase {
             .execute_batch(&format!("PRAGMA user_version={SETTINGS_SCHEMA_VERSION}"))
             .map_err(|error| format!("sqlite user_version set: {error}"))?;
 
-        let mut database = Self { connection, path: path.to_path_buf() };
+        let mut database = Self {
+            connection,
+            path: path.to_path_buf(),
+        };
         let initial = database.initialize()?;
         Ok((database, initial))
     }
@@ -180,7 +180,11 @@ impl SettingsDatabase {
 
     pub fn read_revision(&self) -> Result<i64, String> {
         self.connection
-            .query_row("SELECT value FROM settings_meta WHERE key='revision'", [], |row| row.get(0))
+            .query_row(
+                "SELECT value FROM settings_meta WHERE key='revision'",
+                [],
+                |row| row.get(0),
+            )
             .map_err(|error| format!("sqlite revision: {error}"))
     }
 
@@ -228,12 +232,18 @@ impl SettingsDatabase {
                 .collect();
             for name in &obsolete {
                 self.connection
-                    .execute("DELETE FROM settings_sections WHERE section=?", rusqlite::params![name])
+                    .execute(
+                        "DELETE FROM settings_sections WHERE section=?",
+                        rusqlite::params![name],
+                    )
                     .map_err(|error| format!("sqlite delete: {error}"))?;
             }
             if inner_changed || !obsolete.is_empty() {
                 self.connection
-                    .execute("UPDATE settings_meta SET value=value+1 WHERE key='revision'", [])
+                    .execute(
+                        "UPDATE settings_meta SET value=value+1 WHERE key='revision'",
+                        [],
+                    )
                     .map_err(|error| format!("sqlite revision bump: {error}"))?;
                 inner_changed = true;
             }
@@ -281,7 +291,8 @@ fn is_corruption_error(message: &str) -> bool {
 
 /// python get_settings_database_path: <root>/user/settings.sqlite3.
 pub fn get_settings_database_path(root: &Path) -> PathBuf {
-    root.join(SETTINGS_DIR_NAME).join(SETTINGS_DATABASE_FILE_NAME)
+    root.join(SETTINGS_DIR_NAME)
+        .join(SETTINGS_DATABASE_FILE_NAME)
 }
 
 /// Путь базы адрес базы: <root>/user/settings.sqlite3..

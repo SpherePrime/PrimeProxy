@@ -17,9 +17,7 @@ use base64::Engine;
 use serde::Deserialize;
 use serde_json::{json, Value};
 
-use primecore_hosts;
 use primecore_manifest::{self as manifest, Manifest, ManifestError};
-use primecore_patch;
 use primecore_release as release;
 use primecore_versions as versions;
 
@@ -81,11 +79,17 @@ struct CheckQuery {
 
 // Вспомогательное: одинаковый ответ на плохие входы.
 fn bad_request(code: &str, message: String) -> (StatusCode, Json<Value>) {
-    (StatusCode::BAD_REQUEST, Json(json!({ "code": code, "message": message })))
+    (
+        StatusCode::BAD_REQUEST,
+        Json(json!({ "code": code, "message": message })),
+    )
 }
 
 fn unprocessable(error: &ManifestError) -> (StatusCode, Json<Value>) {
-    (StatusCode::UNPROCESSABLE_ENTITY, Json(json!({ "code": error.code, "message": error.message })))
+    (
+        StatusCode::UNPROCESSABLE_ENTITY,
+        Json(json!({ "code": error.code, "message": error.message })),
+    )
 }
 
 fn json_reject(rejection: JsonRejection) -> (StatusCode, Json<Value>) {
@@ -136,8 +140,11 @@ async fn hosts_preview(
             Some((domain, ip))
         })
         .collect();
-    let input_lines: primecore_hosts::Lines =
-        request.content.split_inclusive('\n').map(str::to_string).collect();
+    let input_lines: primecore_hosts::Lines = request
+        .content
+        .split_inclusive('\n')
+        .map(str::to_string)
+        .collect();
     let (without_block, removed) = primecore_hosts::remove_managed_hosts_block(&input_lines);
     let (desired, had_requested) =
         primecore_hosts::filter_desired_hosts_rows(&rows, request.allow_ipv6);
@@ -159,17 +166,26 @@ async fn patch_apply(
     body: Result<Json<PatchRequest>, JsonRejection>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     let Json(request) = body.map_err(json_reject)?;
-    let old = BASE64.decode(request.old_base64.trim())
+    let old = BASE64
+        .decode(request.old_base64.trim())
         .map_err(|e| bad_request("patch", format!("old не base64: {e}")))?;
-    let patch = BASE64.decode(request.patch_base64.trim())
+    let patch = BASE64
+        .decode(request.patch_base64.trim())
         .map_err(|e| bad_request("patch", format!("patch не base64: {e}")))?;
-    let new = primecore_patch::apply(&old, &patch)
-        .map_err(|error| (StatusCode::UNPROCESSABLE_ENTITY, Json(json!({"code": error.code, "message": error.message}))))?;
+    let new = primecore_patch::apply(&old, &patch).map_err(|error| {
+        (
+            StatusCode::UNPROCESSABLE_ENTITY,
+            Json(json!({"code": error.code, "message": error.message})),
+        )
+    })?;
     if let Some(expected) = request.expected_size {
         if expected != new.len() {
             return Err(bad_request(
                 "expected_size",
-                format!("новый файл вышел {len}, а заявлено {expected}", len = new.len()),
+                format!(
+                    "новый файл вышел {len}, а заявлено {expected}",
+                    len = new.len()
+                ),
             ));
         }
     }
@@ -192,9 +208,11 @@ async fn manifest_verify(
     body: Result<Json<ManifestVerifyRequest>, JsonRejection>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     let Json(request) = body.map_err(json_reject)?;
-    let raw = BASE64.decode(request.manifest_base64.trim())
+    let raw = BASE64
+        .decode(request.manifest_base64.trim())
         .map_err(|e| bad_request("manifest", format!("манифест не base64: {e}")))?;
-    let signature = BASE64.decode(request.signature_base64.trim())
+    let signature = BASE64
+        .decode(request.signature_base64.trim())
         .map_err(|e| bad_request("manifest", format!("подпись не base64: {e}")))?;
     let product = request.product.as_deref().unwrap_or(manifest::PRODUCT);
     let manifest_data = manifest::load_signed(
@@ -300,7 +318,12 @@ fn forgejo_fetch(channel: &str) -> Result<Value, String> {
         let payload = fetch_json(&client, &url, "application/json", &mut last_error)?;
         if let Some(list) = release::candidates_from_release_list(&payload, selected) {
             candidates.extend(list);
-            if !candidates.is_empty() || !payload.as_array().map(|arr| arr.len() >= release::RELEASES_PAGE_LIMIT).unwrap_or(false) {
+            if !candidates.is_empty()
+                || !payload
+                    .as_array()
+                    .map(|arr| arr.len() >= release::RELEASES_PAGE_LIMIT)
+                    .unwrap_or(false)
+            {
                 break;
             }
         } else {
@@ -400,7 +423,9 @@ fn fetch_text(
         let status = response.status();
         return Err(format!("контрольная сумма недоступна — HTTP {status}"));
     }
-    response.text().map_err(|e| format!("контрольная сумма недоступна — {e}"))
+    response
+        .text()
+        .map_err(|e| format!("контрольная сумма недоступна — {e}"))
 }
 
 // ─────────────────────── зеркала: живая рука ───────────────────────────
@@ -434,7 +459,12 @@ fn fetch_mirror(servers: Vec<Value>, index: usize, channel: &str) -> Result<Valu
     let name = server
         .get("name")
         .and_then(Value::as_str)
-        .unwrap_or(server.get("host").and_then(Value::as_str).unwrap_or("зеркало"))
+        .unwrap_or(
+            server
+                .get("host")
+                .and_then(Value::as_str)
+                .unwrap_or("зеркало"),
+        )
         .to_string();
     let client = reqwest::blocking::Client::builder()
         .user_agent("PrimeBypass-Updater/5.0")
@@ -445,12 +475,23 @@ fn fetch_mirror(servers: Vec<Value>, index: usize, channel: &str) -> Result<Valu
     for (protocol, base_url, verify_ssl) in [
         (
             "HTTPS",
-            format!("https://{}:{}", server.get("host").and_then(Value::as_str).unwrap_or(""), server.get("https_port").and_then(Value::as_i64).unwrap_or(0)),
+            format!(
+                "https://{}:{}",
+                server.get("host").and_then(Value::as_str).unwrap_or(""),
+                server
+                    .get("https_port")
+                    .and_then(Value::as_i64)
+                    .unwrap_or(0)
+            ),
             true,
         ),
         (
             "HTTP",
-            format!("http://{}:{}", server.get("host").and_then(Value::as_str).unwrap_or(""), server.get("http_port").and_then(Value::as_i64).unwrap_or(0)),
+            format!(
+                "http://{}:{}",
+                server.get("host").and_then(Value::as_str).unwrap_or(""),
+                server.get("http_port").and_then(Value::as_i64).unwrap_or(0)
+            ),
             false,
         ),
     ] {
@@ -473,7 +514,13 @@ fn fetch_mirror(servers: Vec<Value>, index: usize, channel: &str) -> Result<Valu
                     continue;
                 }
             };
-            match release::release_from_versions(&data, channel, &base_url, verify_ssl, &format!("{name} ({protocol})")) {
+            match release::release_from_versions(
+                &data,
+                channel,
+                &base_url,
+                verify_ssl,
+                &format!("{name} ({protocol})"),
+            ) {
                 Ok(release_json) => return Ok(release_json),
                 Err(message) => errors.push(format!("{protocol}: {message}")),
             }
@@ -512,5 +559,7 @@ pub async fn run() {
     let listener = tokio::net::TcpListener::bind(&address)
         .await
         .expect("порт свободен");
-    axum::serve(listener, router).await.expect("сервер вертится");
+    axum::serve(listener, router)
+        .await
+        .expect("сервер вертится");
 }

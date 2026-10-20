@@ -51,7 +51,11 @@ pub fn judge(facts: &QuicFacts) -> Option<QuicVerdict> {
         return None;
     }
     if facts.neutral_ms.is_some() || facts.nameless_ms.is_some() {
-        let other = if facts.neutral_ms.is_some() { "с посторонним именем" } else { "без имени" };
+        let other = if facts.neutral_ms.is_some() {
+            "с посторонним именем"
+        } else {
+            "без имени"
+        };
         return Some(QuicVerdict {
             code: QUIC_BLOCKED_BY_NAME.to_string(),
             text: format!(
@@ -71,15 +75,24 @@ mod tests {
     use super::*;
 
     fn facts(setup: impl FnOnce(&mut QuicFacts)) -> QuicFacts {
-        let mut value = QuicFacts { host: "site.example".to_string(), ..Default::default() };
+        let mut value = QuicFacts {
+            host: "site.example".to_string(),
+            ..Default::default()
+        };
         setup(&mut value);
         value
     }
 
     #[test]
     fn verdicts() {
-        assert_eq!(judge(&facts(|f| f.real_ms = Some(250.9))).unwrap().text, "отвечает за 251 мс");
-        assert_eq!(judge(&facts(|f| f.real_ms = Some(0.2))).unwrap().text, "отвечает за 1 мс");
+        assert_eq!(
+            judge(&facts(|f| f.real_ms = Some(250.9))).unwrap().text,
+            "отвечает за 251 мс"
+        );
+        assert_eq!(
+            judge(&facts(|f| f.real_ms = Some(0.2))).unwrap().text,
+            "отвечает за 1 мс"
+        );
         assert_eq!(judge(&facts(|f| f.cancelled = true)), None);
         assert_eq!(
             judge(&facts(|f| f.nameless_ms = Some(12.0))).unwrap().code,

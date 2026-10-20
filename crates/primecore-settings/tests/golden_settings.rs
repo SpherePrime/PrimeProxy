@@ -30,10 +30,17 @@ fn expect_section(out: &Value, expected: &Value, context: &str) {
 #[test]
 fn canonical_defaults_match_python() {
     let built = build_default_settings();
-    assert_eq!(golden()["canonical"], normalize_settings(&built), "canonical");
+    assert_eq!(
+        golden()["canonical"],
+        normalize_settings(&built),
+        "canonical"
+    );
     // Дефолты сами должны совпасть — питоновская build_default_settings.
     assert_eq!(&golden()["default"], &built, "schema default");
-    assert_eq!(SETTINGS_VERSION, golden()["schema_version"].as_i64().unwrap());
+    assert_eq!(
+        SETTINGS_VERSION,
+        golden()["schema_version"].as_i64().unwrap()
+    );
 }
 
 #[test]

@@ -89,7 +89,16 @@ mod tests {
     #[test]
     fn rejects_invalid_versions() {
         for bad in [
-            "", "21", "abc", "1.2.", ".1.2", "1..2", "1.2.3.4.5.6.x", "21,1", "-1.2", "۱.۲",
+            "",
+            "21",
+            "abc",
+            "1.2.",
+            ".1.2",
+            "1..2",
+            "1.2.3.4.5.6.x",
+            "21,1",
+            "-1.2",
+            "۱.۲",
         ] {
             assert!(normalize_version(bad).is_err(), "must reject {bad:?}");
         }
@@ -111,7 +120,10 @@ mod tests {
     fn numeric_not_lexicographic() {
         assert_eq!(compare_versions("21.1.10", "21.1.9"), Ok(Ordering::Greater));
         assert_eq!(compare_versions("21.1.9", "21.1.10"), Ok(Ordering::Less));
-        assert_eq!(compare_versions("21.1.5.67", "21.1.5.7"), Ok(Ordering::Greater));
+        assert_eq!(
+            compare_versions("21.1.5.67", "21.1.5.7"),
+            Ok(Ordering::Greater)
+        );
     }
 
     #[test]
@@ -130,7 +142,10 @@ mod tests {
         // version_key("1.2") == (1, 2), "v10.10.10" == "10.10.10".
         assert_eq!(compare_versions("21.1", "21.1.0"), Ok(Ordering::Equal));
         assert_eq!(version_key("1.2"), Ok(vec![1, 2]));
-        assert_eq!(compare_versions("v10.10.10", "10.10.10"), Ok(Ordering::Equal));
+        assert_eq!(
+            compare_versions("v10.10.10", "10.10.10"),
+            Ok(Ordering::Equal)
+        );
     }
 
     #[test]

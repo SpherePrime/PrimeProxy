@@ -7,9 +7,8 @@ use serde_json::{json, Value};
 use primecore_profile::parser::parse_preset_text;
 use primecore_profile::serializer::{
     append_profile_from_template, with_profile_deleted, with_profile_duplicated,
-    with_profile_enabled, with_profile_moved, with_profile_raw_text,
-    with_profile_ready_strategy, with_profile_strategy_lines, with_profile_user_match,
-    with_profile_whole_strategy, Position,
+    with_profile_enabled, with_profile_moved, with_profile_raw_text, with_profile_ready_strategy,
+    with_profile_strategy_lines, with_profile_user_match, with_profile_whole_strategy, Position,
 };
 use primecore_profile::{Preset, Profile, Strategy};
 
@@ -59,11 +58,47 @@ fn step_result(title: &str) -> Option<Value> {
 fn check_step(title: &str, preset: &Preset) {
     let expected = step_result(title).expect("шаг ожидается");
     assert_eq!(json!(preset.engine), expected["engine"], "{title}: движок");
-    assert_eq!(json!(serialize(&preset)), json!(expected["text"]), "{title}: текст");
-    assert_eq!(json!(preset.profiles.iter().map(|p| p.name.clone()).collect::<Vec<_>>()), json!(expected["names"]), "{title}: имена");
-    assert_eq!(json!(preset.profiles.iter().map(|p| p.display_name.clone()).collect::<Vec<_>>()), json!(expected["display"]), "{title}: показ");
-    assert_eq!(json!(preset.profiles.iter().map(|p| p.enabled).collect::<Vec<_>>()), json!(expected["enabled"]), "{title}: вкл");
-    assert_eq!(json!(preset.profiles.iter().map(|p| p.persistent_key.clone()).collect::<Vec<_>>()), json!(expected["keys"]), "{title}: ключи");
+    assert_eq!(
+        json!(serialize(preset)),
+        json!(expected["text"]),
+        "{title}: текст"
+    );
+    assert_eq!(
+        json!(preset
+            .profiles
+            .iter()
+            .map(|p| p.name.clone())
+            .collect::<Vec<_>>()),
+        json!(expected["names"]),
+        "{title}: имена"
+    );
+    assert_eq!(
+        json!(preset
+            .profiles
+            .iter()
+            .map(|p| p.display_name.clone())
+            .collect::<Vec<_>>()),
+        json!(expected["display"]),
+        "{title}: показ"
+    );
+    assert_eq!(
+        json!(preset
+            .profiles
+            .iter()
+            .map(|p| p.enabled)
+            .collect::<Vec<_>>()),
+        json!(expected["enabled"]),
+        "{title}: вкл"
+    );
+    assert_eq!(
+        json!(preset
+            .profiles
+            .iter()
+            .map(|p| p.persistent_key.clone())
+            .collect::<Vec<_>>()),
+        json!(expected["keys"]),
+        "{title}: ключи"
+    );
 }
 
 fn serialize(preset: &Preset) -> String {
@@ -75,28 +110,45 @@ fn serializer_operations_match_python() {
     let (base, _base1) = base_preset();
 
     // Включённость
-    check_step("disable0", &with_profile_enabled(&base, 0, false).expect("disable0"));
-    check_step("enable1", &with_profile_enabled(&base, 1, true).expect("enable1"));
+    check_step(
+        "disable0",
+        &with_profile_enabled(&base, 0, false).expect("disable0"),
+    );
+    check_step(
+        "enable1",
+        &with_profile_enabled(&base, 1, true).expect("enable1"),
+    );
 
     // Стратегии
     check_step(
         "strategy_lines0",
-        &with_profile_strategy_lines(&base, 0, &lines(["--lua-desync=x:1", "--lua-desync=y"])).expect("strategy_lines0"),
+        &with_profile_strategy_lines(&base, 0, &lines(["--lua-desync=x:1", "--lua-desync=y"]))
+            .expect("strategy_lines0"),
     );
-    check_step("strategy_lines_empty0", &with_profile_strategy_lines(&base, 0, &[]).expect("strategy_lines_empty0"));
+    check_step(
+        "strategy_lines_empty0",
+        &with_profile_strategy_lines(&base, 0, &[]).expect("strategy_lines_empty0"),
+    );
     check_step(
         "whole0",
-        &with_profile_whole_strategy(&base, 0, &lines(["--in-range=i-ii", "--lua-desync=fake"])).expect("whole0"),
+        &with_profile_whole_strategy(&base, 0, &lines(["--in-range=i-ii", "--lua-desync=fake"]))
+            .expect("whole0"),
     );
     check_step(
         "whole1",
-        &with_profile_whole_strategy(&base, 1, &lines(["--in-range=i-ii", "--lua-desync=fake"])).expect("whole1"),
+        &with_profile_whole_strategy(&base, 1, &lines(["--in-range=i-ii", "--lua-desync=fake"]))
+            .expect("whole1"),
     );
-    let (ready0, whole0) =
-        with_profile_ready_strategy(&base, 0, &lines(["--payload=udp", "--lua-desync=a", "--lua-desync=b"])).expect("ready0");
+    let (ready0, whole0) = with_profile_ready_strategy(
+        &base,
+        0,
+        &lines(["--payload=udp", "--lua-desync=a", "--lua-desync=b"]),
+    )
+    .expect("ready0");
     check_step("ready0_composite", &ready0);
     assert_eq!(whole0, None, "ready0 цельных строк не ждём");
-    let (ready1, whole1) = with_profile_ready_strategy(&base, 1, &lines(["--lua-desync=f"])).expect("ready1");
+    let (ready1, whole1) =
+        with_profile_ready_strategy(&base, 1, &lines(["--lua-desync=f"])).expect("ready1");
     check_step("ready1_simple", &ready1);
     assert_eq!(
         whole1,
@@ -107,7 +159,8 @@ fn serializer_operations_match_python() {
     // Match-данные
     check_step(
         "user_match0",
-        &with_profile_user_match(&base, 0, "Новое", "udp", "53", "lists/all.txt", "9.9.9.9").expect("user_match0"),
+        &with_profile_user_match(&base, 0, "Новое", "udp", "53", "lists/all.txt", "9.9.9.9")
+            .expect("user_match0"),
     );
     check_step(
         "user_match1",
@@ -115,18 +168,49 @@ fn serializer_operations_match_python() {
     );
 
     // Шаблоны и границы
-    check_step("template_top", &append_profile_from_template(&base, &base.profiles[0], true, &Position::Top).expect("template_top"));
-    check_step("template_bottom", &append_profile_from_template(&base, &base.profiles[0], true, &Position::Bottom).expect("template_bottom"));
-    check_step("template_index", &append_profile_from_template(&base, &base.profiles[1], false, &Position::Index(1)).expect("template_index"));
+    check_step(
+        "template_top",
+        &append_profile_from_template(&base, &base.profiles[0], true, &Position::Top)
+            .expect("template_top"),
+    );
+    check_step(
+        "template_bottom",
+        &append_profile_from_template(&base, &base.profiles[0], true, &Position::Bottom)
+            .expect("template_bottom"),
+    );
+    check_step(
+        "template_index",
+        &append_profile_from_template(&base, &base.profiles[1], false, &Position::Index(1))
+            .expect("template_index"),
+    );
     check_step("delete0", &with_profile_deleted(&base, 0).expect("delete0"));
     check_step("dup0", &with_profile_duplicated(&base, 0).expect("dup0"));
     check_step("dup1", &with_profile_duplicated(&base, 1).expect("dup1"));
-    let duplicated_twice = with_profile_duplicated(&with_profile_duplicated(&base, 1).expect("dup1"), 2).expect("dupdup1");
+    let duplicated_twice =
+        with_profile_duplicated(&with_profile_duplicated(&base, 1).expect("dup1"), 2)
+            .expect("dupdup1");
     check_step("dupdup1", &duplicated_twice);
-    check_step("move1_to0", &with_profile_moved(&base, 1, 0).expect("move1_to0"));
-    check_step("move0_to1", &with_profile_moved(&base, 0, 1).expect("move0_to1"));
-    check_step("move_same", &with_profile_moved(&base, 1, 2).expect("move_same"));
-    check_step("raw0", &with_profile_raw_text(&base, 0, "# комментарий\n--in-range=5\n--lua-desync=rewrite:1").expect("raw0"));
+    check_step(
+        "move1_to0",
+        &with_profile_moved(&base, 1, 0).expect("move1_to0"),
+    );
+    check_step(
+        "move0_to1",
+        &with_profile_moved(&base, 0, 1).expect("move0_to1"),
+    );
+    check_step(
+        "move_same",
+        &with_profile_moved(&base, 1, 2).expect("move_same"),
+    );
+    check_step(
+        "raw0",
+        &with_profile_raw_text(
+            &base,
+            0,
+            "# комментарий\n--in-range=5\n--lua-desync=rewrite:1",
+        )
+        .expect("raw0"),
+    );
 }
 
 #[test]
@@ -148,7 +232,10 @@ fn serializer_errors_match_python() {
                 let actual_message = actual_message.as_ref().expect("ошибка нужна");
                 assert_eq!(actual_message, expected_json, "сообщение об ошибке");
             }
-            None => assert!(actual_message.is_none(), "должно пройти: {actual_message:?}"),
+            None => assert!(
+                actual_message.is_none(),
+                "должно пройти: {actual_message:?}"
+            ),
         }
     }
 }
@@ -167,10 +254,17 @@ fn serializer_winws1_matches_python() {
     check_step("base1", &base1);
     check_step(
         "strategy1",
-        &with_profile_strategy_lines(&base1, 0, &lines(["--dpi-desync=ack,split", " extra "])).expect("strategy1"),
+        &with_profile_strategy_lines(&base1, 0, &lines(["--dpi-desync=ack,split", " extra "]))
+            .expect("strategy1"),
     );
-    check_step("dup1_copy", &with_profile_duplicated(&base1, 0).expect("dup1_copy"));
-    check_step("winws1_boundary", &with_profile_deleted(&base1, 0).expect("winws1_boundary"));
+    check_step(
+        "dup1_copy",
+        &with_profile_duplicated(&base1, 0).expect("dup1_copy"),
+    );
+    check_step(
+        "winws1_boundary",
+        &with_profile_deleted(&base1, 0).expect("winws1_boundary"),
+    );
 }
 
 fn lines<'text>(lines: impl IntoIterator<Item = &'text str>) -> Vec<String> {

@@ -8,24 +8,52 @@ use regex::Regex;
 use serde_json::{json, Map, Value};
 
 use primecore_lists::layered::{
-    create_profile_user_list_file, delete_profile_user_list_file,
-    rename_profile_user_list_file, safe_list_file_name, write_profile_user_list_text,
+    create_profile_user_list_file, delete_profile_user_list_file, rename_profile_user_list_file,
+    safe_list_file_name, write_profile_user_list_text,
 };
 
 use primecore_mode::{ENGINE_WINWS1, ENGINE_WINWS2};
 
 use crate::models::Profile;
 use crate::parser::parse_preset_text;
-use crate::template_library::{load_profile_templates, profile_template_root};
+use crate::template_library::load_profile_templates;
 
 pub const DEFAULT_HOSTLIST_TEXT: &str = "www.example.com\n";
 
 const TRANSLIT: [(&str, &str); 33] = [
-    ("а", "a"), ("б", "b"), ("в", "v"), ("г", "g"), ("д", "d"), ("е", "e"), ("ё", "e"),
-    ("ж", "zh"), ("з", "z"), ("и", "i"), ("й", "i"), ("к", "k"), ("л", "l"), ("м", "m"),
-    ("н", "n"), ("о", "o"), ("п", "p"), ("р", "r"), ("с", "s"), ("т", "t"), ("у", "u"),
-    ("ф", "f"), ("х", "h"), ("ц", "c"), ("ч", "ch"), ("ш", "sh"), ("щ", "sch"), ("ъ", ""),
-    ("ы", "y"), ("ь", ""), ("э", "e"), ("ю", "yu"), ("я", "ya"),
+    ("а", "a"),
+    ("б", "b"),
+    ("в", "v"),
+    ("г", "g"),
+    ("д", "d"),
+    ("е", "e"),
+    ("ё", "e"),
+    ("ж", "zh"),
+    ("з", "z"),
+    ("и", "i"),
+    ("й", "i"),
+    ("к", "k"),
+    ("л", "l"),
+    ("м", "m"),
+    ("н", "n"),
+    ("о", "o"),
+    ("п", "p"),
+    ("р", "r"),
+    ("с", "s"),
+    ("т", "t"),
+    ("у", "u"),
+    ("ф", "f"),
+    ("х", "h"),
+    ("ц", "c"),
+    ("ч", "ch"),
+    ("ш", "sh"),
+    ("щ", "sch"),
+    ("ъ", ""),
+    ("ы", "y"),
+    ("ь", ""),
+    ("э", "e"),
+    ("ю", "yu"),
+    ("я", "ya"),
 ];
 
 /// python AppPaths-эквивалент: пользовательский корень.
@@ -61,10 +89,7 @@ fn open_database(paths: &AppPaths) -> Result<primecore_settings::store::Settings
 
 /// python update_user_profiles_settings(mutator): read-modify-write одним
 /// включением. Ошибка mutator-а не записывает секцию (python-откат).
-fn update_user_profiles_settings<F>(
-    paths: &AppPaths,
-    mutator: F,
-) -> Result<Value, String>
+fn update_user_profiles_settings<F>(paths: &AppPaths, mutator: F) -> Result<Value, String>
 where
     F: FnOnce(&mut Value) -> Result<(), String>,
 {
@@ -95,9 +120,7 @@ where
         .unwrap_or_else(|| json!({})))
 }
 
-fn user_profiles_section(
-    paths: &AppPaths,
-) -> Result<Map<String, Value>, String> {
+fn user_profiles_section(paths: &AppPaths) -> Result<Map<String, Value>, String> {
     let database = open_database(paths)?;
     let sections = database.read_raw_sections()?;
     let section = sections
@@ -138,10 +161,12 @@ pub fn create_user_profile(
     let mut created_profile_id = String::new();
 
     update_user_profiles_settings(paths, |section| {
-        let profiles = as_object(section
-            .get("profiles")
-            .cloned()
-            .unwrap_or_else(|| json!({})));
+        let profiles = as_object(
+            section
+                .get("profiles")
+                .cloned()
+                .unwrap_or_else(|| json!({})),
+        );
         validate_unique_profile_name(&profiles, &system_names, &clean_name, "")?;
         let profile_id = unique_profile_id(&profiles, &slugify(&clean_name));
         let file_stem = unique_file_stem(&profiles, &slugify(&clean_name), "");
@@ -150,7 +175,11 @@ pub fn create_user_profile(
         create_profile_user_list_file(&lists_root, &format!("{file_stem}.txt"));
         create_profile_user_list_file(&lists_root, &format!("ipset-{file_stem}.txt"));
         if !hostlist_had_entries {
-            write_profile_user_list_text(&lists_root, &format!("{file_stem}.txt"), DEFAULT_HOSTLIST_TEXT);
+            write_profile_user_list_text(
+                &lists_root,
+                &format!("{file_stem}.txt"),
+                DEFAULT_HOSTLIST_TEXT,
+            );
         }
         let mut profiles = profiles;
         profiles_insert(
@@ -195,16 +224,22 @@ pub fn update_user_profile(
     let mut rows: Option<(Map<String, Value>, Map<String, Value>)> = None;
 
     update_user_profiles_settings(paths, |section| {
-        let profiles = as_object(section
-            .get("profiles")
-            .cloned()
-            .unwrap_or_else(|| json!({})));
-        let row = row_object_owned(profiles.get(&clean_profile_id).cloned().unwrap_or(Value::Null))
-            .ok_or_else(|| "Пользовательский profile не найден".to_string())?;
+        let profiles = as_object(
+            section
+                .get("profiles")
+                .cloned()
+                .unwrap_or_else(|| json!({})),
+        );
+        let row = row_object_owned(
+            profiles
+                .get(&clean_profile_id)
+                .cloned()
+                .unwrap_or(Value::Null),
+        )
+        .ok_or_else(|| "Пользовательский profile не найден".to_string())?;
         validate_unique_profile_name(&profiles, &system_names, &clean_name, &clean_profile_id)?;
         let old_row = row_fields(&row);
-        let new_stem =
-            unique_file_stem(&profiles, &slugify(&clean_name), &clean_profile_id);
+        let new_stem = unique_file_stem(&profiles, &slugify(&clean_name), &clean_profile_id);
         let updated_row_value = json!({
             "name": clean_name,
             "protocol": clean_protocol,
@@ -236,12 +271,18 @@ pub fn delete_user_profile(
     let mut removed: Option<Map<String, Value>> = None;
 
     update_user_profiles_settings(paths, |section| {
-        let profiles = as_object(section
-            .get("profiles")
+        let profiles = as_object(
+            section
+                .get("profiles")
+                .cloned()
+                .unwrap_or_else(|| json!({})),
+        );
+        let row_value = profiles
+            .get(&clean_profile_id)
             .cloned()
-            .unwrap_or_else(|| json!({})));
-        let row_value = profiles.get(&clean_profile_id).cloned().unwrap_or(Value::Null);
-        let row = row_object_owned(row_value).ok_or_else(|| "Пользовательский profile не найден".to_string())?;
+            .unwrap_or(Value::Null);
+        let row = row_object_owned(row_value)
+            .ok_or_else(|| "Пользовательский profile не найден".to_string())?;
         let mut profiles = profiles;
         profiles.remove(&clean_profile_id);
         section["version"] = json!(1);
@@ -305,7 +346,9 @@ pub fn load_user_profile_templates(lists_root: &AppPaths, engine: &str) -> Vec<(
                         }
                     }
                     Err(_) => {
-                        log_skipped_user_profile(&format!("повреждённая запись: parse_preset_text"));
+                        log_skipped_user_profile(&format!(
+                            "повреждённая запись: parse_preset_text"
+                        ));
                     }
                 }
             }
@@ -322,12 +365,20 @@ fn log_skipped_user_profile(_comment: &str) {
 /// python _profile_text: текст свежего профиля (строки фильтра + pass).
 pub fn profile_text(row: &Value, engine: &str) -> Result<String, String> {
     let row = row_object_owned(row.clone()).ok_or_else(|| "не словарь".to_string())?;
-    let NameProtocolPorts { name, protocol, ports } = clean_row(&row)?;
+    let NameProtocolPorts {
+        name,
+        protocol,
+        ports,
+    } = clean_row(&row)?;
     let hostlist = string_field(&row, "hostlist");
     if hostlist.is_empty() {
         return Ok(String::new());
     }
-    let name_directive = if engine == ENGINE_WINWS1 { "--comment" } else { "--name" };
+    let name_directive = if engine == ENGINE_WINWS1 {
+        "--comment"
+    } else {
+        "--name"
+    };
     let mut lines = vec![
         format!("{name_directive}={name}"),
         format!("--filter-{protocol}={ports}"),
@@ -384,7 +435,9 @@ pub fn validate_user_profile_filter(protocol: &str, value: &str) -> Option<Strin
         static L7_RE: std::sync::LazyLock<Regex> =
             std::sync::LazyLock::new(|| Regex::new(r"(?i)^[a-z0-9_,.-]+$").expect("regex"));
         if !L7_RE.is_match(&text) {
-            return Some("L7 можно указать словами через запятую, например stun,discord".to_string());
+            return Some(
+                "L7 можно указать словами через запятую, например stun,discord".to_string(),
+            );
         }
         return None;
     }
@@ -430,10 +483,8 @@ fn validate_port_token(token: &str) -> Option<String> {
         if parts.len() != 2 || parts[0].is_empty() || parts[1].is_empty() {
             return Some(ports_message());
         }
-        let (Some(start), Some(end)) = (
-            parse_port_number(parts[0]),
-            parse_port_number(parts[1]),
-        ) else {
+        let (Some(start), Some(end)) = (parse_port_number(parts[0]), parse_port_number(parts[1]))
+        else {
             return Some(PORT_RANGE_EDGES.to_string());
         };
         if start > end {
@@ -472,7 +523,10 @@ pub fn slugify(value: &str) -> String {
     let lowered = value.trim().to_lowercase();
     let mut transliterated = String::with_capacity(lowered.len());
     for ch in lowered.chars() {
-        match TRANSLIT.iter().find(|(source, _)| *source == ch.to_string()) {
+        match TRANSLIT
+            .iter()
+            .find(|(source, _)| *source == ch.to_string())
+        {
             Some((_, target)) => transliterated.push_str(target),
             None => transliterated.push(ch),
         }
@@ -630,8 +684,14 @@ fn rename_user_list_file(
 ) -> Result<(), String> {
     // python: два независимых переименования (hostlist, ipset).
     let pairs = [
-        (string_field(old_row, "hostlist"), string_field(new_row, "hostlist")),
-        (string_field(old_row, "ipset"), string_field(new_row, "ipset")),
+        (
+            string_field(old_row, "hostlist"),
+            string_field(new_row, "hostlist"),
+        ),
+        (
+            string_field(old_row, "ipset"),
+            string_field(new_row, "ipset"),
+        ),
     ];
     for (old_value, new_value) in &pairs {
         let Some(new_name) = safe_list_file_name(new_value) else {

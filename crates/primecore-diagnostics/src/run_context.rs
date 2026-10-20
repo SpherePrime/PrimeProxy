@@ -12,13 +12,13 @@ use crate::block_cause::Cause;
 use crate::block_kind;
 use crate::cert_owner::CertVerdict;
 use crate::outside_check::OUTSIDE_DOWN;
+use crate::probe_result::{ProbeResult, KIND_CONNECT};
 use crate::protocol_probe::ProtocolLine;
 use crate::quic_probe::{QuicVerdict, QUIC_OK};
 use crate::services::Target;
 use crate::verdict::{DnsJudgement, ReachState};
 use crate::volume_probe::VolumeVerdict;
 use crate::windows_dns_query::DnsAnswer;
-use crate::probe_result::{ProbeResult, KIND_CONNECT};
 
 /// python `RECHECK_OPENED`.
 pub const RECHECK_OPENED: &str = "opened";
@@ -26,8 +26,6 @@ pub const RECHECK_OPENED: &str = "opened";
 pub const RECHECK_SAME: &str = "same";
 /// Сбой, успех и снова сбой: сайт открывается через раз.
 pub const RECHECK_UNSTABLE: &str = "unstable";
-
-
 
 /// python `Probe` — всё про один адрес сайта.
 ///
@@ -74,7 +72,6 @@ pub struct Probe {
     /// сайт не открылся или главная страница и так больше.
     pub volume: Option<VolumeVerdict>,
     /// Тот же адрес по TLS 1.2, TLS 1.3 и HTTP отдельно.
-
     // Пусто — не проверяли.
     pub protocols: Vec<ProtocolLine>,
     /// Все попытки основного запроса по порядку: (адрес, исход).
@@ -114,8 +111,22 @@ pub struct ReferenceReport {
 }
 
 impl ReferenceReport {
-    pub fn from(label: impl Into<String>, address: impl Into<String>, ok: bool, answered: u32, failed: u32, reason: impl Into<String>) -> Self {
-        Self { label: label.into(), address: address.into(), ok, answered, failed, reason: reason.into() }
+    pub fn from(
+        label: impl Into<String>,
+        address: impl Into<String>,
+        ok: bool,
+        answered: u32,
+        failed: u32,
+        reason: impl Into<String>,
+    ) -> Self {
+        Self {
+            label: label.into(),
+            address: address.into(),
+            ok,
+            answered,
+            failed,
+            reason: reason.into(),
+        }
     }
 }
 
@@ -123,12 +134,15 @@ impl Probe {
     /// python `Probe.mark(stage)` — закончилась часть проверки.
     pub fn mark(&mut self, stage: &str, since_start: f64) {
         *self.stages.entry(stage.to_string()).or_default() =
-            (self.stages.get(stage).copied().unwrap_or_default() + since_start * 10.0).round() / 10.0;
+            (self.stages.get(stage).copied().unwrap_or_default() + since_start * 10.0).round()
+                / 10.0;
     }
 
     /// python `Probe.fingerprint` — Chrome режут, а простое приветствие к тому же адресу проходит.
     pub fn fingerprint(&self) -> bool {
-        self.protocols.iter().any(|line| line.code == crate::protocol_probe::CODE_FINGERPRINT)
+        self.protocols
+            .iter()
+            .any(|line| line.code == crate::protocol_probe::CODE_FINGERPRINT)
     }
 
     /// python `Probe.settle_protocols(lines)` — принимает строки дорог.
@@ -161,7 +175,11 @@ impl Probe {
             return false;
         }
         // QUIC к тому же адресу отвечает — дорога до адреса открыта, браузер сайт откроет.
-        if self.quic.as_ref().is_some_and(|verdict| verdict.code == QUIC_OK) {
+        if self
+            .quic
+            .as_ref()
+            .is_some_and(|verdict| verdict.code == QUIC_OK)
+        {
             return false;
         }
         true
@@ -172,7 +190,10 @@ impl Probe {
     pub fn kind(&self) -> String {
         let mut kind = block_kind::site_kind(
             self.reach_state.value(),
-            self.cause.as_ref().map(|cause| cause.code.as_str()).unwrap_or(""),
+            self.cause
+                .as_ref()
+                .map(|cause| cause.code.as_str())
+                .unwrap_or(""),
             self.address_confirmed(),
         );
         // Не открылся и из-за рубежа — не блокировка: сайт не работает сам.
@@ -196,7 +217,10 @@ mod tests {
 
     fn probe_with(tried: Vec<(&'static str, &str)>) -> Probe {
         Probe {
-            tried: tried.iter().map(|(ip, kind)| (ip.to_string(), kind.to_string())).collect(),
+            tried: tried
+                .iter()
+                .map(|(ip, kind)| (ip.to_string(), kind.to_string()))
+                .collect(),
             tried_silent: true,
             ..Default::default()
         }
@@ -212,10 +236,17 @@ mod tests {
         let double = probe_with(vec![("1.2.3.4", KIND_CONNECT), ("3.3.3.3", KIND_CONNECT)]);
         assert!(double.address_confirmed());
         // Не молчали вовсе (отказ или ошибка) — не считаем.
-        assert!(!Probe { tried_silent: false, ..double.clone() }.address_confirmed());
+        assert!(!Probe {
+            tried_silent: false,
+            ..double.clone()
+        }
+        .address_confirmed());
         // QUIC к тому же адресу прошёл: дорога открыта.
         let with_quic = Probe {
-            quic: Some(QuicVerdict { code: QUIC_OK.to_string(), text: "отвечает".to_string() }),
+            quic: Some(QuicVerdict {
+                code: QUIC_OK.to_string(),
+                text: "отвечает".to_string(),
+            }),
             ..double.clone()
         };
         assert!(!with_quic.address_confirmed());
@@ -232,14 +263,20 @@ mod tests {
         };
         assert!(!only_hosts.address_confirmed());
         // Настоящий адрес сайта среди проб — считается.
-        let real = Probe { hosts_ips: vec!["1.2.3.4".to_string()], ..only_hosts.clone() };
+        let real = Probe {
+            hosts_ips: vec!["1.2.3.4".to_string()],
+            ..only_hosts.clone()
+        };
         assert!(real.address_confirmed());
     }
 
     #[test]
     fn kind_fingerprint_and_down() {
         // DPI без причины → «unclear», а с пройденным простым приветствием (fingerprint) — особый вид.
-        let mut value = Probe { reach_state: ReachState::Dpi, ..Default::default() };
+        let mut value = Probe {
+            reach_state: ReachState::Dpi,
+            ..Default::default()
+        };
         assert_eq!(value.kind(), block_kind::KIND_UNCLEAR);
         value.protocols = vec![crate::protocol_probe::ProtocolLine {
             code: crate::protocol_probe::CODE_FINGERPRINT.to_string(),
@@ -247,15 +284,24 @@ mod tests {
         }];
         assert_eq!(value.kind(), block_kind::KIND_FINGERPRINT);
         // Не открылся и из-за рубежа — сайт не работает сам.
-        let mut down = Probe { reach_state: ReachState::IpBlock, outside: OUTSIDE_DOWN.to_string(), ..Default::default() };
+        let mut down = Probe {
+            reach_state: ReachState::IpBlock,
+            outside: OUTSIDE_DOWN.to_string(),
+            ..Default::default()
+        };
         down.settle_protocols(Vec::new());
-        assert_eq!(down
-            .tried
-            .len(), 0);
-        down.tried = vec![("1.2.3.4".to_string(), KIND_CONNECT.to_string()), ("1.1.1.1".to_string(), KIND_CONNECT.to_string())];
+        assert_eq!(down.tried.len(), 0);
+        down.tried = vec![
+            ("1.2.3.4".to_string(), KIND_CONNECT.to_string()),
+            ("1.1.1.1".to_string(), KIND_CONNECT.to_string()),
+        ];
         down.tried_silent = true;
         assert_eq!(down.kind(), block_kind::KIND_DOWN);
-        let abroad = Probe { reach_state: ReachState::IpBlock, outside: crate::outside_check::OUTSIDE_UP.to_string(), ..down.clone() };
+        let abroad = Probe {
+            reach_state: ReachState::IpBlock,
+            outside: crate::outside_check::OUTSIDE_UP.to_string(),
+            ..down.clone()
+        };
         assert_eq!(abroad.kind(), block_kind::KIND_IP);
     }
 
@@ -265,7 +311,9 @@ mod tests {
         let mut value = Probe::default();
         let mut line = crate::protocol_probe::tls_line(
             crate::protocol_probe::PROTO_BROWSER,
-            Some(&crate::block_cause::HelloResult::new(crate::block_cause::HELLO_OK)),
+            Some(&crate::block_cause::HelloResult::new(
+                crate::block_cause::HELLO_OK,
+            )),
         )
         .unwrap();
         line.code = crate::protocol_probe::CODE_FINGERPRINT.to_string();

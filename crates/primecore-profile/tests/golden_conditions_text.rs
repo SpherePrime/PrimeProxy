@@ -41,8 +41,24 @@ const HTTP_PRESET_TEXT: &str = concat!(
 #[test]
 fn conditions_match_python() {
     let range_phrases = [
-        "", "  ", "a", "A", "x", "-d8", "-D1", "-n3", "-n21", "-d11", "-d12", "-n22", "-nxx",
-        "s1<d1", "-d", "-n", "-d0", "-n1000000",
+        "",
+        "  ",
+        "a",
+        "A",
+        "x",
+        "-d8",
+        "-D1",
+        "-n3",
+        "-n21",
+        "-d11",
+        "-d12",
+        "-n22",
+        "-nxx",
+        "s1<d1",
+        "-d",
+        "-n",
+        "-d0",
+        "-n1000000",
     ];
     let mut rp = serde_json::Map::new();
     for value in range_phrases {

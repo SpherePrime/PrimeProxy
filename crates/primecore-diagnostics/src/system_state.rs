@@ -132,8 +132,11 @@ pub fn tunnel_adapters(interfaces: &[Interface]) -> Vec<String> {
         // Тип «PPP» бывает и у обычного подключения к провайдеру (PPPoE), поэтому сам
         // по себе VPN не означает: нужно название, похожее на VPN.
         if TUNNEL_WORDS.iter().any(|word| text.contains(word)) {
-            let label =
-                if interface.name.is_empty() { interface.description.clone() } else { interface.name.clone() };
+            let label = if interface.name.is_empty() {
+                interface.description.clone()
+            } else {
+                interface.name.clone()
+            };
             if !label.is_empty() && !found.contains(&label) {
                 found.push(label);
             }
@@ -170,7 +173,11 @@ fn unknown(key: &str, title: &str) -> SystemItem {
 fn short(names: &[String]) -> String {
     const LIMIT: usize = 4;
     if names.len() > LIMIT {
-        format!("{} и ещё {}", names[..LIMIT].join(", "), names.len() - LIMIT)
+        format!(
+            "{} и ещё {}",
+            names[..LIMIT].join(", "),
+            names.len() - LIMIT
+        )
     } else {
         names.join(", ")
     }
@@ -211,7 +218,8 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
             title: title.to_string(),
             level: LEVEL_FAIL.to_string(),
             text: "программа запущена без них — драйвер перехвата не запустится".to_string(),
-            advice: "Закройте программу и запустите её снова, согласившись на запрос Windows.".to_string(),
+            advice: "Закройте программу и запустите её снова, согласившись на запрос Windows."
+                .to_string(),
         }),
     }
 
@@ -244,7 +252,8 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
             key: "location".to_string(),
             title: title.to_string(),
             level: LEVEL_WARN.to_string(),
-            text: "программа запущена из временной папки — Windows может удалить её файлы".to_string(),
+            text: "программа запущена из временной папки — Windows может удалить её файлы"
+                .to_string(),
             advice: "Установите программу обычным установщиком.".to_string(),
         });
     } else if facts.in_onedrive == Some(true) {
@@ -276,7 +285,11 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
             advice: "Освободите место на диске с программой.".to_string(),
         }),
         Some(free) => {
-            let text = if free >= 1024 { format!("свободно {} ГБ", free / 1024) } else { format!("свободно {free} МБ") };
+            let text = if free >= 1024 {
+                format!("свободно {} ГБ", free / 1024)
+            } else {
+                format!("свободно {free} МБ")
+            };
             items.push(SystemItem {
                 key: "disk".to_string(),
                 title: title.to_string(),
@@ -341,7 +354,9 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
             title: title.to_string(),
             level: LEVEL_FAIL.to_string(),
             text: "не работает — без неё драйвер перехвата не запускается".to_string(),
-            advice: "Откройте «Службы» Windows, найдите «Служба базовой фильтрации» и запустите её.".to_string(),
+            advice:
+                "Откройте «Службы» Windows, найдите «Служба базовой фильтрации» и запустите её."
+                    .to_string(),
         }),
     }
 
@@ -350,7 +365,11 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
         items.push(unknown("conflicts", title));
     } else {
         let mut found: Vec<String> = facts.conflicts.clone().unwrap_or_default();
-        if let Some(services) = facts.goodbyedpi_services.as_ref().filter(|services| !services.is_empty()) {
+        if let Some(services) = facts
+            .goodbyedpi_services
+            .as_ref()
+            .filter(|services| !services.is_empty())
+        {
             found.push(format!("служба GoodbyeDPI ({})", short(services)));
         }
         if !found.is_empty() && zapret_running == Some(true) {
@@ -396,7 +415,11 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
         let tunnels = facts.tunnels.clone().unwrap_or_default();
         let routed = facts.tunnels_routed.clone().unwrap_or_default();
         let idle: Vec<String> = match facts.tunnels_routed {
-            Some(_) => tunnels.iter().filter(|name| !routed.contains(name)).cloned().collect(),
+            Some(_) => tunnels
+                .iter()
+                .filter(|name| !routed.contains(name))
+                .cloned()
+                .collect(),
             None => tunnels.clone(),
         };
         let bypass = facts.bypass_tools.clone().unwrap_or_default();
@@ -514,15 +537,18 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
             title: title.to_string(),
             level: LEVEL_WARN.to_string(),
             text: "не читается — программа не сможет ни проверить, ни изменить его".to_string(),
-            advice: "Откройте страницу «Редактор hosts» и нажмите «Восстановить права».".to_string(),
+            advice: "Откройте страницу «Редактор hosts» и нажмите «Восстановить права»."
+                .to_string(),
         });
     } else {
         let overrides = facts.hosts_overrides.clone().unwrap_or_default();
         if !overrides.is_empty() {
             // Записи самой программы («Редактор hosts») — так и задумано; чужие — справка.
             let managed = facts.hosts_managed.clone().unwrap_or_default();
-            let ours: std::collections::HashSet<(String, String)> =
-                managed.iter().map(|(host, address)| (host.to_lowercase(), address.clone())).collect();
+            let ours: std::collections::HashSet<(String, String)> = managed
+                .iter()
+                .map(|(host, address)| (host.to_lowercase(), address.clone()))
+                .collect();
             let foreign: Vec<&(String, String)> = overrides
                 .iter()
                 .filter(|(host, address)| !ours.contains(&(host.to_lowercase(), address.clone())))
@@ -539,8 +565,10 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
                     advice: String::new(),
                 });
             } else {
-                let foreign_labels: Vec<String> =
-                    foreign.iter().map(|(host, address)| format!("{host} → {address}")).collect();
+                let foreign_labels: Vec<String> = foreign
+                    .iter()
+                    .map(|(host, address)| format!("{host} → {address}"))
+                    .collect();
                 let own = if own_count > 0 {
                     format!(" Ещё {own_count} — записи самой программы, с ними всё в порядке.")
                 } else {
@@ -573,7 +601,11 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
     match facts.clock_skew_s {
         None => items.push(unknown("clock", title)),
         Some(skew) if abs_f64(skew) > CLOCK_SKEW_LIMIT_S => {
-            let direction = if skew > 0.0 { "спешат" } else { "отстают" };
+            let direction = if skew > 0.0 {
+                "спешат"
+            } else {
+                "отстают"
+            };
             items.push(SystemItem {
                 key: "clock".to_string(),
                 title: title.to_string(),
@@ -598,7 +630,11 @@ pub fn judge(facts: &SystemFacts, zapret_running: Option<bool>) -> Vec<SystemIte
 }
 
 fn abs_f64(value: f64) -> f64 {
-    if value < 0.0 { -value } else { value }
+    if value < 0.0 {
+        -value
+    } else {
+        value
+    }
 }
 
 /// python ` wounds SYSTEM_PROBLEM_LEVEL` — какие уровни системы попадают в список проблем
@@ -617,11 +653,7 @@ mod tests {
 
     #[test]
     fn worst_and_problem_level() {
-        let items = vec![
-            item(LEVEL_OK),
-            item(LEVEL_WARN),
-            item(LEVEL_FAIL),
-        ];
+        let items = vec![item(LEVEL_OK), item(LEVEL_WARN), item(LEVEL_FAIL)];
         assert_eq!(worst_level(&items), LEVEL_FAIL);
         assert_eq!(worst_level(&[]), LEVEL_OK);
         assert_eq!(problem_level(LEVEL_FAIL), Some(DiagnosticLevel::Fail));
@@ -652,7 +684,10 @@ mod tests {
             connected: true,
             ..Default::default()
         };
-        assert_eq!(tunnel_adapters(&[provider.clone(), vpn.clone()]), vec!["WireGuard".to_string()]);
+        assert_eq!(
+            tunnel_adapters(&[provider.clone(), vpn.clone()]),
+            vec!["WireGuard".to_string()]
+        );
         assert_eq!(tunnel_adapters(&[provider]), Vec::<String>::new());
     }
 

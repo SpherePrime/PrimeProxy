@@ -35,7 +35,11 @@ pub struct DataCenter {
 
 impl DataCenter {
     const fn new(name: &'static str, address: &'static str) -> Self {
-        Self { name, address, port: 443 }
+        Self {
+            name,
+            address,
+            port: 443,
+        }
     }
 }
 
@@ -75,8 +79,14 @@ pub fn summarize_telegram(servers: &[DcResult]) -> TelegramReport {
         servers: servers.to_vec(),
         advice,
     };
-    let checked: Vec<&DcResult> = servers.iter().filter(|item| item.connected.is_some()).collect();
-    let answered: Vec<&&DcResult> = checked.iter().filter(|item| item.connected == Some(true)).collect();
+    let checked: Vec<&DcResult> = servers
+        .iter()
+        .filter(|item| item.connected.is_some())
+        .collect();
+    let answered: Vec<&&DcResult> = checked
+        .iter()
+        .filter(|item| item.connected == Some(true))
+        .collect();
     if checked.is_empty() {
         return with_servers(
             Level::Unknown,
@@ -129,7 +139,12 @@ mod tests {
     use super::*;
 
     fn result(name: &str, connected: Option<bool>) -> DcResult {
-        DcResult { name: name.to_string(), address: "1.2.3.4".to_string(), connected, ..Default::default() }
+        DcResult {
+            name: name.to_string(),
+            address: "1.2.3.4".to_string(),
+            connected,
+            ..Default::default()
+        }
     }
 
     #[test]

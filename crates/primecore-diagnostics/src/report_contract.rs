@@ -44,8 +44,15 @@ pub const CARD_FIELDS: [&str; 22] = [
 ];
 
 /// Поля, которые читает панель итога и страница.
-pub const SUMMARY_FIELDS: [&str; 7] =
-    ["scope", "problems", "zapret_running", "elapsed", "timed_out", "history", "text"];
+pub const SUMMARY_FIELDS: [&str; 7] = [
+    "scope",
+    "problems",
+    "zapret_running",
+    "elapsed",
+    "timed_out",
+    "history",
+    "text",
+];
 
 /// Служебные поля: на экран не выводятся, и вот почему.
 pub fn service_fields() -> Vec<(&'static str, &'static str)> {
@@ -95,7 +102,11 @@ pub fn declared_fields() -> BTreeSet<String> {
     let mut all = BTreeSet::new();
     all.extend(CARD_FIELDS.iter().map(|name| (*name).to_string()));
     all.extend(SUMMARY_FIELDS.iter().map(|name| (*name).to_string()));
-    all.extend(service_fields().into_iter().map(|(name, _)| name.to_string()));
+    all.extend(
+        service_fields()
+            .into_iter()
+            .map(|(name, _)| name.to_string()),
+    );
     all
 }
 
@@ -110,7 +121,9 @@ mod tests {
         assert_eq!(SUMMARY_FIELDS.len(), 7);
         assert_eq!(service_fields().len(), 9);
         assert_eq!(fields.len(), CARD_FIELDS.len() + SUMMARY_FIELDS.len() + 9);
-        for name in ["services", "crowd", "preset", "compare", "scope", "problems", "working", "error"] {
+        for name in [
+            "services", "crowd", "preset", "compare", "scope", "problems", "working", "error",
+        ] {
             assert!(fields.contains(name), "{name}");
         }
     }

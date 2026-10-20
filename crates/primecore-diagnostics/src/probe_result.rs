@@ -78,6 +78,10 @@ impl ProbeResult {
     /// python dataclass-конструктор с именованными аргументами;
     /// в Rust — билдитер-хелпер: `ProbeResult::new(ip, kind)`.
     pub fn new(ip: impl Into<String>, kind: impl Into<String>) -> Self {
-        Self { ip: ip.into(), kind: kind.into(), ..Default::default() }
+        Self {
+            ip: ip.into(),
+            kind: kind.into(),
+            ..Default::default()
+        }
     }
 }

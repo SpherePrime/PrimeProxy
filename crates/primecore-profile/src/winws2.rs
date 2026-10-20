@@ -36,7 +36,9 @@ pub fn parse_winws2_strategy(lines: &[String]) -> Winws2Strategy {
             actions.extend(
                 split_lua_desync_lines(&line)
                     .into_iter()
-                    .map(|action_line| parse_lua_desync(&action_line, &payload, &in_range, &out_range)),
+                    .map(|action_line| {
+                        parse_lua_desync(&action_line, &payload, &in_range, &out_range)
+                    }),
             );
             continue;
         }
@@ -48,7 +50,11 @@ pub fn parse_winws2_strategy(lines: &[String]) -> Winws2Strategy {
         .map(|raw| str_of(raw).trim().to_string())
         .filter(|line| !line.is_empty())
         .collect();
-    Winws2Strategy { actions, strategy_lines, other_lines }
+    Winws2Strategy {
+        actions,
+        strategy_lines,
+        other_lines,
+    }
 }
 
 /// python str(значение or "").
@@ -58,7 +64,8 @@ fn str_of(value: &String) -> String {
 
 /// Правая часть после первого «=», обрезанная (для == и начало строки).
 fn right_side(line: &str) -> Option<String> {
-    line.split_once('=').map(|(_, value)| value.trim().to_string())
+    line.split_once('=')
+        .map(|(_, value)| value.trim().to_string())
 }
 
 /// Правая часть, если «=» есть; иначе None (python: "x"/"a" остаются).
@@ -74,7 +81,13 @@ fn right_side_maybe(line: &str) -> Option<String> {
 /// в пустую строку — отсутствующее «=» оставляет дефолт тоже.
 fn or_default(value: Option<String>, default: &str) -> String {
     match value {
-        Some(inner) => if inner.is_empty() { default.to_string() } else { inner },
+        Some(inner) => {
+            if inner.is_empty() {
+                default.to_string()
+            } else {
+                inner
+            }
+        }
         None => default.to_string(),
     }
 }
@@ -90,7 +103,9 @@ pub fn split_lua_desync_lines(line: &str) -> Vec<String> {
     let mut positions: Vec<usize> = Vec::new();
     let mut search_from = 0;
     loop {
-        let index = lowered[search_from..].find(MARKER).map(|offset| offset + search_from);
+        let index = lowered[search_from..]
+            .find(MARKER)
+            .map(|offset| offset + search_from);
         match index {
             Some(index) => {
                 positions.push(index);
@@ -119,18 +134,16 @@ fn next_or_len(positions: &[usize], index: usize, length: usize) -> usize {
 }
 
 /// Разбор одной команды --lua-desync (python _parse_lua_desync).
-fn parse_lua_desync(
-    line: &str,
-    payload: &str,
-    in_range: &str,
-    out_range: &str,
-) -> ProfileAction {
+fn parse_lua_desync(line: &str, payload: &str, in_range: &str, out_range: &str) -> ProfileAction {
     let value = right_side(line).unwrap_or_default();
     let parts: Vec<String> = split_unescaped(&value, ':')
         .into_iter()
         .filter(|part| !part.is_empty())
         .collect();
-    let func_name = parts.first().map(|part| part.trim().to_string()).unwrap_or_default();
+    let func_name = parts
+        .first()
+        .map(|part| part.trim().to_string())
+        .unwrap_or_default();
     let mut args: Vec<ProfileActionArg> = Vec::new();
     let mut flags: Vec<String> = Vec::new();
     for token in parts.iter().skip(1) {
@@ -138,7 +151,10 @@ fn parse_lua_desync(
         if token.is_empty() {
             continue;
         }
-        match token.split_once('=').map(|(key, val)| (key.trim(), val.trim())) {
+        match token
+            .split_once('=')
+            .map(|(key, val)| (key.trim(), val.trim()))
+        {
             Some((key, val)) if !key.is_empty() => args.push(ProfileActionArg {
                 raw: token.clone(),
                 key: key.to_string(),

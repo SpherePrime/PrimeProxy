@@ -5,15 +5,27 @@
 
 use serde_json::{json, Map, Value};
 
-use super::folders::{COMMON_FOLDER_KEY};
+use super::folders::COMMON_FOLDER_KEY;
 
 /// Показ состояния: {version:int, folders:map, items:map}.
 pub fn get_folders_of(state: &Value) -> &serde_json::Map<String, Value> {
-    state.as_object().expect("state object").get("folders").expect("folders").as_object().expect("folders object")
+    state
+        .as_object()
+        .expect("state object")
+        .get("folders")
+        .expect("folders")
+        .as_object()
+        .expect("folders object")
 }
 
 pub fn folders_mut(state: &mut Value) -> &mut Map<String, Value> {
-    state.as_object_mut().expect("state").get_mut("folders").expect("folders").as_object_mut().expect("folders object")
+    state
+        .as_object_mut()
+        .expect("state")
+        .get_mut("folders")
+        .expect("folders")
+        .as_object_mut()
+        .expect("folders object")
 }
 
 /// python FolderLibraryStore: state-словарь + default_state.
@@ -53,7 +65,10 @@ impl FolderLibraryStore {
         let key = self.create_folder(name);
         let after_key = after_folder_key.trim().to_string();
         let folders = self.ordered_folders();
-        let after_index = match folders.iter().position(|(folder_key, _)| folder_key == &after_key) {
+        let after_index = match folders
+            .iter()
+            .position(|(folder_key, _)| folder_key == &after_key)
+        {
             Some(index) if after_key != key => index as i64,
             _ => folders.len() as i64 - 2,
         };
@@ -128,10 +143,7 @@ impl FolderLibraryStore {
     pub fn move_folder_by_step(&mut self, folder_key: &str, direction: i64) -> bool {
         let key = folder_key.trim().to_string();
         let folders = self.ordered_folders();
-        let Some(index) = folders
-            .iter()
-            .position(|(list_key, _)| list_key == &key)
-        else {
+        let Some(index) = folders.iter().position(|(list_key, _)| list_key == &key) else {
             return false;
         };
         let step = if direction > 0 { 1 } else { -1 };
@@ -163,7 +175,10 @@ impl FolderLibraryStore {
 // ---------------------------------------------------------------- доступ
 
 fn field<'a>(value: &'a Value, key: &'a str) -> &'a Value {
-    value.as_object().and_then(|map| map.get(key)).unwrap_or(&Value::Null)
+    value
+        .as_object()
+        .and_then(|map| map.get(key))
+        .unwrap_or(&Value::Null)
 }
 
 fn set_field(value: &mut Value, key: &str, new_value: Value) {
@@ -197,8 +212,14 @@ impl FolderLibraryStore {
             let order_a = as_int(&field(folder_a, "order"));
             let order_b = as_int(&field(folder_b, "order"));
             order_a.cmp(&order_b).then_with(|| {
-                let name_a = field(folder_a, "name").as_str().unwrap_or(key_a).to_lowercase();
-                let name_b = field(folder_b, "name").as_str().unwrap_or(key_b).to_lowercase();
+                let name_a = field(folder_a, "name")
+                    .as_str()
+                    .unwrap_or(key_a)
+                    .to_lowercase();
+                let name_b = field(folder_b, "name")
+                    .as_str()
+                    .unwrap_or(key_b)
+                    .to_lowercase();
                 name_a.cmp(&name_b).then_with(|| key_a.cmp(key_b))
             })
         });
@@ -220,7 +241,11 @@ impl FolderLibraryStore {
 pub fn normalize_folder_state(data: &Value, default_state: &Value) -> Value {
     // python: deepcopy(default_state) — здесь просто клон значения.
     let default_folders = normalize_folders(
-        &default_state.as_object().and_then(|map| map.get("folders")).cloned().unwrap_or(Value::Null),
+        &default_state
+            .as_object()
+            .and_then(|map| map.get("folders"))
+            .cloned()
+            .unwrap_or(Value::Null),
         &Map::new(),
     );
     // python: raw = data если dict иначе {}; значения читаются напрямую.
@@ -275,7 +300,11 @@ pub fn normalize_folder_state(data: &Value, default_state: &Value) -> Value {
             if folder_key.is_empty() {
                 folder_key = COMMON_FOLDER_KEY.to_string();
             }
-            if !folders.as_object().expect("folders").contains_key(&folder_key) {
+            if !folders
+                .as_object()
+                .expect("folders")
+                .contains_key(&folder_key)
+            {
                 folder_key = COMMON_FOLDER_KEY.to_string();
             }
             let order = as_nullable_int(raw_meta_obj.get("order").unwrap_or(&Value::Null));
@@ -361,14 +390,19 @@ fn merge_default_folders(folders: &Value, default_folders: &Value) -> Value {
     for (key, default_folder) in defaults_map.iter() {
         if let Some(existing) = result.get(key) {
             let mut merged = merge_existing_common(default_folder, existing);
-            let system = is_true(&field(default_folder, "system"))
-                || is_true(&field(existing, "system"));
+            let system =
+                is_true(&field(default_folder, "system")) || is_true(&field(existing, "system"));
             set_field(&mut merged, "system", json!(system));
             result.insert(key.clone(), merged);
             continue;
         }
         let mut folder = default_folder.clone();
-        let wanted_order = as_int_clamped(&field(default_folder, "order"), result.len() as i64, Some(0), None);
+        let wanted_order = as_int_clamped(
+            &field(default_folder, "order"),
+            result.len() as i64,
+            Some(0),
+            None,
+        );
         make_order_slot(&mut result, wanted_order);
         set_field(&mut folder, "order", json!(wanted_order));
         result.insert(key.clone(), folder);
@@ -406,11 +440,13 @@ pub fn clean_folder_name(value: &Value) -> String {
 
 /// python _unique_folder_key.
 pub fn unique_folder_key(name: &str, folders: &Value) -> String {
-    static NON_WORD: std::sync::LazyLock<regex::Regex> = std::sync::LazyLock::new(|| {
-        regex::Regex::new(r"[^a-z0-9а-яё]+").expect("regex")
-    });
+    static NON_WORD: std::sync::LazyLock<regex::Regex> =
+        std::sync::LazyLock::new(|| regex::Regex::new(r"[^a-z0-9а-яё]+").expect("regex"));
     let lowered = name.to_lowercase();
-    let mut base = NON_WORD.replace_all(&lowered, "-").trim_matches('-').to_string();
+    let mut base = NON_WORD
+        .replace_all(&lowered, "-")
+        .trim_matches('-')
+        .to_string();
     if base.is_empty() {
         base = "folder".to_string();
     }
@@ -434,7 +470,12 @@ fn as_nullable_int(value: &Value) -> Option<i64> {
 }
 
 /// python _as_int со значениями по умолчанию и границами.
-pub fn as_int_clamped(value: &Value, default: i64, minimum: Option<i64>, maximum: Option<i64>) -> i64 {
+pub fn as_int_clamped(
+    value: &Value,
+    default: i64,
+    minimum: Option<i64>,
+    maximum: Option<i64>,
+) -> i64 {
     let mut result = value
         .as_i64()
         .or_else(|| value.as_f64().map(|float| float as i64))

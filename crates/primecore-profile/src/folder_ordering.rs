@@ -4,7 +4,7 @@
 use serde_json::{json, Value};
 
 use super::folder_store::{as_int_clamped_pub, normalize_folder_state};
-use super::folders::{COMMON_FOLDER_KEY, PINNED_FOLDER_KEY, classify_profile_folder};
+use super::folders::{classify_profile_folder, COMMON_FOLDER_KEY, PINNED_FOLDER_KEY};
 use crate::identity::is_profile_uid_text;
 
 /// python FolderOrderView.
@@ -59,7 +59,10 @@ impl FolderOrderView {
 pub type LiveItem = Value;
 
 fn live(item: &LiveItem, key: &str) -> Value {
-    item.as_object().and_then(|map| map.get(key)).cloned().unwrap_or(Value::Null)
+    item.as_object()
+        .and_then(|map| map.get(key))
+        .cloned()
+        .unwrap_or(Value::Null)
 }
 
 fn live_str(item: &LiveItem, key: &str) -> String {
@@ -126,28 +129,44 @@ fn rating_value(value: Value) -> Option<i64> {
 fn entry_sort_key(order: Option<i64>, meta: &Value, live_item: &LiveItem) -> EntrySortKey {
     let name = {
         let raw = live_str(live_item, "name");
-        let raw = if raw.is_empty() { live_str(live_item, "key") } else { raw };
+        let raw = if raw.is_empty() {
+            live_str(live_item, "key")
+        } else {
+            raw
+        };
         raw.to_lowercase()
     };
     let key = live_str(live_item, "key");
     if let Some(order) = order {
         let manual_tie = match live(live_item, "manual_tie") {
-            Value::Array(items) if !items.is_empty() => {
-                items.iter().filter_map(|item| number(item)).collect::<Vec<i64>>()
-            }
+            Value::Array(items) if !items.is_empty() => items
+                .iter()
+                .filter_map(|item| number(item))
+                .collect::<Vec<i64>>(),
             _ => vec![-item_rating(meta, live_item)],
         };
         let mut group = vec![order];
         group.extend(manual_tie);
-        return EntrySortKey { bucket: 0, group, name, key };
+        return EntrySortKey {
+            bucket: 0,
+            group,
+            name,
+            key,
+        };
     }
     let auto_rank: Vec<i64> = match live(live_item, "auto_rank") {
-        Value::Array(items) if !items.is_empty() => {
-            items.iter().filter_map(|item| number(item)).collect::<Vec<i64>>()
-        }
+        Value::Array(items) if !items.is_empty() => items
+            .iter()
+            .filter_map(|item| number(item))
+            .collect::<Vec<i64>>(),
         _ => vec![0, -item_rating(meta, live_item)],
     };
-    EntrySortKey { bucket: 1, group: auto_rank, name, key }
+    EntrySortKey {
+        bucket: 1,
+        group: auto_rank,
+        name,
+        key,
+    }
 }
 
 /// python value → int? (None → нет).
@@ -213,11 +232,21 @@ pub fn resolve_folder_order(state: &Value, live_items: &[LiveItem]) -> FolderOrd
             .collect(),
         folder_names: folders
             .iter()
-            .map(|(key, folder)| (key.clone(), folder_string(folder, "name").unwrap_or_else(|| key.clone())))
+            .map(|(key, folder)| {
+                (
+                    key.clone(),
+                    folder_string(folder, "name").unwrap_or_else(|| key.clone()),
+                )
+            })
             .collect(),
         collapsed: folders
             .iter()
-            .map(|(key, folder)| (key.clone(), matches!(field(folder, "collapsed"), Value::Bool(true))))
+            .map(|(key, folder)| {
+                (
+                    key.clone(),
+                    matches!(field(folder, "collapsed"), Value::Bool(true)),
+                )
+            })
             .collect(),
         items_by_folder,
         folder_by_item: folder_of,
@@ -230,7 +259,11 @@ fn folders_of(state: &Value) -> Vec<(String, Value)> {
         .as_object()
         .and_then(|map| map.get("folders"))
         .and_then(Value::as_object)
-        .map(|map| map.iter().map(|(key, value)| (key.clone(), value.clone())).collect())
+        .map(|map| {
+            map.iter()
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect()
+        })
         .unwrap_or_default()
 }
 
@@ -239,7 +272,11 @@ fn items_of(state: &Value) -> std::collections::HashMap<String, Value> {
         .as_object()
         .and_then(|map| map.get("items"))
         .and_then(Value::as_object)
-        .map(|map| map.iter().map(|(key, value)| (key.clone(), value.clone())).collect())
+        .map(|map| {
+            map.iter()
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect()
+        })
         .unwrap_or_default()
 }
 
@@ -251,7 +288,10 @@ fn folder_string(folder: &Value, key: &str) -> Option<String> {
 }
 
 fn field<'a>(value: &'a Value, key: &'a str) -> &'a Value {
-    value.as_object().and_then(|map| map.get(key)).unwrap_or(&Value::Null)
+    value
+        .as_object()
+        .and_then(|map| map.get(key))
+        .unwrap_or(&Value::Null)
 }
 
 /// python _resolve_item_folder.
@@ -308,19 +348,26 @@ pub fn plan_view_move(
     }
 
     let target_folder = if kind == "before" || kind == "after" {
-        if destination.is_empty() || destination == source || view.folder_of_item(&destination).is_none() {
+        if destination.is_empty()
+            || destination == source
+            || view.folder_of_item(&destination).is_none()
+        {
             return None;
         }
         let explicit = destination_folder_key.trim().to_string();
         if explicit.is_empty() {
-            view.folder_of_item(&destination).expect("destination folder").to_string()
+            view.folder_of_item(&destination)
+                .expect("destination folder")
+                .to_string()
         } else {
             explicit
         }
     } else if kind == "end" {
         let explicit = destination_folder_key.trim().to_string();
         if explicit.is_empty() {
-            view.folder_of_item(&source).expect("source folder").to_string()
+            view.folder_of_item(&source)
+                .expect("source folder")
+                .to_string()
         } else {
             explicit
         }
@@ -346,7 +393,10 @@ pub fn plan_view_move(
             }
             sequence.push(destination.clone());
         }
-        let insert_index = sequence.iter().position(|key| key == &destination).expect("destination")
+        let insert_index = sequence
+            .iter()
+            .position(|key| key == &destination)
+            .expect("destination")
             + if kind == "after" { 1 } else { 0 };
         sequence.insert(insert_index, source.clone());
     } else {
@@ -381,7 +431,10 @@ pub fn plan_item_move(
     ) else {
         return None;
     };
-    if !folders_of(state).iter().any(|(key, _)| key == &target_folder) {
+    if !folders_of(state)
+        .iter()
+        .any(|(key, _)| key == &target_folder)
+    {
         return None;
     }
     let source = source_key.trim().to_string();
@@ -429,7 +482,11 @@ fn set_field(value: &mut Value, key: &str, new_value: Value) {
 fn new_item_meta(folder_key: &str, live_item: Option<&LiveItem>) -> Value {
     let mut meta = json!({"folder_key": folder_key, "order": Value::Null, "rating": 0});
     if let Some(live_item) = live_item {
-        set_field(&mut meta, "rating", json!(item_rating(&json!({}), live_item)));
+        set_field(
+            &mut meta,
+            "rating",
+            json!(item_rating(&json!({}), live_item)),
+        );
         if live_bool(live_item, "pinned") {
             set_field(&mut meta, "pinned", json!(true));
         }
@@ -565,12 +622,17 @@ fn get_folders(state: &Value) -> Vec<(String, Value)> {
         .as_object()
         .and_then(|map| map.get("folders"))
         .and_then(Value::as_object)
-        .map(|map| map.iter().map(|(key, value)| (key.clone(), value.clone())).collect())
+        .map(|map| {
+            map.iter()
+                .map(|(key, value)| (key.clone(), value.clone()))
+                .collect()
+        })
         .unwrap_or_default()
 }
 
 fn is_pinned(meta: &Value, live_item: &LiveItem) -> bool {
-    matches!(field(meta, "pinned"), Value::Bool(true)) || live(live_item, "pinned") == Value::Bool(true)
+    matches!(field(meta, "pinned"), Value::Bool(true))
+        || live(live_item, "pinned") == Value::Bool(true)
 }
 
 /// python _sort_items.
@@ -649,7 +711,10 @@ pub fn live_items_from_display_items(
 
 /// python profile.ordering.resolve_profile_order_view: view на normalized
 /// состоянии папок и live_items из отображаемых item-ов.
-pub fn resolve_profile_order_view_from(items: &[(String, String, Vec<String>, i64, i64, String)], folder_state: &Value) -> FolderOrderView {
+pub fn resolve_profile_order_view_from(
+    items: &[(String, String, Vec<String>, i64, i64, String)],
+    folder_state: &Value,
+) -> FolderOrderView {
     let live_items = live_items_from_display_items(items);
     let defaults = super::folders::build_default_profile_folders();
     let state = super::folder_store::normalize_folder_state(folder_state, &defaults);
@@ -723,5 +788,8 @@ fn profile_folder_tail_rank(folder_key: &str, classification_text: &str) -> i64 
 
 /// normalized state (python _normalized_state).
 pub fn normalized_profile_folder_state(folder_state: &Value) -> Value {
-    normalize_folder_state(folder_state, &super::folders::build_default_profile_folders())
+    normalize_folder_state(
+        folder_state,
+        &super::folders::build_default_profile_folders(),
+    )
 }

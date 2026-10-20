@@ -5,8 +5,7 @@ use std::sync::OnceLock;
 use serde_json::{json, Value};
 
 use primecore_dnswire::{
-    answered_result, build_query, encode_name, parse_response, reverse_name, DnsMessage,
-    DnsQueryResult,
+    answered_result, build_query, encode_name, parse_response, reverse_name, DnsQueryResult,
 };
 
 fn golden() -> &'static Value {
@@ -23,7 +22,9 @@ fn hex_to_bytes(hex: &str) -> Vec<u8> {
 
 fn encode_err(call: impl FnOnce() -> Result<Vec<u8>, String>) -> Value {
     match call() {
-        Ok(bytes) => json!({"ok": true, "value": bytes.iter().map(|b| format!("{b:02x}")).collect::<String>()}),
+        Ok(bytes) => {
+            json!({"ok": true, "value": bytes.iter().map(|b| format!("{b:02x}")).collect::<String>()})
+        }
         Err(error) => json!({"ok": false, "error": error}),
     }
 }
@@ -40,8 +41,13 @@ fn encode_name_matches_python() {
 fn build_query_matches_python() {
     for entry in golden()["build_query"].as_array().unwrap() {
         let expect_id = entry[0].as_u64().unwrap() as u16;
-        let actual =
-            encode_err(|| build_query(expect_id, entry[1].as_str().unwrap(), entry[2].as_u64().unwrap() as u16));
+        let actual = encode_err(|| {
+            build_query(
+                expect_id,
+                entry[1].as_str().unwrap(),
+                entry[2].as_u64().unwrap() as u16,
+            )
+        });
         assert_eq!(actual, entry[3], "build_query({expect_id}, {:?})", entry[1]);
     }
 }
@@ -64,24 +70,46 @@ fn parse_response_matches_python() {
         let parsed = parse_response(&packet);
         match entry.get("error") {
             Some(expected_error) => {
-                let error = parsed.err().expect("python выдал DnsWireError");
+                let error = match parsed {
+                    Err(e) => e,
+                    Ok(_) => panic!("python выдал DnsWireError"),
+                };
                 assert_eq!(error, expected_error.as_str().unwrap(), "{}", entry["name"]);
             }
             None => {
                 let expected = entry.get("message").expect("python разобрал пакет");
                 let message = parsed.expect("разбор должен пройти");
-                assert_eq!(message.query_id, expected["query_id"].as_u64().unwrap() as u16, "{}", entry["name"]);
-                assert_eq!(message.is_response, expected["is_response"].as_bool().unwrap());
+                assert_eq!(
+                    message.query_id,
+                    expected["query_id"].as_u64().unwrap() as u16,
+                    "{}",
+                    entry["name"]
+                );
+                assert_eq!(
+                    message.is_response,
+                    expected["is_response"].as_bool().unwrap()
+                );
                 assert_eq!(message.truncated, expected["truncated"].as_bool().unwrap());
                 assert_eq!(message.rcode, expected["rcode"].as_u64().unwrap() as u16);
                 assert_eq!(message.question, expected["question"].as_str().unwrap());
-                assert_eq!(message.authoritative, expected["authoritative"].as_bool().unwrap());
-                assert_eq!(message.authority_count, expected["authority_count"].as_u64().unwrap() as u16);
+                assert_eq!(
+                    message.authoritative,
+                    expected["authoritative"].as_bool().unwrap()
+                );
+                assert_eq!(
+                    message.authority_count,
+                    expected["authority_count"].as_u64().unwrap() as u16
+                );
                 let answers = &message.answers;
                 assert_eq!(answers.len(), expected["answers"].as_array().unwrap().len());
-                for (record, expected_record) in answers.iter().zip(expected["answers"].as_array().unwrap()) {
+                for (record, expected_record) in
+                    answers.iter().zip(expected["answers"].as_array().unwrap())
+                {
                     assert_eq!(record.name, expected_record["name"].as_str().unwrap());
-                    assert_eq!(record.rtype, expected_record["rtype"].as_u64().unwrap() as u16);
+                    assert_eq!(
+                        record.rtype,
+                        expected_record["rtype"].as_u64().unwrap() as u16
+                    );
                     assert_eq!(record.ttl, expected_record["ttl"].as_u64().unwrap() as u32);
                     assert_eq!(record.value, expected_record["value"].as_str().unwrap());
                 }
@@ -203,7 +231,11 @@ fn failure_text_matches_python() {
 fn forged_denial_matches_python() {
     for entry in golden()["forged_denial"].as_array().unwrap() {
         let key = entry[0].as_str().unwrap();
-        assert_eq!(case_by_key(key).forged_denial(), entry[1].as_bool().unwrap(), "forged_denial({key})");
+        assert_eq!(
+            case_by_key(key).forged_denial(),
+            entry[1].as_bool().unwrap(),
+            "forged_denial({key})"
+        );
     }
 }
 
@@ -211,7 +243,11 @@ fn forged_denial_matches_python() {
 fn answered_matches_python() {
     for entry in golden()["answered"].as_array().unwrap() {
         let key = entry[0].as_str().unwrap();
-        assert_eq!(case_by_key(key).answered(), entry[1].as_bool().unwrap(), "answered({key})");
+        assert_eq!(
+            case_by_key(key).answered(),
+            entry[1].as_bool().unwrap(),
+            "answered({key})"
+        );
     }
 }
 

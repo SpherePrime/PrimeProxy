@@ -7,7 +7,10 @@ use std::sync::OnceLock;
 
 use serde_json::Value;
 
-use primecore_netfailure::{classify_code, classify_os_error, FAILURE_REFUSED, FAILURE_RESET, FAILURE_TIMEOUT, FAILURE_UNREACHABLE};
+use primecore_netfailure::{
+    classify_code, classify_os_error, FAILURE_REFUSED, FAILURE_RESET, FAILURE_TIMEOUT,
+    FAILURE_UNREACHABLE,
+};
 
 fn golden() -> &'static Value {
     static GOLDEN: OnceLock<Value> = OnceLock::new();
@@ -41,9 +44,7 @@ fn winerror_table_matches_python() {
     ];
     for (code, failure) in table {
         assert_eq!(
-            expected
-                .get(&code.to_string())
-                .and_then(Value::as_str),
+            expected.get(&code.to_string()).and_then(Value::as_str),
             Some(failure),
             "winerror {code}"
         );
@@ -63,15 +64,30 @@ fn classify_code_matches_python() {
 fn classify_os_error_matches_python_classes() {
     use std::io::Error;
     // python ConnectionRefusedError → refused
-    assert_eq!(classify_os_error(&Error::from_raw_os_error(111)), FAILURE_REFUSED);
+    assert_eq!(
+        classify_os_error(&Error::from_raw_os_error(111)),
+        FAILURE_REFUSED
+    );
     // python ConnectionResetError → reset
-    assert_eq!(classify_os_error(&Error::from_raw_os_error(104)), FAILURE_RESET);
+    assert_eq!(
+        classify_os_error(&Error::from_raw_os_error(104)),
+        FAILURE_RESET
+    );
     // python BrokenPipeError → reset
-    assert_eq!(classify_os_error(&Error::from_raw_os_error(32)), FAILURE_RESET);
+    assert_eq!(
+        classify_os_error(&Error::from_raw_os_error(32)),
+        FAILURE_RESET
+    );
     // python TimeoutError (errno ETIMEDOUT) → timeout
-    assert_eq!(classify_os_error(&Error::from_raw_os_error(110)), FAILURE_TIMEOUT);
+    assert_eq!(
+        classify_os_error(&Error::from_raw_os_error(110)),
+        FAILURE_TIMEOUT
+    );
     // unreachable
-    assert_eq!(classify_os_error(&Error::from_raw_os_error(113)), FAILURE_UNREACHABLE);
+    assert_eq!(
+        classify_os_error(&Error::from_raw_os_error(113)),
+        FAILURE_UNREACHABLE
+    );
     // Winsock-код без errno-эквивалента (linux): classify_code по таблице
     assert_eq!(classify_code(10060), FAILURE_TIMEOUT);
     assert_eq!(classify_code(10061), FAILURE_REFUSED);

@@ -146,7 +146,9 @@ fn split_url(url: &str) -> Option<UrlParts> {
 }
 
 fn authority_host(authority: &str) -> String {
-    let without_userinfo = authority.rsplit_once('@').map_or(authority, |(_, host)| host);
+    let without_userinfo = authority
+        .rsplit_once('@')
+        .map_or(authority, |(_, host)| host);
     without_userinfo
         .split(':')
         .next()
@@ -160,7 +162,10 @@ fn authority_has_userinfo(authority: &str) -> bool {
 }
 
 fn authority_has_port(authority: &str) -> bool {
-    authority.rsplit_once('@').map_or(authority, |(_, host)| host).contains(':')
+    authority
+        .rsplit_once('@')
+        .map_or(authority, |(_, host)| host)
+        .contains(':')
 }
 
 fn percent_decode(path: &str) -> String {
@@ -241,12 +246,18 @@ impl ReleaseArtifactMetadata {
         if remote_name != file_name {
             return Err("Ссылка выпуска не соответствует имени файла".to_string());
         }
-        let file_size = release_info.get("file_size").and_then(Value::as_i64).unwrap_or(0);
+        let file_size = release_info
+            .get("file_size")
+            .and_then(Value::as_i64)
+            .unwrap_or(0);
         if file_size <= 0 {
             return Err("В метаданных выпуска нет размера файла".to_string());
         }
         let sha256 = normalize_sha256(
-            release_info.get("sha256").and_then(Value::as_str).unwrap_or(""),
+            release_info
+                .get("sha256")
+                .and_then(Value::as_str)
+                .unwrap_or(""),
         );
         if sha256.is_empty() {
             return Err("В метаданных выпуска нет SHA-256".to_string());
@@ -339,7 +350,11 @@ pub fn parse_sha256_sidecar(text: &str, expected_name: &str) -> Result<String, S
     if name != expected_name {
         return Err("Некорректный файл контрольной суммы выпуска".to_string());
     }
-    Ok(captures.get(1).map(|m| m.as_str()).unwrap_or("").to_lowercase())
+    Ok(captures
+        .get(1)
+        .map(|m| m.as_str())
+        .unwrap_or("")
+        .to_lowercase())
 }
 
 /// Канал выпуска: dev — если prerelease или dev-имя файла.
@@ -358,10 +373,17 @@ fn asset_name(asset: &Value) -> &str {
 
 /// Кандидат из списка выпусков без единого скачивания, либо нет.
 pub fn forgejo_candidate(release: &Value, channel: &str) -> Option<Value> {
-    if release.get("draft").and_then(Value::as_bool).unwrap_or(false) {
+    if release
+        .get("draft")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
         return None;
     }
-    let tag_name = release.get("tag_name").and_then(Value::as_str).unwrap_or("");
+    let tag_name = release
+        .get("tag_name")
+        .and_then(Value::as_str)
+        .unwrap_or("");
     let version = normalize_version(tag_name).ok()?;
     let assets: Vec<&Value> = release
         .get("assets")
@@ -373,14 +395,26 @@ pub fn forgejo_candidate(release: &Value, channel: &str) -> Option<Value> {
         .copied()
         .find(|asset| asset_name(asset).to_lowercase().ends_with(".exe"))?;
     let exe_name = asset_name(exe_asset);
-    let prerelease = release.get("prerelease").and_then(Value::as_bool).unwrap_or(false);
+    let prerelease = release
+        .get("prerelease")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
     if !matches_channel(prerelease, exe_name, channel) {
         return None;
     }
     let sidecar_name = format!("{exe_name}.sha256");
-    let sidecar = assets.iter().copied().find(|asset| asset_name(asset) == sidecar_name)?;
-    let exe_url = exe_asset.get("browser_download_url").and_then(Value::as_str).unwrap_or("");
-    let sidecar_url = sidecar.get("browser_download_url").and_then(Value::as_str).unwrap_or("");
+    let sidecar = assets
+        .iter()
+        .copied()
+        .find(|asset| asset_name(asset) == sidecar_name)?;
+    let exe_url = exe_asset
+        .get("browser_download_url")
+        .and_then(Value::as_str)
+        .unwrap_or("");
+    let sidecar_url = sidecar
+        .get("browser_download_url")
+        .and_then(Value::as_str)
+        .unwrap_or("");
     if !trusted_release_asset_url(exe_url, tag_name, exe_name) {
         return None;
     }
@@ -453,7 +487,13 @@ pub fn release_from_versions(
 ) -> Result<Value, String> {
     let selected = normalize_update_channel(channel);
     let entry = data.get(selected).cloned().unwrap_or(Value::Null);
-    if !entry.is_object() || entry.get("version").and_then(Value::as_str).unwrap_or("").is_empty() {
+    if !entry.is_object()
+        || entry
+            .get("version")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .is_empty()
+    {
         return Err(format!("в ответе нет канала {selected}"));
     }
     let version = normalize_version(entry.get("version").and_then(Value::as_str).unwrap_or(""))
@@ -478,7 +518,11 @@ pub fn release_from_versions(
         "source": source,
         "verify_ssl": verify_ssl,
     });
-    if entry.get("manifest").and_then(Value::as_bool).unwrap_or(false) {
+    if entry
+        .get("manifest")
+        .and_then(Value::as_bool)
+        .unwrap_or(false)
+    {
         // Подписанный список выпуска лежит рядом с установщиком.
         release["manifest_url"] = Value::String(format!(
             "{base_url}/download/{file_name}.{}",
@@ -505,7 +549,11 @@ pub struct MirrorDownload {
 }
 
 pub fn mirror_download(server: &Value, file_name: &str, verify_ssl: bool) -> MirrorDownload {
-    let host = server.get("host").and_then(Value::as_str).unwrap_or("").to_string();
+    let host = server
+        .get("host")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string();
     let name = server
         .get("name")
         .and_then(Value::as_str)
@@ -516,7 +564,10 @@ pub fn mirror_download(server: &Value, file_name: &str, verify_ssl: bool) -> Mir
         host: host.clone(),
         https_url: format!(
             "https://{host}:{}/download/{file_name}",
-            server.get("https_port").and_then(Value::as_i64).unwrap_or(0)
+            server
+                .get("https_port")
+                .and_then(Value::as_i64)
+                .unwrap_or(0)
         ),
         http_url: format!(
             "http://{host}:{}/download/{file_name}",
@@ -724,5 +775,7 @@ pub fn fetch_latest_release_mirrors(
             chosen = Some((*index, current, release.clone()));
         }
     }
-    Ok(chosen.map(|(_, _, release)| release).expect("выпуск из непустой гонки"))
+    Ok(chosen
+        .map(|(_, _, release)| release)
+        .expect("выпуск из непустой гонки"))
 }

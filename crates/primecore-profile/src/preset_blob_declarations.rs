@@ -160,7 +160,12 @@ fn blob_declaration(option: &str) -> Option<(String, String)> {
         return None;
     }
     let spec = option[BLOB_OPTION.len()..].trim().to_string();
-    let name = spec.split(':').next().unwrap_or_default().trim().to_string();
+    let name = spec
+        .split(':')
+        .next()
+        .unwrap_or_default()
+        .trim()
+        .to_string();
     if name.is_empty() {
         return None;
     }
@@ -308,7 +313,10 @@ fn blob_insert_index(preamble_lines: &[String]) -> usize {
 }
 
 /// python with_blob_lines_in_preamble.
-pub fn with_blob_lines_in_preamble(preamble_lines: &[String], blob_lines: &[String]) -> Vec<String> {
+pub fn with_blob_lines_in_preamble(
+    preamble_lines: &[String],
+    blob_lines: &[String],
+) -> Vec<String> {
     if blob_lines.is_empty() {
         return preamble_lines.to_vec();
     }

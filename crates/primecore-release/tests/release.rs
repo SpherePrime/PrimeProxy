@@ -26,15 +26,22 @@ fn channels_normalize() {
     assert_eq!(normalize_update_channel("nightly"), CHANNEL_STABLE);
     assert!(is_dev_update_channel("dev"));
     assert!(!is_dev_update_channel("stable"));
-    assert_eq!(get_channel_installer_name("dev"), "PrimeBypassSetup_DEV.exe");
+    assert_eq!(
+        get_channel_installer_name("dev"),
+        "PrimeBypassSetup_DEV.exe"
+    );
     assert_eq!(get_channel_installer_name("stable"), "PrimeBypassSetup.exe");
 }
 
 #[test]
 fn dev_asset_names_include_legacy() {
-    assert!(is_dev_release_asset_name("PrimeBypassSetup_DEV_21_1_5_78.exe"));
+    assert!(is_dev_release_asset_name(
+        "PrimeBypassSetup_DEV_21_1_5_78.exe"
+    ));
     assert!(is_dev_release_asset_name("Zapret2Setup_DEV_21_1_5_78.exe"));
-    assert!(is_dev_release_asset_name("PrimeProxySetup_DEV_21_1_5_67.exe"));
+    assert!(is_dev_release_asset_name(
+        "PrimeProxySetup_DEV_21_1_5_67.exe"
+    ));
     assert!(is_dev_release_asset_name("installer_DEV.exe"));
     assert!(!is_dev_release_asset_name("PrimeBypassSetup.exe"));
     assert!(!is_dev_release_asset_name("PrimeProxySetup.exe"));
@@ -43,12 +50,21 @@ fn dev_asset_names_include_legacy() {
 #[test]
 fn telegram_version_uses_installer_names_only() {
     let html = "дата 16.09.2026 ip 10.7.8.9\r\nPrimeProxySetup_DEV_21_1_5_78.exe потом";
-    assert_eq!(version_from_telegram_html(html), Some("21.1.5.78".to_string()));
+    assert_eq!(
+        version_from_telegram_html(html),
+        Some("21.1.5.78".to_string())
+    );
 
     let html = "Zapret2Setup_20_1_1_2.exe и позже PrimeBypassSetup_DEV_22_0_0_1.exe!";
-    assert_eq!(version_from_telegram_html(html), Some("22.0.0.1".to_string()));
+    assert_eq!(
+        version_from_telegram_html(html),
+        Some("22.0.0.1".to_string())
+    );
 
-    assert_eq!(version_from_telegram_html("просто числа 21_1_5_78.exe"), None);
+    assert_eq!(
+        version_from_telegram_html("просто числа 21_1_5_78.exe"),
+        None
+    );
     assert!(telegram_source_name("dev").contains("zapretguidev"));
     assert!(telegram_source_name("stable").contains("zapretnetdiscordyoutube"));
 }
@@ -56,7 +72,10 @@ fn telegram_version_uses_installer_names_only() {
 #[test]
 fn sha256_normalizes() {
     assert_eq!(
-        normalize_sha256(&"  A6A52B4D3D9F7C0D89F1DFEBD1446DEB69B5E9D1E7FBC0FA3F5AA2DBBA1B7F90 ".to_uppercase()).len(),
+        normalize_sha256(
+            &"  A6A52B4D3D9F7C0D89F1DFEBD1446DEB69B5E9D1E7FBC0FA3F5AA2DBBA1B7F90 ".to_uppercase()
+        )
+        .len(),
         64
     );
     assert_eq!(normalize_sha256("abcd"), "");
@@ -96,23 +115,59 @@ fn metadata_contract_accepts_valid_and_permissive_ftp() {
         "sha256": metadata.sha256,
     }))
     .expect("HTTP тоже допустим");
-    assert!(metadata_http.verify_ssl, "по умолчанию проверяем сертификат");
+    assert!(
+        metadata_http.verify_ssl,
+        "по умолчанию проверяем сертификат"
+    );
 }
 
 #[test]
 fn metadata_contract_rejects_broken() {
     for (name, release) in [
-        ("нет версии", json!({"update_url": "https://host.ru/x.exe", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)})),
-        ("пустой sha", json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "x.exe", "file_size": 1})),
-        ("короткий sha", json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "x.exe", "file_size": 1, "sha256": "abc"})),
-        ("нулевой размер", json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "x.exe", "file_size": 0, "sha256": "a".repeat(64)})),
-        ("нет размера", json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "x.exe", "sha256": "a".repeat(64)})),
-        ("имя не совпало", json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "y.exe", "file_size": 1, "sha256": "a".repeat(64)})),
-        ("без имени файла", json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_size": 1, "sha256": "a".repeat(64)})),
-        ("query в url", json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe?do", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)})),
-        ("логин в url", json!({"version": "21.1.5.80", "update_url": "https://user@host.ru/x.exe", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)})),
-        ("не http-схема", json!({"version": "21.1.5.80", "update_url": "ftp://host.ru/x.exe", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)})),
-        ("https без пути", json!({"version": "21.1.5.80", "update_url": "https://host.ru", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)})),
+        (
+            "нет версии",
+            json!({"update_url": "https://host.ru/x.exe", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)}),
+        ),
+        (
+            "пустой sha",
+            json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "x.exe", "file_size": 1}),
+        ),
+        (
+            "короткий sha",
+            json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "x.exe", "file_size": 1, "sha256": "abc"}),
+        ),
+        (
+            "нулевой размер",
+            json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "x.exe", "file_size": 0, "sha256": "a".repeat(64)}),
+        ),
+        (
+            "нет размера",
+            json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "x.exe", "sha256": "a".repeat(64)}),
+        ),
+        (
+            "имя не совпало",
+            json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_name": "y.exe", "file_size": 1, "sha256": "a".repeat(64)}),
+        ),
+        (
+            "без имени файла",
+            json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe", "file_size": 1, "sha256": "a".repeat(64)}),
+        ),
+        (
+            "query в url",
+            json!({"version": "21.1.5.80", "update_url": "https://host.ru/x.exe?do", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)}),
+        ),
+        (
+            "логин в url",
+            json!({"version": "21.1.5.80", "update_url": "https://user@host.ru/x.exe", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)}),
+        ),
+        (
+            "не http-схема",
+            json!({"version": "21.1.5.80", "update_url": "ftp://host.ru/x.exe", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)}),
+        ),
+        (
+            "https без пути",
+            json!({"version": "21.1.5.80", "update_url": "https://host.ru", "file_name": "x.exe", "file_size": 1, "sha256": "a".repeat(64)}),
+        ),
     ] {
         let outcome = ReleaseArtifactMetadata::from_mapping(&release);
         assert!(outcome.is_err(), "{name}: запись прошла: {:?}", release);
@@ -124,7 +179,11 @@ fn metadata_contract_rejects_broken() {
 fn trusted_url_rules() {
     let prefix = FORGEJO_RELEASE_DOWNLOAD_PREFIX;
     let base = format!("https://{FORGEJO_HOST}{prefix}21.1.5.80/PrimeBypassSetup.exe");
-    assert!(trusted_release_asset_url(&base, "21.1.5.80", "PrimeBypassSetup.exe"));
+    assert!(trusted_release_asset_url(
+        &base,
+        "21.1.5.80",
+        "PrimeBypassSetup.exe"
+    ));
     assert!(!trusted_release_asset_url(
         &format!("http://{FORGEJO_HOST}{prefix}21.1.5.80/PrimeBypassSetup.exe"),
         "21.1.5.80",
@@ -146,7 +205,11 @@ fn trusted_url_rules() {
         "PrimeBypassSetup.exe"
     ));
     let traversal = format!("https://{FORGEJO_HOST}{prefix}21.1.5.80/sub/PrimeBypassSetup.exe");
-    assert!(!trusted_release_asset_url(&traversal, "21.1.5.80", "PrimeBypassSetup.exe"));
+    assert!(!trusted_release_asset_url(
+        &traversal,
+        "21.1.5.80",
+        "PrimeBypassSetup.exe"
+    ));
     assert!(trusted_release_asset_url(
         &format!("https://{FORGEJO_HOST}{prefix}21_1_5%2E80/PrimeBypassSetup.exe"),
         "21_1_5.80",
@@ -160,7 +223,10 @@ fn sidecar_parsing() {
     let name = "PrimeBypassSetup.exe";
     let sum = "a".repeat(64);
     let text = format!("{sum}  {name}\n");
-    assert_eq!(parse_sha256_sidecar(&text, name).expect("валидная строка"), sum);
+    assert_eq!(
+        parse_sha256_sidecar(&text, name).expect("валидная строка"),
+        sum
+    );
     assert_eq!(
         parse_sha256_sidecar(&format!("{sum}  other.exe"), name),
         Err("Некорректный файл контрольной суммы выпуска".to_string())
@@ -174,10 +240,26 @@ fn sidecar_parsing() {
 #[test]
 fn channel_matches_by_prerelease_and_name() {
     assert!(matches_channel(true, "PrimeBypassSetup.exe", CHANNEL_DEV));
-    assert!(!matches_channel(true, "PrimeBypassSetup.exe", CHANNEL_STABLE));
-    assert!(matches_channel(false, "PrimeBypassSetup_DEV_1_0_0_0.exe", CHANNEL_DEV));
-    assert!(!matches_channel(false, "PrimeBypassSetup_DEV_1_0_0_0.exe", CHANNEL_STABLE));
-    assert!(matches_channel(false, "PrimeBypassSetup.exe", CHANNEL_STABLE));
+    assert!(!matches_channel(
+        true,
+        "PrimeBypassSetup.exe",
+        CHANNEL_STABLE
+    ));
+    assert!(matches_channel(
+        false,
+        "PrimeBypassSetup_DEV_1_0_0_0.exe",
+        CHANNEL_DEV
+    ));
+    assert!(!matches_channel(
+        false,
+        "PrimeBypassSetup_DEV_1_0_0_0.exe",
+        CHANNEL_STABLE
+    ));
+    assert!(matches_channel(
+        false,
+        "PrimeBypassSetup.exe",
+        CHANNEL_STABLE
+    ));
 }
 
 fn forgejo_release(prerelease: bool) -> serde_json::Value {
@@ -205,8 +287,14 @@ fn forgejo_release(prerelease: bool) -> serde_json::Value {
 fn forgejo_candidate_collects_signed_assets() {
     let release = forgejo_release(false);
     let candidate = forgejo_candidate(&release, CHANNEL_STABLE).expect("стабильный кандидат");
-    assert_eq!(candidate.get("version").and_then(Value::as_str), Some("21.1.5.80"));
-    assert_eq!(candidate.get("file_name").and_then(Value::as_str), Some("PrimeBypassSetup.exe"));
+    assert_eq!(
+        candidate.get("version").and_then(Value::as_str),
+        Some("21.1.5.80")
+    );
+    assert_eq!(
+        candidate.get("file_name").and_then(Value::as_str),
+        Some("PrimeBypassSetup.exe")
+    );
     assert!(candidate
         .get("manifest_url")
         .and_then(Value::as_str)
@@ -217,7 +305,10 @@ fn forgejo_candidate_collects_signed_assets() {
         .and_then(Value::as_str)
         .expect("подпись найдена")
         .ends_with("21.1.5.80/update-manifest.json.sig"));
-    assert_eq!(candidate.get("release_url").and_then(Value::as_str), Some(release_page_url("21.1.5.80").as_str()));
+    assert_eq!(
+        candidate.get("release_url").and_then(Value::as_str),
+        Some(release_page_url("21.1.5.80").as_str())
+    );
 
     assert!(forgejo_candidate(&forgejo_release(true), CHANNEL_DEV).is_some());
     assert!(forgejo_candidate(&forgejo_release(true), CHANNEL_STABLE).is_none());
@@ -241,7 +332,12 @@ fn release_list_selects_candidates_in_order() {
     ]);
     let candidates = candidates_from_release_list(&payload, CHANNEL_STABLE).expect("список");
     assert_eq!(candidates.len(), 1);
-    assert_eq!(history_entry(&candidates[0]).get("version").and_then(Value::as_str), Some("21.1.5.80"));
+    assert_eq!(
+        history_entry(&candidates[0])
+            .get("version")
+            .and_then(Value::as_str),
+        Some("21.1.5.80")
+    );
     assert!(candidates_from_release_list(&json!({"oops": false}), CHANNEL_STABLE).is_none());
 }
 
@@ -276,11 +372,26 @@ fn mirror_release_built_from_versions() {
         "mirror (HTTPS)",
     )
     .expect("выпуск собран");
-    assert_eq!(release.get("version").and_then(Value::as_str), Some("21.1.5.80"));
-    assert_eq!(release.get("name").and_then(Value::as_str), Some("PrimeBypass 21.1.5.80 (stable)"));
-    assert_eq!(release.get("source").and_then(Value::as_str), Some("mirror (HTTPS)"));
-    let update_url = release.get("update_url").and_then(Value::as_str).expect("ссылка");
-    assert_eq!(update_url, "https://mirror.primebypass.su:9440/download/PrimeBypassSetup.exe");
+    assert_eq!(
+        release.get("version").and_then(Value::as_str),
+        Some("21.1.5.80")
+    );
+    assert_eq!(
+        release.get("name").and_then(Value::as_str),
+        Some("PrimeBypass 21.1.5.80 (stable)")
+    );
+    assert_eq!(
+        release.get("source").and_then(Value::as_str),
+        Some("mirror (HTTPS)")
+    );
+    let update_url = release
+        .get("update_url")
+        .and_then(Value::as_str)
+        .expect("ссылка");
+    assert_eq!(
+        update_url,
+        "https://mirror.primebypass.su:9440/download/PrimeBypassSetup.exe"
+    );
     let manifest_url = release
         .get("manifest_url")
         .and_then(Value::as_str)
@@ -315,8 +426,14 @@ fn mirror_download_addresses() {
     });
     let download = mirror_download(&server, "PrimeBypassSetup.exe", false);
     assert_eq!(download.name, "обозреватель");
-    assert_eq!(download.https_url, "https://mirror.primebypass.su:9440/download/PrimeBypassSetup.exe");
-    assert_eq!(download.http_url, "http://mirror.primebypass.su:9080/download/PrimeBypassSetup.exe");
+    assert_eq!(
+        download.https_url,
+        "https://mirror.primebypass.su:9440/download/PrimeBypassSetup.exe"
+    );
+    assert_eq!(
+        download.http_url,
+        "http://mirror.primebypass.su:9080/download/PrimeBypassSetup.exe"
+    );
     assert!(!download.verify_ssl);
 }
 
@@ -337,8 +454,16 @@ fn forgejo_success_skips_mirrors() {
         MIRRORS_DEADLINE_SECONDS,
     );
     assert!(lookup.ok(), "{:?}", lookup.error);
-    assert_eq!(lookup.release.and_then(|r| r.get("version").and_then(Value::as_str).map(str::to_string)), Some("21.1.5.80".to_string()));
-    assert!(!mirrors_asked.load(Ordering::SeqCst), "зеркала не должны стартовать");
+    assert_eq!(
+        lookup
+            .release
+            .and_then(|r| r.get("version").and_then(Value::as_str).map(str::to_string)),
+        Some("21.1.5.80".to_string())
+    );
+    assert!(
+        !mirrors_asked.load(Ordering::SeqCst),
+        "зеркала не должны стартовать"
+    );
 }
 
 #[test]
@@ -357,8 +482,16 @@ fn both_failures_report_both_reasons() {
         "текст новичка или новичка: {}",
         lookup.error
     );
-    assert!(lookup.error.contains("Forgejo: сервер закрыт"), "{}", lookup.error);
-    assert!(lookup.error.contains("Зеркала: зеркала молчат"), "{}", lookup.error);
+    assert!(
+        lookup.error.contains("Forgejo: сервер закрыт"),
+        "{}",
+        lookup.error
+    );
+    assert!(
+        lookup.error.contains("Зеркала: зеркала молчат"),
+        "{}",
+        lookup.error
+    );
 }
 
 #[test]
@@ -373,7 +506,11 @@ fn mirror_wins_when_forgejo_dead() {
     );
     assert!(lookup.ok(), "{}", lookup.error);
     assert_eq!(
-        lookup.release.unwrap().get("version").and_then(Value::as_str),
+        lookup
+            .release
+            .unwrap()
+            .get("version")
+            .and_then(Value::as_str),
         Some("21.1.5.80")
     );
 }
@@ -393,7 +530,11 @@ fn forgejo_timeout_reported_as_no_answer() {
         0.05,
     );
     assert!(!lookup.ok());
-    assert!(lookup.error.contains("нет ответа за отведённое время"), "{}", lookup.error);
+    assert!(
+        lookup.error.contains("нет ответа за отведённое время"),
+        "{}",
+        lookup.error
+    );
 }
 
 #[test]
@@ -408,17 +549,14 @@ fn first_good_answer_wins_the_race() {
         thread::sleep(Duration::from_millis(10));
         value_ok("21.1.5.79")
     });
-    let lookup = lookup_latest_release(
-        CHANNEL_STABLE,
-        slow_forgejo,
-        quick_mirrors,
-        0.01,
-        5.0,
-        5.0,
-    );
+    let lookup = lookup_latest_release(CHANNEL_STABLE, slow_forgejo, quick_mirrors, 0.01, 5.0, 5.0);
     assert!(lookup.ok(), "{}", lookup.error);
     assert_eq!(
-        lookup.release.unwrap().get("version").and_then(Value::as_str),
+        lookup
+            .release
+            .unwrap()
+            .get("version")
+            .and_then(Value::as_str),
         Some("21.1.5.79")
     );
 }
@@ -448,7 +586,10 @@ fn mirror_settle_picks_newest() {
         }
     };
     let release = fetch_latest_release_mirrors(2, fetch_one, 5.0, 5.0).expect("гонка");
-    assert_eq!(release.get("version").and_then(Value::as_str), Some("21.1.5.80"));
+    assert_eq!(
+        release.get("version").and_then(Value::as_str),
+        Some("21.1.5.80")
+    );
 }
 
 #[test]

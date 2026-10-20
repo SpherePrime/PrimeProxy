@@ -44,7 +44,11 @@ fn normalize_matches_python() {
     for row in GOLDEN["ops"]["normalize"].as_array().expect("строки") {
         let pair = row.as_array().expect("пара");
         let value = pair[0].as_str().expect("значение");
-        assert_eq!(pair[1].as_str().expect("нормализованное"), normalize_out_range_expression(value), "нормализация {value}");
+        assert_eq!(
+            pair[1].as_str().expect("нормализованное"),
+            normalize_out_range_expression(value),
+            "нормализация {value}"
+        );
     }
 }
 

@@ -135,20 +135,23 @@ fn diff_slice(diff: &mut Cursor<Vec<u8>>, part: usize) -> Result<&[u8], PatchErr
     let pos = diff.position() as usize;
     let need = pos + part;
     if need > diff.get_ref().len() {
-        return Err(invalid(format!("diff закончился: {} < {need}", diff.get_ref().len())));
+        return Err(invalid(format!(
+            "diff закончился: {} < {need}",
+            diff.get_ref().len()
+        )));
     }
     diff.set_position(need as u64);
     Ok(&diff.get_ref()[pos..need])
 }
 
-fn read_exact_from(
-    reader: &mut Cursor<Vec<u8>>,
-    target: &mut [u8],
-) -> Result<(), PatchError> {
+fn read_exact_from(reader: &mut Cursor<Vec<u8>>, target: &mut [u8]) -> Result<(), PatchError> {
     let pos = reader.position() as usize;
     let need = pos + target.len();
     if need > reader.get_ref().len() {
-        return Err(invalid(format!("extra закончился: {} < {need}", reader.get_ref().len())));
+        return Err(invalid(format!(
+            "extra закончился: {} < {need}",
+            reader.get_ref().len()
+        )));
     }
     target.copy_from_slice(&reader.get_ref()[pos..need]);
     reader.set_position(need as u64);

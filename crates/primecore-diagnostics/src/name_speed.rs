@@ -67,7 +67,12 @@ pub struct NameRun {
 impl NameRun {
     #[must_use]
     pub fn run(name: &str, kind: &str) -> Self {
-        Self { name: name.to_string(), kind: kind.to_string(), received: 0, seconds: 0.0 }
+        Self {
+            name: name.to_string(),
+            kind: kind.to_string(),
+            received: 0,
+            seconds: 0.0,
+        }
     }
 
     /// Килобайт в секунду. `None` — замер не получился.
@@ -106,7 +111,12 @@ pub struct NameVerdict {
 
 impl NameVerdict {
     fn new(name: &str, code: &str, text: String, kbps: Option<f64>) -> Self {
-        Self { name: name.to_string(), code: code.to_string(), text, kbps }
+        Self {
+            name: name.to_string(),
+            code: code.to_string(),
+            text,
+            kbps,
+        }
     }
 }
 
@@ -123,7 +133,11 @@ pub fn request_bytes(name: &str, path: &str) -> Vec<u8> {
 #[must_use]
 pub fn head_verdict(head: &[u8]) -> &'static str {
     let ok = head.starts_with(b"HTTP/1.") && head.get(9..12).is_some_and(|code| code == b"200");
-    if ok { RUN_OK } else { RUN_REFUSED }
+    if ok {
+        RUN_OK
+    } else {
+        RUN_REFUSED
+    }
 }
 
 /// python `_slow`: замер и сам медленный, и в разы медленнее контроля.
@@ -151,7 +165,10 @@ pub fn collect(
     let start = vec![fetch(SERVER_HOST), fetch(SERVER_HOST)];
     let known: Vec<f64> = start.iter().filter_map(NameRun::kbps).collect();
     if known.is_empty() || halted(&mut should_stop.as_mut()) {
-        return NameFacts { control: start, ..Default::default() };
+        return NameFacts {
+            control: start,
+            ..Default::default()
+        };
     }
     let mut deduped: Vec<String> = Vec::new();
     for name in names {
@@ -177,14 +194,24 @@ pub fn collect(
         }
     }
     // Что-то шло медленно — контроль ещё раз: вдруг просела сама линия.
-    let end = if again && !halted(&mut should_stop.as_mut()) { vec![fetch(SERVER_HOST)] } else { Vec::new() };
-    NameFacts { control: start, names: runs, control_after: end }
+    let end = if again && !halted(&mut should_stop.as_mut()) {
+        vec![fetch(SERVER_HOST)]
+    } else {
+        Vec::new()
+    };
+    NameFacts {
+        control: start,
+        names: runs,
+        control_after: end,
+    }
 }
 
 /// Человекочитаемая скорость — копия `speed_check.speed_text`.
 #[must_use]
 pub fn speed_text(kbps: Option<f64>) -> String {
-    let Some(kbps) = kbps else { return "замер не получился".to_string() };
+    let Some(kbps) = kbps else {
+        return "замер не получился".to_string();
+    };
     let mbit = kbps * 8.0 / 1000.0;
     if mbit >= 10.0 {
         format!("{} Мбит/с", py_round0(mbit))
@@ -282,7 +309,10 @@ pub fn judge(facts: &NameFacts) -> (Option<f64>, Vec<NameVerdict>) {
             verdicts.push(NameVerdict::new(
                 name,
                 FINE,
-                format!("{some} — не медленнее, чем с обычным именем", some = speed_text(Some(best))),
+                format!(
+                    "{some} — не медленнее, чем с обычным именем",
+                    some = speed_text(Some(best))
+                ),
                 Some(best),
             ));
         }
@@ -295,7 +325,12 @@ mod tests {
     use super::*;
 
     fn ok_run(name: &str, received: u64, seconds: f64) -> NameRun {
-        NameRun { name: name.to_string(), kind: RUN_OK.to_string(), received, seconds }
+        NameRun {
+            name: name.to_string(),
+            kind: RUN_OK.to_string(),
+            received,
+            seconds,
+        }
     }
 
     fn rate(kbps: f64, seconds: f64) -> (u64, f64) {
@@ -310,7 +345,10 @@ mod tests {
         assert!(ok_run("x", 25_000, SAMPLE_SECONDS).kbps().is_some());
         // Мало байт за короткое время — замера нет.
         assert_eq!(ok_run("x", 15_000, 1.0).kbps(), None);
-        assert_eq!(ok_run("x", MIN_BYTES, 2.0).kbps(), Some(MIN_BYTES as f64 / 1024.0 / 2.0));
+        assert_eq!(
+            ok_run("x", MIN_BYTES, 2.0).kbps(),
+            Some(MIN_BYTES as f64 / 1024.0 / 2.0)
+        );
     }
 
     #[test]
@@ -334,9 +372,15 @@ mod tests {
         let names: Vec<String> = vec!["a.ru".to_string(), "b.ru".to_string(), "a.ru".to_string()];
         let fast = |name: &str| ok_run(name, rate(2000.0, 2.0).0, 2.0);
         let facts = collect(&names, fast, None::<fn() -> bool>);
-        let grouped: Vec<(String, usize)> =
-            facts.names.iter().map(|runs| (runs[0].name.clone(), runs.len())).collect();
-        assert_eq!(grouped, vec![("a.ru".to_string(), 1), ("b.ru".to_string(), 1)]);
+        let grouped: Vec<(String, usize)> = facts
+            .names
+            .iter()
+            .map(|runs| (runs[0].name.clone(), runs.len()))
+            .collect();
+        assert_eq!(
+            grouped,
+            vec![("a.ru".to_string(), 1), ("b.ru".to_string(), 1)]
+        );
         assert!(facts.control_after.is_empty());
         assert_eq!(facts.control.len(), 2);
         // Медленное имя перепроверяется, контроль в конце повторяется.
@@ -363,7 +407,12 @@ mod tests {
                 if name == SERVER_HOST {
                     ok_run(name, rate(2000.0, 2.0).0, 2.0)
                 } else {
-                    NameRun { name: name.to_string(), kind: RUN_CUT.to_string(), received: 40_000, seconds: 0.5 }
+                    NameRun {
+                        name: name.to_string(),
+                        kind: RUN_CUT.to_string(),
+                        received: 40_000,
+                        seconds: 0.5,
+                    }
                 }
             },
             None::<fn() -> bool>,
@@ -371,12 +420,19 @@ mod tests {
         assert_eq!(facts.names[0].len(), 2);
         assert_eq!(facts.control_after.len(), 1);
         // Контроль не удался — ничего дальше не меряется.
-        let facts = collect(&names, |name| NameRun::run(name, RUN_CONNECT), None::<fn() -> bool>);
+        let facts = collect(
+            &names,
+            |name| NameRun::run(name, RUN_CONNECT),
+            None::<fn() -> bool>,
+        );
         assert!(facts.names.is_empty());
         assert!(facts.control.iter().all(|run| run.kind == RUN_CONNECT));
         // Останов после контроля — имена не проверяются вообще.
         let seen = std::rc::Rc::new(std::cell::Cell::new(0));
-        let stop = { let seen = seen.clone(); move || seen.get() >= 2 };
+        let stop = {
+            let seen = seen.clone();
+            move || seen.get() >= 2
+        };
         let mark = |name: &str| {
             seen.set(seen.get() + 1);
             ok_run(name, rate(2000.0, 2.0).0, 2.0)
@@ -392,12 +448,19 @@ mod tests {
             ok_run(SERVER_HOST, rate(1200.0, 2.0).0, 2.0),
         ];
         // Быстрое имя: fine.
-        let facts = NameFacts { control: control.clone(), names: vec![vec![ok_run("a.ru", rate(2000.0, 1.0).0, 1.0)]], control_after: Vec::new() };
+        let facts = NameFacts {
+            control: control.clone(),
+            names: vec![vec![ok_run("a.ru", rate(2000.0, 1.0).0, 1.0)]],
+            control_after: Vec::new(),
+        };
         let (speed, verdicts) = judge(&facts);
         assert_eq!(speed, Some(1500.0));
         assert_eq!(verdicts.len(), 1);
         assert_eq!(verdicts[0].code, FINE);
-        assert_eq!(verdicts[0].text, "16 Мбит/с — не медленнее, чем с обычным именем");
+        assert_eq!(
+            verdicts[0].text,
+            "16 Мбит/с — не медленнее, чем с обычным именем"
+        );
         assert!((verdicts[0].kbps.unwrap() - 2000.0).abs() < 1e-9);
         // Медленное имя дважды: slow.
         let slow_run = ok_run("a.ru", rate(100.0, SAMPLE_SECONDS).0, SAMPLE_SECONDS);
@@ -422,7 +485,10 @@ mod tests {
         };
         let (_speed, verdicts) = judge(&facts);
         assert_eq!(verdicts[0].code, UNKNOWN);
-        assert_eq!(verdicts[0].text, "скорость не измерить: сервер с этим именем файл не отдал");
+        assert_eq!(
+            verdicts[0].text,
+            "скорость не измерить: сервер с этим именем файл не отдал"
+        );
         // Сняли проверку — имя пропускается.
         let facts = NameFacts {
             control: control.clone(),
@@ -432,7 +498,12 @@ mod tests {
         let (_speed, verdicts) = judge(&facts);
         assert!(verdicts.is_empty());
         // Обрыв дважды подряд при живом контроле: cut.
-        let cut = NameRun { name: "a.ru".to_string(), kind: RUN_CUT.to_string(), received: 640_000, seconds: 0.4 };
+        let cut = NameRun {
+            name: "a.ru".to_string(),
+            kind: RUN_CUT.to_string(),
+            received: 640_000,
+            seconds: 0.4,
+        };
         let facts = NameFacts {
             control: control.clone(),
             names: vec![vec![cut.clone(), cut.clone()]],
@@ -456,6 +527,9 @@ mod tests {
         let (speed, verdicts) = judge(&facts);
         assert_eq!(speed, Some(1500.0));
         assert_eq!(verdicts[0].code, UNKNOWN);
-        assert_eq!(verdicts[0].text, "скорость не сравнить: во время замера просела сама линия");
+        assert_eq!(
+            verdicts[0].text,
+            "скорость не сравнить: во время замера просела сама линия"
+        );
     }
 }

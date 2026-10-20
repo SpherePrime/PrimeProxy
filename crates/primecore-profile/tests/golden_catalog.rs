@@ -19,14 +19,19 @@ fn catalog_alpha() -> String {
     payload.push_str("--lua-desync=fake\n--in-range=4-6\n--lua-desync=split\n\n");
     payload.push_str("[Опасный]\nlabel = Caution\nauthor = unknown_author\n");
     payload.push_str("--lua-desync=disorder\n--ipset=1.1.1.1\n\n");
-    payload.push_str("[--filter-tcp=2]\nname = Строка фильтра\n--filter-tcp=2\n--lua-desync=fake:1\n\n");
+    payload.push_str(
+        "[--filter-tcp=2]\nname = Строка фильтра\n--filter-tcp=2\n--lua-desync=fake:1\n\n",
+    );
     payload.push_str("[Пустой]\n\n[Ipset]\nipset= очиститель\n--lua-desync=tamper\n");
     payload
 }
 
 fn catalog_beta() -> String {
-    let mut payload = String::from("[Первая Пара]\n\n--lua-desync=multisplit\n--ndpi-list=@C:\\fake.txt\n\n");
-    payload.push_str("--payload=udp\n--lua-desync=hop\n--unknown-option=5\n\n--lua-desync=fakeddisorder\n");
+    let mut payload =
+        String::from("[Первая Пара]\n\n--lua-desync=multisplit\n--ndpi-list=@C:\\fake.txt\n\n");
+    payload.push_str(
+        "--payload=udp\n--lua-desync=hop\n--unknown-option=5\n\n--lua-desync=fakeddisorder\n",
+    );
     payload
 }
 
@@ -78,16 +83,29 @@ fn catalog_loader_matches_python() {
     )
     .expect("fixture upper");
 
-    let (_cache_key, _signature, catalogs) = load_strategy_catalogs_with_signature(&temp_dir, "WINWS2");
+    let (_cache_key, _signature, catalogs) =
+        load_strategy_catalogs_with_signature(&temp_dir, "WINWS2");
     assert_eq!(
         json!(catalogs.keys().collect::<Vec<_>>()),
         golden()["catalog_keys"]
     );
     for (case_name, expected_key) in [("alpha", "direct1"), ("beta", "direct2")] {
         let loaded = catalogs.get(case_name).map(Vec::as_slice);
-        let expected_list = golden()["parse"][expected_key].as_array().map(Vec::as_slice).unwrap_or_default().to_vec();
-        let expected = if expected_list.is_empty() { None } else { Some(json!(expected_list)) };
-        assert_eq!(loaded.map(entries_json), expected, "{case_name}: загрузка каталогов");
+        let expected_list = golden()["parse"][expected_key]
+            .as_array()
+            .map(Vec::as_slice)
+            .unwrap_or_default()
+            .to_vec();
+        let expected = if expected_list.is_empty() {
+            None
+        } else {
+            Some(json!(expected_list))
+        };
+        assert_eq!(
+            loaded.map(entries_json),
+            expected,
+            "{case_name}: загрузка каталогов"
+        );
     }
     std::fs::remove_dir_all(temp_dir).ok();
 }
@@ -120,7 +138,15 @@ fn visual_descriptions_match_python() {
             &visuals.technique_keys,
             "нет",
         );
-        assert_eq!(json!(plain), golden()["plain"][index].clone(), "простым языком {index}");
+        assert_eq!(
+            json!(plain),
+            golden()["plain"][index].clone(),
+            "простым языком {index}"
+        );
     }
-    assert_eq!(json!(true), golden()["missing"][0][0].clone(), "несуществующий каталог");
+    assert_eq!(
+        json!(true),
+        golden()["missing"][0][0].clone(),
+        "несуществующий каталог"
+    );
 }

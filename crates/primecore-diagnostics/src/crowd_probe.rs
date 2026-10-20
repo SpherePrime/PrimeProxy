@@ -29,8 +29,8 @@
 //! Здесь нет сети: отправка приветствия передаётся снаружи. Сбор ([`collect`])
 //! отделён от вывода ([`judge`]).
 
-use crate::report_text::py_round0;
 use crate::block_cause::{HELLO_ALERT, HELLO_CANCELLED, HELLO_OK, HELLO_RESET, HELLO_TIMEOUT};
+use crate::report_text::py_round0;
 
 /// Сколько соединений открыть разом: на одно больше порога из описания.
 pub const CROWD: usize = 4;
@@ -111,12 +111,29 @@ pub fn collect(
 ) -> CrowdFacts {
     let before = hello(ip, host);
     if !answered(&before) {
-        return CrowdFacts { host: host.to_string(), ip: ip.to_string(), before, ..Default::default() };
+        return CrowdFacts {
+            host: host.to_string(),
+            ip: ip.to_string(),
+            before,
+            ..Default::default()
+        };
     }
     let crowd = together();
     let after = hello(ip, host);
-    if answered(&after) || crowd.iter().chain(std::iter::once(&after)).any(|kind| kind == HELLO_CANCELLED) {
-        return CrowdFacts { host: host.to_string(), ip: ip.to_string(), before, crowd, after, ..Default::default() };
+    if answered(&after)
+        || crowd
+            .iter()
+            .chain(std::iter::once(&after))
+            .any(|kind| kind == HELLO_CANCELLED)
+    {
+        return CrowdFacts {
+            host: host.to_string(),
+            ip: ip.to_string(),
+            before,
+            crowd,
+            after,
+            ..Default::default()
+        };
     }
     // Сайт отвечал и замолчал. Жива ли линия — и вернётся ли он сам?
     let line = control();
@@ -164,7 +181,11 @@ fn outcome_words(kind: &str) -> (&'static str, &'static str) {
 
 fn row(title: &str, kind: &str) -> Row {
     let (word, state) = outcome_words(kind);
-    Row { title: title.to_string(), text: word.to_string(), state }
+    Row {
+        title: title.to_string(),
+        text: word.to_string(),
+        state,
+    }
 }
 
 /// Что было с каждым соединением — строками для экрана: до пачки, пачка, после, контроль, возвращение.
@@ -172,7 +193,14 @@ fn row(title: &str, kind: &str) -> Row {
 pub fn rows(facts: &CrowdFacts) -> Vec<Row> {
     let mut found = vec![row("Одно соединение до пачки", &facts.before)];
     for (index, kind) in facts.crowd.iter().enumerate() {
-        found.push(row(&format!("Соединение {} из {} одновременных", index + 1, facts.crowd.len()), kind));
+        found.push(row(
+            &format!(
+                "Соединение {} из {} одновременных",
+                index + 1,
+                facts.crowd.len()
+            ),
+            kind,
+        ));
     }
     if !facts.after.is_empty() {
         found.push(row("Одно соединение сразу после пачки", &facts.after));
@@ -180,12 +208,20 @@ pub fn rows(facts: &CrowdFacts) -> Vec<Row> {
     if !facts.control.is_empty() {
         let check = row("Контрольный сайт в это же время", &facts.control);
         found.push(Row {
-            text: if check.state == "ok" { "отвечает".to_string() } else { "не отвечает".to_string() },
+            text: if check.state == "ok" {
+                "отвечает".to_string()
+            } else {
+                "не отвечает".to_string()
+            },
             ..check
         });
     }
     if let Some(recovered) = facts.recovered_s {
-        found.push(Row { title: "Сайт снова ответил".to_string(), text: format!("через {} с", py_round0(recovered)), state: "info" });
+        found.push(Row {
+            title: "Сайт снова ответил".to_string(),
+            text: format!("через {} с", py_round0(recovered)),
+            state: "info",
+        });
     } else if !facts.control.is_empty() && facts.waited_s != 0.0 {
         found.push(Row {
             title: "Ждали возвращения сайта".to_string(),
@@ -213,7 +249,9 @@ pub fn judge(facts: Option<&CrowdFacts>) -> Option<CrowdVerdict> {
     if !answered(&facts.before) {
         return Some(CrowdVerdict {
             code: CROWD_UNKNOWN,
-            text: format!("{site}: одиночное соединение на этот раз не прошло — сравнивать не с чем"),
+            text: format!(
+                "{site}: одиночное соединение на этот раз не прошло — сравнивать не с чем"
+            ),
             ..CrowdVerdict::default()
         });
     }
@@ -229,8 +267,16 @@ pub fn judge(facts: Option<&CrowdFacts>) -> Option<CrowdVerdict> {
                 ..CrowdVerdict::default()
             });
         }
-        let refused = facts.crowd.iter().filter(|kind| **kind == HELLO_RESET).count();
-        let how = if refused != 0 { "получили сброс" } else { "остались без ответа" };
+        let refused = facts
+            .crowd
+            .iter()
+            .filter(|kind| **kind == HELLO_RESET)
+            .count();
+        let how = if refused != 0 {
+            "получили сброс"
+        } else {
+            "остались без ответа"
+        };
         return Some(CrowdVerdict {
             code: CROWD_LIMIT,
             text: format!(
@@ -314,7 +360,12 @@ mod tests {
             silent.text,
             "vk.com (5.61.23.11): одиночное соединение на этот раз не прошло — сравнивать не с чем"
         );
-        let limit = judge(Some(&facts("ok", vec!["reset", "timeout", "timeout", "timeout"], "ok"))).unwrap();
+        let limit = judge(Some(&facts(
+            "ok",
+            vec!["reset", "timeout", "timeout", "timeout"],
+            "ok",
+        )))
+        .unwrap();
         assert_eq!(limit.code, CROWD_LIMIT);
         assert_eq!(
             limit.text,
@@ -322,7 +373,8 @@ mod tests {
         );
         let alert = judge(Some(&facts("ok", vec!["ok", "ok", "ok", "ok"], "alert"))).unwrap();
         assert_eq!(alert.code, CROWD_NONE);
-        let server_refused = judge(Some(&facts("ok", vec!["ok", "ok", "ok", "ok"], "reset"))).unwrap();
+        let server_refused =
+            judge(Some(&facts("ok", vec!["ok", "ok", "ok", "ok"], "reset"))).unwrap();
         assert_eq!(
             server_refused.text,
             "vk.com (5.61.23.11): после 4 соединений сразу сайт ответил сбросом — так отказывает сервер, заморозка выглядит иначе"
@@ -365,7 +417,12 @@ mod tests {
     fn rows_for_screen_python_text() {
         let sample = CrowdFacts {
             before: "ok".to_string(),
-            crowd: vec!["ok".into(), HELLO_RESET.into(), HELLO_TIMEOUT.into(), "alert".into()],
+            crowd: vec![
+                "ok".into(),
+                HELLO_RESET.into(),
+                HELLO_TIMEOUT.into(),
+                "alert".into(),
+            ],
             after: "ok".to_string(),
             control: HELLO_TIMEOUT.to_string(),
             waited_s: 150.0,
@@ -374,7 +431,10 @@ mod tests {
             ..Default::default()
         };
         let got = rows(&sample);
-        let texts: Vec<String> = got.iter().map(|row| format!("{} | {} | {}", row.title, row.text, row.state)).collect();
+        let texts: Vec<String> = got
+            .iter()
+            .map(|row| format!("{} | {} | {}", row.title, row.text, row.state))
+            .collect();
         assert_eq!(
             texts,
             vec![
@@ -443,5 +503,4 @@ mod tests {
         assert_eq!(passed.crowd.len(), CROWD);
         assert_eq!(passed.after, HELLO_OK);
     }
-
 }

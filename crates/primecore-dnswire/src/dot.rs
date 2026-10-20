@@ -15,13 +15,17 @@ use primecore_socketcancel::SocketCancel;
 use rustls::pki_types::ServerName;
 use rustls::{ClientConnection, RootCertStore, StreamOwned};
 
-use crate::net::{answered, check_not_cancelled, failed, parse_server_ip, prepare_query, Deadline, NetError};
+use crate::net::{
+    answered, check_not_cancelled, failed, parse_server_ip, prepare_query, Deadline, NetError,
+};
 use crate::{DnsQueryResult, ENCRYPTED_TIMEOUT_S, TRANSPORT_DOT};
 
 /// rustls-ошибка → вид сбоя: чужой сертификат — cert, остальное — tls.
 fn tls_net_error(error: &rustls::Error) -> NetError {
     let (failure, detail) = match error {
-        rustls::Error::InvalidCertificate(message) => ("cert", format!("InvalidCertificate: {message}")),
+        rustls::Error::InvalidCertificate(message) => {
+            ("cert", format!("InvalidCertificate: {message}"))
+        }
         _ => ("tls", error.to_string()),
     };
     NetError::Encrypted { failure, detail }
@@ -29,7 +33,9 @@ fn tls_net_error(error: &rustls::Error) -> NetError {
 
 /// io::Error от rustls-потока вскрываем: внутри может быть rustls::Error.
 fn tls_io_error(error: std::io::Error) -> NetError {
-    let inner = error.get_ref().and_then(|value| value.downcast_ref::<rustls::Error>());
+    let inner = error
+        .get_ref()
+        .and_then(|value| value.downcast_ref::<rustls::Error>());
     if let Some(rust_error) = inner {
         return tls_net_error(rust_error);
     }
@@ -60,9 +66,7 @@ fn server_name(host: &str) -> Result<ServerName<'static>, String> {
     if let Ok(ip) = host.parse::<IpAddr>() {
         return Ok(ServerName::IpAddress(rustls::pki_types::IpAddr::from(ip)));
     }
-    ServerName::try_from(host.to_string()).map_err(|_| {
-        format!("{host} is not a valid DNS name")
-    })
+    ServerName::try_from(host.to_string()).map_err(|_| format!("{host} is not a valid DNS name"))
 }
 
 /// Шифрованный запрос DNS поверх TLS, порт 853.
@@ -81,7 +85,11 @@ pub fn query_dot(
     cancel: Option<&SocketCancel>,
 ) -> DnsQueryResult {
     let transport = TRANSPORT_DOT;
-    let timeout_s = if timeout_s > 0.0 { timeout_s } else { ENCRYPTED_TIMEOUT_S };
+    let timeout_s = if timeout_s > 0.0 {
+        timeout_s
+    } else {
+        ENCRYPTED_TIMEOUT_S
+    };
     let (query_id, query) = match prepare_query(server, name, rtype, transport) {
         Ok(prepared) => prepared,
         Err(result) => return result,
@@ -96,11 +104,22 @@ pub fn query_dot(
         return failed(transport, &error, cancel);
     }
     // У python: connect по адресу, сертификат проверяется для имени.
-    let host = if tls_host.is_empty() { server } else { tls_host };
+    let host = if tls_host.is_empty() {
+        server
+    } else {
+        tls_host
+    };
     let identity = match server_name(host) {
         Ok(identity) => identity,
         Err(detail) => {
-            return failed(transport, &NetError::Encrypted { failure: "tls", detail }, cancel);
+            return failed(
+                transport,
+                &NetError::Encrypted {
+                    failure: "tls",
+                    detail,
+                },
+                cancel,
+            );
         }
     };
     let raw = match TcpStream::connect_timeout(
@@ -112,8 +131,14 @@ pub fn query_dot(
     };
     // Потолок одного шага чтения/записи; общий deadline идёт поверх.
     if let Ok(remaining) = deadline.remaining() {
-        let _ = raw.set_read_timeout(Some(std::cmp::min(remaining, std::time::Duration::from_millis(200))));
-        let _ = raw.set_write_timeout(Some(std::cmp::min(remaining, std::time::Duration::from_millis(200))));
+        let _ = raw.set_read_timeout(Some(std::cmp::min(
+            remaining,
+            std::time::Duration::from_millis(200),
+        )));
+        let _ = raw.set_write_timeout(Some(std::cmp::min(
+            remaining,
+            std::time::Duration::from_millis(200),
+        )));
     }
     if let Err(error) = check_not_cancelled(cancel) {
         return failed(transport, &error, cancel);
@@ -123,10 +148,11 @@ pub fn query_dot(
         Err(error) => return failed(transport, &tls_net_error(&error), cancel),
     };
     let mut tls_stream = StreamOwned::new(connection, raw);
-    let result = match crate::net::exchange_framed(&mut tls_stream, &query, query_id, &deadline, cancel) {
-        Ok(message) => answered(transport, message, &started),
-        Err(net_error) => failed(transport, &coerce_tls(net_error), cancel),
-    };
+    let result =
+        match crate::net::exchange_framed(&mut tls_stream, &query, query_id, &deadline, cancel) {
+            Ok(message) => answered(transport, message, &started),
+            Err(net_error) => failed(transport, &coerce_tls(net_error), cancel),
+        };
     result
 }
 

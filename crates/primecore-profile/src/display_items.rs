@@ -28,7 +28,9 @@ pub fn build_profile_display_items(
 
 fn sort_display_items(rows: &mut [ProfileDisplayItem]) {
     // python list.sort — стабильная.
-    rows.sort_by(|item_a, item_b| profile_display_sort_key(item_a).cmp(&profile_display_sort_key(item_b)));
+    rows.sort_by(|item_a, item_b| {
+        profile_display_sort_key(item_a).cmp(&profile_display_sort_key(item_b))
+    });
 }
 
 /// Значок «TLS · HTTP» по scopes (python payload_badge_text).
@@ -54,15 +56,27 @@ pub fn display_item_from_list_item(item: &ProfileListItem) -> ProfileDisplayItem
         },
         display_name: {
             let raw = item.display_name.trim();
-            if raw.is_empty() { "Профиль".to_string() } else { raw.to_string() }
+            if raw.is_empty() {
+                "Профиль".to_string()
+            } else {
+                raw.to_string()
+            }
         },
         strategy_id: {
             let raw = item.strategy_id.trim();
-            if raw.is_empty() { "none".to_string() } else { raw.to_string() }
+            if raw.is_empty() {
+                "none".to_string()
+            } else {
+                raw.to_string()
+            }
         },
         strategy_name: {
             let raw = item.strategy_name.trim();
-            if raw.is_empty() { "Стратегия не выбрана".to_string() } else { raw.to_string() }
+            if raw.is_empty() {
+                "Стратегия не выбрана".to_string()
+            } else {
+                raw.to_string()
+            }
         },
         ..item.clone()
     }
@@ -132,16 +146,13 @@ pub fn move_profile_order_items(
         .filter(|item| item.in_preset)
         .cloned()
         .collect();
-    let source_index =
-        rows.iter().position(|item| item.key == source_key)?;
+    let source_index = rows.iter().position(|item| item.key == source_key)?;
     let source = rows.remove(source_index);
 
     let insert_index = if move_action == "end" {
         rows.len()
     } else {
-        let destination_index = rows
-            .iter()
-            .position(|item| item.key == destination_key)?;
+        let destination_index = rows.iter().position(|item| item.key == destination_key)?;
         destination_index + if move_action == "after" { 1 } else { 0 }
     };
     rows.insert(insert_index, source);

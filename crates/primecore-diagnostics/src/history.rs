@@ -48,11 +48,22 @@ pub fn parse_iso(value: &str) -> Option<i64> {
     let day: u32 = captures.get(3)?.as_str().parse().ok()?;
     let hour: i64 = captures.get(4)?.as_str().parse().ok()?;
     let minute: i64 = captures.get(5)?.as_str().parse().ok()?;
-    let second: i64 = captures.get(6).map(|m| m.as_str().parse()).transpose().ok()?.unwrap_or(0);
-    if !(1..=12).contains(&month) || !(1..=31).contains(&day) || hour > 23 || minute > 59 || second > 59 {
+    let second: i64 = captures
+        .get(6)
+        .map(|m| m.as_str().parse())
+        .transpose()
+        .ok()?
+        .unwrap_or(0);
+    if !(1..=12).contains(&month)
+        || !(1..=31).contains(&day)
+        || hour > 23
+        || minute > 59
+        || second > 59
+    {
         return None;
     }
-    let mut seconds = days_from_civil(year, month, day) * 86_400 + hour * 3_600 + minute * 60 + second;
+    let mut seconds =
+        days_from_civil(year, month, day) * 86_400 + hour * 3_600 + minute * 60 + second;
     if let Some(zone) = captures.get(8) {
         let zone = zone.as_str();
         if zone != "Z" {
@@ -115,7 +126,12 @@ fn overall_level(report: &Value) -> String {
     let levels: Vec<String> = report
         .get("problems")
         .and_then(Value::as_array)
-        .map(|problems| problems.iter().map(|problem| text_scalar(problem.get("level"))).collect())
+        .map(|problems| {
+            problems
+                .iter()
+                .map(|problem| text_scalar(problem.get("level")))
+                .collect()
+        })
         .unwrap_or_default();
     let levels: Vec<&str> = levels.iter().map(String::as_str).collect();
     worst(&levels)
@@ -134,7 +150,12 @@ pub fn blockcheck_entry(
     let problems: Vec<String> = report
         .get("problems")
         .and_then(Value::as_array)
-        .map(|items| items.iter().map(|item| text_scalar(item.get("text"))).collect())
+        .map(|items| {
+            items
+                .iter()
+                .map(|item| text_scalar(item.get("text")))
+                .collect()
+        })
         .unwrap_or_default();
     let mut states = Vec::new();
     if let Some(services) = report.get("services").and_then(Value::as_array) {
@@ -143,10 +164,18 @@ pub fn blockcheck_entry(
                 continue;
             }
             let label = text_scalar(service.get("label"));
-            let name = if !label.is_empty() { label } else { text_scalar(service.get("key")) };
+            let name = if !label.is_empty() {
+                label
+            } else {
+                text_scalar(service.get("key"))
+            };
             let state = {
                 let level = text_scalar(service.get("level"));
-                if level.is_empty() { "unknown".to_string() } else { level }
+                if level.is_empty() {
+                    "unknown".to_string()
+                } else {
+                    level
+                }
             };
             if !name.is_empty() {
                 states.push((name, state));
@@ -157,7 +186,10 @@ pub fn blockcheck_entry(
     let headline = if level == "ok" {
         "Всё открывается".to_string()
     } else {
-        problems.first().cloned().unwrap_or_else(|| "Проверка не дала ответа".to_string())
+        problems
+            .first()
+            .cloned()
+            .unwrap_or_else(|| "Проверка не дала ответа".to_string())
     };
     let time = match when {
         Some(seconds) => now_iso(seconds),
@@ -210,24 +242,39 @@ pub fn dns_check_entry(results: &Value, when: Option<i64>) -> Option<Value> {
         };
         states.push((host.clone(), json!(mapped)));
     }
-    let spoofed: Vec<String> =
-        states.iter().filter(|(_, level)| level == "fail").map(|(host, _)| host.clone()).collect();
-    let unknown: Vec<String> =
-        states.iter().filter(|(_, level)| level == "unknown").map(|(host, _)| host.clone()).collect();
+    let spoofed: Vec<String> = states
+        .iter()
+        .filter(|(_, level)| level == "fail")
+        .map(|(host, _)| host.clone())
+        .collect();
+    let unknown: Vec<String> = states
+        .iter()
+        .filter(|(_, level)| level == "unknown")
+        .map(|(host, _)| host.clone())
+        .collect();
     let (level, headline) = if !spoofed.is_empty() {
         (FAIL, format!("Подменяются адреса: {}", spoofed.join(", ")))
     } else if !unknown.is_empty() && unknown.len() == states.len() {
         // Ни один адрес проверить не удалось — это «не узнали», а не предупреждение.
         (UNKNOWN, "Проверить DNS не удалось".to_string())
     } else if !unknown.is_empty() {
-        (WARN, format!("Подмены не видно, но не удалось проверить: {}", unknown.join(", ")))
+        (
+            WARN,
+            format!(
+                "Подмены не видно, но не удалось проверить: {}",
+                unknown.join(", ")
+            ),
+        )
     } else {
         ("ok", "DNS отвечает честно".to_string())
     };
     let problems: Vec<Value> = spoofed
         .iter()
         .map(|host| {
-            let reason = domains.get(host).and_then(|item| item.get("reason")).filter(|value| truthy(Some(value)));
+            let reason = domains
+                .get(host)
+                .and_then(|item| item.get("reason"))
+                .filter(|value| truthy(Some(value)));
             let reason = match reason {
                 Some(reason) => text_scalar(Some(reason)),
                 None => "адрес подменён".to_string(),
@@ -273,9 +320,17 @@ pub fn server_check_entry(report: &ServerRun, when: Option<i64>) -> Option<Value
         return None;
     }
     // Сведения («info») в итог прогона не идут: в истории — только то, что мешает.
-    let serious: Vec<&ServerFinding> =
-        report.findings.iter().filter(|item| item.level == FAIL || item.level == WARN).collect();
-    let level = worst(&serious.iter().map(|item| item.level.as_str()).collect::<Vec<_>>());
+    let serious: Vec<&ServerFinding> = report
+        .findings
+        .iter()
+        .filter(|item| item.level == FAIL || item.level == WARN)
+        .collect();
+    let level = worst(
+        &serious
+            .iter()
+            .map(|item| item.level.as_str())
+            .collect::<Vec<_>>(),
+    );
     let headline = match serious.iter().min_by_key(|item| level_rank(&item.level)) {
         Some(first) => {
             if first.title.is_empty() {
@@ -288,13 +343,22 @@ pub fn server_check_entry(report: &ServerRun, when: Option<i64>) -> Option<Value
     };
     let (level, headline) = if report.timed_out {
         // Часть адресов не проверена: «замечаний нет» по половине списка было бы неправдой.
-        (UNKNOWN.to_string(), "Проверка не успела закончиться".to_string())
+        (
+            UNKNOWN.to_string(),
+            "Проверка не успела закончиться".to_string(),
+        )
     } else {
         (level, headline)
     };
     let problems: Vec<String> = serious
         .iter()
-        .map(|item| if item.title.is_empty() { item.text.clone() } else { item.title.clone() })
+        .map(|item| {
+            if item.title.is_empty() {
+                item.text.clone()
+            } else {
+                item.title.clone()
+            }
+        })
         .collect();
     Some(json!({
         "kind": KIND_SERVERS,
@@ -310,8 +374,18 @@ pub fn server_check_entry(report: &ServerRun, when: Option<i64>) -> Option<Value
 
 /// python `domain_entry`: запись о проверке одного домена.
 #[must_use]
-pub fn domain_entry(target: &str, level: &str, headline: &str, problems: &[&str], when: Option<i64>) -> Value {
-    let level = if ["ok", "warn", "fail"].contains(&level) { level.to_string() } else { UNKNOWN.to_string() };
+pub fn domain_entry(
+    target: &str,
+    level: &str,
+    headline: &str,
+    problems: &[&str],
+    when: Option<i64>,
+) -> Value {
+    let level = if ["ok", "warn", "fail"].contains(&level) {
+        level.to_string()
+    } else {
+        UNKNOWN.to_string()
+    };
     json!({
         "kind": KIND_DOMAIN,
         "time": when.map(now_iso).unwrap_or_default(),
@@ -359,9 +433,16 @@ pub fn history_rows(runs: &[Value]) -> Vec<(String, String, String)> {
             let when = format_time(&text_scalar(run.get("time")));
             let level = {
                 let level = text_scalar(run.get("level"));
-                if level.is_empty() { UNKNOWN.to_string() } else { level }
+                if level.is_empty() {
+                    UNKNOWN.to_string()
+                } else {
+                    level
+                }
             };
-            let parts: Vec<&str> = [title.as_str(), when.as_str()].into_iter().filter(|part| !part.is_empty()).collect();
+            let parts: Vec<&str> = [title.as_str(), when.as_str()]
+                .into_iter()
+                .filter(|part| !part.is_empty())
+                .collect();
             (level, parts.join(" · "), text_scalar(run.get("headline")))
         })
         .collect()
@@ -374,12 +455,19 @@ pub fn history_rows(runs: &[Value]) -> Vec<(String, String, String)> {
 /// сравнивается: неизвестное — не перемена.
 #[must_use]
 pub fn describe_changes(previous: Option<&Value>, current: &Value) -> Vec<String> {
-    let Some(previous) = previous else { return Vec::new() };
+    let Some(previous) = previous else {
+        return Vec::new();
+    };
     let before = previous.get("states").and_then(Value::as_object);
     let after: Vec<(String, String)> = current
         .get("states")
         .and_then(Value::as_object)
-        .map(|states| states.iter().map(|(name, state)| (name.clone(), text_scalar(Some(state)))).collect())
+        .map(|states| {
+            states
+                .iter()
+                .map(|(name, state)| (name.clone(), text_scalar(Some(state))))
+                .collect()
+        })
         .unwrap_or_default();
     let mut stopped: Vec<String> = Vec::new();
     let mut recovered: Vec<String> = Vec::new();
@@ -426,7 +514,10 @@ mod tests {
     #[test]
     fn time_roundtrip_and_fallback() {
         assert_eq!(parse_iso("2026-10-16T20:15:07"), Some(1_792_181_707));
-        assert_eq!(parse_iso("2026-10-16T20:15"), parse_iso("2026-10-16 20:15:00"));
+        assert_eq!(
+            parse_iso("2026-10-16T20:15"),
+            parse_iso("2026-10-16 20:15:00")
+        );
         assert!(parse_iso("2026-13-01T00:00:00").is_none());
         assert_eq!(format_time("2026-10-16T20:15:07"), "16.10 20:15");
         assert_eq!(format_time("какой-то текст"), "какой-то текст");
@@ -447,12 +538,30 @@ mod tests {
                 {"key": "", "label": "", "level": "ok"},
             ],
         });
-        let entry = blockcheck_entry(&report, "", Some(1_792_181_707), "Оттский", crate::compare::zapret_mark);
-        assert_eq!(entry.get("kind").and_then(Value::as_str), Some("blockcheck"));
-        assert_eq!(entry.get("time").and_then(Value::as_str), Some("2026-10-16T20:15:07"));
-        assert_eq!(entry.get("title").and_then(Value::as_str), Some("Discord и YouTube"));
+        let entry = blockcheck_entry(
+            &report,
+            "",
+            Some(1_792_181_707),
+            "Оттский",
+            crate::compare::zapret_mark,
+        );
+        assert_eq!(
+            entry.get("kind").and_then(Value::as_str),
+            Some("blockcheck")
+        );
+        assert_eq!(
+            entry.get("time").and_then(Value::as_str),
+            Some("2026-10-16T20:15:07")
+        );
+        assert_eq!(
+            entry.get("title").and_then(Value::as_str),
+            Some("Discord и YouTube")
+        );
         assert_eq!(entry.get("level").and_then(Value::as_str), Some("fail"));
-        assert_eq!(entry.get("headline").and_then(Value::as_str), Some("Первая фраза"));
+        assert_eq!(
+            entry.get("headline").and_then(Value::as_str),
+            Some("Первая фраза")
+        );
         assert_eq!(entry.get("zapret").and_then(Value::as_str), Some("on"));
         assert_eq!(entry.get("tools").and_then(Value::as_bool), Some(true));
         assert_eq!(entry.get("habit").and_then(Value::as_str), Some("cut"));
@@ -462,7 +571,10 @@ mod tests {
         let level_ok = json!({"scope": "all", "problems": [], "services": []});
         let entry = blockcheck_entry(&level_ok, "", None, "", crate::compare::zapret_mark);
         assert_eq!(entry.get("level").and_then(Value::as_str), Some("ok"));
-        assert_eq!(entry.get("headline").and_then(Value::as_str), Some("Всё открывается"));
+        assert_eq!(
+            entry.get("headline").and_then(Value::as_str),
+            Some("Всё открывается")
+        );
     }
 
     #[test]
@@ -476,15 +588,28 @@ mod tests {
         });
         let entry = dns_check_entry(&results, Some(1_792_181_707)).unwrap();
         assert_eq!(entry.get("level").and_then(Value::as_str), Some("fail"));
-        assert_eq!(entry.get("headline").and_then(Value::as_str), Some("Подменяются адреса: one.example"));
+        assert_eq!(
+            entry.get("headline").and_then(Value::as_str),
+            Some("Подменяются адреса: one.example")
+        );
         let problems = entry.get("problems").and_then(Value::as_array).unwrap();
         assert_eq!(problems.len(), 1);
         assert_eq!(problems[0].as_str(), Some("one.example: адрес подменён"));
-        let stopped = dns_check_entry(&json!({"stopped": true, "domains": {"a": {"state": "ok"}}}), None);
+        let stopped = dns_check_entry(
+            &json!({"stopped": true, "domains": {"a": {"state": "ok"}}}),
+            None,
+        );
         assert!(stopped.is_none());
         let unknown = dns_check_entry(&json!({"domains": {"a": {"state": ""}}}), None).unwrap();
-        assert_eq!(unknown.get("level").and_then(Value::as_str), Some("unknown"));
-        let mixed = dns_check_entry(&json!({"domains": {"a": {"state": "ok"}, "b": {"state": ""}}}), None).unwrap();
+        assert_eq!(
+            unknown.get("level").and_then(Value::as_str),
+            Some("unknown")
+        );
+        let mixed = dns_check_entry(
+            &json!({"domains": {"a": {"state": "ok"}, "b": {"state": ""}}}),
+            None,
+        )
+        .unwrap();
         assert_eq!(mixed.get("level").and_then(Value::as_str), Some("warn"));
         let clean = dns_check_entry(&json!({"domains": {"a": {"state": "ok"}}}), None).unwrap();
         assert_eq!(clean.get("level").and_then(Value::as_str), Some("ok"));
@@ -494,7 +619,18 @@ mod tests {
     fn server_entry_muted_when_unfinished() {
         let run = ServerRun {
             finished: true,
-            findings: vec![ServerFinding { level: WARN.to_string(), title: "Тайтл".into(), text: "Весь текст".into() }, ServerFinding { level: WARN.to_string(), title: String::new(), text: "Только текст".into() }],
+            findings: vec![
+                ServerFinding {
+                    level: WARN.to_string(),
+                    title: "Тайтл".into(),
+                    text: "Весь текст".into(),
+                },
+                ServerFinding {
+                    level: WARN.to_string(),
+                    title: String::new(),
+                    text: "Только текст".into(),
+                },
+            ],
             rows: 4,
             ..Default::default()
         };
@@ -505,12 +641,36 @@ mod tests {
             entry.get("title").and_then(Value::as_str),
             Some("Адресов проверено: 4")
         );
-        let run_timed = ServerRun { finished: true, findings: run.findings.clone(), rows: 1, timed_out: true, ..Default::default() };
-        assert_eq!(server_check_entry(&run_timed, None).unwrap().get("level").and_then(Value::as_str), Some("unknown"));
-        assert!(
-            server_check_entry(&ServerRun { findings: run.findings.clone(), ..Default::default() }, None).is_none()
+        let run_timed = ServerRun {
+            finished: true,
+            findings: run.findings.clone(),
+            rows: 1,
+            timed_out: true,
+            ..Default::default()
+        };
+        assert_eq!(
+            server_check_entry(&run_timed, None)
+                .unwrap()
+                .get("level")
+                .and_then(Value::as_str),
+            Some("unknown")
         );
-        assert!(server_check_entry(&ServerRun { finished: true, ..Default::default() }, None).is_none());
+        assert!(server_check_entry(
+            &ServerRun {
+                findings: run.findings.clone(),
+                ..Default::default()
+            },
+            None
+        )
+        .is_none());
+        assert!(server_check_entry(
+            &ServerRun {
+                finished: true,
+                ..Default::default()
+            },
+            None
+        )
+        .is_none());
     }
 
     #[test]
@@ -534,8 +694,18 @@ mod tests {
             json!({"title": "Свежая", "time": "", "level": "fail", "headline": "Нет"}),
         ];
         let rows = history_rows(&runs);
-        assert_eq!(rows[0], ("fail".to_string(), "Свежая".to_string(), "Нет".to_string()));
-        assert_eq!(rows[1], ("ok".to_string(), "Старая · 16.10 20:15".to_string(), "Всё открывается".to_string()));
+        assert_eq!(
+            rows[0],
+            ("fail".to_string(), "Свежая".to_string(), "Нет".to_string())
+        );
+        assert_eq!(
+            rows[1],
+            (
+                "ok".to_string(),
+                "Старая · 16.10 20:15".to_string(),
+                "Всё открывается".to_string()
+            )
+        );
     }
 
     #[test]
@@ -543,7 +713,13 @@ mod tests {
         let previous = json!({"states": {"YouTube": "ok", "Discord": "fail", "Twitch": "fail"}});
         let current = json!({"states": {"YouTube": "fail", "Discord": "warn", "Twitch": "fail"}});
         let changes = describe_changes(Some(&previous), &current);
-        assert_eq!(changes, vec!["перестали открываться: YouTube", "снова открываются: Discord"]);
+        assert_eq!(
+            changes,
+            vec![
+                "перестали открываться: YouTube",
+                "снова открываются: Discord"
+            ]
+        );
         assert_eq!(describe_changes(None, &current).len(), 0);
         // Новые сервисы не сравниваются.
         let grown = json!({"states": {"YouTube": "fail", "Новый": "ok"}});
@@ -552,7 +728,11 @@ mod tests {
 
     #[test]
     fn report_json_fields() {
-        let text = report_json(&json!({"x": 1}), &json!({"time": "t", "title": "Т", "level": "ok"}), "1.2");
+        let text = report_json(
+            &json!({"x": 1}),
+            &json!({"time": "t", "title": "Т", "level": "ok"}),
+            "1.2",
+        );
         assert!(text.contains("\"format\": \"") && text.contains(REPORT_FORMAT));
         assert!(text.contains("\"app_version\": \"1.2\""));
     }

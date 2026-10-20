@@ -31,7 +31,12 @@ const fn passport(
     false_alarms: &'static str,
     control: &'static str,
 ) -> Passport {
-    Passport { claim, evidence, false_alarms, control }
+    Passport {
+        claim,
+        evidence,
+        false_alarms,
+        control,
+    }
 }
 
 /// python `PASSPORTS` — паспорт для каждого вида блокировки.
@@ -191,7 +196,9 @@ mod tests {
             bk::KIND_SYSTEM,
             bk::KIND_OTHER,
         ] {
-            let row = rows.get(key).unwrap_or_else(|| panic!("нет паспорта: {key}"));
+            let row = rows
+                .get(key)
+                .unwrap_or_else(|| panic!("нет паспорта: {key}"));
             assert!(!row.claim.is_empty());
             assert!(!row.evidence.is_empty());
             assert!(!row.false_alarms.is_empty());
@@ -219,12 +226,15 @@ mod tests {
     #[test]
     fn passports_golden_python() {
         let rows = passports();
-        let golden = serde_json::from_str::<serde_json::Value>(
-            include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/rule_passports_golden.json")),
-        )
+        let golden = serde_json::from_str::<serde_json::Value>(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/rule_passports_golden.json"
+        )))
         .unwrap();
         for (key, expected) in golden.as_object().unwrap() {
-            let row = rows.get(key.as_str()).unwrap_or_else(|| panic!("нет паспорта: {key}"));
+            let row = rows
+                .get(key.as_str())
+                .unwrap_or_else(|| panic!("нет паспорта: {key}"));
             let actual = serde_json::json!({
                 "claim": row.claim,
                 "evidence": row.evidence,

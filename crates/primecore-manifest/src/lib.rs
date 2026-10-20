@@ -46,8 +46,7 @@ pub const LEGACY_PRODUCT: &str = "zapret-gui";
 /// Переходное правило:_request product指点, что выпуск должен Standard.
 #[must_use]
 pub fn product_accepted(manifest_product: &str, requested: &str) -> bool {
-    manifest_product == requested
-        || (requested == PRODUCT && manifest_product == LEGACY_PRODUCT)
+    manifest_product == requested || (requested == PRODUCT && manifest_product == LEGACY_PRODUCT)
 }
 
 /// Виды заплаток: `zstd` лежат в поле `patches`, `bsdiff` — в своём поле.
@@ -174,9 +173,9 @@ pub fn is_manifest_name(text: &str) -> bool {
     if !bytes[0].is_ascii_lowercase() {
         return false;
     }
-    bytes[1..].iter().all(|byte| {
-        matches!(byte, b'a'..=b'z' | b'0'..=b'9' | b'-')
-    })
+    bytes[1..]
+        .iter()
+        .all(|byte| matches!(byte, b'a'..=b'z' | b'0'..=b'9' | b'-'))
 }
 
 /// Версия списка в числовой ключ из четырёх значений, дополненный нулями до
@@ -271,11 +270,7 @@ pub fn safe_relative_path(text: &str) -> ManifestResult<String> {
             format!("в списке выпуска неверный путь файла: {value:?}"),
         )
     };
-    if value.is_empty()
-        || value.contains('\\')
-        || value.contains(':')
-        || value.starts_with('/')
-    {
+    if value.is_empty() || value.contains('\\') || value.contains(':') || value.starts_with('/') {
         return Err(this_bad());
     }
     for part in value.split('/') {
@@ -316,7 +311,10 @@ pub fn parse(payload: &Value) -> ManifestResult<Manifest> {
         .as_object()
         .ok_or_else(|| ManifestError::new("format", "список выпуска неизвестного вида"))?;
     if map.get("schema").and_then(Value::as_i64) != Some(SCHEMA) {
-        return Err(ManifestError::new("format", "список выпуска неизвестного вида"));
+        return Err(ManifestError::new(
+            "format",
+            "список выпуска неизвестного вида",
+        ));
     }
 
     let product = map.get("product").map(json_to_text).unwrap_or_default();
@@ -333,9 +331,9 @@ pub fn parse(payload: &Value) -> ManifestResult<Manifest> {
     version_key(&version)?;
 
     let created = match map.get("created") {
-        Some(value) if is_true_int(value) => value.as_u64().ok_or_else(|| {
-            ManifestError::new("format", "в списке выпуска нет времени сборки")
-        })?,
+        Some(value) if is_true_int(value) => value
+            .as_u64()
+            .ok_or_else(|| ManifestError::new("format", "в списке выпуска нет времени сборки"))?,
         _ => {
             return Err(ManifestError::new(
                 "format",
@@ -392,7 +390,12 @@ pub fn parse(payload: &Value) -> ManifestResult<Manifest> {
     let mut patches = Vec::new();
     for kind in PATCH_KINDS {
         let field = patch_field(kind);
-        for item in map.get(field).and_then(Value::as_array).into_iter().flatten() {
+        for item in map
+            .get(field)
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
             let map = item.as_object().ok_or_else(|| {
                 ManifestError::new("format", "в списке выпуска неверная запись заплатки")
             })?;
@@ -446,7 +449,10 @@ pub fn decode_signature(signature: &[u8]) -> ManifestResult<Signature> {
         .decode(text.trim().as_bytes())
         .map_err(|_| ManifestError::new("sign", "подпись списка выпуска повреждена"))?;
     if decoded.len() != 64 {
-        return Err(ManifestError::new("sign", "подпись списка выпуска повреждена"));
+        return Err(ManifestError::new(
+            "sign",
+            "подпись списка выпуска повреждена",
+        ));
     }
     let mut bytes = [0u8; 64];
     bytes.copy_from_slice(&decoded);
@@ -520,7 +526,10 @@ pub fn signing_key_id(
             return Ok((**key_id).to_string());
         }
     }
-    Err(ManifestError::new("sign", "подпись списка выпуска не сошлась"))
+    Err(ManifestError::new(
+        "sign",
+        "подпись списка выпуска не сошлась",
+    ))
 }
 
 /// Проверенный список выпуска. Порт `load_signed`.
@@ -592,8 +601,10 @@ pub fn canonical_bytes(payload: &Value) -> String {
 
 /// Ключи канонической формы в порядке python `sorted`.
 fn canonical_object_keys(map: &serde_json::Map<String, Value>) -> Vec<(String, Value)> {
-    let mut entries: Vec<(String, Value)> =
-        map.iter().map(|(key, value)| (key.clone(), value.clone())).collect();
+    let mut entries: Vec<(String, Value)> = map
+        .iter()
+        .map(|(key, value)| (key.clone(), value.clone()))
+        .collect();
     entries.sort_by(|left, right| left.0.as_bytes().cmp(right.0.as_bytes()));
     entries
 }
@@ -661,7 +672,7 @@ mod tests {
     use ed25519_dalek::{Signer, SigningKey};
 
     fn repeat64(byte: char) -> String {
-        std::iter::repeat(byte).take(64).collect()
+        std::iter::repeat_n(byte, 64).collect()
     }
 
     fn sample_payload() -> Value {
@@ -749,14 +760,20 @@ mod tests {
         let manifest = parse(&payload).map_err(|error| format!("{error}")).unwrap();
         assert_eq!(manifest.version, "21.1.2.3");
         assert_eq!(manifest.files.len(), 1);
-        assert_eq!(manifest.installer.as_ref().unwrap().name, "PrimeBypassSetup.exe");
+        assert_eq!(
+            manifest.installer.as_ref().unwrap().name,
+            "PrimeBypassSetup.exe"
+        );
         let kinds = ["zstd", "bsdiff"];
         let patch = manifest
             .patch_for(&repeat64('a'), &repeat64('b'), &kinds)
             .unwrap();
         // Самая маленькая заплатка — bsdiff размером 1.
         assert_eq!(patch.size, 1);
-        assert_eq!(parse(&serde_json::json!({"schema": 3})).err().unwrap().code, "format");
+        assert_eq!(
+            parse(&serde_json::json!({"schema": 3})).err().unwrap().code,
+            "format"
+        );
     }
 
     #[test]
@@ -795,9 +812,15 @@ mod tests {
         for (payload, code) in cases {
             assert_eq!(parse(&payload).err().unwrap().code, code);
         }
-        assert_eq!(safe_relative_path("C:/WINDOWS/x").err().unwrap().code, "format");
-        assert_eq!(safe_relative_path("a/…/b") /* unicode ok, parts fine */.unwrap(),
-            "a/…/b");
+        assert_eq!(
+            safe_relative_path("C:/WINDOWS/x").err().unwrap().code,
+            "format"
+        );
+        assert_eq!(
+            safe_relative_path("a/…/b") /* unicode ok, parts fine */
+                .unwrap(),
+            "a/…/b"
+        );
         assert!(safe_relative_path(props_empty_path()).is_err());
     }
 
@@ -811,16 +834,11 @@ mod tests {
         let (raw, signature) = signed_with(&sample_payload(), &key);
 
         // Нет доверенных ключей, подпись «не сошлась».
-        let result = load_signed(
-            &raw, &signature, None, "primebypass", "stable", "", false,
-        );
+        let result = load_signed(&raw, &signature, None, "primebypass", "stable", "", false);
         assert_eq!(result.err().unwrap().code, "sign");
 
         let mut custom = BTreeMap::new();
-        custom.insert(
-            "test-key-a",
-            key.verifying_key().as_bytes().to_vec(),
-        );
+        custom.insert("test-key-a", key.verifying_key().as_bytes().to_vec());
 
         // Подпись верна, но список называет имя другого ключа → «key»
         // (имя «gui-b-2026a» проходит формат: маленькая буква, буквы и тире).
@@ -828,7 +846,13 @@ mod tests {
         renamed["key"] = Value::String("gui-b-2026a".into());
         let (renamed_raw, renamed_signature) = signed_with(&renamed, &key);
         let result = load_signed(
-            &renamed_raw, &renamed_signature, Some(&custom), "primebypass", "stable", "", false,
+            &renamed_raw,
+            &renamed_signature,
+            Some(&custom),
+            "primebypass",
+            "stable",
+            "",
+            false,
         );
         assert_eq!(result.err().unwrap().code, "key");
 
@@ -838,24 +862,50 @@ mod tests {
         same["version"] = Value::String("0.0.1.9".into());
         let (raw9, signature9) = signed_with(&same, &key);
         let result = load_signed(
-            &raw9, &signature9, Some(&custom), "primebypass", "stable", "0.0.1.9", false,
+            &raw9,
+            &signature9,
+            Some(&custom),
+            "primebypass",
+            "stable",
+            "0.0.1.9",
+            false,
         );
         assert_eq!(result.err().unwrap().code, "stale");
         let result = load_signed(
-            &raw9, &signature9, Some(&custom), "primebypass", "stable", "0.0.1.9", true,
+            &raw9,
+            &signature9,
+            Some(&custom),
+            "primebypass",
+            "stable",
+            "0.0.1.9",
+            true,
         );
         assert!(result.is_ok());
 
         // Продукт/канал чужие.
         let result = load_signed(
-            &raw9, &signature9, Some(&custom), "zapret-gui", "dev", "", false,
+            &raw9,
+            &signature9,
+            Some(&custom),
+            "zapret-gui",
+            "dev",
+            "",
+            false,
         );
         assert_eq!(result.err().unwrap().code, "product");
 
         // Повреждённая подпись перепутана с любым ключом цикла → «sign».
         let mut spoiled = signature9.clone();
         spoiled[0] ^= 0x40;
-        let result = load_signed(&raw9, &spoiled, Some(&custom), "primebypass", "stable", "", false);
+        let result = load_signed(
+            &raw9,
+            &spoiled,
+            Some(&custom),
+            "primebypass",
+            "stable",
+            "",
+            false,
+        );
         assert_eq!(result.err().unwrap().code, "sign");
     }
 
@@ -863,7 +913,10 @@ mod tests {
     fn signature_decoding_strict() {
         assert_eq!(decode_signature(b"not base64!").err().unwrap().code, "sign");
         let short = B64.encode([1u8; 31]);
-        assert_eq!(decode_signature(short.as_bytes()).err().unwrap().code, "sign");
+        assert_eq!(
+            decode_signature(short.as_bytes()).err().unwrap().code,
+            "sign"
+        );
         let odd = B64.encode([1u8; 63]);
         assert_eq!(decode_signature(odd.as_bytes()).err().unwrap().code, "sign");
     }

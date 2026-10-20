@@ -161,7 +161,10 @@ fn classify_profile_folder_text(value: String) -> String {
     if has_any_token(&value, &["viber", "signal"]) {
         return "messengers".to_string();
     }
-    if has_any_token(&value, &["facebook", "instagram", "tiktok", "twitter", "x.com", "vk"]) {
+    if has_any_token(
+        &value,
+        &["facebook", "instagram", "tiktok", "twitter", "x.com", "vk"],
+    ) {
         return "social".to_string();
     }
     if has_any_token(&value, &["roblox", "rbxcdn"]) {
@@ -237,30 +240,29 @@ fn classify_profile_folder_text(value: String) -> String {
 /// Регулярное выражение из python:
 /// r"--filter-l7=\S*(?<![a-z0-9_])stun(?![a-z0-9_])"
 fn shared_voice_filter_matches(value: &str) -> bool {
-    static VOICE_RE: std::sync::LazyLock<regex::Regex> = std::sync::LazyLock::new(|| {
-        regex::Regex::new(r"--filter-l7=\S*(?<![a-z0-9_])stun(?![a-z0-9_])").expect("regex")
+    static VOICE_RE: std::sync::LazyLock<fancy_regex::Regex> = std::sync::LazyLock::new(|| {
+        fancy_regex::Regex::new(r"--filter-l7=\S*(?<![a-z0-9_])stun(?![a-z0-9_])").expect("regex")
     });
-    VOICE_RE.is_match(value)
+    VOICE_RE.is_match(value).unwrap_or(false)
 }
 
 /// Токен обязан начинаться на границе слова: `x.com` не находится в
 /// `wix.com`. Правая граница не требуется.
 fn has_any_token(value: &str, tokens: &[&str]) -> bool {
-    tokens.iter().any(|token| token_pattern(token).is_match(value))
+    tokens
+        .iter()
+        .any(|token| token_pattern(token).is_match(value).unwrap_or(false))
 }
 
 /// python _token_pattern с кэшем: (?<![a-z0-9а-яё])token
-fn token_pattern(token: &str) -> regex::Regex {
+fn token_pattern(token: &str) -> fancy_regex::Regex {
     TOKEN_PATTERNS.with(|cache| {
         cache
             .borrow_mut()
             .entry(token.to_string())
             .or_insert_with(|| {
-                regex::Regex::new(&format!(
-                    "(?<![a-z0-9а-яё]){}",
-                    regex::escape(token)
-                ))
-                .expect("token regex")
+                fancy_regex::Regex::new(&format!("(?<![a-z0-9а-яё]){}", regex::escape(token)))
+                    .expect("token regex")
             })
             .clone()
     })
@@ -268,7 +270,7 @@ fn token_pattern(token: &str) -> regex::Regex {
 
 thread_local! {
     /// python @lru_cache(maxsize=256) на _token_pattern.
-    static TOKEN_PATTERNS: std::cell::RefCell<std::collections::HashMap<String, regex::Regex>> =
+    static TOKEN_PATTERNS: std::cell::RefCell<std::collections::HashMap<String, fancy_regex::Regex>> =
         std::cell::RefCell::new(std::collections::HashMap::new());
 }
 
@@ -298,13 +300,22 @@ fn classify_winws1_preset_folder(text: &str) -> String {
     if text.contains("alt") {
         return "alt".to_string();
     }
-    if ["game filter", "game", "valorant", "lol", "league of legends"]
-        .iter()
-        .any(|token| text.contains(token))
+    if [
+        "game filter",
+        "game",
+        "valorant",
+        "lol",
+        "league of legends",
+    ]
+    .iter()
+    .any(|token| text.contains(token))
     {
         return "games".to_string();
     }
-    if ["ytdis", "bystro", "youtube"].iter().any(|token| text.contains(token)) {
+    if ["ytdis", "bystro", "youtube"]
+        .iter()
+        .any(|token| text.contains(token))
+    {
         return "youtube".to_string();
     }
     if text.contains("discord") {
@@ -348,9 +359,14 @@ fn looks_like_all_sites_profile(text: &str) -> bool {
     {
         return true;
     }
-    let has_include = ["--hostlist=", "--hostlist-domains=", "--ipset=", "--ipset-ip="]
-        .iter()
-        .any(|token| text.contains(token));
+    let has_include = [
+        "--hostlist=",
+        "--hostlist-domains=",
+        "--ipset=",
+        "--ipset-ip=",
+    ]
+    .iter()
+    .any(|token| text.contains(token));
     let has_exclude = ["--hostlist-exclude", "--ipset-exclude"]
         .iter()
         .any(|token| text.contains(token));
@@ -358,9 +374,14 @@ fn looks_like_all_sites_profile(text: &str) -> bool {
 }
 
 fn mentions_site_or_list(text: &str) -> bool {
-    if ["--hostlist=", "--hostlist-domains=", "--ipset=", "--ipset-ip="]
-        .iter()
-        .any(|token| text.contains(token))
+    if [
+        "--hostlist=",
+        "--hostlist-domains=",
+        "--ipset=",
+        "--ipset-ip=",
+    ]
+    .iter()
+    .any(|token| text.contains(token))
     {
         return true;
     }

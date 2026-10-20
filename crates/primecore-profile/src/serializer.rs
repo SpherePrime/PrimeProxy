@@ -4,17 +4,18 @@
 
 use regex::Regex;
 
-use crate::models::{
-    Profile, ProfileSegment, Preset, Strategy, ENGINE_WINWS1, ENGINE_WINWS2,
-};
+use crate::models::{Preset, Profile, ProfileSegment, Strategy, ENGINE_WINWS1, ENGINE_WINWS2};
 use crate::parser::{name_from_new_line, parse_preset_text, split_option};
-use crate::strategy_shape::{
-    strategy_shape, union_payload, PAYLOAD_OPTION, RANGE_OPTIONS,
-};
+use crate::strategy_shape::{strategy_shape, union_payload, PAYLOAD_OPTION, RANGE_OPTIONS};
 
 const STRATEGY_KINDS: [&str; 2] = ["strategy", "strategy_filter"];
-const LIST_FILE_MATCH_NAMES: [&str; 5] =
-    ["--hostlist", "--ipset", "--hostlist-exclude", "--ipset-exclude", "--hostlist-auto"];
+const LIST_FILE_MATCH_NAMES: [&str; 5] = [
+    "--hostlist",
+    "--ipset",
+    "--hostlist-exclude",
+    "--ipset-exclude",
+    "--hostlist-auto",
+];
 
 /// Текст пресета (python serialize_preset).
 pub fn serialize_preset(preset: &Preset) -> String {
@@ -25,7 +26,11 @@ pub fn serialize_preset(preset: &Preset) -> String {
     for profile in &preset.profiles {
         let segments = profile.segments.iter();
         if !profile.new_line.is_empty() {
-            while lines.last().map(|last| last.trim().is_empty()).unwrap_or(false) {
+            while lines
+                .last()
+                .map(|last| last.trim().is_empty())
+                .unwrap_or(false)
+            {
                 lines.pop();
             }
             if !lines.is_empty() {
@@ -43,7 +48,11 @@ pub fn serialize_preset(preset: &Preset) -> String {
     }
     lines.extend(preset.footer_lines.iter().cloned());
 
-    while lines.last().map(|last| last.trim().is_empty()).unwrap_or(false) {
+    while lines
+        .last()
+        .map(|last| last.trim().is_empty())
+        .unwrap_or(false)
+    {
         lines.pop();
     }
     format!("{}\n", lines.join("\n"))
@@ -51,7 +60,11 @@ pub fn serialize_preset(preset: &Preset) -> String {
 
 /// python _reparse: круглый цикл «текст → разбор».
 fn reparse(preset: &Preset) -> Result<Preset, String> {
-    parse_preset_text(&serialize_preset(preset), &preset.engine, &preset.source_name)
+    parse_preset_text(
+        &serialize_preset(preset),
+        &preset.engine,
+        &preset.source_name,
+    )
 }
 
 fn is_skip(segment: &ProfileSegment) -> bool {
@@ -79,7 +92,12 @@ pub fn with_profile_enabled(
         let insert_at = directive_insert_index(profile);
         profile.segments.insert(
             insert_at,
-            ProfileSegment { kind: "directive".to_string(), text: "--skip".to_string(), name: "--skip".to_string(), value: String::new() },
+            ProfileSegment {
+                kind: "directive".to_string(),
+                text: "--skip".to_string(),
+                name: "--skip".to_string(),
+                value: String::new(),
+            },
         );
     }
     reparse(&updated)
@@ -102,7 +120,8 @@ pub fn with_profile_strategy_lines(
         .map(|line| line.trim().to_string())
         .filter(|line| !line.is_empty())
         .collect();
-    let normalized_lines = preserve_missing_winws2_strategy_filters(&engine, profile, normalized_lines);
+    let normalized_lines =
+        preserve_missing_winws2_strategy_filters(&engine, profile, normalized_lines);
     let replacement_segments: Vec<ProfileSegment> = normalized_lines
         .iter()
         .map(|line| segment_for_strategy_line(&engine, line))
@@ -122,7 +141,9 @@ pub fn with_profile_strategy_lines(
 
     let mut insert_at = first_strategy_index.unwrap_or(kept.len());
     if !replacement_segments.is_empty() {
-        while insert_at > 0 && kept.get(insert_at - 1).map(|segment| segment.kind.as_str()) == Some("blank") {
+        while insert_at > 0
+            && kept.get(insert_at - 1).map(|segment| segment.kind.as_str()) == Some("blank")
+        {
             kept.remove(insert_at - 1);
             insert_at -= 1;
         }
@@ -166,8 +187,7 @@ pub fn with_profile_whole_strategy(
     for (index, segment) in segments.iter().enumerate() {
         if STRATEGY_KINDS.contains(&segment.kind.as_str()) {
             let is_profile_range = segment.kind == "strategy_filter"
-                && RANGE_OPTIONS
-                    .contains(&segment.name.trim().to_lowercase().as_str())
+                && RANGE_OPTIONS.contains(&segment.name.trim().to_lowercase().as_str())
                 && (first_lua.is_none() || index < first_lua.unwrap());
             if !is_profile_range {
                 if first_removed.is_none() {
@@ -235,7 +255,10 @@ pub fn with_profile_ready_strategy(
         } else if current_shape.composite {
             Some(
                 [
-                    vec![format!("{PAYLOAD_OPTION}={}", union_payload(&current_shape.payload_scopes))],
+                    vec![format!(
+                        "{PAYLOAD_OPTION}={}",
+                        union_payload(&current_shape.payload_scopes)
+                    )],
                     lines.clone(),
                 ]
                 .concat(),
@@ -248,7 +271,10 @@ pub fn with_profile_ready_strategy(
             return Ok((updated, Some(whole_lines)));
         }
     }
-    Ok((with_profile_strategy_lines(preset, profile_index, &lines)?, None))
+    Ok((
+        with_profile_strategy_lines(preset, profile_index, &lines)?,
+        None,
+    ))
 }
 
 fn segment_for_strategy_line(engine: &str, line: &str) -> ProfileSegment {
@@ -259,15 +285,30 @@ fn segment_for_strategy_line(engine: &str, line: &str) -> ProfileSegment {
             || lowered.starts_with("--out-range"))
     {
         let (name, value) = split_option(line);
-        return ProfileSegment { kind: "strategy_filter".to_string(), text: line.to_string(), name, value };
+        return ProfileSegment {
+            kind: "strategy_filter".to_string(),
+            text: line.to_string(),
+            name,
+            value,
+        };
     }
     let (name, value) = split_option(line);
-    ProfileSegment { kind: "strategy".to_string(), text: line.to_string(), name, value }
+    ProfileSegment {
+        kind: "strategy".to_string(),
+        text: line.to_string(),
+        name,
+        value,
+    }
 }
 
 fn segment_for_match_line(line: &str) -> ProfileSegment {
     let (name, value) = split_option(line);
-    ProfileSegment { kind: "match".to_string(), text: line.to_string(), name, value }
+    ProfileSegment {
+        kind: "match".to_string(),
+        text: line.to_string(),
+        name,
+        value,
+    }
 }
 
 /// Пресет с переписанными match-данными профиля (python with_profile_user_match).
@@ -335,7 +376,10 @@ pub fn with_profile_user_match(
             continue;
         }
         if insert_at.is_none()
-            && matches!(segment.kind.as_str(), "match" | "strategy_filter" | "strategy")
+            && matches!(
+                segment.kind.as_str(),
+                "match" | "strategy_filter" | "strategy"
+            )
         {
             insert_at = Some(result.len());
         }
@@ -354,7 +398,10 @@ pub fn with_profile_user_match(
     }
     if !list_written && !hostlist.is_empty() {
         let insert = first_strategy_or_end_index(&result);
-        result.insert(insert, segment_for_match_line(&format!("--hostlist={hostlist}")));
+        result.insert(
+            insert,
+            segment_for_match_line(&format!("--hostlist={hostlist}")),
+        );
     }
 
     profile.segments = result;
@@ -440,13 +487,22 @@ pub fn append_profile_from_template(
     let mut profile = template.clone();
     profile.index = insert_at as i64;
     profile.engine = updated.engine.clone();
-    profile.new_line = if insert_at == 0 { String::new() } else { "--new".to_string() };
+    profile.new_line = if insert_at == 0 {
+        String::new()
+    } else {
+        "--new".to_string()
+    };
     profile.segments.retain(|segment| !is_skip(segment));
     canonicalize_template_match_paths(&mut profile);
     if !enabled {
         profile.segments.insert(
             directive_insert_index(&profile),
-            ProfileSegment { kind: "directive".to_string(), text: "--skip".to_string(), name: "--skip".to_string(), value: String::new() },
+            ProfileSegment {
+                kind: "directive".to_string(),
+                text: "--skip".to_string(),
+                name: "--skip".to_string(),
+                value: String::new(),
+            },
         );
     }
     ensure_safe_default_strategy(&mut profile);
@@ -541,7 +597,11 @@ pub fn with_profile_raw_text(
     if profile_index >= updated.profiles.len() {
         return Err(format!("Profile index out of range: {profile_index}"));
     }
-    let text = raw_text.replace("\r\n", "\n").replace('\r', "\n").trim().to_string();
+    let text = raw_text
+        .replace("\r\n", "\n")
+        .replace('\r', "\n")
+        .trim()
+        .to_string();
     if text.is_empty() {
         return Err("profile text must not be empty".to_string());
     }
@@ -553,7 +613,10 @@ pub fn with_profile_raw_text(
         &updated.engine,
         &updated.source_name,
     )?;
-    if parsed.profiles.len() != 1 || !parsed.header_lines.is_empty() || !parsed.preamble_lines.is_empty() {
+    if parsed.profiles.len() != 1
+        || !parsed.header_lines.is_empty()
+        || !parsed.preamble_lines.is_empty()
+    {
         return Err("profile text must contain exactly one profile".to_string());
     }
 
@@ -592,7 +655,11 @@ fn canonicalize_template_match_paths(profile: &mut Profile) {
 /// python _lists_relative_value.
 pub fn lists_relative_value(value: &str) -> String {
     let raw = value.trim().to_string();
-    let clean = raw.replace('\\', "/").trim_matches('"').trim_matches('\'').to_string();
+    let clean = raw
+        .replace('\\', "/")
+        .trim_matches('"')
+        .trim_matches('\'')
+        .to_string();
     if clean.is_empty() {
         return raw;
     }
@@ -659,7 +726,11 @@ fn profile_base_name(source: &Profile) -> String {
     } else {
         format!("profile {}", source.index + 1)
     };
-    if raw.trim().is_empty() { "profile".to_string() } else { raw.trim().to_string() }
+    if raw.trim().is_empty() {
+        "profile".to_string()
+    } else {
+        raw.trim().to_string()
+    }
 }
 
 fn profile_name_or_empty(profile: &Profile) -> String {
@@ -675,7 +746,11 @@ fn strip_copy_suffix(base: &str) -> String {
     let pattern = Regex::new(r"(?i)\s+копия(?:\s+\d+)?\z").expect("постоянный шаблон");
     let without = pattern.replace(base, "");
     let stripped = without.trim().to_string();
-    if stripped.is_empty() { base.to_string() } else { stripped }
+    if stripped.is_empty() {
+        base.to_string()
+    } else {
+        stripped
+    }
 }
 
 /// Итоговые границы профилей (python _ensure_profile_boundaries).
@@ -702,7 +777,11 @@ fn ensure_profile_boundaries(preset: &mut Preset) {
         // Только собственное имя профиля (из «--new=Имя»). Отображаемое имя
         // («TCP 443 • hostlist …») вычисляемая подпись интерфейса.
         let name = profile.name.trim().to_string();
-        profile.new_line = if name.is_empty() { "--new".to_string() } else { format!("--new={name}") };
+        profile.new_line = if name.is_empty() {
+            "--new".to_string()
+        } else {
+            format!("--new={name}")
+        };
     }
 }
 
@@ -715,19 +794,25 @@ fn ensure_profile_name_directive(profile: &mut Profile, engine: &str) {
         return;
     }
     let insert_at = directive_insert_index(profile);
-    profile.segments.insert(insert_at, profile_name_segment(engine, &name));
+    profile
+        .segments
+        .insert(insert_at, profile_name_segment(engine, &name));
 }
 
 fn profile_has_name_directive(profile: &Profile, engine: &str) -> bool {
     let directive_name = profile_name_directive_name(engine);
-    profile
-        .segments
-        .iter()
-        .any(|segment| segment.kind == "directive" && segment.name.trim().to_lowercase() == directive_name)
+    profile.segments.iter().any(|segment| {
+        segment.kind == "directive" && segment.name.trim().to_lowercase() == directive_name
+    })
 }
 
 fn profile_name_directive_name(engine: &str) -> String {
-    (if engine == ENGINE_WINWS1 { "--comment" } else { "--name" }).to_string()
+    (if engine == ENGINE_WINWS1 {
+        "--comment"
+    } else {
+        "--name"
+    })
+    .to_string()
 }
 
 fn profile_name_segment(engine: &str, name: &str) -> ProfileSegment {
@@ -746,7 +831,11 @@ fn ensure_safe_default_strategy(profile: &mut Profile) {
     if profile.engine != ENGINE_WINWS2 {
         return;
     }
-    if profile.segments.iter().any(|segment| segment.kind == "strategy") {
+    if profile
+        .segments
+        .iter()
+        .any(|segment| segment.kind == "strategy")
+    {
         return;
     }
     let mut insert_at = profile.segments.len();
@@ -772,7 +861,11 @@ fn remove_leading_blank_segments(profile: &mut Profile) {
 
 /// Переименование копии профиля (python _rename_profile_copy).
 fn rename_profile_copy(profile: &mut Profile, name: &str) {
-    let clean_name = if name.trim().is_empty() { "profile копия".to_string() } else { name.trim().to_string() };
+    let clean_name = if name.trim().is_empty() {
+        "profile копия".to_string()
+    } else {
+        name.trim().to_string()
+    };
     let mut renamed_new_line = false;
     let current_new_line = profile.new_line.trim().to_string();
     if current_new_line.to_lowercase().starts_with("--new=") {
@@ -799,7 +892,10 @@ fn rename_profile_copy(profile: &mut Profile, name: &str) {
     profile.new_line = format!("--new={clean_name}");
     if current_new_line.to_lowercase() != "--new" {
         let insert_at = directive_insert_index(profile);
-        profile.segments.insert(insert_at, profile_name_segment(&profile.engine, &clean_name));
+        profile.segments.insert(
+            insert_at,
+            profile_name_segment(&profile.engine, &clean_name),
+        );
     }
     profile.name = clean_name.clone();
     profile.display_name = clean_name.clone();

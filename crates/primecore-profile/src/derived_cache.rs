@@ -11,7 +11,7 @@ use crate::match_filters::{
     ports_label_from_match_lines, protocol_label_from_match_lines,
     strategy_catalog_from_match_lines,
 };
-use crate::models::{Profile, Preset, Strategy, ENGINE_WINWS2};
+use crate::models::{Preset, Profile, Strategy, ENGINE_WINWS2};
 use crate::strategy_catalog::StrategyEntry;
 use crate::strategy_shape::{composite_identity, strategy_shape};
 
@@ -168,8 +168,7 @@ impl ProfileDerivedCache {
             self.touch(&key);
             return cached;
         }
-        let core =
-            build_profile_derived_core(profile, catalogs, user_root, Some(&key.raw_text));
+        let core = build_profile_derived_core(profile, catalogs, user_root, Some(&key.raw_text));
         self.entries.insert(key.clone(), core.clone());
         self.order.push(key);
         while self.order.len() > self.limit {
@@ -329,13 +328,18 @@ pub fn resolve_strategy_lines(
             let current_composite = composite_identity(&shape.body_lines);
             matches = entries
                 .iter()
-                .filter(|entry| entry.is_composite && entry_composite_identity(&entry.args) == current_composite)
+                .filter(|entry| {
+                    entry.is_composite && entry_composite_identity(&entry.args) == current_composite
+                })
                 .collect();
         } else {
             let current = shape.lua_lines();
             matches = entries
                 .iter()
-                .filter(|entry| !entry.is_composite && entry_identity_lines(&profile.engine, &entry.args) == current)
+                .filter(|entry| {
+                    !entry.is_composite
+                        && entry_identity_lines(&profile.engine, &entry.args) == current
+                })
                 .collect();
         }
     }
@@ -379,10 +383,7 @@ fn lines_of(args: &str) -> Vec<String> {
 }
 
 /// python strategy_identity_lines.
-pub fn strategy_identity_lines(
-    profile: &Profile,
-    lines: &[String],
-) -> Vec<String> {
+pub fn strategy_identity_lines(profile: &Profile, lines: &[String]) -> Vec<String> {
     let normalized = normalize_lines(lines.iter().cloned());
     if profile.engine != ENGINE_WINWS2 {
         return normalized;
@@ -407,8 +408,8 @@ pub fn profile_list_type(profile: &Profile) -> String {
     let match_section = profile.match_section();
     let has_hostlist = !match_section.hostlist_lines.is_empty()
         || !match_section.hostlist_domains_lines.is_empty();
-    let has_ipset = !match_section.ipset_lines.is_empty()
-        || !match_section.inline_ipset_lines.is_empty();
+    let has_ipset =
+        !match_section.ipset_lines.is_empty() || !match_section.inline_ipset_lines.is_empty();
     let has_excludes = !match_section.hostlist_exclude_lines.is_empty()
         || !match_section.ipset_exclude_lines.is_empty();
     if has_excludes {
@@ -493,14 +494,8 @@ pub fn profile_match_summary(profile: &Profile, list_type: Option<&str>) -> Stri
 }
 
 /// python available_filter_kinds.
-pub fn available_filter_kinds(
-    settings: &EditableProfileSettings,
-    user_root: &Path,
-) -> Vec<String> {
-    let current_kind = settings
-        .filter_kind
-        .trim()
-        .to_lowercase();
+pub fn available_filter_kinds(settings: &EditableProfileSettings, user_root: &Path) -> Vec<String> {
+    let current_kind = settings.filter_kind.trim().to_lowercase();
     let current_kind = if current_kind.is_empty() {
         "hostlist".to_string()
     } else {

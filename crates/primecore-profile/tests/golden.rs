@@ -5,7 +5,9 @@ use std::sync::OnceLock;
 
 use serde_json::{json, Value};
 
-use primecore_profile::winws2::{parse_winws2_strategy, split_lua_desync_lines, unescape_lua_token};
+use primecore_profile::winws2::{
+    parse_winws2_strategy, split_lua_desync_lines, unescape_lua_token,
+};
 use primecore_profile::ProfileAction;
 
 fn golden() -> &'static Value {
@@ -46,8 +48,17 @@ fn parse_winws2_strategy_matches_python() {
             "iền действий: {:?}",
             lines
         );
-        for (action, expected_action) in strategy.actions.iter().zip(expected["actions"].as_array().unwrap()) {
-            assert_eq!(action_json(action), *expected_action, "действие в {:?}", lines);
+        for (action, expected_action) in strategy
+            .actions
+            .iter()
+            .zip(expected["actions"].as_array().unwrap())
+        {
+            assert_eq!(
+                action_json(action),
+                *expected_action,
+                "действие в {:?}",
+                lines
+            );
         }
         // strategy_lines: обрезались участки (python отдаёт list[str] без пустых).
         assert_eq!(
@@ -56,19 +67,30 @@ fn parse_winws2_strategy_matches_python() {
             "стратегия в {:?}",
             lines
         );
-        assert_eq!(json!(strategy.other_lines), expected["other_lines"], "прочие в {:?}", lines);
+        assert_eq!(
+            json!(strategy.other_lines),
+            expected["other_lines"],
+            "прочие в {:?}",
+            lines
+        );
     }
 }
 
 #[test]
 fn split_lua_desync_lines_matches_marker_semantics() {
-    assert_eq!(split_lua_desync_lines("--lua-desync=a:x"), ["--lua-desync=a:x"]);
+    assert_eq!(
+        split_lua_desync_lines("--lua-desync=a:x"),
+        ["--lua-desync=a:x"]
+    );
     // python обрезает каждый отрезок: `.strip()`.
     assert_eq!(
         split_lua_desync_lines("--lua-desync=a:x --lua-desync=b"),
         ["--lua-desync=a:x", "--lua-desync=b"]
     );
-    assert_eq!(split_lua_desync_lines("--LUA-DESYNC=верх"), ["--LUA-DESYNC=верх"]);
+    assert_eq!(
+        split_lua_desync_lines("--LUA-DESYNC=верх"),
+        ["--LUA-DESYNC=верх"]
+    );
     assert_eq!(split_lua_desync_lines("-x"), Vec::<String>::new());
 }
 

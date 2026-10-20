@@ -7,8 +7,8 @@ use once_cell::sync::Lazy;
 use serde_json::{json, Value};
 
 use primecore_profile::derived_cache::{
-    available_filter_kinds, basic_strategy_entries, build_profile_derived_core,
-    visible_list_type, CatalogMap, PresetSourcesCache, ProfileDerivedCache,
+    available_filter_kinds, basic_strategy_entries, build_profile_derived_core, visible_list_type,
+    CatalogMap, PresetSourcesCache, ProfileDerivedCache,
 };
 use primecore_profile::editable_settings::read_editable_profile_settings;
 use primecore_profile::parser::parse_preset_text;
@@ -65,7 +65,8 @@ const COMPOSITE_TEXT: &str = concat!(
     "--payload=tls_client_hello,http_req\n",
     "--lua-desync=multidisorder_legacy:pos=2\n",
 );
-const VOICE_TEXT: &str = "--new=Голосова\n--filter-udp=50000\n--lua-desync=fake:blob=fake_default_quic:repeats=3\n";
+const VOICE_TEXT: &str =
+    "--new=Голосова\n--filter-udp=50000\n--lua-desync=fake:blob=fake_default_quic:repeats=3\n";
 const W1_TEXT: &str = "--new=W1\n--dpi-desync=multisplit\n--dpi-desync-split-seqovl=211\n";
 const EXCLUDE_NOT_TEXT: &str = "--new=Защита игр\n--hostlist-exclude=gov.ru.txt\n";
 const EXCLUDE_YES_TEXT: &str = "--new=Исключить RU\n--hostlist-exclude=gov.ru.txt\n";
@@ -139,7 +140,10 @@ fn catalog_ids(map: &CatalogMap, name: &str) -> Value {
         .find(|(catalog_name, _)| catalog_name == name)
         .map(|(_, entries)| entries)
         .expect("каталог");
-    json!(entries.iter().map(|entry| entry.strategy_id.clone()).collect::<Vec<_>>())
+    json!(entries
+        .iter()
+        .map(|entry| entry.strategy_id.clone())
+        .collect::<Vec<_>>())
 }
 
 fn core_record(core: &primecore_profile::derived_cache::ProfileDerivedCore) -> Value {
@@ -161,9 +165,7 @@ fn core_record(core: &primecore_profile::derived_cache::ProfileDerivedCore) -> V
     })
 }
 
-fn sources_record(
-    sources: &[primecore_profile::list_interpreter::ProfileListSource],
-) -> Value {
+fn sources_record(sources: &[primecore_profile::list_interpreter::ProfileListSource]) -> Value {
     let rows: Vec<Value> = sources
         .iter()
         .map(|source| {
@@ -225,7 +227,8 @@ fn derived_core_matches_python() {
         &user,
         None,
     ));
-    out["visible"]["raw_text"] = json!({"visible_list_type": visible_list_type(raw_profile, &user)});
+    out["visible"]["raw_text"] =
+        json!({"visible_list_type": visible_list_type(raw_profile, &user)});
 
     // available_filter_kinds с обоими файлами.
     let k1 = parse_preset_text(S1_TEXT, "winws2", "k").expect("kinds");
@@ -255,8 +258,7 @@ fn derived_core_matches_python() {
     let excluded = parse_preset_text(EXCLUDE_YES_TEXT, "winws2", "r2").expect("r2");
     let first = rename_cache.core_for(&not_excluded.profiles[0], &catalogs, &signature, &user);
     let second = rename_cache.core_for(&excluded.profiles[0], &catalogs, &signature, &user);
-    out["caches"]["rename"] =
-        json!([core_record(&first), core_record(&second)]);
+    out["caches"]["rename"] = json!([core_record(&first), core_record(&second)]);
 
     // Отпечаток папки lists.
     let mut ttl_cache = ProfileDerivedCache::new();
@@ -274,12 +276,8 @@ fn derived_core_matches_python() {
 
     // --- Sources пресета ---
     let mut sources_cache = PresetSourcesCache::new();
-    let combination = parse_preset_text(
-        &format!("{S1_TEXT}{CUSTOM_TEXT}"),
-        "winws2",
-        "src",
-    )
-    .expect("sources");
+    let combination =
+        parse_preset_text(&format!("{S1_TEXT}{CUSTOM_TEXT}"), "winws2", "src").expect("sources");
     let sources_first = sources_cache.sources_for((7, 12), &combination, &[]);
     let sources_second = sources_cache.sources_for((7, 12), &combination, &[]);
     let sources_other = sources_cache.sources_for((8, 12), &combination, &[]);
@@ -295,17 +293,24 @@ fn derived_core_matches_python() {
     assert_eq!(out["kinds"], golden["kinds"], "доступные виды фильтров");
     assert_eq!(out["caches"], golden["caches"], "кэши");
     assert_eq!(
-        out["catalog_ids"],
-        golden["catalog_ids"],
+        out["catalog_ids"], golden["catalog_ids"],
         "каталоги для ядра"
     );
-    let entries = basic_strategy_entries(&parse_preset_text(NONE_TEXT, "winws2", "b").expect("base").profiles[0], &catalogs);
+    let entries = basic_strategy_entries(
+        &parse_preset_text(NONE_TEXT, "winws2", "b")
+            .expect("base")
+            .profiles[0],
+        &catalogs,
+    );
     assert_eq!(
         entries
             .iter()
             .map(|entry| entry.strategy_id.clone())
             .collect::<Vec<_>>(),
-        golden["cores"]["none_strategy"]["strategy_entry_ids"].as_array().expect("ids").clone(),
+        golden["cores"]["none_strategy"]["strategy_entry_ids"]
+            .as_array()
+            .expect("ids")
+            .clone(),
         "базовые записи"
     );
 

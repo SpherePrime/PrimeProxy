@@ -9,7 +9,9 @@ use serde_json::Value;
 
 fn golden() -> &'static serde_json::Value {
     static GOLDEN: OnceLock<serde_json::Value> = OnceLock::new();
-    GOLDEN.get_or_init(|| serde_json::from_slice(include_bytes!("golden.json")).expect("золотой json"))
+    GOLDEN.get_or_init(|| {
+        serde_json::from_slice(include_bytes!("golden.json")).expect("золотой json")
+    })
 }
 
 fn pairs(key: &str) -> &Vec<Value> {
@@ -59,10 +61,18 @@ fn as_nullable_int_matches_python() {
 #[test]
 fn as_str_and_clean_match_python() {
     for pair in pairs("as_str") {
-        assert_eq!(s::as_str(&pair[0], "zzz"), pair[1].as_str().unwrap(), "as_str");
+        assert_eq!(
+            s::as_str(&pair[0], "zzz"),
+            pair[1].as_str().unwrap(),
+            "as_str"
+        );
     }
     for pair in pairs("as_clean_str") {
-        assert_eq!(s::as_clean_str(&pair[0], "d"), pair[1].as_str().unwrap(), "as_clean_str");
+        assert_eq!(
+            s::as_clean_str(&pair[0], "d"),
+            pair[1].as_str().unwrap(),
+            "as_clean_str"
+        );
     }
 }
 
@@ -123,12 +133,7 @@ fn lists_match_python() {
 fn custom_dns_servers_match_python() {
     for pair in pairs("normalize_custom_dns_servers") {
         let actual = s::normalize_custom_dns_servers(&pair[0]);
-        let actual_json = Value::Array(
-            actual
-                .into_iter()
-                .map(|row| Value::Object(row))
-                .collect(),
-        );
+        let actual_json = Value::Array(actual.into_iter().map(Value::Object).collect());
         assert_eq!(actual_json, pair[1], "custom dns");
     }
 }
@@ -136,9 +141,12 @@ fn custom_dns_servers_match_python() {
 #[test]
 fn lookup_and_askey_match_python() {
     let askeys = s::schema::ORCHESTRA_ASKEYS;
-    assert_eq!(askeys.contains(&"quic"), true);
+    assert!(askeys.contains(&"quic"));
     for triple in pairs("lookup_askey") {
-        assert_eq!(s::normalize_lookup_key(&triple[0]), triple[1].as_str().unwrap());
+        assert_eq!(
+            s::normalize_lookup_key(&triple[0]),
+            triple[1].as_str().unwrap()
+        );
         assert_eq!(s::normalize_askey(&triple[0]), triple[2].as_str().unwrap());
     }
 }
