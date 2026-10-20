@@ -235,6 +235,31 @@ fn foreign_reachable(reference: &[ReferenceReport]) -> bool {
 /// python `whitelist_suspected(...)` — признак «белых списков» по контрольным
 /// сайтам: российские открываются, зарубежные нет. Движок по нему решает,
 /// звать ли проверку подсетей (`subnet_whitelist`).
+/// python-словарь `problem(...)` в виде JSON — так его кладут в отчёт и экран.
+#[must_use]
+pub fn problem_value(item: &Problem) -> serde_json::Value {
+    let mut record = serde_json::json!({
+        "level": item.level.value(),
+        "text": item.text,
+        "advice": item.advice,
+        "action": item.action,
+        "target": item.target,
+        "kind": item.kind,
+        "title": item.title,
+        "evidence": item.evidence,
+    });
+    if let Some(parts) = &item.parts {
+        record["parts"] = parts.clone();
+    }
+    if !item.site.is_empty() {
+        record["site"] = serde_json::json!(item.site);
+    }
+    if !item.section.is_empty() {
+        record["section"] = serde_json::json!(item.section);
+    }
+    record
+}
+
 pub fn whitelist_suspected(
     services: &Entries<Service>,
     verdicts: &Entries<ServiceVerdict>,

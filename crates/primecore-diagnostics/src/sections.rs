@@ -15,6 +15,7 @@
 //! забота движка: см. `docs_porting-notes.md`.
 
 use std::collections::BTreeMap;
+use std::sync::{Arc, Mutex};
 
 use serde_json::{json, Map, Value};
 
@@ -1160,6 +1161,96 @@ pub fn ask_outside(
             (probe.service.clone(), probe.host.clone(), answer)
         })
         .collect()
+}
+
+/// python-замыкание `verdict_of(сервис, пробы)`.
+pub type VerdictOf = Arc<
+    dyn Fn(&crate::services::Service, &[Probe]) -> crate::verdict::ServiceVerdict + Send + Sync,
+>;
+
+/// python `live_services` — приёмник «сайт проверен»: сервис уходит на экран,
+/// как только готовы все его адреса.
+///
+/// `verdict_of(сервис, пробы)` даёт итог сервиса, `publish(список)` получает
+/// готовые сервисы в том же виде, что и в итоговом отчёте. После перепроверки
+/// движок кладёт окончательный список — он заменяет этот предварительный.
+pub struct LiveServices {
+    services: BTreeMap<String, crate::services::Service>,
+    verdict_of: VerdictOf,
+    publish: Arc<dyn Fn(Vec<Value>) + Send + Sync>,
+    state: Mutex<LiveServicesState>,
+}
+
+struct LiveServicesState {
+    done: BTreeMap<String, Vec<Probe>>,
+    /// Готовые записи сервисов: пересчитывается только тот, что сейчас
+    /// завершился, а не все готовые на каждом сайте (было O(N²) сборок за прогон).
+    entries: BTreeMap<String, Value>,
+}
+
+impl LiveServices {
+    pub fn new(
+        services: &BTreeMap<String, crate::services::Service>,
+        verdict_of: VerdictOf,
+        publish: Arc<dyn Fn(Vec<Value>) + Send + Sync>,
+    ) -> Arc<Self> {
+        Arc::new(LiveServices {
+            services: services.clone(),
+            verdict_of,
+            publish,
+            state: Mutex::new(LiveServicesState {
+                done: BTreeMap::new(),
+                entries: BTreeMap::new(),
+            }),
+        })
+    }
+
+    /// python `on_probe(key, probe)`.
+    pub fn on_probe(&self, key: &str, probe: &Probe) {
+        let ready = {
+            let Ok(mut state) = self.state.lock() else {
+                return;
+            };
+            let probes = state.done.entry(key.to_string()).or_default();
+            probes.push(probe.clone());
+            let Some(service) = self.services.get(key) else {
+                return;
+            };
+            if probes.len() < service.targets.len() {
+                return;
+            }
+            (key.to_string(), probes.clone())
+        };
+        let (key, probes) = ready;
+        let Some(service) = self.services.get(&key) else {
+            return;
+        };
+        let verdict = (self.verdict_of)(service, &probes);
+        let mut verdicts = BTreeMap::new();
+        verdicts.insert(key.clone(), verdict);
+        let mut collected: CollectedProbes = BTreeMap::new();
+        collected.insert(key.clone(), probes);
+        let entry = crate::report_text::services_report(
+            &[(key.clone(), service.clone())],
+            &verdicts,
+            &collected,
+        )
+        .into_iter()
+        .next();
+        let Some(entry) = entry else { return };
+        let snapshot = {
+            let Ok(mut state) = self.state.lock() else {
+                return;
+            };
+            // Под замком: снимок, собранный раньше, не перебьёт более полный.
+            state.entries.insert(key, entry);
+            self.services
+                .keys()
+                .filter_map(|name| state.entries.get(name).cloned())
+                .collect::<Vec<_>>()
+        };
+        (self.publish)(snapshot);
+    }
 }
 
 #[cfg(test)]

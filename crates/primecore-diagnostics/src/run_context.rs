@@ -1019,6 +1019,21 @@ impl Run {
         report
     }
 
+    /// python `run.deadline - time.monotonic()` — сколько секунд осталось у прогона.
+    pub fn seconds_left(&self) -> f64 {
+        self.deadline
+            .saturating_duration_since(Instant::now())
+            .as_secs_f64()
+    }
+
+    /// python `run.timed_out` — часть проверок не уложилась в общий срок.
+    pub fn timed_out(&self) -> bool {
+        self.state
+            .lock()
+            .map(|state| state.timed_out)
+            .unwrap_or(false)
+    }
+
     /// python `wait(future)` — ждёт результат, не пропуская «Стоп» и общий дедлайн.
     pub fn wait<T: Send + 'static>(&self, handle: &Handle<T>) -> Result<T, TaskError> {
         loop {
