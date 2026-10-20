@@ -16,6 +16,7 @@ pub mod crowd_probe;
 pub mod dns_place;
 pub mod dns_reference;
 pub mod filter_habits;
+pub mod filter_place;
 pub mod freeze_check;
 pub mod history;
 pub mod icmp;
