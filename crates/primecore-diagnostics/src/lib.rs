@@ -32,6 +32,7 @@ pub mod report_text;
 pub mod report_upgrade;
 pub mod protocol_probe;
 pub mod quic_probe;
+pub mod rule_passports;
 pub mod run_context;
 pub mod system_state;
 pub mod self_check;
