@@ -44,6 +44,7 @@ pub mod subnet_whitelist;
 pub mod telegram_check;
 pub mod udp_burst;
 pub mod upload_probe;
+pub mod tls_probe;
 pub mod verdict;
 pub mod voice_check;
 pub mod volume_probe;
