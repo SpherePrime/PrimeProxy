@@ -28,6 +28,7 @@ pub mod crowd_probe;
 pub mod dns_place;
 pub mod dns_reference;
 pub mod problems;
+pub mod reach;
 pub mod report_contract;
 pub mod report_text;
 pub mod report_upgrade;
