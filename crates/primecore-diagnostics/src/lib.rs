@@ -26,6 +26,7 @@ pub mod my_network;
 pub mod name_speed;
 pub mod net_access;
 pub mod outside_check;
+pub mod path_trace;
 pub mod probe_result;
 pub mod problems;
 pub mod protocol_probe;
