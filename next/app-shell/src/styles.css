@@ -203,3 +203,63 @@ body {
   white-space: pre-wrap; word-break: break-all; margin: 0;
 }
 .log-note { color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+/* --- Группы пресетов по сервисам ---------------------------------------- */
+.preset-count-line { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+
+.pgroup {
+  background: var(--panel-2); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+}
+.pgroup-head {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+}
+.pgroup-head h3 { margin: 0; font-size: 15px; }
+.pgroup-head .preset-count { flex: 1; }
+
+/* Переключатель секции в духе Fluent ToggleSwitch. */
+.switch {
+  position: relative; width: 42px; height: 22px; flex-shrink: 0;
+  border-radius: 999px; border: 1px solid #334155;
+  background: var(--panel); cursor: pointer; padding: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.switch::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.switch.on { background: var(--accent); border-color: var(--accent); }
+.switch.on::after { transform: translateX(20px); background: #0f172a; }
+
+.pgroup-list {
+  max-height: 220px; overflow-y: auto; border-radius: 8px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.pgroup-item {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 7px 12px; margin: 0;
+  background: transparent; color: var(--text);
+  border: none; border-radius: 8px; cursor: pointer;
+  font-family: inherit; text-align: left; overflow: hidden;
+}
+.pgroup-item:hover { background: rgba(56, 189, 248, 0.08); }
+.pgroup-item.selected {
+  background: rgba(56, 189, 248, 0.16);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.pgroup-item-main { display: flex; align-items: center; gap: 8px; }
+.pgroup-item.selected .preset-name { color: var(--accent); }
+
+.badge.def { background: rgba(56, 189, 248, 0.16); color: var(--accent); }
+
+/* Зелёный чип полученных прав — рядом с состоянием обхода. */
+.status-chip.chip-ok { background: #14532d; color: #bbf7d0; }
+
+/* Инфобар с кнопкой «Разрешить» внутри карточки запуска. */
+.priv-bar {
+  display: flex; align-items: center; gap: 12px;
+  justify-content: space-between; flex-wrap: wrap;
+}
+.priv-bar .btn { padding: 7px 16px; }

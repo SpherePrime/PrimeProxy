@@ -2,20 +2,32 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchPresets,
   fetchPreset,
+  fetchPrivilege,
   fetchWsLogs,
   fetchWsStatus,
+  grantPrivilege,
   startWs,
   stopWs,
   HostlistMode,
   PresetInfo,
+  PrivilegeInfo,
   WsPresetDetail,
+  WsStartError,
   WsStatus,
 } from "../api";
+import {
+  PresetGroup,
+  PresetGroups,
+  buildGroups,
+  isEnabled,
+  saveDefault,
+  saveEnabled,
+} from "./PresetGroups";
 
-// Страница «Обход» — управление nfqws2/zapret2: выбор пресета, запуск/останов,
-// журнал. Дизайн перенесён с PyQt6-эталона (FluentWindow): карточки со
-// скруглениями, инфобары в духе SemanticNotice, оранжевый акцент #ff9800
-// для предупреждений.
+// Страница «Обход» — управление nfqws2/zapret2: группы пресетов по сервисам,
+// права администратора (polkit, один раз при старте), запуск/останов, журнал.
+// Дизайн перенесён с PyQt6-эталона (FluentWindow): карточки со скруглениями,
+// инфобары в духе SemanticNotice, оранжевый акцент #ff9800 для предупреждений.
 
 // Режимы списков — подписи как в python-эталоне запуска.
 const HOSTLIST_MODES: Array<{ key: HostlistMode; title: string }> = [
@@ -24,18 +36,10 @@ const HOSTLIST_MODES: Array<{ key: HostlistMode; title: string }> = [
   { key: "autohostlist", title: "Автосписок" },
 ];
 
-// Виртуальный список пресетов: фиксированная высота строки, рендерим только
-// видимое окно (+ overscan) — все ~136 пунктов в DOM не нужны.
-const ROW_HEIGHT = 62;
-const LIST_HEIGHT = 340;
-const OVERSCAN = 6;
-
 const LOG_KEEP = 500; // сколько строк журнала держим в памяти вида
 
 export function BypassPage() {
   const [presets, setPresets] = useState<PresetInfo[]>([]);
-  const [selected, setSelected] = useState<string>("");
-  const [detail, setDetail] = useState<WsPresetDetail | null>(null);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<WsStatus | null>(null);
   const [qnum, setQnum] = useState("300");
@@ -47,12 +51,27 @@ export function BypassPage() {
   const [logLines, setLogLines] = useState<string[]>([]);
   const [dropped, setDropped] = useState<number | null>(null);
 
+  // Права администратора: состояние с /api/ws/privilege + процесс выдачи.
+  const [privilege, setPrivilege] = useState<PrivilegeInfo | null>(null);
+  const [granting, setGranting] = useState(false);
+  const [awaitingGrant, setAwaitingGrant] = useState(false);
+
+  // Группы пресетов: выключенные секции и выбранные пресеты — в localStorage.
+  const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>({});
+  const [defaultMap, setDefaultMap] = useState<Record<string, string>>({});
+
+  // Детали пресета — best effort: новый контракт их не гарантирует.
+  const [detail, setDetail] = useState<WsPresetDetail | null>(null);
+  const [detailName, setDetailName] = useState("");
+
   // Инкремент журнала: с сервера просим строки после последнего total.
   const logTotalRef = useRef(0);
   const logRef = useRef<HTMLPreElement>(null);
   const stickBottomRef = useRef(true);
 
-  // --- разовая загрузка пресетов и статуса --------------------------------
+  const groups = useMemo(() => buildGroups(presets), [presets]);
+
+  // --- разовая загрузка пресетов, статуса и состояния прав -----------------
   useEffect(() => {
     let alive = true;
     fetchPresets()
@@ -61,6 +80,11 @@ export function BypassPage() {
     fetchWsStatus()
       .then((s) => alive && setStatus(s))
       .catch((e) => alive && setPollError(String(e.message)));
+    fetchPrivilege()
+      .then((info) => alive && setPrivilege(info))
+      .catch(() => {
+        // Старый бэкенд без /api/ws/privilege — права проверит сам старт (409).
+      });
     return () => {
       alive = false;
     };
@@ -101,49 +125,88 @@ export function BypassPage() {
     };
   }, []);
 
-  // --- выбор пресета -------------------------------------------------------
-  const selectPreset = useCallback((name: string) => {
-    setSelected(name);
-    setDetail(null);
-    fetchPreset(name)
-      .then(setDetail)
-      .catch((e) => setPollError(String(e.message)));
-  }, []);
-
-  // Если обход уже запущен с каким-то пресетом — сразу его и показываем.
-  useEffect(() => {
-    if (status?.preset && !selected) setSelected(status.preset);
-  }, [status?.preset, selected]);
-
-  // --- поиск и виртуализация списка ---------------------------------------
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return presets;
-    return presets.filter(
-      (p) =>
-        p.name.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query),
-    );
-  }, [presets, search]);
-
-  const [scrollTop, setScrollTop] = useState(0);
-  const first = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
-  const last = Math.min(
-    filtered.length,
-    Math.ceil((scrollTop + LIST_HEIGHT) / ROW_HEIGHT) + OVERSCAN,
-  );
-  const visible = filtered.slice(first, last);
-
   // --- журнал: автоскролл вниз, пока пользователь у нижнего края -----------
   useEffect(() => {
     const el = logRef.current;
     if (el && stickBottomRef.current) el.scrollTop = el.scrollHeight;
   }, [logLines]);
 
+  // --- группы: переключатели и выбор пресета -------------------------------
+  const toggleGroup = useCallback((target: string) => {
+    setEnabledMap((prev) => {
+      const next = !isEnabled(target, prev);
+      saveEnabled(target, next);
+      return { ...prev, [target]: next };
+    });
+  }, []);
+
+  const choosePreset = useCallback((target: string, name: string) => {
+    setDefaultMap((prev) => {
+      saveDefault(target, name);
+      return { ...prev, [target]: name };
+    });
+    // Детали — по возможности: старый бэкенд отдаёт план запуска.
+    setDetail(null);
+    setDetailName(name);
+    fetchPreset(name)
+      .then(setDetail)
+      .catch(() => {
+        // Эндпоинта может не быть в новом контракте — не спамим инфобар.
+      });
+  }, []);
+
+  // Выбранный пресет секции: сохранённый, если он ещё существует, иначе
+  // первый по алфавиту (список секции уже отсортирован).
+  const chosenFor = useCallback(
+    (group: PresetGroup): string => {
+      const saved = defaultMap[group.target];
+      if (saved && group.presets.some((p) => p.name === saved)) return saved;
+      return group.presets[0]?.name ?? "";
+    },
+    [defaultMap],
+  );
+
+  // Эффективные дефолты секций — для бейджа «по умолчанию» и подсветки.
+  const effectiveDefaults = useMemo(() => {
+    const map: Record<string, string | undefined> = {};
+    for (const group of groups) map[group.target] = chosenFor(group);
+    return map;
+  }, [groups, chosenFor]);
+
   // --- действия ------------------------------------------------------------
+  async function runGrant(): Promise<boolean> {
+    setGranting(true);
+    setError("");
+    try {
+      await grantPrivilege();
+      setPrivilege((prev) =>
+        prev ? { ...prev, granted: true, needs_prompt: false } : prev,
+      );
+      return true;
+    } catch (e) {
+      const err = e as Error;
+      setError(
+        err.name === "TimeoutError"
+          ? "Не дождались подтверждения пароля (90 с)"
+          : String(err.message),
+      );
+      return false;
+    } finally {
+      setGranting(false);
+    }
+  }
+
   async function handleStart() {
-    if (!selected) {
-      setError("Выберите пресет для запуска");
+    const enabledGroups = groups.filter((group) =>
+      isEnabled(group.target, enabledMap),
+    );
+    if (enabledGroups.length === 0) {
+      setError("Включите хотя бы одну группу");
+      return;
+    }
+    const names = enabledGroups.map(chosenFor).filter(Boolean);
+    if (names.length === 0) {
+      setError("Не удалось определить пресеты для запуска");
       return;
     }
     const port = Math.floor(Number(qnum));
@@ -154,11 +217,32 @@ export function BypassPage() {
     setStarting(true);
     setError("");
     try {
-      await startWs(selected, port, mode);
+      // Прав не хватает — сначала тихо просим polkit (системный диалог),
+      // затем стартуем.
+      if (privilege && privilege.needs_prompt && !privilege.granted) {
+        setAwaitingGrant(true);
+        const granted = await runGrant();
+        setAwaitingGrant(false);
+        if (!granted) return;
+      }
+      await startWs(names, port, mode);
     } catch (e) {
-      setError(String((e as Error).message));
+      const err = e as WsStartError;
+      setError(String(err.message));
+      // 400 с tail: показываем вывод dry-run в журнале с пометкой.
+      if (err.tail) {
+        const lines = err.tail
+          .split("\n")
+          .filter((line) => line.length > 0)
+          .map((line) => `[dry-run] ${line}`);
+        if (lines.length > 0) {
+          stickBottomRef.current = true;
+          setLogLines((prev) => [...prev, ...lines].slice(-LOG_KEEP));
+        }
+      }
     } finally {
       setStarting(false);
+      setAwaitingGrant(false);
     }
   }
 
@@ -175,14 +259,16 @@ export function BypassPage() {
   }
 
   const running = status?.running ?? false;
-  const busy = starting || stopping;
+  const busy = starting || stopping || granting || awaitingGrant;
+  const needsPrompt = Boolean(privilege?.needs_prompt && !privilege?.granted);
 
   return (
     <div className="page">
       <header className="page-header">
         <h1>Обход</h1>
         <p className="subtitle">
-          Управление nfqws2/zapret2: выберите пресет и запустите обход блокировок.
+          Управление nfqws2/zapret2: включите группы сервисов и запустите обход
+          блокировок.
         </p>
       </header>
 
@@ -198,12 +284,13 @@ export function BypassPage() {
         <span className={`status-chip ${running ? "chip-run" : ""}`}>
           {running ? `Запущен · PID ${status?.pid ?? "—"}` : "Остановлен"}
         </span>
+        {privilege?.granted && <span className="status-chip chip-ok">Права получены</span>}
         {status?.preset && <span className="status-chip">{status.preset}</span>}
       </section>
 
-      {/* --- Карточка «Пресет» --- */}
+      {/* --- Карточка «Пресеты» --- */}
       <section className="card">
-        <h2>Пресет</h2>
+        <h2>Пресеты</h2>
         <div className="check-row">
           <input
             value={search}
@@ -211,43 +298,32 @@ export function BypassPage() {
             placeholder="поиск по имени или описанию…"
             aria-label="Поиск пресета"
           />
-          <span className="preset-count">
-            {filtered.length} из {presets.length}
-          </span>
         </div>
-        {presets.length === 0 ? (
-          <div className="preset-empty">Пресеты не найдены — сервер недоступен?</div>
-        ) : (
-          <div
-            className="preset-list"
-            style={{ height: LIST_HEIGHT }}
-            onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
-          >
-            <div style={{ height: filtered.length * ROW_HEIGHT, position: "relative" }}>
-              {visible.map((preset, index) => {
-                const realIndex = first + index;
-                const isSelected = preset.name === selected;
-                return (
-                  <button
-                    key={preset.name}
-                    className={`preset-item ${isSelected ? "selected" : ""}`}
-                    style={{ top: realIndex * ROW_HEIGHT, height: ROW_HEIGHT }}
-                    onClick={() => selectPreset(preset.name)}
-                    title={preset.description}
-                  >
-                    <span className="preset-name">{preset.name}</span>
-                    <span className="preset-desc">{preset.description}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        <PresetGroups
+          groups={groups}
+          search={search}
+          totalPresets={presets.length}
+          enabled={enabledMap}
+          defaults={effectiveDefaults}
+          onToggle={toggleGroup}
+          onChoose={choosePreset}
+        />
       </section>
 
       {/* --- Карточка «Запуск» --- */}
       <section className="card">
         <h2>Запуск</h2>
+        {needsPrompt && (
+          <div className="infobar warn priv-bar">
+            <span>
+              Обходу нужны права администратора. Пароль запросят один раз —
+              дальше без пароля.
+            </span>
+            <button className="btn accent" onClick={runGrant} disabled={granting}>
+              {granting ? "Ожидаю подтверждение…" : "Разрешить"}
+            </button>
+          </div>
+        )}
         <div className="launch-row">
           <label className="field">
             <span className="field-label">qnum</span>
@@ -274,12 +350,13 @@ export function BypassPage() {
               ))}
             </select>
           </label>
-          <button
-            className="btn accent"
-            onClick={handleStart}
-            disabled={busy || running}
-          >
-            ▶ {starting ? "Запускаю…" : "Запустить"}
+          <button className="btn accent" onClick={handleStart} disabled={busy || running}>
+            ▶{" "}
+            {starting
+              ? awaitingGrant
+                ? "Ожидаю подтверждение…"
+                : "Запускаю…"
+              : "Запустить"}
           </button>
           <button className="btn secondary" onClick={handleStop} disabled={busy || !running}>
             ⏹ {stopping ? "Останавливаю…" : "Остановить"}
@@ -287,7 +364,7 @@ export function BypassPage() {
         </div>
         {detail && (
           <div className="plan-line">
-            <span className="field-label">Команда</span>
+            <span className="field-label">Команда · {detailName}</span>
             <code>
               {detail.plan.exe} {detail.plan.args.join(" ")}
             </code>

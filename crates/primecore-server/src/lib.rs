@@ -605,6 +605,8 @@ pub(crate) fn router(app: App) -> Router {
         .route("/api/ws/stop", post(ws_api::stop))
         .route("/api/ws/status", get(ws_api::status))
         .route("/api/ws/logs", get(ws_api::logs))
+        .route("/api/ws/privilege", get(ws_api::privilege))
+        .route("/api/ws/privilege/grant", post(ws_api::privilege_grant))
         .with_state(app)
         // Оболочка грузит интерфейс из file:// (Electron) или :5173 (Vite):
         // без CORS-ответов fetch из этих источников блокируется.

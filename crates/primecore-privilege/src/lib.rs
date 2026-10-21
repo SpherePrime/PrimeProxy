@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 pub mod client;
+pub mod ops;
 
 /// Время жизни привилегированной сессии: 12 часов.
 pub const SESSION_TTL_S: i64 = 12 * 3600;

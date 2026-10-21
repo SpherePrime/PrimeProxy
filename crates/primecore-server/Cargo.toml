@@ -23,6 +23,7 @@ primecore-patch = { path = "../primecore-patch" }
 primecore-release = { path = "../primecore-release" }
 primecore-versions = { path = "../primecore-versions" }
 primecore-ws = { path = "../primecore-ws" }
+primecore-privilege = { path = "../primecore-privilege" }
 
 [dev-dependencies]
 reqwest.workspace = true

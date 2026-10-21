@@ -1,15 +1,19 @@
-//! Минимальный демон-помощник `privd`.
+//! Демон-помощник `privd`.
 //!
-//! Заготовка: слушает unix-сокет (путь из `PRIMECORE_PRIV_SOCK`,
-//! по умолчанию `/tmp/primecore-privd.sock`) и на каждую строку-запрос
-//! отвечает JSON `{"ok": true}`. Реальных привилегированных действий
-//! пока нет — зато протокол живой и его можно проверять клиентом.
+//! Слушает unix-сокет (путь из `PRIMECORE_PRIV_SOCK`, по умолчанию
+//! `/tmp/primecore-privd.sock`); протокол — одна строка = один JSON-запрос,
+//! одна строка = один JSON-ответ. Операции описаны в
+//! [`primecore_privilege::ops`]: `ping`, `nft`, `nft_delete`, `daemon`,
+//! `kill`, `status`; любая не-JSON строка отвечает `{"ok":true}`
+//! (совместимость со старым клиентом).
 //!
-//! Запускается один раз через `pkexec`/`sudo` при первом старте;
-//! дальше демон держит привилегии, повторные sudo-запросы не нужны.
+//! Запускается один раз через `pkexec`/`sudo` при первом старте; дальше
+//! демон держит привилегии, повторные sudo-запросы не нужны.
 
 use std::io::{BufRead, Write};
 use std::os::unix::net::UnixListener;
+
+use primecore_privilege::ops::{PrivilegedOps, RealExecutor, RealOps};
 
 const DEFAULT_SOCK_PATH: &str = "/tmp/primecore-privd.sock";
 
@@ -30,6 +34,7 @@ fn main() -> std::io::Result<()> {
     let listener = UnixListener::bind(&sock_path)?;
     eprintln!("privd: слушаю {sock_path}");
 
+    let mut ops = RealOps::new(RealExecutor);
     for stream in listener.incoming() {
         let mut stream = match stream {
             Ok(stream) => stream,
@@ -46,7 +51,8 @@ fn main() -> std::io::Result<()> {
             match reader.read_line(&mut line) {
                 Ok(0) => break, // соединение закрыто
                 Ok(_) => {
-                    if let Err(e) = writeln!(stream, "{{\"ok\": true}}") {
+                    let reply = ops.handle(&line);
+                    if let Err(e) = writeln!(stream, "{reply}") {
                         eprintln!("privd: не удалось ответить: {e}");
                         break;
                     }

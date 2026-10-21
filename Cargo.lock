@@ -1208,6 +1208,7 @@ dependencies = [
  "primecore-hosts",
  "primecore-manifest",
  "primecore-patch",
+ "primecore-privilege",
  "primecore-release",
  "primecore-socketcancel",
  "primecore-versions",

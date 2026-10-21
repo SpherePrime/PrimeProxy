@@ -76,6 +76,17 @@ export async function fetchServerCheck(domain: string): Promise<ServerCheckRespo
 export interface PresetInfo {
   name: string;
   description: string;
+  // Целевые сервисы пресета (["YouTube"], ["Discord"], ["Общий"]…); бэкенд
+  // пишет их в параллельной ветке, пока поле может отсутствовать.
+  targets?: string[];
+}
+
+// `GET /api/ws/privilege` — состояние прав администратора на стороне ядра.
+export interface PrivilegeInfo {
+  granted: boolean;
+  needs_prompt: boolean;
+  helper: string[];
+  sock?: string;
 }
 
 export interface WsPresetPlan {
@@ -97,6 +108,7 @@ export interface WsStatus {
   running: boolean;
   pid: number | null;
   preset: string | null;
+  names?: string[] | null;
   qnum: number | null;
   root: boolean;
 }
@@ -110,6 +122,17 @@ export interface WsLogs {
 export interface WsStartResult {
   ok: boolean;
   pid?: number;
+  names?: string[];
+}
+
+// Ошибка старта: помимо сообщения может нести «хвост» вывода dry-run.
+export class WsStartError extends Error {
+  tail?: string;
+  constructor(message: string, tail?: string) {
+    super(message);
+    this.name = "WsStartError";
+    this.tail = tail;
+  }
 }
 
 // Читает {"error":"..."} из тела ошибки, иначе — статус ответа.
@@ -130,23 +153,54 @@ export async function fetchPresets(): Promise<PresetInfo[]> {
   return body.presets ?? [];
 }
 
+// Состояние прав: запрашивается один раз при монтировании страницы.
+export async function fetchPrivilege(): Promise<PrivilegeInfo> {
+  const response = await fetch(`${BASE}/api/ws/privilege`);
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+// Выдача прав через pkexec — на экране появляется системный диалог пароля.
+// Диалог может висеть долго, поэтому таймаут щедрый (90 с).
+export async function grantPrivilege(): Promise<{ ok: boolean; helper?: string[] }> {
+  const response = await fetch(`${BASE}/api/ws/privilege/grant`, {
+    method: "POST",
+    signal: AbortSignal.timeout(90_000),
+  });
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
 export async function fetchPreset(name: string): Promise<WsPresetDetail> {
   const response = await fetch(`${BASE}/api/ws/preset?name=${encodeURIComponent(name)}`);
   if (!response.ok) throw await errorFrom(response);
   return response.json();
 }
 
+// Старт: names — по одному выбранному пресету от каждой включённой группы.
+// 400 может нести tail (вывод dry-run), 409 — «нет прав» либо «уже запущено».
 export async function startWs(
-  name: string,
+  names: string[],
   qnum: number,
   hostlistMode: HostlistMode,
 ): Promise<WsStartResult> {
   const response = await fetch(`${BASE}/api/ws/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, qnum, hostlist_mode: hostlistMode }),
+    body: JSON.stringify({ names, qnum, hostlist_mode: hostlistMode }),
   });
-  if (!response.ok) throw await errorFrom(response);
+  if (!response.ok) {
+    let message = `сервер ответил ${response.status}`;
+    let tail: string | undefined;
+    try {
+      const body = await response.json();
+      if (typeof body.error === "string") message = body.error;
+      if (typeof body.tail === "string") tail = body.tail;
+    } catch (_) {
+      // тело не json — покажем просто статус
+    }
+    throw new WsStartError(message, tail);
+  }
   return response.json();
 }
 
