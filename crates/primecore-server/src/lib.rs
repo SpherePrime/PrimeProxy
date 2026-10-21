@@ -8,6 +8,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 mod dns_api;
+mod ws_api;
 
 use axum::extract::rejection::JsonRejection;
 use axum::extract::Query;
@@ -26,7 +27,9 @@ use primecore_versions as versions;
 const DEFAULT_PORT: u16 = 7290;
 
 #[derive(Clone)]
-struct App;
+struct App {
+    ws: ws_api::WsState,
+}
 
 // ───────────────────────── запросы/ответы ────────────────────────────
 
@@ -543,6 +546,14 @@ fn fetch_mirror(servers: Vec<Value>, index: usize, channel: &str) -> Result<Valu
 // ─────────────────────────── router ───────────────────────────────────
 
 pub fn build_router() -> Router {
+    router(App {
+        ws: ws_api::WsState::production(),
+    })
+}
+
+/// Router с готовым состоянием (тесты подставляют свои ресурсы и фейковые
+/// привилегированные руки).
+pub(crate) fn router(app: App) -> Router {
     Router::new()
         .route("/health", get(health))
         .route("/api/versions/compare", post(versions_compare))
@@ -554,7 +565,13 @@ pub fn build_router() -> Router {
         .route("/api/dns/page_state", get(dns_api::page_state))
         .route("/api/dns/server_check", get(dns_api::server_check))
         .route("/api/dns/domain_lookup", get(dns_api::domain_lookup))
-        .with_state(App)
+        .route("/api/ws/presets", get(ws_api::presets))
+        .route("/api/ws/preset", get(ws_api::preset))
+        .route("/api/ws/start", post(ws_api::start))
+        .route("/api/ws/stop", post(ws_api::stop))
+        .route("/api/ws/status", get(ws_api::status))
+        .route("/api/ws/logs", get(ws_api::logs))
+        .with_state(app)
 }
 
 fn port() -> u16 {

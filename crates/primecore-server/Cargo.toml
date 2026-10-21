@@ -22,8 +22,10 @@ primecore-manifest = { path = "../primecore-manifest" }
 primecore-patch = { path = "../primecore-patch" }
 primecore-release = { path = "../primecore-release" }
 primecore-versions = { path = "../primecore-versions" }
+primecore-ws = { path = "../primecore-ws" }
 
 [dev-dependencies]
 reqwest.workspace = true
 bzip2.workspace = true
 sha2.workspace = true
+tower = { workspace = true, features = ["util"] }

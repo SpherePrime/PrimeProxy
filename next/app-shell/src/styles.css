@@ -10,6 +10,9 @@
   --ok: #4ade80;
   --warn: #facc15;
   --fail: #f87171;
+  /* Оранжевый акцент важных статусов — как в PyQt6-эталоне (SemanticNotice). */
+  --accent-warn: #ff9800;
+  --mono: "Cascadia Code", Consolas, "Courier New", monospace;
 }
 
 * { box-sizing: border-box; }
@@ -21,6 +24,35 @@ body {
   font-family: "Segoe UI", system-ui, sans-serif;
 }
 
+/* --- Каркас: боковая навигация слева + контент (как FluentWindow) ------- */
+.app-shell { display: flex; min-height: 100vh; }
+
+.nav {
+  width: 220px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+  background: var(--panel); display: flex; flex-direction: column;
+  gap: 4px; padding: 18px 10px;
+}
+.nav-brand {
+  color: var(--muted); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0 14px 12px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  background: transparent; color: var(--muted); border: none;
+  border-radius: 8px; padding: 10px 14px; cursor: pointer;
+  font-size: 14px; font-family: inherit; text-align: left;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.nav-item:hover { background: var(--panel-2); color: var(--text); }
+.nav-item.active {
+  background: var(--panel-2); color: var(--text); font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.nav-icon { width: 20px; text-align: center; font-size: 16px; }
+
+.content { flex: 1; min-width: 0; overflow-x: hidden; }
+
 .page { max-width: 1100px; margin: 0 auto; padding: 24px; }
 
 .page-header h1 { margin: 0 0 4px; font-size: 26px; }
@@ -28,6 +60,11 @@ body {
 
 .infobar { border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
 .infobar.error { background: #7f1d1d; color: #fecaca; }
+/* SemanticNotice-стиль: мягкая оранжевая заливка без обводки, radius 8px. */
+.infobar.warn {
+  background: rgba(255, 152, 0, 0.08); color: var(--accent-warn);
+  border-radius: 8px;
+}
 
 .status-line {
   display: flex; align-items: center; gap: 12px;
@@ -35,6 +72,7 @@ body {
 }
 .eyebrow { color: var(--muted); font-size: 13px; }
 .status-chip { background: var(--panel-2); border-radius: 999px; padding: 4px 12px; }
+.status-chip.chip-run { background: #14532d; color: #bbf7d0; }
 
 .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; }
 .chip {
@@ -93,3 +131,75 @@ body {
   background: #0b1120; color: #cbd5e1; border-radius: 8px;
   padding: 12px; overflow-x: auto; font-size: 12px; white-space: pre-wrap;
 }
+
+/* --- Страница «Обход»: карточки, список пресетов, журнал ---------------- */
+.card {
+  background: var(--panel); border-radius: 8px; padding: 16px;
+  margin-bottom: 14px;
+}
+.card h2 { margin: 0 0 12px; font-size: 18px; }
+.card-head { display: flex; align-items: center; justify-content: space-between; }
+.card-head h2 { margin: 0; }
+
+.preset-count { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.preset-empty { color: var(--muted); padding: 20px 4px; }
+
+/* Виртуальный список: окно фиксированной высоты, строки позиционируются
+   абсолютно по индексу — в DOM живут только видимые пункты. */
+.preset-list { overflow-y: auto; border-radius: 8px; }
+.preset-item {
+  position: absolute; left: 0; right: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 2px; padding: 6px 12px; margin: 0;
+  background: transparent; color: var(--text);
+  border: none; border-radius: 8px; cursor: pointer;
+  font-family: inherit; text-align: left; overflow: hidden;
+}
+.preset-item:hover { background: var(--panel-2); }
+.preset-item.selected {
+  background: rgba(56, 189, 248, 0.16);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.preset-name { font-weight: 600; font-size: 14px; color: var(--text); }
+.preset-item.selected .preset-name { color: var(--accent); }
+.preset-desc {
+  color: var(--muted); font-size: 12px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.launch-row { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field-label { color: var(--muted); font-size: 12px; }
+.field input,
+.field select {
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid #334155; border-radius: 8px; padding: 8px 12px;
+  font-family: inherit; font-size: 14px;
+}
+.field input[type="number"] { width: 110px; }
+
+.btn {
+  border: none; border-radius: 8px; padding: 9px 18px;
+  font-weight: 600; font-family: inherit; font-size: 14px; cursor: pointer;
+  transition: opacity 0.12s ease;
+}
+.btn:disabled { opacity: 0.55; cursor: wait; }
+.btn.accent { background: var(--accent); color: #0f172a; }
+.btn.secondary { background: var(--panel-2); color: var(--text); }
+.btn.ghost { background: transparent; color: var(--muted); font-weight: 400; }
+.btn.ghost:hover { color: var(--text); background: var(--panel-2); }
+
+.plan-line { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+.plan-line code {
+  background: #0b1120; color: #cbd5e1; border-radius: 8px; padding: 8px 12px;
+  font-family: var(--mono); font-size: 12px; white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.log-view {
+  background: #0b1120; color: #cbd5e1; border-radius: 8px;
+  padding: 12px; height: 260px; overflow-y: auto;
+  font-family: var(--mono); font-size: 12px;
+  white-space: pre-wrap; word-break: break-all; margin: 0;
+}
+.log-note { color: var(--muted); font-size: 12px; margin-top: 8px; }

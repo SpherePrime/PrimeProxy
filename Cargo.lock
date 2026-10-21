@@ -1211,12 +1211,14 @@ dependencies = [
  "primecore-release",
  "primecore-socketcancel",
  "primecore-versions",
+ "primecore-ws",
  "reqwest",
  "serde",
  "serde_json",
  "sha2",
  "thiserror",
  "tokio",
+ "tower",
 ]
 
 [[package]]
