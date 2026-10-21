@@ -1,0 +1,8 @@
+[package]
+name = "primecore-http2"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт utils/http2_post.py — один запрос POST по HTTP/2 поверх готового шифрованного соединения (нужно для шифрованного DNS Quad9 и freeze_transport)."
+
+[dependencies]

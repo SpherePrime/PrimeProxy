@@ -21,6 +21,8 @@ members = [
     "crates/primecore-log",
     "crates/primecore-log-analyzer",
     "crates/primecore-config",
+    "crates/primecore-http2",
+    "crates/primecore-ws",
 ]
 
 [workspace.package]

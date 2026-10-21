@@ -1049,6 +1049,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "primecore-http2"
+version = "0.1.0"
+
+[[package]]
 name = "primecore-lists"
 version = "0.1.0"
 dependencies = [
@@ -1192,6 +1196,17 @@ name = "primecore-versions"
 version = "0.1.0"
 dependencies = [
  "thiserror",
+]
+
+[[package]]
+name = "primecore-ws"
+version = "0.1.0"
+dependencies = [
+ "blake2b_simd",
+ "primecore-profile",
+ "regex",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
