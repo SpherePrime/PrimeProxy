@@ -32,6 +32,7 @@ pub mod net_access;
 pub mod net_transport;
 pub mod outside_check;
 pub mod path_trace;
+pub mod probe_gate;
 pub mod probe_result;
 pub mod problems;
 pub mod protocol_probe;
