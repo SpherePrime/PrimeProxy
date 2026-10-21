@@ -1,0 +1,813 @@
+# Profile templates: all profiles
+# UI-only: templates create profiles inside the selected preset and are not runtime truth.
+
+--name=YouTube · видео (googlevideo.com)
+--filter-tcp=80,443
+--hostlist=lists/googlevideo.txt
+
+--new
+
+--name=YouTube · видео (googlevideo.com)
+--filter-tcp=80,443
+--ipset=lists/ipset-googlevideo.txt
+
+--new
+
+--name=YouTube · видео (googlevideo.com)
+--filter-tcp=80,443
+--hostlist=lists/googlevideo.txt
+
+--new
+
+--name=YouTube · превью роликов
+--filter-tcp=443
+--hostlist=lists/i-ytimg.txt
+
+--new
+
+--name=YouTube · сайт и приложение
+--filter-tcp=80,443
+--ipset=lists/ipset-youtube.txt
+
+--new
+
+--name=YouTube · трансляции (RTMPS)
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-russia-youtube-rtmps.txt
+
+--new
+
+--name=YouTube · быстрый протокол QUIC
+--filter-udp=443
+--ipset=lists/ipset-youtube.txt
+
+--new
+
+--name=Бэкенд Google
+--filter-tcp=80,443
+--hostlist=lists/google-backend.txt
+
+--new
+
+--name=Discord · обновления
+--filter-tcp=443
+--hostlist=lists/discord-updates.txt
+
+--new
+
+--name=Discord · картинки
+--filter-tcp=80,443,1080,2053,2083,2087,2096,8443
+--hostlist=lists/discord-images.txt
+
+--new
+
+--name=Discord · голос и видео (discord.media)
+--filter-tcp=80,443,1080,2053,2083,2087,2096,8443
+--hostlist=lists/discord-media.txt
+
+--new
+
+--name=Discord · сайт и приложение
+--filter-tcp=80,443,1080,2053,2083,2087,2096,8443
+--hostlist=lists/discord.txt
+
+--new
+
+--name=Discord · сайт и приложение
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-discord.txt
+
+--new
+
+--name=Discord · UDP (обычно не нужно)
+--filter-udp=443-65535
+--ipset=lists/ipset-discord.txt
+
+--new
+
+--name=Голосовые звонки/чаты
+--filter-l7=stun,discord
+
+--new
+
+--name=vencord.dev
+--filter-tcp=80,443
+--hostlist=lists/vencord.txt
+
+--new
+
+--name=Telegram
+--filter-tcp=80,443,5222
+--hostlist=lists/telegram.txt
+
+--new
+
+--name=Telegram
+--filter-tcp=80,443,5222
+--ipset=lists/ipset-telegram.txt
+
+--new
+
+--name=WhatsApp · картинки и файлы
+--filter-tcp=80-65535
+--hostlist=lists/static-whatsapp-net.txt
+
+--new
+
+--name=WhatsApp · сообщения
+--filter-tcp=80,443
+--hostlist=lists/whatsapp.txt
+
+--new
+
+--name=WhatsApp · сообщения
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-whatsapp.txt
+
+--new
+
+--name=Facebook
+--filter-tcp=80,443
+--hostlist=lists/facebook.txt
+
+--new
+
+--name=Facebook
+--filter-tcp=80,443
+--ipset=lists/ipset-facebook.txt
+
+--new
+
+--name=TikTok
+--filter-tcp=80,443
+--hostlist=lists/tiktok.txt
+
+--new
+
+--name=Fandom
+--filter-tcp=443
+--hostlist=lists/fandom.txt
+
+--new
+
+--name=Instagram
+--filter-tcp=80,443
+--hostlist=lists/instagram.txt
+
+--new
+
+--name=Instagram
+--filter-tcp=80,443
+--ipset=lists/ipset-instagram.txt
+
+--new
+
+--name=Twitter/X
+--filter-tcp=80,443
+--hostlist=lists/twitter.txt
+
+--new
+
+--name=Twitter/X
+--filter-tcp=80,443
+--ipset=lists/ipset-twitter.txt
+
+--new
+
+--name=Twitter/X · картинки (twimg.com)
+--filter-tcp=80,443
+--hostlist=lists/twimg.txt
+
+--new
+
+--name=Steam
+--filter-tcp=80,443
+--hostlist=lists/steam.txt
+
+--new
+
+--name=Steam
+--filter-tcp=80,443
+--ipset=lists/ipset-steam.txt
+
+--new
+
+--name=itch.io
+--filter-tcp=80,443
+--hostlist=lists/itch.txt
+
+--new
+
+--name=Игровые UDP порты
+--filter-udp=5056,27002
+
+--new
+
+--name=Google (сервисы)
+--filter-tcp=80,443
+--hostlist=lists/google.txt
+
+--new
+
+--name=7tv (10tv)
+--filter-tcp=80,443
+--hostlist-domains=7tv.app,7tv.io,10tv.app
+
+--new
+
+--name=obsidian.md
+--filter-tcp=80,443
+--hostlist=lists/obsidian.txt
+
+--new
+
+--name=SoundCloud
+--filter-tcp=80,443
+--hostlist=lists/soundcloud.txt
+
+--new
+
+--name=SoundCloud
+--filter-tcp=80,443
+--ipset=lists/ipset-soundcloud.txt
+
+--new
+
+--name=LordFilm (зеркала)
+--filter-tcp=80,443
+--hostlist=lists/lordfilm.txt
+
+--new
+
+--name=GitHub · сайт
+--filter-tcp=443
+--hostlist=lists/github.txt
+
+--new
+
+--name=zapret.moe
+--filter-tcp=443
+--hostlist=lists/zapret-moe.txt
+
+--new
+
+--name=GitHub · файлы и картинки
+--filter-tcp=443
+--hostlist=lists/githubusercontent.txt
+
+--new
+
+--name=Apple
+--filter-tcp=80,443-65535
+--hostlist=lists/apple.txt
+
+--new
+
+--name=GitHub · сайт
+--filter-tcp=443
+--ipset=lists/ipset-github.txt
+
+--new
+
+--name=AnyDesk TCP
+--filter-tcp=80,443,6568
+--ipset=lists/ipset-anydesk.txt
+
+--new
+
+--name=AnyDesk UDP
+--filter-udp=443,6568,50000-51000
+--ipset=lists/ipset-anydesk.txt
+
+--new
+
+--name=rutracker.org
+--filter-tcp=80,443
+--hostlist=lists/rutracker.txt
+
+--new
+
+--name=rutracker.org
+--filter-tcp=80,443
+--ipset=lists/ipset-rutracker.txt
+
+--new
+
+--name=Microsoft Store
+--filter-tcp=443
+--hostlist=lists/microsoft-store.txt
+
+--new
+
+--name=rutor.info (.is)
+--filter-tcp=80,443
+--hostlist=lists/rutor.txt
+
+--new
+
+--name=ntc.party
+--filter-tcp=80,443
+--hostlist-domains=ntc.party
+
+--new
+
+--name=Twitch
+--filter-tcp=443
+--hostlist=lists/twitch.txt
+
+--new
+
+--name=Twitch
+--filter-tcp=443
+--ipset=lists/ipset-twitch.txt
+
+--new
+
+--name=LinkedIn
+--filter-tcp=80,443
+--hostlist=lists/linkedin.txt
+
+--new
+
+--name=Speedtest
+--filter-tcp=443,8080
+--hostlist=lists/speedtest.txt
+
+--new
+
+--name=Microsoft Store
+--filter-tcp=443
+--hostlist=lists/microsoft-store.txt
+
+--new
+
+--name=18+ сайты
+--filter-tcp=80,443
+--ipset=lists/ipset-porn.txt
+
+--new
+
+--name=chatgpt
+--filter-tcp=80-65535
+--hostlist=lists/chatgpt.txt
+
+--new
+
+--name=Gemini
+--filter-tcp=80,443
+--hostlist=lists/gemini.txt
+
+--new
+
+--name=Notion
+--filter-tcp=80,443
+--hostlist=lists/notion.txt
+
+--new
+
+--name=Claude
+--filter-tcp=80,443
+--hostlist=lists/claude.txt
+
+--new
+
+--name=DeepSeek
+--filter-tcp=80,443-65535
+--hostlist=lists/deepseek.txt
+
+--new
+
+--name=Ubisoft
+--filter-tcp=80,443-65535
+--hostlist=lists/ubisoft.txt
+
+--new
+
+--name=EpicGames & Fortnite
+--filter-tcp=80,443-65535
+--hostlist=lists/epicgames-fortnite.txt
+
+--new
+
+--name=Tanki X
+--filter-tcp=80,443-65535
+--hostlist=lists/tankix.txt
+
+--new
+
+--name=Tanki X UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-tankix.txt
+
+--new
+
+--name=Tanki X
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-tankix.txt
+
+--new
+
+--name=Amazon TCP
+--filter-tcp=80,443-65535
+--hostlist=lists/amazon.txt
+
+--new
+
+--name=Amazon UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-amazon.txt
+
+--new
+
+--name=cloudfront.net
+--filter-tcp=80,443-65535
+--hostlist=lists/cloudfront.txt
+
+--new
+
+--name=Cloudflare TCP
+--filter-tcp=80,443-65535
+--hostlist=lists/cloudflare.txt
+
+--new
+
+--name=Cloudflare TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-cloudflare.txt
+
+--new
+
+--name=Cloudflare UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-cloudflare.txt
+
+--new
+
+--name=Cloudflare legacy TCP
+--filter-tcp=80,443-65535
+--ipset=lists/cloudflare-ipset.txt
+
+--new
+
+--name=Cloudflare legacy UDP
+--filter-udp=443-65535
+--ipset=lists/cloudflare-ipset.txt
+
+--new
+
+--name=Roblox · скрипты сайта (js.rbxcdn.com)
+--filter-tcp=80-65535
+--hostlist=lists/js-rbxcdn-com.txt
+
+--new
+
+--name=Roblox · картинки (tr.rbxcdn.com)
+--filter-tcp=443-65535
+--hostlist=lists/tr-rbxcdn-com.txt
+
+--new
+
+--name=Roblox · оформление сайта (css.rbxcdn.com)
+--filter-tcp=80-65535
+--hostlist=lists/css-rbxcdn-com.txt
+
+--new
+
+--name=Roblox · игра
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-roblox.txt
+
+--new
+
+--name=Roblox · игра
+--filter-tcp=80,443-65535
+--hostlist=lists/roblox.txt
+
+--new
+
+--name=Roblox · игра (UDP)
+--filter-udp=443-65535
+--ipset=lists/ipset-roblox.txt
+
+--new
+
+--name=League of Legends RU TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-lol-ru.txt
+
+--new
+
+--name=League of Legends RU UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-lol-ru.txt
+
+--new
+
+--name=WARP TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-warp.txt
+
+--new
+
+--name=WARP UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-warp.txt
+
+--new
+
+--name=Timeweb TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-timeweb.txt
+
+--new
+
+--name=Timeweb UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-timeweb.txt
+
+--new
+
+--name=Cloudflare IPv6 legacy TCP
+--filter-tcp=80,443-65535
+--ipset=lists/cloudflare-ipset_v6.txt
+
+--new
+
+--name=Cloudflare IPv6 legacy UDP
+--filter-udp=443-65535
+--ipset=lists/cloudflare-ipset_v6.txt
+
+--new
+
+--name=Cloudflare alt TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-cloudflare1.txt
+
+--new
+
+--name=Cloudflare alt UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-cloudflare1.txt
+
+--new
+
+--name=Amazon TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-amazon.txt
+
+--new
+
+--name=League of Legends EUW TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-lol-euw.txt
+
+--new
+
+--name=League of Legends EUW UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-lol-euw.txt
+
+--new
+
+--name=OVH TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-ovh.txt
+
+--new
+
+--name=OVH UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-ovh.txt
+
+--new
+
+--name=Hetzner TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-hetzner.txt
+
+--new
+
+--name=Hetzner UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-hetzner.txt
+
+--new
+
+--name=DigitalOcean TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-digitalocean.txt
+
+--new
+
+--name=DigitalOcean UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-digitalocean.txt
+
+--new
+
+--name=Datacamp TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-datacamp.txt
+
+--new
+
+--name=Datacamp UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-datacamp.txt
+
+--new
+
+--name=NovoServe TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-novoserve.txt
+
+--new
+
+--name=NovoServe UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-novoserve.txt
+
+--new
+
+--name=WorldStream TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-worldstream.txt
+
+--new
+
+--name=WorldStream UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-worldstream.txt
+
+--new
+
+--name=FranTech Solutions TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-frantech.txt
+
+--new
+
+--name=FranTech Solutions UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-frantech.txt
+
+--new
+
+--name=Fastly TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-fastly.txt
+
+--new
+
+--name=Fastly UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-fastly.txt
+
+--new
+
+--name=Akamai TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-akamai.txt
+
+--new
+
+--name=Akamai UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-akamai.txt
+
+--new
+
+--name=Railway TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-railway.txt
+
+--new
+
+--name=Railway UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-railway.txt
+
+--new
+
+--name=Google TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-google.txt
+
+--new
+
+--name=Google UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-google.txt
+
+--new
+
+--name=Google Cloud TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-usa-google.txt
+
+--new
+
+--name=Google Cloud UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-usa-google.txt
+
+--new
+
+--name=ZapretKVN TCP
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-zapretkvn.txt
+
+--new
+
+--name=ZapretKVN UDP
+--filter-udp=443-65535
+--ipset=lists/ipset-zapretkvn.txt
+
+--new
+
+--name=WhatsApp · звонки (UDP)
+--filter-udp=443-65535
+--ipset=lists/ipset-whatsapp.txt
+
+--new
+
+--name=Мои сайты
+--filter-tcp=80,443-65535
+--hostlist=lists/other.txt
+
+--new
+
+--name=Мои сайты
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-all.txt
+
+--new
+
+--name=Мои сайты UDP
+--filter-udp=*
+--ipset=lists/ipset-all.txt
+
+--new
+
+--name=Russia blacklist TCP 443
+--filter-tcp=443
+--hostlist=lists/russia-blacklist.txt
+
+--new
+
+--name=Russia blacklist TCP wide
+--filter-tcp=80,443-65535
+--hostlist=lists/russia-blacklist.txt
+
+--new
+
+--name=Riot / Valorant TCP
+--filter-tcp=443
+--hostlist=lists/riot-valorant.txt
+
+--new
+
+--name=Riot / Valorant UDP
+--filter-udp=5000-5500,7000-8000
+
+--new
+
+--name=Все сайты (хостлисты)
+--filter-tcp=80,443-65535
+--hostlist-exclude=lists/netrogat.txt
+
+--new
+
+--name=Все сайты (айпи)
+--filter-tcp=80,443-65535
+--ipset-exclude=lists/ipset-ru.txt
+--ipset-exclude=lists/ipset-dns.txt
+--ipset-exclude=lists/ipset-exclude.txt
+
+--new
+
+--name=Исключения домены (RU сайты)
+--filter-tcp=80,443-65535
+--hostlist=lists/netrogat.txt
+
+--new
+
+--name=Исключения айпи (RU сайты)
+--filter-tcp=80,443-65535
+--ipset=lists/ipset-ru.txt
+--ipset=lists/ipset-dns.txt
+--ipset=lists/ipset-exclude.txt
+
+--new
+
+--name=Все сайты UDP (айпи)
+--filter-udp=443-65535
+--ipset-exclude=lists/ipset-ru.txt
+--ipset-exclude=lists/ipset-dns.txt
+--ipset-exclude=lists/ipset-exclude.txt
+
+--new
+
+--name=General list TCP
+--filter-tcp=80,443
+--hostlist=lists/list-general.txt

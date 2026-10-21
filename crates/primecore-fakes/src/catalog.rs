@@ -670,3 +670,26 @@ mod tests {
         assert_eq!(first.catalog_version, third.catalog_version);
     }
 }
+
+#[cfg(test)]
+mod shipped_tests {
+    use super::*;
+
+    /// Ресурсы репозитория относительно крейта.
+    const RESOURCES: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../resources");
+
+    /// Вшитый в репозиторий реестр фейков (копия из живой установки)
+    /// проходит полную проверку целостности.
+    #[test]
+    fn shipped_catalog_is_valid() {
+        let path = Path::new(RESOURCES).join("system").join("fakes_catalog.sqlite3");
+        let catalog = read_fakes_catalog(&path)
+            .unwrap_or_else(|error| panic!("вшитый реестр фейков не читается: {error}"));
+        assert_eq!(catalog.entries.len(), 81);
+        let tls_google = catalog.get("tls_google").unwrap();
+        assert_eq!(
+            tls_google.blob_line(),
+            "--blob=tls_google:@bin/tls_clienthello_www_google_com.bin"
+        );
+    }
+}
