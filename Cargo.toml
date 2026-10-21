@@ -16,6 +16,7 @@ members = [
     "crates/primecore-lists",
     "crates/primecore-diagnostics",
     "crates/primecore-dns",
+    "crates/primecore-privilege",
 ]
 
 [workspace.package]

@@ -15,6 +15,9 @@ serde_json.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
 primecore-hosts = { path = "../primecore-hosts" }
+primecore-dns = { path = "../primecore-dns" }
+primecore-dnswire = { path = "../primecore-dnswire" }
+primecore-socketcancel = { path = "../primecore-socketcancel" }
 primecore-manifest = { path = "../primecore-manifest" }
 primecore-patch = { path = "../primecore-patch" }
 primecore-release = { path = "../primecore-release" }

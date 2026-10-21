@@ -7,6 +7,8 @@
 use std::sync::Arc;
 use std::time::Duration;
 
+mod dns_api;
+
 use axum::extract::rejection::JsonRejection;
 use axum::extract::Query;
 use axum::http::StatusCode;
@@ -89,6 +91,13 @@ fn unprocessable(error: &ManifestError) -> (StatusCode, Json<Value>) {
     (
         StatusCode::UNPROCESSABLE_ENTITY,
         Json(json!({ "code": error.code, "message": error.message })),
+    )
+}
+
+fn internal_error(code: &str, message: String) -> (StatusCode, Json<Value>) {
+    (
+        StatusCode::INTERNAL_SERVER_ERROR,
+        Json(json!({ "code": code, "message": message })),
     )
 }
 
@@ -541,6 +550,10 @@ pub fn build_router() -> Router {
         .route("/api/patch/apply", post(patch_apply))
         .route("/api/manifest/verify", post(manifest_verify))
         .route("/api/check", get(check_latest))
+        .route("/api/dns/providers", get(dns_api::providers))
+        .route("/api/dns/page_state", get(dns_api::page_state))
+        .route("/api/dns/server_check", get(dns_api::server_check))
+        .route("/api/dns/domain_lookup", get(dns_api::domain_lookup))
         .with_state(App)
 }
 

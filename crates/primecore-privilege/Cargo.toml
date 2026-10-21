@@ -1,0 +1,13 @@
+[package]
+name = "primecore-privilege"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Модуль привилегий Linux: sudo один раз при первом запуске, демон privd и клиент сокета."
+
+# Крейт Linux-only: src/bin/privd.rs и src/client.rs используют
+# std::os::unix::net::UnixListener/UnixStream. На других платформах
+# сборка крейта не требуется — он не включается в их сборку.
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }

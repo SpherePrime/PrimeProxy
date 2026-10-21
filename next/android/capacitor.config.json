@@ -1,0 +1,6 @@
+{
+  "appId": "com.primebypass.app",
+  "appName": "PrimeBypass",
+  "webDir": "../app-shell/dist",
+  "server": { "androidScheme": "https" }
+}
