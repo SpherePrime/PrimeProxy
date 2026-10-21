@@ -5,6 +5,9 @@ import react from "@vitejs/plugin-react";
 // забирает dist целиком в WebView) — расхождений между платформами нет.
 export default defineConfig({
   plugins: [react()],
+  // Относительные пути активов: Electron грузит dist через file://,
+  // где корневые "/assets/..." не резолвятся (белое окно).
+  base: "./",
   server: { port: 5173 },
   build: { outDir: "dist" },
 });

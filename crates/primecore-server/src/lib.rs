@@ -545,6 +545,40 @@ fn fetch_mirror(servers: Vec<Value>, index: usize, channel: &str) -> Result<Valu
 
 // ─────────────────────────── router ───────────────────────────────────
 
+/// CORS для оболочки: интерфейс грузится из `file://` (Electron) или
+/// `:5173` (Vite-девсервер) — без заголовков fetch из этих источников
+/// блокируется браузером. Сервер слушает только 127.0.0.1, поэтому
+/// разрешаем любой origin; preflight (OPTIONS) отвечает без роутера.
+async fn allow_shell_origin(
+    request: axum::extract::Request,
+    next: axum::middleware::Next,
+) -> axum::response::Response {
+    use axum::http::header;
+    use axum::http::HeaderValue;
+    use axum::http::Method;
+    use axum::response::IntoResponse;
+
+    let mut response = if request.method() == Method::OPTIONS {
+        axum::http::StatusCode::OK.into_response()
+    } else {
+        next.run(request).await
+    };
+    let headers = response.headers_mut();
+    headers.insert(
+        header::ACCESS_CONTROL_ALLOW_ORIGIN,
+        HeaderValue::from_static("*"),
+    );
+    headers.insert(
+        header::ACCESS_CONTROL_ALLOW_METHODS,
+        HeaderValue::from_static("GET, POST, OPTIONS"),
+    );
+    headers.insert(
+        header::ACCESS_CONTROL_ALLOW_HEADERS,
+        HeaderValue::from_static("content-type"),
+    );
+    response
+}
+
 pub fn build_router() -> Router {
     router(App {
         ws: ws_api::WsState::production(),
@@ -572,6 +606,9 @@ pub(crate) fn router(app: App) -> Router {
         .route("/api/ws/status", get(ws_api::status))
         .route("/api/ws/logs", get(ws_api::logs))
         .with_state(app)
+        // Оболочка грузит интерфейс из file:// (Electron) или :5173 (Vite):
+        // без CORS-ответов fetch из этих источников блокируется.
+        .layer(axum::middleware::from_fn(allow_shell_origin))
 }
 
 fn port() -> u16 {
