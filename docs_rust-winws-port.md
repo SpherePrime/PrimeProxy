@@ -93,3 +93,67 @@ primecore-ws запускает бинарь как процесс (как се�
   фильтров WinDivert; lua/*.lua — корпус для mlua-конвейера;
   system/fakes_catalog.sqlite3, hosts_catalog.sqlite3 — настоящие базы.
 * docs/manual.md из репозитория — эталон семантики флагов для CLI.
+
+## Инвентаризация aj-14 (фактическая)
+
+Метод: Sourcegraph по живому индексу репозитория (клона в среде не было);
+размеры — нижние границы, перепроверить wc -l после клонирования.
+
+* **Лицензия**: docs/LICENSE.txt — MIT, «Copyright (c) 2016-2026 bol-van».
+* **Сборка**: один набор исходников → три бинаря (nfqws2/dvtws2/winws2);
+  tpws в zapret2 нет. make-цели: all (Linux), systemd, android, bsd.
+* **C-ядро nfq2/ ≈ 20–25 тыс. строк**:
+
+| Файл | ≥ строк | Роль |
+|---|---|---|
+| lua.c | 4700 | весь Lua-API: push/parse диссектов, reconstruct_*, rawsend-обёртки, блобы, таймеры |
+| nfqws.c | 3170 | main (стр. 2240), getopt_long_only, 90+ опций (IDX_*), профили, NFQUEUE-callback |
+| darkmagic.c | 2345 | платформенный I/O, proto_dissect_l3l4, rawsend, WinDivert OVERLAPPED, nl80211, COM |
+| desync.c | 2242 | оркестрация: dp_match/dp_find, play_prolog, вызов lua-стратегий, ipcache, replay |
+| protocol.c | 1248 | TLS-SNI, HTTP, **QUIC Initial decrypt** (HKDF, salts draft-22/23/29/q50/t50/t51/v1/v2), DNS, posmarker-DSL |
+| pools.c | 1165 | uthash/kavl-пулы: hostlist/ipset-коллекции, ipcache IP↔hostname |
+| helpers.c | 765 | хелперы, hex, маски |
+| conntrack.c | 344 | conntrack + TCP-реассемблинг (в conntrack.h), Lua-ссылки в треке |
+| ipset.c / hostlist.c | 330 | reload, поиск |
+| params.c | 400 | логирование, профили |
+| sec.c | 117 | seccomp (Linux only) |
+| packet_queue.c | 88 | очередь delayed/replay |
+| checksum.c, timer.c, gzip.c, filter.c, random.c | ~100 | мелкие |
+| crypto/ | ~4k | SHA-2, AES, GCM/CTR, HKDF, HMAC — заменяются крейтами |
+| andr/ | small | netlink/getifaddrs-шимы Android |
+
+* **Платформенные слои**: Linux — NFQUEUE через **libnetfilter_queue**
+  (-lnetfilter_queue -lnfnetlink -lmnl), не ручной netlink; Android — то же
+  + шимы и -llog; BSD — divert-сокеты; Windows — **WinDivert** (библиотеки
+  вкоммичены), собрано под **Cygwin**; Windows-сервис — win.c.
+  epoll/kqueue нигде нет — цикл блокирующий recv.
+* **Lua**: LuaJIT 2.1 по умолчанию (5.1 API), фолбэк lua5.x; ~4.5–5 тыс.
+  строк в 6 файлах: zapret-lib (1421), zapret-antidpi (1300 — ВСЕ стратегии),
+  zapret-tests (961), zapret-auto (530 — оркестраторы circular/stopif),
+  zapret-obfs (411 — wgobfs/udp2icmp/ippxor/synhide), zapret-pcap (45).
+  Архитектура: C сам НЕ влияет на трафик — только диссект/состояние/реконструк
+  отдаются Lua, который решает всё.
+* **Golden-инструментарий готов в самом репо**: zapret-tests.lua — селфтесты
+  C-функций (dissect, csum, aes, aes-gcm, aes-ctr, hkdf, hash, gzip, bin,
+  time, ipstr, resolve, ifaddrs, rawsend, timer, random) с зашитыми
+  входами-выходами — идеальные parity-тесты ядра без сети;
+  zapret-pcap.lua пишет живой трафик в pcap — корпус для дифф-тестов
+  диссектора. Pcap-фикстур в репо нет.
+* **CLI**: getopt_long_only + таблица ~90+ опций; конфиг через argv '@'/'$'
+  + wordexp. Портить на clap.
+* **Топ-сложные**: lua.c (4.7k) → nfqws.c → darkmagic.c → desync.c →
+  protocol.c → pools.c.
+
+## Уточнение этапов по инвентаризации
+
+* Этап 1 (dissect/checksum) расширяется: proto_dissect_l3l4 живёт в
+  darkmagic.c — вычленять именно оттуда; struct dissect (darkmagic.h).
+* Этап 2 (protocol) подтверждён: QUIC-decrypt на готовых крейтах
+  (aes-gcm/hkdf/sha2), salt-таблицы переносим дословно.
+* Этап 3: Lua — **LuaJIT-режим mlua** (5.1 API совместимость), стратегии
+  как есть; parity — прогон zapret-tests.lua над Rust-ядром.
+* Этап 5: NFQUEUE — FFI к libnetfilter_queue (bindgen) вместо ручного
+  netlink; WinDivert — windivert-sys; Android — тот же NFQUEUE + шимы
+  andr/ + seccomp не переносить (sec.c — Linux only, на Android опционально).
+* Крипто: SHA-2/AES/GCM/CTR/HKDF/HMAC — крейты (sha2, aes, aes-gcm,
+  hkdf, hmac), parity через zapret-tests.lua.
