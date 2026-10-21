@@ -11,3 +11,5 @@ serde_json = { workspace = true }
 regex = { workspace = true }
 blake2b_simd = { workspace = true }
 primecore-profile = { path = "../primecore-profile" }
+primecore-mode = { workspace = true }
+primecore-files = { path = "../primecore-files" }
