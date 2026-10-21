@@ -6,4 +6,5 @@
 //! и перенаправление stdio — платформенный слой (потоки/файлы).
 
 pub mod cleanup;
+pub mod crash;
 pub mod log_kinds;

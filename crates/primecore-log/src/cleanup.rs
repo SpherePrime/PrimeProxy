@@ -113,28 +113,25 @@ pub fn cleanup_old_logs(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::log_kinds::matches;
 
     /// Файловая система-подставка: списки по шаблону и удаление из списка.
-    /// Подставка файловой системы: список (имя, mtime) + удаление из него.
-    type FakeFs = (std::rc::Rc<std::cell::RefCell<Vec<(String, i64)>>>,);
+    type ListFn = Box<dyn Fn(&str) -> Vec<(String, i64)>>;
+    type RemoveFn = Box<dyn Fn(&str) -> Result<(), String>>;
+    type FakeFsFns = (ListFn, RemoveFn);
 
-    fn make_fs(
-        files: FakeFs,
-    ) -> (
-        impl Fn(&str) -> Vec<(String, i64)>,
-        impl Fn(&str) -> Result<(), String>,
-    ) {
+    fn make_fs(files: std::rc::Rc<std::cell::RefCell<Vec<(String, i64)>>>) -> FakeFsFns {
         let list_files = std::rc::Rc::clone(&files);
-        let list = move |pattern: &str| {
+        let list: ListFn = Box::new(move |pattern: &str| {
             list_files
                 .borrow()
                 .iter()
                 .filter(|(name, _)| matches(pattern, name))
                 .cloned()
                 .collect()
-        };
+        });
         let remove_files = files;
-        let remove = move |name: &str| {
+        let remove: RemoveFn = Box::new(move |name: &str| {
             let mut all = remove_files.borrow_mut();
             match all.iter().position(|(item, _)| item == name) {
                 Some(index) => {
@@ -143,7 +140,7 @@ mod tests {
                 }
                 None => Err("нет такого файла".to_string()),
             }
-        };
+        });
         (list, remove)
     }
 
