@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { PresetInfo } from "../api";
 
 // Группировка пресетов по целевым сервисам (targets из /api/ws/presets):
@@ -101,7 +101,10 @@ interface PresetGroupsProps {
   enabled: Record<string, boolean>;
   defaults: Record<string, string | undefined>;
   onToggle: (target: string) => void;
-  onChoose: (target: string, name: string) => void;}
+  onChoose: (target: string, name: string) => void;
+  openTarget: string | null;
+  onOpen: (target: string | null) => void;
+}
 
 export function PresetGroups({
   groups,
@@ -111,7 +114,12 @@ export function PresetGroups({
   defaults,
   onToggle,
   onChoose,
+  openTarget,
+  onOpen,
 }: PresetGroupsProps) {
+  const [localOpen, setLocalOpen] = useState<string | null>(null);
+  const open = openTarget ?? localOpen;
+  const setOpen = onOpen ?? setLocalOpen;
   const query = search.trim().toLowerCase();
 
   const visible = useMemo(
@@ -143,44 +151,62 @@ export function PresetGroups({
 
   return (
     <>
-      {visible.map((group) => {
-        const on = isEnabled(group.target, enabled);
-        return (
-          <section className="pgroup" key={group.target}>
-            <div className="pgroup-head">
-              <h3>{group.target}</h3>
-              <span className="preset-count">{presetsLabel(group.presets.length)}</span>
+      <div className="pgroup-grid">
+        {visible.map((group) => {
+          const on = isEnabled(group.target, enabled);
+          return (
+            <section
+              className={`pgroup ${open === group.target ? "open" : ""}`}
+              key={group.target}
+            >
               <button
                 type="button"
-                role="switch"
-                aria-checked={on}
-                aria-label={`Группа ${group.target}`}
-                className={`switch ${on ? "on" : ""}`}
-                onClick={() => onToggle(group.target)}
-              />
-            </div>
-            <div className="pgroup-list">
-              {group.presets.map((preset) => {
-                const isDefault = defaults[group.target] === preset.name;
-                return (
-                  <button
-                    key={preset.name}
-                    className={`pgroup-item ${isDefault ? "selected" : ""}`}
-                    onClick={() => onChoose(group.target, preset.name)}
-                    title={preset.description}
-                  >
-                    <span className="pgroup-item-main">
-                      <span className="preset-name">{preset.name}</span>
-                      {isDefault && <span className="badge def">по умолчанию</span>}
-                    </span>
-                    <span className="preset-desc">{preset.description}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+                className="pgroup-head"
+                onClick={() => setOpen(open === group.target ? null : group.target)}
+                aria-expanded={open === group.target}
+              >
+                <span className="pgroup-arrow">▶</span>
+                <h3>{group.target}</h3>
+                <span className="preset-count">{presetsLabel(group.presets.length)}</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={on}
+                  aria-label={`Группа ${group.target}`}
+                  className={`switch ${on ? "on" : ""}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onToggle(group.target);
+                  }}
+                />
+              </button>
+              {open === group.target && (
+                <div className="pgroup-list">
+                  {group.presets.map((preset) => {
+                    const isDefault = defaults[group.target] === preset.name;
+                    return (
+                      <button
+                        key={preset.name}
+                        className={`pgroup-item ${isDefault ? "selected" : ""}`}
+                        onClick={() => onChoose(group.target, preset.name)}
+                        title={preset.description}
+                      >
+                        <span className="pgroup-item-main">
+                          <span className="preset-name">{preset.name}</span>
+                          {isDefault && <span className="badge def">по умолчанию</span>}
+                        </span>
+                        {preset.description.trim() !== "" && (
+                          <span className="preset-desc">{preset.description}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          );
+        })}
+      </div>
     </>
   );
 }

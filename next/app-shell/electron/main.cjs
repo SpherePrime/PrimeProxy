@@ -57,8 +57,10 @@ async function createWindow() {
     return;
   }
   const window = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1360,
+    height: 900,
+    minWidth: 900,
+    minHeight: 640,
     title: "PrimeBypass",
     webPreferences: { preload: path.join(__dirname, "preload.cjs") },
   });

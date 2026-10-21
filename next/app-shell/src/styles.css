@@ -22,26 +22,28 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
 }
 
 /* --- Каркас: боковая навигация слева + контент (как FluentWindow) ------- */
 .app-shell { display: flex; min-height: 100vh; }
 
 .nav {
-  width: 220px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+  width: 240px; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
   background: var(--panel); display: flex; flex-direction: column;
-  gap: 4px; padding: 18px 10px;
+  gap: 6px; padding: 20px 12px;
 }
 .nav-brand {
-  color: var(--muted); font-size: 13px; font-weight: 700;
+  color: var(--muted); font-size: 14px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 0 14px 12px;
+  padding: 0 14px 14px;
 }
 .nav-item {
   display: flex; align-items: center; gap: 10px;
   background: transparent; color: var(--muted); border: none;
-  border-radius: 8px; padding: 10px 14px; cursor: pointer;
-  font-size: 14px; font-family: inherit; text-align: left;
+  border-radius: 8px; padding: 12px 16px; cursor: pointer;
+  font-size: 15px; font-family: inherit; text-align: left;
   transition: background 0.12s ease, color 0.12s ease;
 }
 .nav-item:hover { background: var(--panel-2); color: var(--text); }
@@ -49,14 +51,14 @@ body {
   background: var(--panel-2); color: var(--text); font-weight: 600;
   box-shadow: inset 3px 0 0 var(--accent);
 }
-.nav-icon { width: 20px; text-align: center; font-size: 16px; }
+.nav-icon { width: 20px; text-align: center; font-size: 17px; }
 
 .content { flex: 1; min-width: 0; overflow-x: hidden; }
 
-.page { max-width: 1100px; margin: 0 auto; padding: 24px; }
+.page { max-width: 1160px; margin: 0 auto; padding: 28px 32px; }
 
-.page-header h1 { margin: 0 0 4px; font-size: 26px; }
-.subtitle { color: var(--muted); margin: 0 0 16px; }
+.page-header h1 { margin: 0 0 6px; font-size: 30px; font-weight: 650; }
+.subtitle { color: var(--muted); margin: 0 0 20px; font-size: 15px; line-height: 1.45; }
 
 .infobar { border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; }
 .infobar.error { background: #7f1d1d; color: #fecaca; }
@@ -137,7 +139,7 @@ body {
   background: var(--panel); border-radius: 8px; padding: 16px;
   margin-bottom: 14px;
 }
-.card h2 { margin: 0 0 12px; font-size: 18px; }
+.card h2 { margin: 0 0 14px; font-size: 20px; font-weight: 650; }
 .card-head { display: flex; align-items: center; justify-content: space-between; }
 .card-head h2 { margin: 0; }
 
@@ -160,10 +162,10 @@ body {
   background: rgba(56, 189, 248, 0.16);
   box-shadow: inset 3px 0 0 var(--accent);
 }
-.preset-name { font-weight: 600; font-size: 14px; color: var(--text); }
+.preset-name { font-weight: 600; font-size: 15px; color: var(--text); }
 .preset-item.selected .preset-name { color: var(--accent); }
 .preset-desc {
-  color: var(--muted); font-size: 12px;
+  color: var(--muted); font-size: 13px; line-height: 1.4;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
@@ -207,50 +209,73 @@ body {
 /* --- Группы пресетов по сервисам ---------------------------------------- */
 .preset-count-line { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
 
+/* Секции групп: сначала компактная сетка карточек с переключателем,
+   клик по карточке раскрывает просторный список пресетов. */
+.preset-count-line { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+
+.pgroup-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 12px; margin-bottom: 4px;
+}
 .pgroup {
-  background: var(--panel-2); border-radius: 8px;
-  padding: 12px; margin-bottom: 10px;
+  background: var(--panel); border-radius: 10px;
+  padding: 4px; transition: background 0.12s ease;
 }
+.pgroup:hover { background: var(--panel-2); }
+.pgroup.open { background: var(--panel-2); }
+
 .pgroup-head {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; background: transparent; border: none;
+  padding: 12px 14px; cursor: pointer; font-family: inherit;
+  color: var(--text); text-align: left; border-radius: 10px;
 }
-.pgroup-head h3 { margin: 0; font-size: 15px; }
-.pgroup-head .preset-count { flex: 1; }
+.pgroup-head h3 { margin: 0; font-size: 17px; font-weight: 650; flex: 1; }
+.pgroup-head .preset-count { font-size: 13px; }
+.pgroup-arrow {
+  color: var(--muted); font-size: 12px; transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+.pgroup.open .pgroup-arrow { transform: rotate(90deg); }
 
 /* Переключатель секции в духе Fluent ToggleSwitch. */
 .switch {
-  position: relative; width: 42px; height: 22px; flex-shrink: 0;
+  position: relative; width: 46px; height: 24px; flex-shrink: 0;
   border-radius: 999px; border: 1px solid #334155;
   background: var(--panel); cursor: pointer; padding: 0;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 .switch::after {
   content: ""; position: absolute; top: 2px; left: 2px;
-  width: 16px; height: 16px; border-radius: 50%;
+  width: 18px; height: 18px; border-radius: 50%;
   background: var(--muted);
   transition: transform 0.15s ease, background 0.15s ease;
 }
 .switch.on { background: var(--accent); border-color: var(--accent); }
-.switch.on::after { transform: translateX(20px); background: #0f172a; }
+.switch.on::after { transform: translateX(22px); background: #0f172a; }
 
+/* Раскрытый список пресетов секции — просторный. */
 .pgroup-list {
-  max-height: 220px; overflow-y: auto; border-radius: 8px;
+  max-height: 360px; overflow-y: auto; border-radius: 8px;
   display: flex; flex-direction: column; gap: 2px;
+  padding: 4px 8px 10px;
 }
 .pgroup-item {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
-  padding: 7px 12px; margin: 0;
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+  padding: 10px 14px; margin: 0;
   background: transparent; color: var(--text);
   border: none; border-radius: 8px; cursor: pointer;
-  font-family: inherit; text-align: left; overflow: hidden;
+  font-family: inherit; font-size: 15px; text-align: left; overflow: hidden;
 }
 .pgroup-item:hover { background: rgba(56, 189, 248, 0.08); }
 .pgroup-item.selected {
   background: rgba(56, 189, 248, 0.16);
   box-shadow: inset 3px 0 0 var(--accent);
 }
-.pgroup-item-main { display: flex; align-items: center; gap: 8px; }
+.pgroup-item-main { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .pgroup-item.selected .preset-name { color: var(--accent); }
+.pgroup-item .preset-desc { max-width: 100%; }
 
 .badge.def { background: rgba(56, 189, 248, 0.16); color: var(--accent); }
 

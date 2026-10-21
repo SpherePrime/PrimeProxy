@@ -41,6 +41,7 @@ const LOG_KEEP = 500; // сколько строк журнала держим �
 export function BypassPage() {
   const [presets, setPresets] = useState<PresetInfo[]>([]);
   const [search, setSearch] = useState("");
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [status, setStatus] = useState<WsStatus | null>(null);
   const [qnum, setQnum] = useState("300");
   const [mode, setMode] = useState<HostlistMode>("none");
@@ -307,6 +308,8 @@ export function BypassPage() {
           defaults={effectiveDefaults}
           onToggle={toggleGroup}
           onChoose={choosePreset}
+          openTarget={openGroup}
+          onOpen={setOpenGroup}
         />
       </section>
 
