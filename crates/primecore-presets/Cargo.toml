@@ -1,0 +1,19 @@
+[package]
+name = "primecore-presets"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/presets (чистая часть): контракт пресета, хранилище файлов, сервис файловых действий, ZIP-архивы и метаданные списков."
+
+[dependencies]
+regex.workspace = true
+once_cell.workspace = true
+thiserror.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+blake2b_simd.workspace = true
+flate2.workspace = true
+primecore-files = { path = "../primecore-files" }
+primecore-mode = { path = "../primecore-mode" }
+primecore-profile = { path = "../primecore-profile" }
+primecore-lists = { path = "../primecore-lists" }

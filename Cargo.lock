@@ -1145,6 +1145,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "primecore-presets"
+version = "0.1.0"
+dependencies = [
+ "blake2b_simd",
+ "flate2",
+ "once_cell",
+ "primecore-files",
+ "primecore-lists",
+ "primecore-mode",
+ "primecore-profile",
+ "regex",
+ "serde_json",
+ "sha2",
+ "thiserror",
+]
+
+[[package]]
 name = "primecore-privilege"
 version = "0.1.0"
 dependencies = [
