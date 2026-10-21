@@ -58,13 +58,17 @@ pub struct DnsCommandResult {
 /// python `CustomServerResult` — итог действия со своими DNS: новый список
 /// или ошибка.
 ///
-/// `field` — поле страницы «Свой DNS», к которому относится ошибка (имена из
-/// dns.custom_servers). `notice` — оговорка к удачному сохранению.
+/// `message` — текст ошибки (python `error`). `server` — сохранённая запись
+/// (ответ `save_custom_server`). `field` — поле страницы «Свой DNS», к
+/// которому относится ошибка (имена из dns.custom_servers). `notice` —
+/// оговорка к удачному сохранению.
 #[derive(Debug, Clone, Default)]
 pub struct CustomServerResult {
     pub success: bool,
     pub message: String,
     pub servers: Vec<serde_json::Value>,
+    /// Сохранённая запись (python `server`); None — её нет.
+    pub server: Option<serde_json::Value>,
     pub field: String,
     pub notice: String,
 }

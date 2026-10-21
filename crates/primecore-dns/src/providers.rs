@@ -60,6 +60,12 @@ pub fn iter_providers() -> Vec<(String, String, Value)> {
     result
 }
 
+/// python `DNS_PROVIDERS` — весь встроенный список: группы и их плитки.
+#[must_use]
+pub fn dns_providers() -> &'static Map<String, Value> {
+    catalog()
+}
+
 /// python `network_providers` — список без режимов встроенного движка:
 /// только настоящие серверы в сети.
 #[must_use]
