@@ -20,6 +20,7 @@ members = [
     "crates/primecore-telegram",
     "crates/primecore-log",
     "crates/primecore-log-analyzer",
+    "crates/primecore-config",
 ]
 
 [workspace.package]
