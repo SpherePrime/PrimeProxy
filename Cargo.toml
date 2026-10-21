@@ -46,7 +46,8 @@ axum = "0.8"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
 sha2 = "0.10"
 tower = "0.5"
-rustls = "0.23"
+# ring выбран явно: не требует cmake/NASM при сборке под Windows
+rustls = { version = "0.23", features = ["ring"] }
 webpki-roots = "0.26"
 # Распаковка тела при decode_body (в python это делает libcurl).
 flate2 = { version = "1", default-features = false, features = ["rust_backend"] }

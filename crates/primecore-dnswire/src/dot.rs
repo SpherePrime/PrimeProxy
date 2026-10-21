@@ -52,10 +52,17 @@ fn tls_config() -> &'static Arc<rustls::ClientConfig> {
     CONFIG.get_or_init(|| {
         let mut roots = RootCertStore::empty();
         let _ = roots.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
+        // Провайдер выбирается явно: в воркспейсе включены сразу ring и
+        // aws-lc-rs, и rustls в этом случае не выбирает сам (см.
+        // primecore-diagnostics::chrome_https).
         Arc::new(
-            rustls::ClientConfig::builder()
-                .with_root_certificates(roots)
-                .with_no_client_auth(),
+            rustls::ClientConfig::builder_with_provider(Arc::new(
+                rustls::crypto::ring::default_provider(),
+            ))
+            .with_safe_default_protocol_versions()
+            .expect("версии TLS доступны")
+            .with_root_certificates(roots)
+            .with_no_client_auth(),
         )
     })
 }

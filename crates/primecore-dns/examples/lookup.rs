@@ -14,7 +14,9 @@ use primecore_dnswire::net::query_udp;
 use primecore_dnswire::TYPE_A;
 
 fn main() {
-    let domain = std::env::args().nth(1).unwrap_or_else(|| "example.com".to_string());
+    let domain = std::env::args()
+        .nth(1)
+        .unwrap_or_else(|| "example.com".to_string());
     println!("Проверка домена: {domain}\n");
 
     let cancel = primecore_socketcancel::SocketCancel::new();
@@ -24,7 +26,11 @@ fn main() {
     for server in ["8.8.8.8", "9.9.9.10"] {
         let result = query_udp(server, &domain, TYPE_A, 2.0, 53, Some(&cancel));
         let values = result.values(TYPE_A).join(", ");
-        let status: &str = if result.answered() { "ответил" } else { &result.failure_text() };
+        let status: &str = if result.answered() {
+            "ответил"
+        } else {
+            &result.failure_text()
+        };
         println!("UDP 53   {server:<10} {status:<10} адреса: {values}");
         plain_ips.extend(result.values(TYPE_A));
     }
@@ -33,7 +39,11 @@ fn main() {
     let reference = &REFERENCE_RESOLVERS[0];
     let secure = doh_query(reference.address, &domain, TYPE_A, 4.0, Some(&cancel));
     let secure_ips = secure.values(TYPE_A);
-    let secure_status: &str = if secure.answered() { "ответил" } else { &secure.failure_text() };
+    let secure_status: &str = if secure.answered() {
+        "ответил"
+    } else {
+        &secure.failure_text()
+    };
     println!(
         "DoH 443  {:<10} {secure_status:<10} адреса: {}",
         reference.address,
