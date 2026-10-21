@@ -214,3 +214,24 @@ QUIC-слой — quic_initial.rs + quic_probe.rs (собран и протес�
 | winws_runtime (срез 2): runners/zapret2 + preset_launch_text (проверка стратегий/ссылок, @config через sha1), engine/startup+driver+process_control, restart_flow (чистые решения), runners/zapret1 + args_resolver + windows_system_dependencies, runtime/commands, runner_factory + launch_runtime_service (машина состояний) | primecore-ws | 178 тестов green (+119 к срезу 1); 34 python-эталонных теста прогнаны, строки сверены дословно; WinAPI-хэндлы/PowerShell/Qt — трейты и замыкания (ProcessSpawner/EngineWait/DriverServiceApi/LaunchRuntimeOwner) |
 | fakes (чистая часть): catalog_repository (fakes_catalog.sqlite3 read-only с quick_check/application_id/ sha256-целостностью), names (builtin blobs, зарезервированные lua-имена, lua_init_names), user_fakes (normalize, detect_fake_kind с SNI/Host-разбором) | primecore-fakes | 21 тест; читает настоящую базу живой установки (81 запись); detect сверен на tls_clienthello_www_google_com.bin → 'www.google.com' |
 | presets (срез 1): file_store (484), file_service (457, PresetModeHooks/PresetBackend), preset_contract (397), portable_archive (498, свой zipio с CRC), preset_file_ops (229), list_metadata (109), preset_text_ops (179), preset_url_import (203, urlsplit-порт), builtin_catalog/reset, timefmt, cache_signatures | primecore-presets | 44 теста; 20 мест семантики сверены с живым python (urlsplit, sanitize-stem, unique_file_name, referenced_list_kinds…); zip-раундтрип green; PyQt-воркеры/remote_sync/watcher — не перенесены |
+
+## Ресурсы дистрибутива (вшиты в репозиторий, коммит c5fd131)
+
+`resources/` — копия рабочего набора живой установки Zapret (~10 МБ, 612
+файлов):
+* `presets/winws1_builtin` (171) и `presets/winws2_builtin` (136) —
+  встроенные пресеты; golden-тест primecore-profile/tests/builtin_corpus.rs
+  разбирает весь корпус парсером (движки winws1/winws2) — это
+  одновременно регресс парсера на реальных данных;
+* `lists/` (128 файлов) — базовые hostlist/ipset;
+* `lua/` (26 файлов) — Lua-скрипты zapret2 (стратегии, оркестраторы);
+* `bin/` (85 фейков .bin/.hex) — фейковые пакеты;
+* `windivert.filter/` — фильтры WinDivert;
+* `system/fakes_catalog.sqlite3` + `hosts_catalog.sqlite3` — каталоги
+  (fakes_catalog проверяется primecore-fakes: application_id, sha256,
+  81 запись).
+Бинарные файлы (`resources/bin/**`, `*.sqlite3`) защищены
+`.gitattributes` от нормализации переводов строк; текстовые сохраняют
+CRLF как в оригинале.
+Сборка дистрибутива: бинарь + раскладка resources/ рядом (как установка
+winws2) — пресеты/списки/lua доступны из коробки без загрузок.
