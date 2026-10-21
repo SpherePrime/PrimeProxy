@@ -199,3 +199,15 @@ QUIC-слой — quic_initial.rs + quic_probe.rs (собран и протес�
 | utils/circular_strategy_numbering.py (перенумерация :strategy=N после circular/circular_quality; сброс на --new/--payload-группах) | primecore-orchestra/src/numbering.rs (начало крейта) | 8 тестов, эталоны сняты с python; re.split с lookaround реализован вручную |
 | config/urls.py (адреса документации, статьи онбординга) + config/telegram_links.py (пары tg:///https://, метки start) | primecore-config | 5 тестов; winreg/webbrowser — у вызывающего |
 | utils/atomic_text.py (atomic_write_text с повторами os.replace; decode_preset_bytes UTF-8-BOM/cp1251 — эвристика не-ASCII) | primecore-files | 8 тестов во временной папке + golden-декод против python; cp1251-таблица снята с кодека python |
+| winws_runtime (срез 1): health/winws_output, windivert_diagnostics (17 Win32-кодов), winws_exit_diagnosis + silent_exit_probe (трейт SystemProbes), spawn_failure, runner_base + preset_runner_support + constants (PresetRunnerStateMachine, list2cmdline MS C runtime, LaunchPlan, трейт ProcessSpawner) | primecore-ws | 59 тестов; runner_zapret2/zapret1, engine, restart, commands, launch — в работе (срез 2) |
+| folders (чистая часть): classify_* (токены по границе слова, lookbehind с кириллицей), normalize_folder_state + FolderLibraryStore, resolve_folder_order + plan_* + build_folder_rows | primecore-folders (defaults — уже были в primecore-settings/src/schema.rs) | 34 теста (порт test_folders_library 21 + test_folders_ordering_plan 8 + 3 краевых); ~30 краевых случаев сверены с живым python; RLock — у вызывающего |
+| utils/net_resolve.py (резолв с жёстким дедлайном, кэш TTL 30/5, limit 512, connect_tcp с ограничением обеих фаз) | primecore-net-resolve | 8 тестов с подставным резолвером (как monkeypatch getaddrinfo в python-тестах); демонический поток в Rust невозможен — залипший резолв доживает в фоне |
+
+## Кроссплатформенность (winws2 vs nfqws2)
+
+* `winws2` (Windows, WinDivert, `--wf-*`) и `nfqws2` (Linux, NFQUEUE,
+  `--qnum`/`--fwmark`) — одна программа; Lua-стратегии и профили
+  переносимы между системами, отличен только слой перехвата;
+* пресет целиком в Linux не переносим (первые строки — `--wf-*`), в
+  Linux-срезе запуска их надо вырезать и генерировать правила
+  nftables/iptables — детали и следствия для порта: docs_platform-flags.md.
