@@ -9,11 +9,21 @@
 //! в Python-части программы.
 
 pub mod adapters;
+pub mod address_migration;
 pub mod answering;
 pub mod custom_servers;
+pub mod doh_lookup;
+pub mod info_line;
 pub mod interception;
 pub mod latency;
+pub mod line_check;
 pub mod local_proxy_catalog;
+pub mod local_proxy_config;
 pub mod providers;
 pub mod reachability;
+pub mod server_check;
+pub mod server_check_plans;
+pub mod server_check_plans_text;
+pub mod server_check_verdict;
+pub mod server_check_verdicts;
 pub mod state;

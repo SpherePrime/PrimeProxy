@@ -1013,6 +1013,7 @@ dependencies = [
  "base64 0.22.1",
  "fastrand",
  "idna",
+ "primecore-diagnostics",
  "primecore-dnswire",
  "primecore-socketcancel",
  "serde",
