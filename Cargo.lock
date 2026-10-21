@@ -1041,6 +1041,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "primecore-fakes"
+version = "0.1.0"
+dependencies = [
+ "primecore-profile",
+ "rusqlite",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "primecore-files"
 version = "0.1.0"
 
@@ -1227,6 +1237,7 @@ name = "primecore-ws"
 version = "0.1.0"
 dependencies = [
  "blake2b_simd",
+ "primecore-files",
  "primecore-mode",
  "primecore-profile",
  "regex",

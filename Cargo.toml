@@ -26,6 +26,7 @@ members = [
     "crates/primecore-files",
     "crates/primecore-net-resolve",
     "crates/primecore-folders",
+    "crates/primecore-fakes",
     "crates/primecore-ws",
 ]
 
