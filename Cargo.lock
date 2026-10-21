@@ -1051,6 +1051,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "primecore-log"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "primecore-manifest"
 version = "0.1.0"
 dependencies = [

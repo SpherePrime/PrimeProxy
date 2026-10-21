@@ -1,0 +1,10 @@
+[package]
+name = "primecore-log"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/log — журнал программы: виды файлов журналов, очистка старых, снимок живого журнала."
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
