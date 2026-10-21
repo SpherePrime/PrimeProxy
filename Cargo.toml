@@ -22,6 +22,7 @@ members = [
     "crates/primecore-log-analyzer",
     "crates/primecore-config",
     "crates/primecore-http2",
+    "crates/primecore-orchestra",
     "crates/primecore-ws",
 ]
 

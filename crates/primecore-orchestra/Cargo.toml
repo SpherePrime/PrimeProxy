@@ -1,0 +1,9 @@
+[package]
+name = "primecore-orchestra"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/orchestra — оркестрация пресетов (начало: перенумерация circular-стратегий)."
+
+[dependencies]
+regex.workspace = true
