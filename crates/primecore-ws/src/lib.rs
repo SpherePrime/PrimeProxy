@@ -19,6 +19,7 @@ pub mod launch;
 pub mod output;
 pub mod restart;
 pub mod runner;
+pub mod runner_nfqws2;
 pub mod runner_zapret1;
 pub mod runner_zapret2;
 pub mod spawn_failure;

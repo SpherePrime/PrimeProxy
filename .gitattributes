@@ -1,5 +1,6 @@
 # Бинарные ресурсы: никакой нормализации переводов строк
 resources/bin/** -text
+resources/bin-linux/** -text
 resources/system/*.sqlite3 -text
 resources/windivert.filter/*.txt text eol=crlf
 resources/lua/** text eol=crlf
