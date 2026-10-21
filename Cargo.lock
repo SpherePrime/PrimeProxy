@@ -1041,6 +1041,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "primecore-files"
+version = "0.1.0"
+
+[[package]]
 name = "primecore-hosts"
 version = "0.1.0"
 dependencies = [
@@ -1210,6 +1214,7 @@ name = "primecore-ws"
 version = "0.1.0"
 dependencies = [
  "blake2b_simd",
+ "primecore-mode",
  "primecore-profile",
  "regex",
  "serde",
