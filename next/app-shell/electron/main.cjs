@@ -13,10 +13,13 @@ const fs = require("fs");
 const PORT = Number(process.env.PRIMECORE_PORT || 7290);
 const BASE = `http://127.0.0.1:${PORT}`;
 
+// Репозиторий: electron/ → app-shell; Resources читаются от корня репо.
+const repoRoot = path.join(__dirname, "..", "..", "..");
+
 // Бинарник sidecar: рядом в target/release или из переменной окружения.
 function sidecarPath() {
   if (process.env.PRIMECORE_BIN) return process.env.PRIMECORE_BIN;
-  const candidate = path.join(__dirname, "..", "..", "target", "release", "primecore-server");
+  const candidate = path.join(repoRoot, "target", "release", "primecore-server");
   return fs.existsSync(candidate) ? candidate : "primecore-server";
 }
 
@@ -24,10 +27,12 @@ let sidecar = null;
 
 function startSidecar() {
   sidecar = spawn(sidecarPath(), [], {
+    cwd: repoRoot,
     env: { ...process.env, PRIMECORE_PORT: String(PORT) },
     stdio: ["ignore", "inherit", "inherit"],
   });
   sidecar.on("exit", (code) => console.log(`primecore-server завершён (код ${code})`));
+  sidecar.on("error", (error) => console.error(`primecore-server не запущен: ${error.message}`));
 }
 
 // Ждём /health: интерфейс стартует только с живым ядром.
