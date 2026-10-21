@@ -157,3 +157,13 @@ primecore-ws запускает бинарь как процесс (как се�
   andr/ + seccomp не переносить (sec.c — Linux only, на Android опционально).
 * Крипто: SHA-2/AES/GCM/CTR/HKDF/HMAC — крейты (sha2, aes, aes-gcm,
   hkdf, hmac), parity через zapret-tests.lua.
+
+## Следующий шаг (срез 1 порта)
+
+1. Клонировать zapret2 локально, снять точный wc -l по модулям aj-14.
+2. Крейт primecore-packet: dissect (из darkmagic.c proto_dissect_l3l4 +
+   struct dissect), checksums, packet_queue — с parity-тестами, снятыми
+   из lua/zapret-tests.lua (входы-выходы зашиты в самом скрипте).
+3. Параллельно: golden-корпус пресетов из живой установки
+   (winws1_builtin 307 / winws2_builtin 136 файлов) прогонять через
+   primecore-profile-парсер — готовый набросанный вход до этапа 1.
