@@ -34,6 +34,7 @@ pub mod path_trace;
 pub mod probe_result;
 pub mod problems;
 pub mod protocol_probe;
+pub mod quic_initial;
 pub mod quic_probe;
 pub mod reach;
 pub mod registry;

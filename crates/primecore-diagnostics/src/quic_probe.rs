@@ -1,17 +1,98 @@
-//! Порт `src/diagnostics/quic_probe.py` — чистая часть: вывод по пакетам QUIC.
+//! Порт `src/diagnostics/quic_probe.py` — проверка QUIC: сбор (`quic_hello`)
+//! и вывод (`judge`).
 //!
 //! QUIC — протокол поверх UDP (порт 443), которым браузеры открывают YouTube
 //! и многие сайты. Блокируют его так же, как обычное шифрованное соединение —
 //! по имени сайта в первом пакете, только пакет при этом молча пропадает.
-//! Сбор (`quic_hello`, `collect`) — сетевая часть (сборка QUIC Initial из
-//! `utils.quic_initial`), портируется со STUN/TLS-пробами. Здесь — данные и
-//! вывод (`judge`).
+//! Первый пакет собирается в [`crate::quic_initial`] — тот же настоящий пакет,
+//! с правильным шифрованием и приветствием TLS 1.3 внутри.
+
+use std::net::UdpSocket;
+use std::time::{Duration, Instant};
+
+use primecore_socketcancel::SocketCancel;
+
+use crate::quic_initial::{build_initial, is_reply_to};
+
+/// Как часто при чтении между отрезками проверяется «Стоп».
+const POLL_SLICE_S: f64 = 0.2;
 
 pub const NEUTRAL_NAME: &str = "example.com";
 pub const QUIC_PORT: u16 = 443;
 /// UDP теряется и сам по себе: одного молчания мало, чтобы назвать пакет заблокированным.
 pub const ATTEMPTS: u32 = 2;
 pub const ATTEMPT_TIMEOUT_S: f64 = 1.5;
+
+/// python `quic_hello` — отправляет первый пакет QUIC с именем `name` и ждёт
+/// любой ответ сервера. Возвращает время до ответа в мс или None, если сервер
+/// молчит.
+pub fn quic_hello(
+    ip: &str,
+    name: Option<&str>,
+    port: u16,
+    attempts: u32,
+    timeout: f64,
+    cancel: &SocketCancel,
+) -> Option<f64> {
+    for _attempt in 0..attempts.max(1) {
+        // Каждая попытка — новое соединение со своим номером: повтор старого
+        // пакета сервер мог бы принять за дубль.
+        let packet = build_initial(name);
+        let socket = if ip.contains(':') {
+            UdpSocket::bind("[::]:0")
+        } else {
+            UdpSocket::bind("0.0.0.0:0")
+        };
+        let Ok(socket) = socket else {
+            // python: OSError — ответа нет.
+            return None;
+        };
+        let started = Instant::now();
+        let deadline = started + Duration::from_secs_f64(timeout);
+        if socket.send_to(&packet.datagram, (ip, port)).is_err() {
+            if cancel.cancelled() {
+                return None;
+            }
+            continue;
+        }
+        let mut buffer = [0u8; 4096];
+        loop {
+            if cancel.cancelled() {
+                return None;
+            }
+            let remaining = deadline.saturating_duration_since(Instant::now());
+            if remaining.is_zero() {
+                break;
+            }
+            let _ =
+                socket.set_read_timeout(Some(remaining.min(Duration::from_secs_f64(POLL_SLICE_S))));
+            match socket.recv_from(&mut buffer) {
+                Ok((size, _)) if is_reply_to(&buffer[..size], &packet) => {
+                    return Some(started.elapsed().as_secs_f64() * 1000.0);
+                }
+                // Чужой пакет — не наш ответ, ждём дальше.
+                Ok(_) => continue,
+                Err(error)
+                    if matches!(
+                        error.kind(),
+                        std::io::ErrorKind::WouldBlock
+                            | std::io::ErrorKind::TimedOut
+                            | std::io::ErrorKind::Interrupted
+                    ) =>
+                {
+                    continue;
+                }
+                // Тайм-аут, «порт недоступен», закрытый по отмене сокет:
+                // ответа нет — следующая попытка.
+                Err(_) => break,
+            }
+        }
+        if cancel.cancelled() {
+            return None;
+        }
+    }
+    None
+}
 
 pub const QUIC_OK: &str = "ok";
 pub const QUIC_BLOCKED_BY_NAME: &str = "blocked_by_name";

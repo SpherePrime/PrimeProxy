@@ -20,7 +20,9 @@ use std::time::{Duration, Instant};
 
 use primecore_socketcancel::SocketCancel;
 
-use crate::engine::{BurstCollect, SubnetsCheck, SystemCheck, TelegramCollect, VoiceCollect};
+use crate::engine::{
+    BurstCollect, QuicCollect, SubnetsCheck, SystemCheck, TelegramCollect, VoiceCollect,
+};
 
 /// python `check_voice`-проба: (хост, порт, «Стоп») → снимок результата STUN.
 pub type StunProbe =
@@ -750,6 +752,85 @@ pub fn subnets_transport() -> SubnetsCheck {
         let cancel = Arc::clone(&run.probe_cancel);
         let facts = collect_groups(run, &cancel, connect);
         Ok(crate::subnet_whitelist::judge(&facts))
+    })
+}
+
+/// Настоящая проверка QUIC: пакеты Initial по UDP с настоящим шифрованием
+/// ([`crate::quic_initial`]).
+pub fn quic_transport() -> QuicCollect {
+    Arc::new(move |host: &str, ip: &str, run: &std::sync::Arc<Run>| {
+        quic_collect_with(
+            host,
+            ip,
+            crate::quic_probe::QUIC_PORT,
+            run,
+            crate::quic_probe::ATTEMPTS,
+            crate::quic_probe::ATTEMPT_TIMEOUT_S,
+        )
+    })
+}
+
+/// python `quic_probe.collect(host, ip, submit, cancel)` — сначала пакет с
+/// именем сайта, как у браузера. Только если сервер промолчал, уходят пакеты
+/// с посторонним именем и без имени — параллельно: они нужны, чтобы назвать
+/// причину, а браузер таких не шлёт. Затем настоящее имя ещё раз.
+pub fn quic_collect_with(
+    host: &str,
+    ip: &str,
+    port: u16,
+    run: &Arc<Run>,
+    attempts: u32,
+    timeout: f64,
+) -> Result<crate::quic_probe::QuicFacts, TaskError> {
+    let cancel = Arc::clone(&run.probe_cancel);
+    let real_ms = crate::quic_probe::quic_hello(ip, Some(host), port, attempts, timeout, &cancel);
+    if real_ms.is_some() || cancel.cancelled() {
+        return Ok(crate::quic_probe::QuicFacts {
+            host: host.to_string(),
+            real_ms,
+            cancelled: cancel.cancelled(),
+            ..crate::quic_probe::QuicFacts::default()
+        });
+    }
+    let neutral_name = crate::quic_probe::NEUTRAL_NAME.to_string();
+    let neutral_ip = ip.to_string();
+    let neutral_cancel = Arc::clone(&cancel);
+    let neutral = run.submit(move || {
+        Ok(crate::quic_probe::quic_hello(
+            &neutral_ip,
+            Some(&neutral_name),
+            port,
+            attempts,
+            timeout,
+            &neutral_cancel,
+        ))
+    });
+    let nameless_ip = ip.to_string();
+    let nameless_cancel = Arc::clone(&cancel);
+    let nameless = run.submit(move || {
+        Ok(crate::quic_probe::quic_hello(
+            &nameless_ip,
+            None,
+            port,
+            attempts,
+            timeout,
+            &nameless_cancel,
+        ))
+    });
+    let neutral_ms = run.wait(&neutral)?;
+    let nameless_ms = run.wait(&nameless)?;
+    let mut real_again_ms = None;
+    if (neutral_ms.is_some() || nameless_ms.is_some()) && !cancel.cancelled() {
+        real_again_ms =
+            crate::quic_probe::quic_hello(ip, Some(host), port, attempts, timeout, &cancel);
+    }
+    Ok(crate::quic_probe::QuicFacts {
+        host: host.to_string(),
+        real_ms: real_ms.or(real_again_ms),
+        neutral_ms,
+        nameless_ms,
+        real_again_ms,
+        cancelled: cancel.cancelled(),
     })
 }
 

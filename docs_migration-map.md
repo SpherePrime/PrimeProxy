@@ -147,6 +147,13 @@ TLS/HTTPS-слой — chrome_https.rs (транспорт собран и пр�
 * корни сертификатов — webpki-roots (аналог certifi: и BoringSSL, и rustls хранилище Windows не читают);
 * тесты: tests/chrome_https_tests.rs — golden 23 случая + живые локальные (полный ответ, обрыв «хватит», chunked + keep-alive, замирание тела → body_cut, обрыв тела, ответа нет, «Стоп» посреди тела, отказ соединения, тишина рукопожатия → timeout, самодельный сертификат → cert).
 
+QUIC-слой — quic_initial.rs + quic_probe.rs (собран и протестирован):
+
+* `quic_initial.rs` — дословный порт `utils/quic_initial.py`: свой AES-128 (S-блок вычисляется, как в python), AES-128-GCM, HMAC-SHA256 без внешних зависимостей, ключи Initial по RFC 9001 (соль + HKDF-метки), приветствие TLS 1.3 с SNI (ASCII — как есть, как у python `encode("idna")`; не-ASCII — punycode через idna) и защита заголовка; `is_reply_to` — любой ответ на наше соединение;
+* golden против python с подменой `os.urandom` (пакет целиком для 5 имён, включая punycode, ключи, GCM, распознавание ответа) — tests/quic_initial_tests.rs + tests/quic_initial_golden.json;
+* `quic_probe::quic_hello` — UDP-отправка пакета Initial с отменой между отрезками 0.2 с; `net_transport::quic_collect_with` — python `collect`: настоящее имя, при молчании параллельно постороннее и без имени (через машину прогона), затем настоящее имя ещё раз; `quic_transport()` — готовое замыкание QuicCollect;
+* живые тесты на подставном QUIC-сервере (локальный UDP): ответ услышан, тишина, «Стоп», «блокируется по имени» (настоящее имя молчит дважды, постороннее проходит), полная тишина — не блокировка.
+
 Приватность (как в python): пробы шлют только сами запросы — SYN без данных, STUN из случайных байт, DNS-вопрос об имени сервера; ответы выбрасываются, ничего не сохраняется и не уходит на серверы проекта. Единственная передача данных — необязательная «Сверить с сервером в Нидерландах» (ask_outside, по галочке, только имена неоткрывшихся сайтов).
 
-Осталось в diagnostics (нужен QUIC-слой): QUIC-пробы, cert_owner-сбор по HTTPS-цепочке, clock_skew/network_check/freeze-транспорт поверх chrome_get, volume/cause по HTTPS. OS-слой Windows (zapret_status, routed_adapters, bypass_tools, registry-скачивание, строка Windows) — платформенный слой, как в python (utils.windows_*).
+Осталось в diagnostics: cert_owner-сбор по HTTPS-цепочке, clock_skew/network_check/freeze-транспорт поверх chrome_get, volume/cause по HTTPS, protocol_probe-транспорт. OS-слой Windows (zapret_status, routed_adapters, bypass_tools, registry-скачивание, строка Windows) — платформенный слой, как в python (utils.windows_*).

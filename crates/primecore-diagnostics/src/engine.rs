@@ -341,9 +341,10 @@ pub type OnProbeFn = dyn Fn(&str, &Probe) + Send + Sync;
 /// python `on_done(готово, всего)` — цель проверена.
 pub type OnDoneFn = dyn Fn(u32, u32) + Send + Sync;
 
-/// python `quic_probe.collect(host, ip, submit, cancel)` — три пакета QUIC.
+/// python `quic_probe.collect(host, ip, submit, cancel)` — три пакета QUIC;
+/// параллельные посылки идут через машину прогона (`Run`).
 pub type QuicCollect =
-    Arc<dyn Fn(&str, &str, &SocketCancel) -> Result<QuicFacts, TaskError> + Send + Sync>;
+    Arc<dyn Fn(&str, &str, &Arc<Run>) -> Result<QuicFacts, TaskError> + Send + Sync>;
 /// python `protocol_probe.collect(host, ip, submit, cancel)` — дороги по адресу.
 pub type ProtocolsCollect =
     Arc<dyn Fn(&str, &str, &SocketCancel) -> Result<ProtocolFacts, TaskError> + Send + Sync>;
@@ -998,8 +999,10 @@ fn start_quic(
     let collect = Arc::clone(&io.quic_collect);
     let host = probe.host.clone();
     let ip = result.ip.clone();
-    let cancel = Arc::clone(&run.probe_cancel);
-    Ok(Some(run.submit(move || collect(&host, &ip, &cancel))))
+    Ok(Some(run.submit({
+        let run = Arc::clone(run);
+        move || collect(&host, &ip, &run)
+    })))
 }
 
 /// python `_refine_cause` — сайт не открылся: выясняем, режут по имени или по адресу.

@@ -21,6 +21,7 @@ fastrand.workspace = true
 rustls.workspace = true
 webpki-roots.workspace = true
 flate2.workspace = true
+idna.workspace = true
 
 [dev-dependencies]
 rcgen.workspace = true

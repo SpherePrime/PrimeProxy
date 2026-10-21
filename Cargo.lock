@@ -990,6 +990,7 @@ dependencies = [
  "blake2b_simd",
  "fastrand",
  "flate2",
+ "idna",
  "primecore-dnswire",
  "primecore-lists",
  "primecore-mode",

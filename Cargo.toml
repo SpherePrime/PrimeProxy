@@ -49,6 +49,8 @@ rustls = "0.23"
 webpki-roots = "0.26"
 # Распаковка тела при decode_body (в python это делает libcurl).
 flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
+# Имя сайта в приветствии QUIC — punycode (python encode("idna")).
+idna = "1"
 # Самоподписанный сертификат для живого теста рукопожатия.
 rcgen = "0.13"
 tower-http = { version = "0.6", features = ["fs", "set-header"] }
