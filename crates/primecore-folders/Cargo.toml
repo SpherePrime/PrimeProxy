@@ -1,0 +1,11 @@
+[package]
+name = "primecore-folders"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт folders/ (классификация папок, нормализация состояния, канонический порядок)."
+
+[dependencies]
+serde_json.workspace = true
+fancy-regex.workspace = true
+primecore-settings = { path = "../primecore-settings" }

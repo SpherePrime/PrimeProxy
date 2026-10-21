@@ -1045,6 +1045,15 @@ name = "primecore-files"
 version = "0.1.0"
 
 [[package]]
+name = "primecore-folders"
+version = "0.1.0"
+dependencies = [
+ "fancy-regex",
+ "primecore-settings",
+ "serde_json",
+]
+
+[[package]]
 name = "primecore-hosts"
 version = "0.1.0"
 dependencies = [
