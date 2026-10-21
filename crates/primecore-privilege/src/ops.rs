@@ -14,7 +14,10 @@
 //!   `{"ok":true,"pid":N}`;
 //! - `{"op":"kill","pid":N}` → завершить процесс (свои — `Child::kill`,
 //!   чужие — `/bin/kill -TERM`);
-//! - `{"op":"status","pid":N}` → `{"ok":true,"running":bool}`.
+//! - `{"op":"status","pid":N}` → `{"ok":true,"running":bool}`;
+//! - `{"op":"dns_set","servers":["1.1.1.1",…],"ifname":"eth0"}` →
+//!   `resolvectl dns <ifname> <серверы…>`; интерфейс обязателен —
+//!   `resolvectl dns` без имени интерфейса список не меняет.
 //!
 //! Для совместимости с ранним клиентом (`connect_and_ping`) любая не-JSON
 //! строка отвечает `{"ok":true}` — как старый «пинг».
@@ -73,6 +76,15 @@ pub enum OpRequest {
     Status {
         /// PID процесса.
         pid: u32,
+    },
+    /// Задать DNS-серверы интерфейсу через `resolvectl dns`.
+    DnsSet {
+        /// Адреса DNS-серверов (порядок как в запросе).
+        #[serde(default)]
+        servers: Vec<String>,
+        /// Имя сетевого интерфейса; `resolvectl dns` без него не работает.
+        #[serde(default)]
+        ifname: Option<String>,
     },
 }
 
@@ -262,6 +274,30 @@ pub fn nft_table_missing(output: &str) -> bool {
 
 // ─────────────────────────── обработчик операций ──────────────────────
 
+/// Аргументы установки DNS (`resolvectl dns IFACE SRV1 SRV2…`).
+///
+/// Имя интерфейса обязательно: `resolvectl dns` без интерфейса только
+/// показывает текущие серверы, а не задаёт их.
+///
+/// # Errors
+/// Интерфейс не указан или список серверов пуст — текст ошибки.
+pub fn build_dns_set_args(ifname: Option<&str>, servers: &[String]) -> Result<Vec<String>, String> {
+    let Some(ifname) = ifname.map(str::trim).filter(|name| !name.is_empty()) else {
+        return Err("интерфейс не указан: resolvectl dns требует имя интерфейса".to_string());
+    };
+    let servers: Vec<&str> = servers
+        .iter()
+        .map(|server| server.trim())
+        .filter(|server| !server.is_empty())
+        .collect();
+    if servers.is_empty() {
+        return Err("список DNS-серверов пуст".to_string());
+    }
+    let mut args = vec!["dns".to_string(), ifname.to_string()];
+    args.extend(servers.iter().map(|server| (*server).to_string()));
+    Ok(args)
+}
+
 /// Обработчик операций демона: разбор запроса + исполнение через
 /// [`CommandExecutor`]. Свои демоны (запущенные через `op daemon`)
 /// запоминаются по pid-файлу, чтобы `kill`/`status` работали без внешних
@@ -308,6 +344,7 @@ impl<E: CommandExecutor> Ops<E> {
             } => self.op_daemon(&exe, &args, &cwd, &env, &pidfile),
             OpRequest::Kill { pid } => self.op_kill(pid),
             OpRequest::Status { pid } => self.op_status(pid),
+            OpRequest::DnsSet { servers, ifname } => self.op_dns_set(ifname.as_deref(), &servers),
         }
     }
 
@@ -411,6 +448,18 @@ impl<E: CommandExecutor> Ops<E> {
             _ => self.executor.pid_running(pid).unwrap_or(false),
         };
         ok_line(json!({ "ok": true, "running": running }))
+    }
+
+    /// `resolvectl dns <ifname> <серверы…>`: изменения DNS — привилегированная
+    /// операция, потому и живёт здесь, а не в сервере.
+    fn op_dns_set(&self, ifname: Option<&str>, servers: &[String]) -> String {
+        match build_dns_set_args(ifname, servers) {
+            Ok(args) => match self.executor.run("resolvectl", &args, None) {
+                Ok(output) => ok_line(json!({ "ok": true, "output": output })),
+                Err(error) => error_line(error),
+            },
+            Err(error) => error_line(error),
+        }
     }
 }
 
@@ -849,5 +898,71 @@ mod tests {
             value(&client::request(&sock, r#"{"op":"status","pid":1234}"#).expect("ответ status"));
         assert_eq!(reply["ok"], true);
         assert_eq!(reply["running"], false);
+    }
+
+    #[test]
+    fn build_dns_set_args_requires_interface_and_servers() {
+        let servers = vec!["1.1.1.1".to_string(), "8.8.8.8".to_string()];
+        assert_eq!(
+            build_dns_set_args(Some("eth0"), &servers).expect("аргументы собраны"),
+            vec![
+                "dns".to_string(),
+                "eth0".to_string(),
+                "1.1.1.1".to_string(),
+                "8.8.8.8".to_string()
+            ]
+        );
+        // Без интерфейса resolvectl dns список не задаёт — отказ.
+        let error = build_dns_set_args(None, &servers).expect_err("нет интерфейса");
+        assert!(error.contains("интерфейс"), "{error}");
+        // Пустое имя интерфейса — то же, что отсутствующее.
+        assert!(build_dns_set_args(Some("  "), &servers).is_err());
+        // Пустой список серверов — нечего задавать.
+        let error = build_dns_set_args(Some("eth0"), &[]).expect_err("серверов нет");
+        assert!(error.contains("пуст"), "{error}");
+        // Пустые и неаккуратные элементы отфильтровываются, имя триммится.
+        let messy = vec!["  ".to_string(), " 1.0.0.1 ".to_string()];
+        assert_eq!(
+            build_dns_set_args(Some(" wlan0 "), &messy).expect("аргументы собраны"),
+            vec![
+                "dns".to_string(),
+                "wlan0".to_string(),
+                "1.0.0.1".to_string()
+            ]
+        );
+    }
+
+    #[test]
+    fn dns_set_op_runs_resolvectl_with_interface() {
+        let mut ops = Ops::new(FakeExecutor::new());
+        let reply = value(
+            &ops.dispatch(r#"{"op":"dns_set","servers":["1.1.1.1","8.8.8.8"],"ifname":"eth0"}"#),
+        );
+        assert_eq!(reply["ok"], true);
+        let runs = ops.executor.runs.lock().unwrap();
+        assert_eq!(runs.len(), 1);
+        assert_eq!(runs[0].0, "resolvectl");
+        assert_eq!(
+            runs[0].1,
+            vec![
+                "dns".to_string(),
+                "eth0".to_string(),
+                "1.1.1.1".to_string(),
+                "8.8.8.8".to_string()
+            ]
+        );
+        assert_eq!(runs[0].2, None);
+    }
+
+    #[test]
+    fn dns_set_op_answers_error_without_interface() {
+        let mut ops = Ops::new(FakeExecutor::new());
+        let reply = value(&ops.dispatch(r#"{"op":"dns_set","servers":["1.1.1.1"]}"#));
+        assert_eq!(reply["ok"], false);
+        assert!(reply["error"]
+            .as_str()
+            .is_some_and(|error| error.contains("интерфейс")));
+        // Команда не запускалась.
+        assert!(ops.executor.runs.lock().unwrap().is_empty());
     }
 }

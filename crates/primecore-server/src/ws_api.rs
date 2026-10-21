@@ -67,7 +67,7 @@ const NOZAPRET6: [&str; 3] = ["::1/128", "fe80::/10", "fc00::/7"];
 /// Сокет демона `privd` по умолчанию.
 const DEFAULT_PRIV_SOCK: &str = "/tmp/primecore-privd.sock";
 /// Сообщение о не поднятых правах (демон `privd` не отвечает).
-const NO_PRIVILEGE_ERROR: &str = "нет прав: нажмите «Разрешить» — запустится privd";
+pub(crate) const NO_PRIVILEGE_ERROR: &str = "нет прав: нажмите «Разрешить» — запустится privd";
 /// Сколько пресетов можно объединить в один запуск.
 const MAX_NAMES: usize = 8;
 /// Таймаут проверки пресета `--dry-run`.
@@ -298,7 +298,7 @@ impl PrivilegedExecutor for PrivdExecutor {
 ///
 /// # Errors
 /// Сокет не отвечает или ответ не JSON — текст.
-fn request_privd(sock: &str, request: Value) -> Result<Value, String> {
+pub(crate) fn request_privd(sock: &str, request: Value) -> Result<Value, String> {
     let reply = client::request(sock, &request.to_string())?;
     serde_json::from_str(&reply).map_err(|error| format!("ответ демона не JSON: {error} ({reply})"))
 }
@@ -1373,7 +1373,7 @@ fn plan_json(plan: &Nfqws2LaunchPlan) -> Value {
 }
 
 /// Ответ ошибки ws-API в формате контракта: `{"error":"…"}`.
-fn ws_error(status: StatusCode, message: String) -> (StatusCode, Json<Value>) {
+pub(crate) fn ws_error(status: StatusCode, message: String) -> (StatusCode, Json<Value>) {
     (status, Json(json!({ "error": message })))
 }
 
@@ -1542,6 +1542,7 @@ mod tests {
         let executor: Arc<dyn PrivilegedExecutor> = executor.clone();
         crate::App {
             ws: WsState::new(resources.to_string(), executor),
+            ..crate::App::test_defaults()
         }
     }
 
@@ -1554,6 +1555,7 @@ mod tests {
                 sock.to_string(),
                 state_dir.to_string(),
             ),
+            ..crate::App::test_defaults()
         }
     }
 

@@ -221,3 +221,129 @@ export async function fetchWsLogs(since: number): Promise<WsLogs> {
   if (!response.ok) throw await errorFrom(response);
   return response.json();
 }
+
+// ---------------------------------------------------------------------------
+// Проверка доступности сайтов (/api/check/*).
+// ---------------------------------------------------------------------------
+
+export type SiteStatus = "ok" | "blocked" | "slow";
+
+export interface SiteCheckResult {
+  domain: string;
+  status: SiteStatus;
+  ms: number;
+}
+
+export interface CheckSitesStatus {
+  done: boolean;
+  results: SiteCheckResult[];
+}
+
+// Запуск фоновой проверки: сервер сам опрашивает домены, статус — по /status.
+export async function fetchCheckSites(
+  domains: string[],
+): Promise<{ ok: boolean; total: number }> {
+  const response = await fetch(`${BASE}/api/check/sites`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ domains }),
+  });
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+export async function fetchCheckStatus(): Promise<CheckSitesStatus> {
+  const response = await fetch(`${BASE}/api/check/sites/status`);
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+// ---------------------------------------------------------------------------
+// DNS: текущие серверы, проба запроса, установка на интерфейс.
+// ---------------------------------------------------------------------------
+
+export interface DnsCurrent {
+  system: Array<{ server: string; kind: string }>;
+  doh: string[];
+}
+
+export async function fetchDnsCurrent(): Promise<DnsCurrent> {
+  const response = await fetch(`${BASE}/api/dns/current`);
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+export interface DnsQueryResult {
+  ok: boolean;
+  addresses?: string[];
+  ms?: number;
+  error?: string;
+}
+
+export async function queryDns(domain: string, server: string): Promise<DnsQueryResult> {
+  const response = await fetch(`${BASE}/api/dns/query`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ domain, server }),
+  });
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+// 409 — нет прав (нужен polkit), 500 — ошибка применения на интерфейсе.
+export class DnsSetError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "DnsSetError";
+    this.status = status;
+  }
+}
+
+export async function setDns(servers: string[], ifname: string): Promise<{ ok: boolean }> {
+  const response = await fetch(`${BASE}/api/dns/set`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ servers, ifname }),
+  });
+  if (!response.ok) {
+    const cause = await errorFrom(response);
+    throw new DnsSetError(cause.message, response.status);
+  }
+  return response.json();
+}
+
+// ---------------------------------------------------------------------------
+// Telegram: MTProto-прокси (пока заготовка — конфиг и ссылка подключения).
+// ---------------------------------------------------------------------------
+
+export interface TgProxyConfig {
+  configured: boolean;
+  host: string | null;
+  port: number | null;
+}
+
+export async function fetchTgProxy(): Promise<TgProxyConfig> {
+  const response = await fetch(`${BASE}/api/tg/proxy`);
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+export interface TgProxyStartResult {
+  ok: boolean;
+  note?: string;
+}
+
+export async function saveTgProxy(
+  host: string,
+  port: number,
+  secret: string,
+): Promise<TgProxyStartResult> {
+  const response = await fetch(`${BASE}/api/tg/proxy/start`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ host, port, secret }),
+  });
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}

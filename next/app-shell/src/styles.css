@@ -288,3 +288,69 @@ body {
   justify-content: space-between; flex-wrap: wrap;
 }
 .priv-bar .btn { padding: 7px 16px; }
+
+/* --- Новые вкладки: общие элементы -------------------------------------- */
+
+/* Подсказка-инфобар (нейтральная) и подтверждение действия (зелёная). */
+.infobar.hint { background: var(--panel-2); color: var(--muted); }
+.infobar.ok { background: #14532d; color: #bbf7d0; }
+
+/* Сетка полей формы: просторная, поля переносятся на новую строку. */
+.form-grid {
+  display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;
+}
+.form-grid .field input,
+.form-grid .field select { min-width: 200px; }
+
+/* Строка чипов (не кнопок) — для адресов, серверов, ссылок. */
+.chip-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip.static { cursor: default; padding: 7px 14px; }
+.chip-note { color: var(--muted); font-size: 12px; margin-left: 8px; }
+
+/* Цветные чипы статусов: доступен / заблокирован / медленно. */
+.chip.chip-ok { background: #14532d; color: #bbf7d0; cursor: default; }
+.chip.chip-fail { background: #7f1d1d; color: #fecaca; cursor: default; }
+.chip.chip-slow { background: #713f12; color: #fde68a; cursor: default; }
+
+/* --- Страница «Проверка» -------------------------------------------------- */
+
+/* Список доменов с чекбоксами — в две колонки на широком экране. */
+.site-checks {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px 16px; margin-bottom: 16px;
+}
+.site-check {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  font-size: 15px;
+}
+.site-check:hover { background: var(--panel-2); }
+.site-check input { width: 16px; height: 16px; accent-color: var(--accent); }
+
+.actions-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+/* Сводка и строки результатов проверки сайтов. */
+.summary-line { color: var(--muted); font-size: 15px; margin: 16px 0 10px; }
+.site-results { display: flex; flex-direction: column; gap: 8px; }
+.site-result {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  background: var(--panel-2); border-radius: 10px; padding: 12px 16px;
+}
+.site-result-domain { font-weight: 600; word-break: break-all; }
+.site-result-meta { display: flex; align-items: center; gap: 12px; }
+.site-chip { font-size: 13px; }
+.site-ms { color: var(--muted); font-size: 13px; }
+
+/* --- Страница «Telegram» -------------------------------------------------- */
+
+/* Строка текущего конфига прокси. */
+.config-line { flex-wrap: wrap; }
+
+/* Ссылка tg://proxy рядом с кнопкой копирования. */
+.code-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.code-row code {
+  flex: 1; min-width: 0; background: #0b1120; color: #cbd5e1;
+  border-radius: 8px; padding: 10px 12px;
+  font-family: var(--mono); font-size: 13px; word-break: break-all;
+}

@@ -7,7 +7,10 @@
 use std::sync::Arc;
 use std::time::Duration;
 
+mod check_api;
 mod dns_api;
+mod dns_extra_api;
+mod tg_api;
 mod ws_api;
 
 use axum::extract::rejection::JsonRejection;
@@ -29,6 +32,23 @@ const DEFAULT_PORT: u16 = 7290;
 #[derive(Clone)]
 struct App {
     ws: ws_api::WsState,
+    check: check_api::CheckState,
+    dns_extra: dns_extra_api::DnsExtraState,
+    tg: tg_api::TgState,
+}
+
+impl App {
+    /// Живое состояние всех вкладок. Тесты отдельных вкладок строят `App`
+    /// отсюда (struct update), подменяя только интересующие руки.
+    #[must_use]
+    pub(crate) fn test_defaults() -> Self {
+        Self {
+            ws: ws_api::WsState::production(),
+            check: check_api::CheckState::production(),
+            dns_extra: dns_extra_api::DnsExtraState::production(),
+            tg: tg_api::TgState::production(),
+        }
+    }
 }
 
 // ───────────────────────── запросы/ответы ────────────────────────────
@@ -580,9 +600,7 @@ async fn allow_shell_origin(
 }
 
 pub fn build_router() -> Router {
-    router(App {
-        ws: ws_api::WsState::production(),
-    })
+    router(App::test_defaults())
 }
 
 /// Router с готовым состоянием (тесты подставляют свои ресурсы и фейковые
@@ -599,6 +617,13 @@ pub(crate) fn router(app: App) -> Router {
         .route("/api/dns/page_state", get(dns_api::page_state))
         .route("/api/dns/server_check", get(dns_api::server_check))
         .route("/api/dns/domain_lookup", get(dns_api::domain_lookup))
+        .route("/api/check/sites", post(check_api::sites))
+        .route("/api/check/sites/status", get(check_api::status))
+        .route("/api/dns/current", get(dns_extra_api::current))
+        .route("/api/dns/query", post(dns_extra_api::query))
+        .route("/api/dns/set", post(dns_extra_api::set))
+        .route("/api/tg/proxy", get(tg_api::proxy))
+        .route("/api/tg/proxy/start", post(tg_api::proxy_start))
         .route("/api/ws/presets", get(ws_api::presets))
         .route("/api/ws/preset", get(ws_api::preset))
         .route("/api/ws/start", post(ws_api::start))

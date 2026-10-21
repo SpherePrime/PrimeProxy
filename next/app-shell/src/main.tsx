@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
-import { DnsPage } from "./components/DnsPage";
+import { DnsToolsPage } from "./components/DnsToolsPage";
 import { BypassPage } from "./components/BypassPage";
+import { CheckPage } from "./components/CheckPage";
+import { TelegramPage } from "./components/TelegramPage";
 import "./styles.css";
 
 // Боковая навигация в духе FluentWindow из PyQt6-эталона: слева фиксированная
 // панель с пунктами «иконка + подпись», активный пункт подсвечен. Маршрутизатор
 // не нужен — страницы грузятся только по одной, достаточно useState.
-type PageId = "bypass" | "dns";
+type PageId = "bypass" | "check" | "dns" | "telegram";
 
 const NAV_ITEMS: Array<{ id: PageId; icon: string; title: string }> = [
   { id: "bypass", icon: "🛡", title: "Обход" },
+  { id: "check", icon: "🔍", title: "Проверка" },
   { id: "dns", icon: "🌐", title: "DNS" },
+  { id: "telegram", icon: "✈", title: "Telegram" },
 ];
 
 function App() {
@@ -36,7 +40,10 @@ function App() {
         ))}
       </nav>
       <main className="content">
-        {page === "bypass" ? <BypassPage /> : <DnsPage />}
+        {page === "bypass" && <BypassPage />}
+        {page === "check" && <CheckPage />}
+        {page === "dns" && <DnsToolsPage />}
+        {page === "telegram" && <TelegramPage />}
       </main>
     </div>
   );
