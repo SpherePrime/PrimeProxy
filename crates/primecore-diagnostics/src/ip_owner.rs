@@ -27,9 +27,9 @@ fn texts(result: Option<&DnsQueryResult>) -> Vec<String> {
 }
 
 /// Владелец сети адреса или None, если служба не ответила.
-pub fn lookup_ip_owner<F>(ip: &str, ask: F) -> Option<IpOwner>
+pub fn lookup_ip_owner<F>(ip: &str, mut ask: F) -> Option<IpOwner>
 where
-    F: Fn(&str, u16) -> Option<DnsQueryResult>,
+    F: FnMut(&str, u16) -> Option<DnsQueryResult>,
 {
     let pointer = primecore_dnswire::reverse_name(ip).ok()?;
     let name = if pointer.ends_with(".in-addr.arpa") {

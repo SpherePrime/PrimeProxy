@@ -59,6 +59,8 @@ pub struct CertNames {
     pub issuer: String,
     pub issuer_org: String,
     pub subject: String,
+    /// Организация владельца (python `subject_org`).
+    pub subject_org: String,
     pub names: Vec<String>,
     pub self_signed: bool,
 }
@@ -271,6 +273,37 @@ pub fn judge(cert: Option<&CertNames>, host: &str, problem: &str, from_hosts: bo
     })
 }
 
+// ---------------------------------------------------------------------------
+// Транспорт: сертификат без проверки (python `cert_owner.collect`)
+// ---------------------------------------------------------------------------
+
+use crate::block_cause::{tls_stream, TLS_ANY};
+use crate::cert_reader::read_names;
+use primecore_socketcancel::SocketCancel;
+
+/// python `collect(host, ip, cancel)` — сертификат, который отдаёт адрес `ip`
+/// для сайта `host`, — без проверки. None — получить не удалось.
+pub fn collect(host: &str, ip: &str, cancel: &SocketCancel) -> Option<CertNames> {
+    collect_with_port(host, ip, 443, cancel)
+}
+
+/// То же с явным портом — для живых тестов на локальном сервере.
+pub fn collect_with_port(
+    host: &str,
+    ip: &str,
+    port: u16,
+    cancel: &SocketCancel,
+) -> Option<CertNames> {
+    if cancel.cancelled() {
+        return None;
+    }
+    let secured = tls_stream(ip, Some(host), port, TIMEOUT_S, cancel, TLS_ANY).ok()?;
+    // Сертификат сервера лежит в установленном соединении.
+    let certificates = secured.conn.peer_certificates()?;
+    let der = certificates.first()?.as_ref().to_vec();
+    read_names(Some(&der))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -280,6 +313,7 @@ mod tests {
             issuer: issuer.to_string(),
             issuer_org: String::new(),
             subject: subject.to_string(),
+            subject_org: String::new(),
             names: items.iter().map(|item| item.to_string()).collect(),
             self_signed,
         }
@@ -363,5 +397,63 @@ mod tests {
         // закрывает «a.subs.example», но не «ya.example» (там только одна точка).
         assert!(!covers(&["*.example".to_string()], "ya.example"));
         assert!(covers(&["*.subs.example".to_string()], "a.subs.example"));
+    }
+    // --- Живая проверка: сертификат читается из локального TLS-сервера ---
+
+    use std::net::TcpListener;
+    use std::sync::Arc;
+
+    /// Локальный TLS-сервер с самоподписанным сертификатом на example.test.
+    fn spawn_tls_server() -> u16 {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("сокет слушается");
+        let port = listener.local_addr().expect("адрес").port();
+        let certified = rcgen::generate_simple_self_signed(vec!["example.test".to_string()])
+            .expect("сертификат");
+        let config = Arc::new(
+            rustls::ServerConfig::builder_with_provider(Arc::new(
+                rustls::crypto::ring::default_provider(),
+            ))
+            .with_protocol_versions(rustls::DEFAULT_VERSIONS)
+            .expect("версии сервера доступны")
+            .with_no_client_auth()
+            .with_single_cert(
+                vec![certified.cert.der().clone()],
+                rustls::pki_types::PrivateKeyDer::Pkcs8(certified.key_pair.serialize_der().into()),
+            )
+            .expect("конфиг сервера собран"),
+        );
+        std::thread::spawn(move || {
+            for stream in listener.incoming().flatten() {
+                let mut stream = stream;
+                let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(5)));
+                let _ = stream.set_write_timeout(Some(std::time::Duration::from_secs(5)));
+                let Ok(mut server) = rustls::ServerConnection::new(Arc::clone(&config)) else {
+                    continue;
+                };
+                for _ in 0..10 {
+                    if server.complete_io(&mut stream).is_ok() {
+                        break;
+                    }
+                }
+            }
+        });
+        port
+    }
+
+    #[test]
+    fn collect_reads_names_without_verification() {
+        let port = spawn_tls_server();
+        let cancel = SocketCancel::new();
+        let names = collect_with_port("example.test", "127.0.0.1", port, &cancel)
+            .expect("сертификат прочитан");
+        assert_eq!(names.names, vec!["example.test".to_string()]);
+        assert!(names.self_signed);
+        assert!(!names.subject.is_empty() || !names.names.is_empty());
+
+        // По адресу без сервера — None, а не сбой машины прогона.
+        let listener = TcpListener::bind("127.0.0.1:0").expect("сокет");
+        let dead = listener.local_addr().expect("адрес").port();
+        drop(listener);
+        assert!(collect_with_port("example.test", "127.0.0.1", dead, &cancel).is_none());
     }
 }

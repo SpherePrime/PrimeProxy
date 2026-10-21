@@ -550,11 +550,13 @@ fn collect_facts_without_windows_reads_nothing() {
 fn transports_wire_into_engine_shapes() {
     // Готовые транспорты подходят под поля EngineIo и не паникуют на пустом прогоне.
     use primecore_diagnostics::engine::{
-        BurstCollect, SubnetsCheck, SystemCheck, TelegramCollect, VoiceCollect,
+        BurstCollect, CauseCollect, CertCollect, ProtocolsCollect, SubnetsCheck, SystemCheck,
+        TelegramCollect, VoiceCollect, VolumeCollect,
     };
     use primecore_diagnostics::net_transport::NullSystemReader;
     use primecore_diagnostics::net_transport::{
-        burst_transport, subnets_transport, system_transport, telegram_transport, voice_transport,
+        burst_transport, cause_transport, cert_transport, protocols_transport, subnets_transport,
+        system_transport, telegram_transport, voice_transport, volume_transport,
     };
     let run = Run::new(None, 4, None);
     // Только совместимость типов с полями EngineIo: наружу тесты не стучатся.
@@ -562,7 +564,11 @@ fn transports_wire_into_engine_shapes() {
     let _telegram: TelegramCollect = telegram_transport();
     let _burst: BurstCollect = burst_transport();
     let _subnets: SubnetsCheck = subnets_transport();
-    let _system: SystemCheck = system_transport(Arc::new(NullSystemReader));
+    let _system: SystemCheck = system_transport(Arc::new(NullSystemReader), None);
+    let _cause: CauseCollect = cause_transport();
+    let _protocols: ProtocolsCollect = protocols_transport();
+    let _volume: VolumeCollect = volume_transport();
+    let _cert: CertCollect = cert_transport();
     run.close();
 }
 

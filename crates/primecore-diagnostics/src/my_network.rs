@@ -466,6 +466,21 @@ pub fn collect(
     }
 }
 
+/// python `local_address` — адрес адаптера, через который идёт выход в интернет.
+/// Пакеты при этом не отправляются: UDP-сокет только выбирает дорогу.
+#[must_use]
+pub fn local_address() -> String {
+    let Ok(sock) = std::net::UdpSocket::bind("0.0.0.0:0") else {
+        return String::new();
+    };
+    if sock.connect((TRACE_SERVERS[0], 53)).is_err() {
+        return String::new();
+    }
+    sock.local_addr()
+        .map(|address| address.ip().to_string())
+        .unwrap_or_default()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -112,12 +112,12 @@ fn mock_io() -> EngineIo {
                 ..Default::default()
             })
         }),
-        protocols_collect: Arc::new(|_host, _ip, _cancel| {
+        protocols_collect: Arc::new(|_host, _ip, _run| {
             Ok(primecore_diagnostics::protocol_probe::ProtocolFacts {
                 ..Default::default()
             })
         }),
-        cause_collect: Arc::new(|_host, _result, _cancel| {
+        cause_collect: Arc::new(|_host, _result, _run, _ping| {
             Ok(CauseFacts {
                 ..Default::default()
             })

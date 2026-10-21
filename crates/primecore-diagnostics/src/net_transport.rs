@@ -13,15 +13,17 @@
 //! из другого потока, поэтому «Стоп» проверяется между короткими отрезками
 //! ожидания (как в primecore-dnswire) и до/после соединения.
 
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::net::{Ipv4Addr, SocketAddr, TcpStream, ToSocketAddrs, UdpSocket};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 use primecore_socketcancel::SocketCancel;
 
 use crate::engine::{
-    BurstCollect, QuicCollect, SubnetsCheck, SystemCheck, TelegramCollect, VoiceCollect,
+    BurstCollect, CauseCollect, CertCollect, ChromeGetMut, FreezeCheck, FreezeTargetsFn,
+    NetworkCheck, ProtocolsCollect, QuicCollect, SubnetsCheck, SystemCheck, TelegramCollect,
+    VoiceCollect, VolumeCollect,
 };
 
 /// python `check_voice`-проба: (хост, порт, «Стоп») → снимок результата STUN.
@@ -770,6 +772,382 @@ pub fn quic_transport() -> QuicCollect {
     })
 }
 
+/// Настоящее уточнение причины: приветствия с шагом и порт 80; проба пинга
+/// приходит из движка при вызове.
+pub fn cause_transport() -> CauseCollect {
+    Arc::new(
+        move |host: &str, result: &crate::probe_result::ProbeResult, run, ping| {
+            crate::block_cause::collect(host, result, run, Some(ping))
+        },
+    )
+}
+
+/// Настоящие дороги: TLS 1.2, TLS 1.3 и порт 80 по тому же адресу.
+pub fn protocols_transport() -> ProtocolsCollect {
+    Arc::new(move |host: &str, ip: &str, run| crate::protocol_probe::collect(host, ip, run))
+}
+
+/// Настоящий замер объёма: запросы по одному соединению «как Chrome».
+pub fn volume_transport() -> VolumeCollect {
+    Arc::new(move |host: &str, ip: &str, path: &str, cancel| {
+        Ok(crate::volume_probe::collect(host, ip, path, cancel))
+    })
+}
+
+/// Настоящий сбор сертификата без проверки: кто ответил вместо сайта.
+pub fn cert_transport() -> CertCollect {
+    Arc::new(move |host: &str, ip: &str, cancel| Ok(crate::cert_owner::collect(host, ip, cancel)))
+}
+
+// ---------------------------------------------------------------------------
+// HTTPS «как браузер» и надстройки над ним (python sections поверх net_access)
+// ---------------------------------------------------------------------------
+
+/// Настоящий `chrome_get` (utils/chrome_https.py): HTTPS-запрос «как браузер»
+/// к `ip:443` с общим на прогон отменой.
+#[must_use]
+#[allow(clippy::type_complexity)]
+pub fn chrome_get_transport(cancel: Arc<SocketCancel>) -> Arc<Mutex<ChromeGetMut>> {
+    Arc::new(Mutex::new(
+        move |host: &str,
+              ip: &str,
+              path: &str,
+              timeout: f64,
+              read_limit: usize,
+              read_timeout: f64,
+              body_done: Option<&dyn Fn(&[u8]) -> bool>,
+              decode_body: bool| {
+            crate::chrome_https::chrome_get(
+                host,
+                ip,
+                path,
+                timeout,
+                443,
+                read_limit,
+                read_timeout,
+                body_done,
+                decode_body,
+                Arc::clone(&cancel),
+            )
+        },
+    ))
+}
+
+/// python `sections._CLOCK_HOST` — чей сервер отвечает часами.
+pub const CLOCK_HOST: &str = "www.google.com";
+/// python `/generate_204` — ответ без тела, зато с заголовком `Date`.
+pub const CLOCK_PATH: &str = "/generate_204";
+
+/// python `sections.clock_skew(run)` — расхождение часов с сервером.
+pub type ClockSkewFn = Arc<dyn Fn(&Arc<Run>) -> Option<f64> + Send + Sync>;
+
+/// Настоящее расхождение часов: эталонные адреса через DoH, затем запрос
+/// `/generate_204` и чтение заголовка `Date` из ответа.
+#[must_use]
+#[allow(clippy::type_complexity)]
+pub fn clock_skew_transport(
+    chrome_get: Arc<Mutex<ChromeGetMut>>,
+    doh_query: crate::engine::DohQueryFn,
+) -> ClockSkewFn {
+    Arc::new(move |run: &Arc<Run>| {
+        // Эталонные адреса (python net_access.doh_lookup): опоздавшие ответы
+        // тоже попадают в отчёт прогона.
+        let noting = Arc::downgrade(run);
+        let mut note = |resolver: &crate::dns_reference::ReferenceResolver,
+                        result: &primecore_dnswire::DnsQueryResult| {
+            if let Some(run) = noting.upgrade() {
+                let index = crate::dns_reference::REFERENCE_RESOLVERS
+                    .iter()
+                    .position(|item| {
+                        item.label == resolver.label && item.address == resolver.address
+                    })
+                    .unwrap_or(0);
+                run.note_reference(index, result);
+            }
+        };
+        let (_, addresses) = {
+            let mut query = doh_query.lock().expect("замок эталонных вопросов");
+            crate::net_access::doh_lookup(&mut *query, &mut note)
+        };
+        let ip = addresses.first()?;
+        let mut chrome = chrome_get.lock().expect("замок chrome_get");
+        let result = crate::net_access::get(CLOCK_HOST, ip, CLOCK_PATH, 1, &mut *chrome);
+        clock_skew_from_body(unix_now(), &result.body)
+    })
+}
+
+/// python `time.time()` — секунды от эпохи (для сравнения с часами сервера).
+#[must_use]
+pub fn unix_now() -> f64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|span| span.as_secs_f64())
+        .unwrap_or_default()
+}
+
+/// Заголовок `Date` из ответа и расхождение часов: локальное время минус время
+/// сервера. None — ответа нет или дату разобрать не удалось.
+#[must_use]
+pub fn clock_skew_from_body(local: f64, body: &[u8]) -> Option<f64> {
+    let end = body
+        .windows(4)
+        .position(|part| {
+            part == b"
+
+"
+        })
+        .unwrap_or(body.len());
+    // Строки заголовков: первая — строка состояния (python [1:]).
+    for line in body[..end].split(|byte| *byte == b'\n').skip(1) {
+        let line: &[u8] = strip_byte(line, b'\r');
+        let (name, value) = split_header(line)?;
+        if name.eq_ignore_ascii_case(b"date") {
+            let server = http_date_timestamp(&String::from_utf8_lossy(value))?;
+            return Some(local - server);
+        }
+    }
+    None
+}
+
+fn strip_byte(line: &[u8], byte: u8) -> &[u8] {
+    match line.strip_suffix(&[byte]) {
+        Some(stripped) => stripped,
+        None => line,
+    }
+}
+
+/// `Имя: значение` из строки заголовка; пробелы по краям убраны.
+fn split_header(line: &[u8]) -> Option<(&[u8], &[u8])> {
+    let at = line.iter().position(|byte| *byte == b':')?;
+    let name = &line[..at];
+    let value = strip_byte(&line[at + 1..], b' ');
+    Some((name, value))
+}
+
+/// python `email.utils.parsedate_to_datetime(...).timestamp()` — дата в
+/// формате RFC 1123 («Tue, 15 Nov 1994 08:12:31 GMT»).
+#[must_use]
+pub fn http_date_timestamp(value: &str) -> Option<f64> {
+    let mut parts: Vec<&str> = value.split_whitespace().collect();
+    // Имя дня недели с запятой — убрать (python parsedate гибче, но серверы
+    // шлют ровно этот формат).
+    if parts.first().is_some_and(|item| item.ends_with(',')) {
+        parts.remove(0);
+    }
+    if parts.len() < 5 {
+        return None;
+    }
+    let day: i64 = parts[0].parse().ok()?;
+    let month = match parts[1].to_ascii_uppercase().as_str() {
+        "JAN" => 1,
+        "FEB" => 2,
+        "MAR" => 3,
+        "APR" => 4,
+        "MAY" => 5,
+        "JUN" => 6,
+        "JUL" => 7,
+        "AUG" => 8,
+        "SEP" => 9,
+        "OCT" => 10,
+        "NOV" => 11,
+        "DEC" => 12,
+        _ => return None,
+    };
+    let year: i64 = parts[2].parse().ok()?;
+    let mut clock = parts[3].split(':');
+    let hour: i64 = clock.next()?.parse().ok()?;
+    let minute: i64 = clock.next()?.parse().ok()?;
+    let second: i64 = clock.next().unwrap_or("0").parse().ok()?;
+    let offset = match parts[4].to_ascii_uppercase().as_str() {
+        "GMT" | "UT" | "UTC" | "Z" => 0,
+        zone if zone.len() == 5 && (zone.starts_with('+') || zone.starts_with('-')) => {
+            let sign = if zone.starts_with('-') { -1 } else { 1 };
+            let hours: i64 = zone[1..3].parse().ok()?;
+            let minutes: i64 = zone[3..5].parse().ok()?;
+            sign * (hours * 3600 + minutes * 60)
+        }
+        _ => return None,
+    };
+    // python проверяет день по длине месяца (ValueError на 32 ноября).
+    if day < 1 || day > month_days(year, month) {
+        return None;
+    }
+    let seconds =
+        days_from_civil(year, month, day) * 86_400 + hour * 3600 + minute * 60 + second - offset;
+    Some(seconds as f64)
+}
+
+/// Дней в месяце с учётом високосного года.
+fn month_days(year: i64, month: i64) -> i64 {
+    match month {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 if year % 4 == 0 && (year % 100 != 0 || year % 400 == 0) => 29,
+        2 => 28,
+        _ => 0,
+    }
+}
+
+/// Дни от «эпохи» (алгоритм days_from_civil): год, месяц (1–12), день.
+fn days_from_civil(year: i64, month: i64, day: i64) -> i64 {
+    let shifted = i64::from(month <= 2);
+    let y = year - shifted;
+    let m = if month > 2 { month } else { month + 12 };
+    let era = if y >= 0 { y } else { y - 399 } / 400;
+    let year_of_era = y - era * 400;
+    let day_of_year = (153 * (m - 3) + 2) / 5 + day - 1;
+    let day_of_era = year_of_era * 365 + year_of_era / 4 - year_of_era / 100 + day_of_year;
+    era * 146_097 + day_of_era - 719_468
+}
+
+/// python `my_network.collect`-проба пинга: (ttl) → (адрес, время).
+pub type HopProbe = Arc<dyn Fn(u32) -> Option<(String, Option<f64>)> + Send + Sync>;
+
+/// Настоящая «Ваша сеть» (python `sections.check_network`): внешний адрес по
+/// ответам Cloudflare, владелец сети — шифрованным вопросом к эталону, пинг —
+/// как его наладит система.
+#[must_use]
+#[allow(clippy::type_complexity)]
+pub fn network_transport(
+    chrome_get: Arc<Mutex<ChromeGetMut>>,
+    doh_ask_query: crate::engine::DohAskQueryFn,
+    hops: Option<HopProbe>,
+) -> NetworkCheck {
+    Arc::new(move |run: &Run, bypass_tools: &[String]| {
+        let fetch_server = |server: &str| -> Option<Vec<u8>> {
+            let mut chrome = chrome_get.lock().expect("замок chrome_get");
+            let result = crate::net_access::fetch(
+                crate::my_network::TRACE_HOST,
+                server,
+                crate::my_network::TRACE_PATH,
+                crate::limits::HTTPS_TIMEOUT,
+                2048,
+                crate::limits::READ_TIMEOUT,
+                None,
+                false,
+                &mut *chrome,
+            );
+            if result.ok() && !result.body.is_empty() {
+                Some(result.body)
+            } else {
+                None
+            }
+        };
+        let owner_of = |ip: &str| -> Option<crate::ip_owner::IpOwner> {
+            let mut ask = doh_ask_query.lock().expect("замок вопросов эталона");
+            crate::ip_owner::lookup_ip_owner(ip, |name, record_type| {
+                crate::net_access::doh_ask(name, record_type, &mut *ask)
+            })
+        };
+        let probe = |ttl: u32| -> Option<(String, Option<f64>)> {
+            if run.dns_cancelled() {
+                return None;
+            }
+            hops.as_ref().and_then(|hops| hops(ttl))
+        };
+        let hop_probe = Some(&probe as &dyn Fn(u32) -> Option<(String, Option<f64>)>);
+        crate::sections::check_network(
+            &fetch_server,
+            &owner_of,
+            &crate::my_network::local_address,
+            hop_probe,
+            bypass_tools,
+        )
+    })
+}
+
+/// python `sections.upload` — проверка отправки на том же сервере.
+pub type UploadFn =
+    Arc<dyn Fn(&Run, &str, &str) -> Option<crate::upload_probe::UploadVerdict> + Send + Sync>;
+
+/// Замыкание проверки отправки, привязанное к прогону: срок жизни явный,
+/// потому что аннотация `'_` у trait object подразумевала бы `'static`.
+fn upload_with<'r>(
+    upload: UploadFn,
+    run: &'r Run,
+) -> impl Fn(&str, &str) -> Option<crate::upload_probe::UploadVerdict> + 'r {
+    move |host: &str, path: &str| upload(run, host, path)
+}
+
+/// Замыкание как trait object с тем же сроком жизни, что у ссылки.
+fn as_upload<'a, F>(call: &'a F) -> &'a crate::freeze_check::UploadCheck<'a>
+where
+    F: Fn(&str, &str) -> Option<crate::upload_probe::UploadVerdict> + 'a,
+{
+    call
+}
+
+/// Настоящая проверка обрыва (python движок + `sections.download`): адреса
+/// провайдеров проверяются запросами «как Chrome» по 64 КБ.
+///
+/// `resolve(host)` — адреса, которыми воспользовался бы браузер; кэш адресов
+/// живёт внутри проверки, как у python на прогоне.
+#[must_use]
+#[allow(clippy::type_complexity)]
+pub fn freeze_transport(
+    chrome_get: Arc<Mutex<ChromeGetMut>>,
+    targets: FreezeTargetsFn,
+    resolve: Arc<dyn Fn(&str) -> Vec<String> + Send + Sync>,
+    upload: Option<UploadFn>,
+) -> FreezeCheck {
+    Arc::new(
+        move |run: &Run,
+              every: bool,
+              on_server: &dyn Fn(&crate::freeze_check::FreezeServer, u32, u32)| {
+            let cache: Arc<Mutex<BTreeMap<String, String>>> = Arc::new(Mutex::new(BTreeMap::new()));
+            // Внутреннее move-замыкание не может забрать владение у внешнего
+            // Fn-замыкания: общие части клонируются заранее.
+            let resolve = Arc::clone(&resolve);
+            let chrome_get = Arc::clone(&chrome_get);
+            let download =
+                move |host: &str, path: &str| -> Option<crate::probe_result::ProbeResult> {
+                    let known = cache.lock().expect("замок адресов").get(host).cloned();
+                    let address =
+                        crate::net_access::known_address(known, &mut |name| resolve(name), host);
+                    if address.is_empty() {
+                        return None;
+                    }
+                    cache
+                        .lock()
+                        .expect("замок адресов")
+                        .insert(host.to_string(), address.clone());
+                    let mut chrome = chrome_get.lock().expect("замок chrome_get");
+                    Some(crate::net_access::fetch(
+                        host,
+                        &address,
+                        path,
+                        crate::limits::HTTPS_TIMEOUT,
+                        usize::try_from(crate::freeze_check::READ_LIMIT).expect("лимит чтения"),
+                        crate::limits::FREEZE_READ_TIMEOUT,
+                        None,
+                        false,
+                        &mut *chrome,
+                    ))
+                };
+            let upload_call = upload
+                .as_ref()
+                .map(|upload| upload_with(Arc::clone(upload), run));
+            let upload_server = upload_call.as_ref().map(as_upload);
+            let on_each =
+                |server: &crate::freeze_check::FreezeServer, done: usize, total: usize| {
+                    on_server(
+                        server,
+                        u32::try_from(done).unwrap_or(u32::MAX),
+                        u32::try_from(total).unwrap_or(u32::MAX),
+                    )
+                };
+            Ok(crate::freeze_check::check_freeze(
+                &targets(),
+                every,
+                download,
+                upload_server,
+                Some(&on_each),
+                crate::run_context::clock_now,
+            ))
+        },
+    )
+}
+
 /// python `quic_probe.collect(host, ip, submit, cancel)` — сначала пакет с
 /// именем сайта, как у браузера. Только если сервер промолчал, уходят пакеты
 /// с посторонним именем и без имени — параллельно: они нужны, чтобы назвать
@@ -1014,8 +1392,12 @@ pub fn collect_facts(
 /// самопроверка перехвата.
 ///
 /// `reader` — Windows-чтения (на другой системе достаточно `NullSystemReader`);
-/// расхождение часов здесь не меряется: для него нужен HTTPS-запрос.
-pub fn system_transport(reader: Arc<dyn SystemReader>) -> SystemCheck {
+/// `clock_skew` — расхождение часов (для него нужен HTTPS-запрос —
+/// [`clock_skew_transport`]); None — не меряется.
+pub fn system_transport(
+    reader: Arc<dyn SystemReader>,
+    clock_skew: Option<ClockSkewFn>,
+) -> SystemCheck {
     Arc::new(
         move |run: &std::sync::Arc<Run>,
               services: &[(String, crate::services::Service)],
@@ -1038,7 +1420,8 @@ pub fn system_transport(reader: Arc<dyn SystemReader>) -> SystemCheck {
             } else {
                 None
             };
-            let facts = collect_facts(reader.as_ref(), &hosts, None);
+            let skew = clock_skew.as_ref().and_then(|measure| measure(run));
+            let facts = collect_facts(reader.as_ref(), &hosts, skew);
             let mut items = crate::system_state::judge(&facts, zapret_running);
             if let Some(pending) = pending {
                 let facts = await_value(&pending)?;
@@ -1065,5 +1448,64 @@ pub fn self_check_now(cancel: &SocketCancel) -> crate::self_check::SelfFacts {
         _ => crate::self_check::SelfFacts {
             accepted: Some(false),
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Эталон — python `parsedate_to_datetime(...).timestamp()`:
+    /// `Tue, 15 Nov 1994 08:12:31 GMT` = 784887151 unix-секунд.
+    #[test]
+    fn http_date_is_parsed() {
+        assert_eq!(
+            http_date_timestamp("Tue, 15 Nov 1994 08:12:31 GMT"),
+            Some(784_887_151.0)
+        );
+        assert_eq!(
+            http_date_timestamp("15 Nov 1994 08:12:31 GMT"),
+            Some(784_887_151.0)
+        );
+        // Смещение зоны вычитается: 12:00+02:00 = 10:00 GMT.
+        assert_eq!(
+            http_date_timestamp("Tue, 15 Nov 1994 12:00:00 +0200"),
+            Some(784_893_600.0)
+        );
+        assert_eq!(http_date_timestamp("не дата"), None);
+        assert_eq!(http_date_timestamp("Tue, 32 Nov 1994 08:12:31 GMT"), None);
+    }
+
+    #[test]
+    fn date_header_found_in_body() {
+        let body =
+            b"HTTP/1.1 204 No Content\r\nDate: Tue, 15 Nov 1994 08:12:31 GMT\r\nServer: t\r\n\r\n";
+        // Локальное время на 10 секунд впереди серверного.
+        assert_eq!(clock_skew_from_body(784_887_161.0, body), Some(10.0));
+        // Заголовка нет — и расхождения нет.
+        assert_eq!(
+            clock_skew_from_body(784_887_161.0, b"HTTP/1.1 204\r\n\r\n"),
+            None
+        );
+    }
+
+    #[test]
+    fn leap_years_counted() {
+        // Эталоны python: високосные 2000 и 2024 принимают 29 февраля,
+        // невисокосный 1900 — нет (ValueError → None).
+        assert_eq!(
+            http_date_timestamp("Wed, 01 Mar 2000 00:00:00 GMT"),
+            Some(951_868_800.0)
+        );
+        assert_eq!(
+            http_date_timestamp("Tue, 29 Feb 2000 00:00:00 GMT"),
+            Some(951_782_400.0)
+        );
+        assert_eq!(
+            http_date_timestamp("Wed, 29 Feb 2024 00:00:00 GMT"),
+            Some(1_709_164_800.0)
+        );
+        assert_eq!(http_date_timestamp("Tue, 29 Feb 1900 00:00:00 GMT"), None);
+        assert_eq!(http_date_timestamp("Tue, 31 Nov 1994 08:12:31 GMT"), None);
     }
 }

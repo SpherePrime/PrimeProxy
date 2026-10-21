@@ -152,6 +152,175 @@ pub fn judge(facts: &VolumeFacts) -> VolumeVerdict {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Транспорт: запросы по одному соединению «как Chrome»
+// ---------------------------------------------------------------------------
+
+use std::sync::Arc;
+use std::time::Instant;
+
+use primecore_socketcancel::SocketCancel;
+
+/// python `volume_probe.download(...)` — шлёт запросы `method` подряд по одному
+/// соединению «как Chrome» с `ip`, пока не наберётся `target` байт ответа.
+///
+/// Соединение — как у браузера ([`crate::chrome_https::ChromeConnection`]):
+/// то же рукопожатие, браузерные заголовки; сжатие не распаковывается —
+/// считаются байты на проводе.
+#[allow(clippy::too_many_arguments)]
+pub fn download(
+    host: &str,
+    ip: &str,
+    path: &str,
+    method: &str,
+    target: u64,
+    port: u16,
+    timeout: f64,
+    stall: f64,
+    budget: f64,
+    cancel: &Arc<SocketCancel>,
+) -> VolumeRun {
+    let started = Instant::now();
+    let mut received = 0u64;
+    let mut requests = 0u32;
+    // python `_run(kind)`: «Стоп» перекрывает всё, кроме полного набора объёма.
+    let finish = |kind: &str, received: u64, requests: u32| -> VolumeRun {
+        let kind = if cancel.cancelled() && kind != RUN_PASSED {
+            RUN_CANCELLED
+        } else {
+            kind
+        };
+        VolumeRun {
+            kind: kind.to_string(),
+            received,
+            requests,
+        }
+    };
+    if cancel.cancelled() {
+        return VolumeRun {
+            kind: RUN_CANCELLED.to_string(),
+            ..VolumeRun::default()
+        };
+    }
+    // В тестах крейта соединение открытое (без рукопожатия) — вся остальная
+    // механика запросов та же; рукопожатие проверено живыми тестами
+    // chrome_https.
+    #[cfg(test)]
+    let mut connection = crate::chrome_https::ChromeConnection::insecure_http_for_tests(
+        host,
+        ip,
+        timeout,
+        port,
+        stall,
+        Arc::clone(cancel),
+    );
+    #[cfg(not(test))]
+    let mut connection = crate::chrome_https::ChromeConnection::new(
+        host,
+        ip,
+        timeout,
+        port,
+        stall,
+        false,
+        Arc::clone(cancel),
+    );
+    while requests < MAX_REQUESTS && started.elapsed().as_secs_f64() < budget {
+        let before = received;
+        let mut enough = |body: &[u8]| before as usize + body.len() >= target as usize;
+        let exchange = connection.request(path, method, &mut enough);
+        requests += 1;
+        received += exchange.received() as u64;
+        if exchange.progress.cancelled {
+            return finish(RUN_CANCELLED, received, requests);
+        }
+        if exchange.reconnected {
+            // Прежнее соединение закрыли между запросами: счёт по нему
+            // кончился, этот запрос — уже не по нему.
+            received -= exchange.received() as u64;
+            requests -= 1;
+            return finish(RUN_CLOSED, received, requests);
+        }
+        if exchange.progress.stopped_by_us || received >= target {
+            return finish(RUN_PASSED, received, requests);
+        }
+        if exchange.error_code != 0 {
+            if requests == 1 && exchange.progress.status.is_none() && !exchange.progress.secured {
+                return finish(RUN_FAILED, received, requests);
+            }
+            if exchange.stalled() {
+                return finish(RUN_STALLED, received, requests);
+            }
+            return finish(
+                if exchange.reset() {
+                    RUN_RESET
+                } else {
+                    RUN_CLOSED
+                },
+                received,
+                requests,
+            );
+        }
+        if requests >= ESTIMATE_AFTER
+            && received / u64::from(requests) * u64::from(MAX_REQUESTS) <= CUT_MAX_BYTES
+        {
+            // Если сервер отвечает крошечными ответами и за все запросы не
+            // выйти даже за окно обрыва, попытка прекращается сразу.
+            return finish(RUN_CLOSED, received, requests);
+        }
+    }
+    finish(RUN_CLOSED, received, requests)
+}
+
+/// python `collect(host, ip, path, cancel)` — первая попытка обычными
+/// запросами; замерла в окне — вторая, запросами `HEAD`.
+pub fn collect(host: &str, ip: &str, path: &str, cancel: &Arc<SocketCancel>) -> VolumeFacts {
+    collect_with_port(host, ip, path, 443, cancel)
+}
+
+/// То же с явным портом — для живых тестов на локальном сервере.
+pub fn collect_with_port(
+    host: &str,
+    ip: &str,
+    path: &str,
+    port: u16,
+    cancel: &Arc<SocketCancel>,
+) -> VolumeFacts {
+    let first = download(
+        host,
+        ip,
+        path,
+        "GET",
+        TARGET_BYTES,
+        port,
+        TIMEOUT_S,
+        STALL_S,
+        BUDGET_S,
+        cancel,
+    );
+    if !froze_in_window(&first) || cancel.cancelled() {
+        return VolumeFacts {
+            first,
+            second: None,
+        };
+    }
+    let second = download(
+        host,
+        ip,
+        path,
+        "HEAD",
+        TARGET_BYTES,
+        port,
+        TIMEOUT_S,
+        STALL_S,
+        BUDGET_S,
+        cancel,
+    );
+    VolumeFacts {
+        first,
+        second: Some(second),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -235,5 +404,139 @@ mod tests {
         })
         .text
         .contains("не проверить"));
+    }
+
+    // --- Живые проверки на локальном сервере (внешней сети нет) ---
+
+    use std::io::{Read as _, Write as _};
+    use std::net::TcpListener;
+
+    /// Локальный сервер: на каждый запрос отвечает `size` байтами, соединение
+    /// держит открытым (keep-alive).
+    fn spawn_volume_server(size: usize, replies: usize) -> u16 {
+        let listener = TcpListener::bind("127.0.0.1:0").expect("сокет слушается");
+        let port = listener.local_addr().expect("адрес").port();
+        std::thread::spawn(move || {
+            if let Ok((mut stream, _)) = listener.accept() {
+                let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(2)));
+                let mut buffer = [0u8; 4096];
+                for index in 0..replies {
+                    if stream.read(&mut buffer).is_err() {
+                        break;
+                    }
+                    let body = vec![b'a' + (index % 26) as u8; size];
+                    let head = format!("HTTP/1.1 200 OK\r\nContent-Length: {size}\r\n\r\n");
+                    if stream.write_all(head.as_bytes()).is_err()
+                        || stream.write_all(&body).is_err()
+                    {
+                        break;
+                    }
+                    let _ = stream.flush();
+                }
+                std::thread::sleep(std::time::Duration::from_millis(200));
+            }
+        });
+        port
+    }
+
+    #[test]
+    fn download_collects_target_over_one_connection() {
+        let port = spawn_volume_server(100, 20);
+        let cancel = Arc::new(SocketCancel::new());
+        let run = download(
+            "site.test",
+            "127.0.0.1",
+            "/probe",
+            "GET",
+            350,
+            port,
+            5.0,
+            3.0,
+            6.0,
+            &cancel,
+        );
+        assert_eq!(run.kind, RUN_PASSED, "{}", run.kind);
+        assert!(run.received >= 350, "получено {}", run.received);
+        // Объём набран по одному соединению, без переоткрытий.
+        assert!(
+            run.requests >= 3 && run.requests < 20,
+            "запросов {}",
+            run.requests
+        );
+    }
+
+    #[test]
+    fn download_counts_only_one_connection() {
+        // Сервер отвечает дважды и закрывает соединение: счёт по нему кончился.
+        let port = spawn_volume_server(100, 2);
+        let cancel = Arc::new(SocketCancel::new());
+        let run = download(
+            "site.test",
+            "127.0.0.1",
+            "/probe",
+            "GET",
+            10_000,
+            port,
+            5.0,
+            3.0,
+            6.0,
+            &cancel,
+        );
+        // Соединение закрылось посреди работы: как у libcurl — пустой ответ
+        // (код 52) считается сбросом.
+        assert_eq!(run.kind, RUN_RESET, "{}", run.kind);
+        assert!(run.received <= 300, "получено {}", run.received);
+    }
+
+    #[test]
+    fn download_cancelled_returns_cancelled() {
+        let cancel = Arc::new(SocketCancel::new());
+        cancel.cancel();
+        let run = download(
+            "site.test",
+            "127.0.0.1",
+            "/probe",
+            "GET",
+            350,
+            443,
+            5.0,
+            3.0,
+            6.0,
+            &cancel,
+        );
+        assert_eq!(run.kind, RUN_CANCELLED);
+        assert_eq!(run.requests, 0);
+    }
+
+    #[test]
+    fn collect_repeats_only_on_freeze() {
+        // Первый прогон замирает в окне (сервер обрывает соединение), второй
+        // — запросами HEAD — повторяется.
+        let listener = TcpListener::bind("127.0.0.1:0").expect("сокет слушается");
+        let port = listener.local_addr().expect("адрес").port();
+        std::thread::spawn(move || {
+            if let Ok((mut stream, _)) = listener.accept() {
+                let _ = stream.set_read_timeout(Some(std::time::Duration::from_secs(2)));
+                let mut buffer = [0u8; 4096];
+                // Первый прогон: заголовок + немного тела, потом тишина.
+                if stream.read(&mut buffer).is_err() {
+                    return;
+                }
+                let _ = stream.write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 10000\r\n\r\nab");
+                let _ = stream.flush();
+                std::thread::sleep(std::time::Duration::from_secs(30));
+            }
+        });
+        let cancel = Arc::new(SocketCancel::new());
+        let facts = collect_with_port("site.test", "127.0.0.1", "/probe", port, &cancel);
+        // Замирание с маленьким телом — не в окне обрыва: второй раз не проверяли.
+        assert_eq!(facts.second, None);
+        assert!(froze_in_window(&facts.first) || facts.first.kind == RUN_STALLED);
+        if froze_in_window(&facts.first) {
+            assert!(
+                facts.second.is_some(),
+                "замирание в окне повторяется HEAD-ом"
+            );
+        }
     }
 }

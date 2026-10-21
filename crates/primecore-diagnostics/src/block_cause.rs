@@ -4,13 +4,23 @@
 //! Основная проверка (`probe_result`) говорит, на какой ступени оборвалось
 //! соединение. Этого мало, чтобы понять, **как** блокируют: по имени сайта или
 //! по адресу. В python делаются три дешёвые пробы к тому же адресу: SNI с
-//! посторонним именем, HTTP порт 80, пинг. Сбор (`collect`, `tls_hello`,
-//! `http_probe`) — сетевая часть (TLS-клиент), портируется следом; здесь —
-//! чистая часть: состав проб, сравнение фактов и вывод (`judge`).
+//! посторонним именем, HTTP порт 80, пинг. Здесь — чистая часть (состав проб,
+//! сравнение фактов, вывод `judge`) и сбор: `tls_hello` — шифрованное
+//! соединение без проверки сертификата (важно одно — ответил ли сервер
+//! вообще), `http_probe` — обычный порт 80, `collect` — пробы разом.
+
+use std::io::{Read, Write};
+use std::net::{TcpStream, ToSocketAddrs};
+use std::sync::{Arc, OnceLock};
+use std::time::{Duration, Instant};
+
+use primecore_socketcancel::SocketCancel;
+use rustls::pki_types::ServerName;
 
 use crate::probe_result::{
     ProbeResult, KIND_CONNECT, KIND_RESET, KIND_TIMEOUT, KIND_TLS, STAGE_CONNECT, STAGE_TLS,
 };
+use crate::run_context::{Run, TaskError};
 
 pub const CAUSE_STUB_PAGE: &str = "stub_page";
 pub const CAUSE_BY_NAME: &str = "by_name";
@@ -59,6 +69,8 @@ const RESTRICTED_MARKERS: [&str; 4] = [
 /// Версии шифрования простых приветствий (python `TLS_1_2` / `TLS_1_3`).
 pub const TLS_1_2: &str = "1.2";
 pub const TLS_1_3: &str = "1.3";
+/// Любая версия, на какую сервер согласится (для cert_owner и тестов).
+pub const TLS_ANY: &str = "any";
 
 /// Результат простого приветствия (`HELLO_*`): вид исхода, подпись, время.
 pub const HELLO_OK: &str = "ok"; // шифрование установилось
@@ -89,6 +101,10 @@ impl HelloResult {
     }
     pub fn with_detail(mut self, detail: impl Into<String>) -> Self {
         self.detail = detail.into();
+        self
+    }
+    pub fn with_ms(mut self, ms: f64) -> Self {
+        self.ms = Some(ms);
         self
     }
     /// Сервер по этому адресу ответил — значит, дорога до него открыта.
@@ -403,6 +419,473 @@ pub fn judge(facts: &CauseFacts) -> Option<Cause> {
         ));
     }
     None
+}
+
+// ---------------------------------------------------------------------------
+// Транспорт: tls_hello, http_probe и сбор проб
+// ---------------------------------------------------------------------------
+
+/// Как часто при чтении между отрезками проверяется «Стоп».
+const POLL_SLICE_S: f64 = 0.2;
+
+/// Проверки сертификата здесь нет: с посторонним именем сервер и должен
+/// предъявить «не тот», важно одно — ответил ли он вообще (python
+/// `check_hostname = False, verify_mode = CERT_NONE`).
+#[derive(Debug)]
+struct NoVerify {
+    schemes: Vec<rustls::SignatureScheme>,
+}
+
+impl NoVerify {
+    fn new(provider: &Arc<rustls::crypto::CryptoProvider>) -> Self {
+        NoVerify {
+            schemes: provider
+                .signature_verification_algorithms
+                .supported_schemes(),
+        }
+    }
+}
+
+impl rustls::client::danger::ServerCertVerifier for NoVerify {
+    fn verify_server_cert(
+        &self,
+        _end_entity: &rustls::pki_types::CertificateDer<'_>,
+        _intermediates: &[rustls::pki_types::CertificateDer<'_>],
+        _server_name: &rustls::pki_types::ServerName<'_>,
+        _ocsp_response: &[u8],
+        _now: rustls::pki_types::UnixTime,
+    ) -> Result<rustls::client::danger::ServerCertVerified, rustls::Error> {
+        Ok(rustls::client::danger::ServerCertVerified::assertion())
+    }
+
+    fn verify_tls12_signature(
+        &self,
+        _message: &[u8],
+        _cert: &rustls::pki_types::CertificateDer<'_>,
+        _dss: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        Ok(rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    fn verify_tls13_signature(
+        &self,
+        _message: &[u8],
+        _cert: &rustls::pki_types::CertificateDer<'_>,
+        _dss: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        Ok(rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
+        self.schemes.clone()
+    }
+}
+
+/// python `_hello_context` — клиент приветствия: без проверки сертификата,
+/// ALPN `http/1.1`; `version` — только эта версия шифрования. Клиенты живут
+/// один раз на процесс (создание небыстрое).
+fn hello_config(version: &str) -> Arc<rustls::ClientConfig> {
+    static ANY: OnceLock<Arc<rustls::ClientConfig>> = OnceLock::new();
+    static TLS12: OnceLock<Arc<rustls::ClientConfig>> = OnceLock::new();
+    static TLS13: OnceLock<Arc<rustls::ClientConfig>> = OnceLock::new();
+    let build = |versions: &[&'static rustls::SupportedProtocolVersion]| {
+        let provider = Arc::new(rustls::crypto::ring::default_provider());
+        let mut config = rustls::ClientConfig::builder_with_provider(Arc::clone(&provider))
+            .with_protocol_versions(versions)
+            .expect("версии TLS доступны")
+            .dangerous()
+            .with_custom_certificate_verifier(Arc::new(NoVerify::new(&provider)))
+            .with_no_client_auth();
+        config.alpn_protocols = vec![b"http/1.1".to_vec()];
+        Arc::new(config)
+    };
+    match version {
+        TLS_1_2 => TLS12.get_or_init(|| build(&[&rustls::version::TLS12])),
+        TLS_1_3 => TLS13.get_or_init(|| build(&[&rustls::version::TLS13])),
+        _ => ANY.get_or_init(|| build(rustls::DEFAULT_VERSIONS)),
+    }
+    .clone()
+}
+
+/// python `_hello_failure` — сбой на приветствии: ответивший сервер или мусор.
+fn hello_failure(error: &rustls::Error) -> HelloResult {
+    let text = error.to_string().to_uppercase();
+    if text.contains("ALERT")
+        || text.contains("UNRECOGNIZED_NAME")
+        || text.contains("HANDSHAKE_FAILURE")
+    {
+        return HelloResult::new(HELLO_ALERT).with_detail(error.to_string());
+    }
+    if text.contains("WRONG_VERSION_NUMBER")
+        || text.contains("UNKNOWN_PROTOCOL")
+        || text.contains("RECORD_LAYER")
+        || text.contains("CORRUPT MESSAGE")
+        || text.contains("INVALID_MESSAGE")
+    {
+        return HelloResult::new(HELLO_GARBAGE).with_detail(error.to_string());
+    }
+    // Незнакомая ошибка шифрования — это «не поняли», а не «ответил чужой сервер».
+    HelloResult::new(HELLO_ERROR).with_detail(error.to_string())
+}
+
+/// python `tls_hello` — начинает шифрованное соединение с `ip`, называя имя
+/// `name` (None — без имени). `version` — только этой версией шифрования.
+pub fn tls_hello(
+    ip: &str,
+    name: Option<&str>,
+    port: u16,
+    timeout: f64,
+    cancel: &SocketCancel,
+    version: &str,
+) -> HelloResult {
+    let started = Instant::now();
+    match tls_stream(ip, name, port, timeout, cancel, version) {
+        Ok(_) => HelloResult::new(HELLO_OK).with_ms(started.elapsed().as_secs_f64() * 1000.0),
+        Err(result) => result,
+    }
+}
+
+/// Установленное шифрованное соединение — для тех, кому нужен сам канал
+/// (`cert_owner::collect` читает из него сертификат сервера). Ошибка —
+/// `HelloResult` с причиной сбоя.
+pub fn tls_stream(
+    ip: &str,
+    name: Option<&str>,
+    port: u16,
+    timeout: f64,
+    cancel: &SocketCancel,
+    version: &str,
+) -> Result<rustls::StreamOwned<rustls::ClientConnection, TcpStream>, HelloResult> {
+    if cancel.cancelled() {
+        return Err(HelloResult::new(HELLO_CANCELLED));
+    }
+    let config = hello_config(version);
+    // python: AF_INET6, если адрес с двоеточием.
+    let address = if ip.contains(':') {
+        format!("[{ip}]:{port}")
+    } else {
+        format!("{ip}:{port}")
+    };
+    let target = match address.to_socket_addrs() {
+        Ok(mut addrs) => match addrs.next() {
+            Some(target) => target,
+            None => return Err(HelloResult::new(HELLO_CONNECT)),
+        },
+        Err(_) => return Err(HelloResult::new(HELLO_CONNECT)),
+    };
+    let stream = match TcpStream::connect_timeout(&target, Duration::from_secs_f64(timeout)) {
+        Ok(stream) => stream,
+        Err(error) => {
+            if cancel.cancelled() {
+                return Err(HelloResult::new(HELLO_CANCELLED));
+            }
+            // До соединения дело не дошло — это не сбой дороги.
+            return Err(HelloResult::new(HELLO_CONNECT).with_detail(error.to_string()));
+        }
+    };
+    let server_name = match ServerName::try_from(name.unwrap_or(ip).to_string()) {
+        Ok(name) => name,
+        Err(_) => return Err(HelloResult::new(HELLO_CONNECT)),
+    };
+    // Клиент готовится до отсчёта времени: его создание бывает небыстрым.
+    let connection = match rustls::ClientConnection::new(config, server_name) {
+        Ok(connection) => connection,
+        Err(error) => return Err(hello_failure(&error)),
+    };
+    let mut secured = rustls::StreamOwned::new(connection, stream);
+    let deadline = Instant::now() + Duration::from_secs_f64(timeout.max(0.2));
+    loop {
+        if cancel.cancelled() {
+            return Err(HelloResult::new(HELLO_CANCELLED));
+        }
+        let remaining = deadline.saturating_duration_since(Instant::now());
+        if remaining.is_zero() {
+            return Err(HelloResult::new(HELLO_TIMEOUT));
+        }
+        let slice = remaining.min(Duration::from_secs_f64(POLL_SLICE_S));
+        let _ = secured.sock.set_read_timeout(Some(slice));
+        let _ = secured.sock.set_write_timeout(Some(slice));
+        match secured.conn.complete_io(&mut secured.sock) {
+            Ok(_) => return Ok(secured),
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    std::io::ErrorKind::WouldBlock
+                        | std::io::ErrorKind::TimedOut
+                        | std::io::ErrorKind::Interrupted
+                ) =>
+            {
+                continue;
+            }
+            Err(error) => {
+                if cancel.cancelled() {
+                    return Err(HelloResult::new(HELLO_CANCELLED));
+                }
+                return Err(
+                    match error
+                        .get_ref()
+                        .and_then(|inner| inner.downcast_ref::<rustls::Error>())
+                    {
+                        Some(tls_error) => hello_failure(tls_error),
+                        None => match error.kind() {
+                            std::io::ErrorKind::UnexpectedEof => HelloResult::new(HELLO_RESET)
+                                .with_detail("соединение закрыто на приветствии"),
+                            std::io::ErrorKind::TimedOut => HelloResult::new(HELLO_TIMEOUT),
+                            _ => HelloResult::new(HELLO_RESET).with_detail(error.to_string()),
+                        },
+                    },
+                );
+            }
+        }
+    }
+}
+
+/// python `http_probe` — `GET http://host/` по адресу `ip`: код ответа, куда
+/// перенаправили и начало страницы.
+pub fn http_probe(
+    host: &str,
+    ip: &str,
+    port: u16,
+    timeout: f64,
+    cancel: &SocketCancel,
+) -> HttpFacts {
+    if cancel.cancelled() {
+        return HttpFacts::default();
+    }
+    let address = if ip.contains(':') {
+        format!("[{ip}]:{port}")
+    } else {
+        format!("{ip}:{port}")
+    };
+    let target = match address.to_socket_addrs() {
+        Ok(mut addrs) => match addrs.next() {
+            Some(target) => target,
+            None => return HttpFacts::default(),
+        },
+        Err(_) => return HttpFacts::default(),
+    };
+    let Ok(mut stream) = TcpStream::connect_timeout(&target, Duration::from_secs_f64(timeout))
+    else {
+        return HttpFacts::default();
+    };
+    let request = format!(
+        "GET / HTTP/1.1\r\nHost: {host}\r\nUser-Agent: Mozilla/5.0\r\nAccept: */*\r\nConnection: close\r\n\r\n"
+    );
+    if stream.write_all(request.as_bytes()).is_err() {
+        return HttpFacts::default();
+    }
+    let deadline = Instant::now() + Duration::from_secs_f64(timeout.max(0.2));
+    let mut data = Vec::with_capacity(HTTP_READ_LIMIT);
+    while data.len() < HTTP_READ_LIMIT {
+        if cancel.cancelled() {
+            return HttpFacts::default();
+        }
+        let remaining = deadline.saturating_duration_since(Instant::now());
+        if remaining.is_zero() {
+            break;
+        }
+        let _ = stream.set_read_timeout(Some(remaining.min(Duration::from_secs_f64(POLL_SLICE_S))));
+        let mut chunk = [0u8; 4096];
+        match stream.read(&mut chunk) {
+            Ok(0) => break,
+            Ok(size) => {
+                let left = HTTP_READ_LIMIT - data.len();
+                data.extend_from_slice(&chunk[..size.min(left)]);
+            }
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    std::io::ErrorKind::WouldBlock
+                        | std::io::ErrorKind::TimedOut
+                        | std::io::ErrorKind::Interrupted
+                ) =>
+            {
+                continue;
+            }
+            Err(_) => break,
+        }
+    }
+    if cancel.cancelled() {
+        return HttpFacts::default();
+    }
+    parse_http_facts(&data)
+}
+
+/// Разбор ответа порта 80 (python: разрез по пустой строке, статус из первой
+/// строки, `Location` из заголовков, тело — что после заголовков).
+fn parse_http_facts(data: &[u8]) -> HttpFacts {
+    let (head, body) = match data.windows(4).position(|part| part == b"\r\n\r\n") {
+        Some(split) => (&data[..split], &data[split + 4..]),
+        None => (data, &b""[..]),
+    };
+    let text = String::from_utf8_lossy(head);
+    let mut lines = text.split("\r\n");
+    let mut parts = lines.next().unwrap_or("").split_ascii_whitespace();
+    let Some(first) = parts.next() else {
+        return HttpFacts::default();
+    };
+    let Some(second) = parts.next() else {
+        return HttpFacts::default();
+    };
+    if !first.starts_with("HTTP/")
+        || second.is_empty()
+        || !second.chars().all(|c| c.is_ascii_digit())
+    {
+        return HttpFacts::default();
+    }
+    let status = second.parse::<i64>().ok();
+    let mut location = String::new();
+    for line in lines {
+        if let Some((name, value)) = line.split_once(':') {
+            if name.trim().eq_ignore_ascii_case("location") {
+                location = value.trim().to_string();
+            }
+        }
+    }
+    HttpFacts {
+        status,
+        location,
+        body: body.to_vec(),
+    }
+}
+
+/// python `later` — вызов через `delay` секунд; «Стоп» ждать не заставляет.
+fn later_hello(
+    delay: f64,
+    ip: String,
+    name: Option<String>,
+    port: u16,
+    timeout: f64,
+    cancel: Arc<SocketCancel>,
+    version: &'static str,
+) -> impl FnOnce() -> Result<HelloResult, TaskError> + Send + 'static {
+    move || {
+        cancel.sleep(delay);
+        Ok(tls_hello(
+            &ip,
+            name.as_deref(),
+            port,
+            timeout,
+            &cancel,
+            version,
+        ))
+    }
+}
+
+/// python `block_cause.collect(host, result, submit, cancel, ping)` —
+/// дополнительные пробы к адресу, на котором сайт не открылся; идут
+/// одновременно (через машину прогона), приветствия — с шагом.
+#[allow(clippy::type_complexity)]
+pub fn collect(
+    host: &str,
+    result: &ProbeResult,
+    run: &Arc<Run>,
+    ping: Option<&Arc<dyn Fn(&str) -> Option<bool> + Send + Sync>>,
+) -> Result<CauseFacts, TaskError> {
+    let cancel = Arc::clone(&run.probe_cancel);
+    let ip = result.ip.clone();
+    let http_job = {
+        let host = host.to_string();
+        let ip = ip.clone();
+        let cancel = Arc::clone(&cancel);
+        run.submit(move || Ok(http_probe(&host, &ip, 80, HTTP_TIMEOUT_S, &cancel)))
+    };
+    if result.kind == KIND_CONNECT {
+        let ping_job = ping.map(|ping| {
+            let ip = ip.clone();
+            let ping = Arc::clone(ping);
+            run.submit(move || Ok(ping(&ip)))
+        });
+        let http = run.wait(&http_job)?;
+        let ping_ok = match &ping_job {
+            Some(job) => run.wait(job)?,
+            None => None,
+        };
+        return Ok(CauseFacts {
+            host: host.to_string(),
+            result: Some(result.clone()),
+            http: Some(http),
+            ping_ok,
+            ..CauseFacts::default()
+        });
+    }
+    let neutral = run.submit({
+        let ip = ip.clone();
+        let cancel = Arc::clone(&cancel);
+        move || {
+            Ok(tls_hello(
+                &ip,
+                Some(NEUTRAL_NAME),
+                443,
+                HELLO_TIMEOUT_S,
+                &cancel,
+                "",
+            ))
+        }
+    });
+    let nameless = run.submit(later_hello(
+        STAGGER_S,
+        ip.clone(),
+        None,
+        443,
+        HELLO_TIMEOUT_S,
+        Arc::clone(&cancel),
+        "",
+    ));
+    let mut allowed_jobs = Vec::with_capacity(ALLOWED_NAMES.len());
+    for (index, name) in ALLOWED_NAMES.iter().enumerate() {
+        allowed_jobs.push((
+            (*name).to_string(),
+            run.submit(later_hello(
+                (2 + index) as f64 * STAGGER_S,
+                ip.clone(),
+                Some((*name).to_string()),
+                443,
+                HELLO_TIMEOUT_S,
+                Arc::clone(&cancel),
+                "",
+            )),
+        ));
+    }
+    // Настоящее имя ещё раз: один сбой — не сравнение. Вывод «по имени»
+    // уверенный, только если оно оборвалось и теперь, пока постороннее имя
+    // проходит.
+    let real_again = run.submit(later_hello(
+        (2 + ALLOWED_NAMES.len()) as f64 * STAGGER_S,
+        ip.clone(),
+        Some(host.to_string()),
+        443,
+        HELLO_TIMEOUT_S,
+        Arc::clone(&cancel),
+        "",
+    ));
+    let neutral = run.wait(&neutral)?;
+    let nameless = run.wait(&nameless)?;
+    let mut answers = Vec::with_capacity(allowed_jobs.len());
+    for (name, job) in allowed_jobs {
+        answers.push((name, run.wait(&job)?));
+    }
+    let (allowed_name, allowed) = answers
+        .iter()
+        .find(|(_name, result)| result.answered())
+        .map(|(name, result)| (name.clone(), Some(result.clone())))
+        .unwrap_or_else(|| {
+            let (name, result) = answers.last().expect("разрешённые имена есть");
+            (name.clone(), Some(result.clone()))
+        });
+    let real_again = run.wait(&real_again)?;
+    let http = run.wait(&http_job)?;
+    Ok(CauseFacts {
+        host: host.to_string(),
+        result: Some(result.clone()),
+        neutral: Some(neutral),
+        nameless: Some(nameless),
+        allowed,
+        allowed_name,
+        real_again: Some(real_again),
+        http: Some(http),
+        ping_ok: None,
+    })
 }
 
 #[cfg(test)]

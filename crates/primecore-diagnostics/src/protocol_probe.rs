@@ -346,6 +346,96 @@ pub fn hint(key: &str) -> &'static str {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Сбор проб по дорогам
+// ---------------------------------------------------------------------------
+
+use primecore_socketcancel::SocketCancel;
+use std::sync::Arc;
+
+use crate::run_context::{Run, TaskError};
+
+/// python `_timed_http` — проба порта 80 с замером времени ответа.
+pub fn timed_http(host: &str, ip: &str, cancel: &SocketCancel) -> (HttpFacts, Option<f64>) {
+    let started = std::time::Instant::now();
+    let facts =
+        crate::block_cause::http_probe(host, ip, 80, crate::block_cause::HTTP_TIMEOUT_S, cancel);
+    let ms = if facts.status.is_some() {
+        Some(started.elapsed().as_secs_f64() * 1000.0)
+    } else {
+        None
+    };
+    (facts, ms)
+}
+
+/// python `protocol_probe.collect(host, ip, submit, cancel)` — три пробы к
+/// адресу сайта, который не открылся: TLS 1.2, TLS 1.3 и HTTP. Два
+/// шифрованных соединения с одним именем уходят не разом, а с шагом: пачка
+/// одновременных соединений к одному сайту сама бывает поводом для фильтра
+/// придержать их все.
+pub fn collect(host: &str, ip: &str, run: &Arc<Run>) -> Result<ProtocolFacts, TaskError> {
+    collect_with_port(host, ip, 443, run)
+}
+
+/// То же с заданным портом шифрованных проб (в тестах — локальный сервер).
+pub fn collect_with_port(
+    host: &str,
+    ip: &str,
+    port: u16,
+    run: &Arc<Run>,
+) -> Result<ProtocolFacts, TaskError> {
+    let cancel = Arc::clone(&run.probe_cancel);
+    let tls12 = run.submit({
+        let ip = ip.to_string();
+        let host = host.to_string();
+        let cancel = Arc::clone(&cancel);
+        move || {
+            Ok(crate::block_cause::tls_hello(
+                &ip,
+                Some(&host),
+                port,
+                crate::block_cause::HELLO_TIMEOUT_S,
+                &cancel,
+                crate::block_cause::TLS_1_2,
+            ))
+        }
+    });
+    let tls13 = run.submit({
+        let ip = ip.to_string();
+        let host = host.to_string();
+        let cancel = Arc::clone(&cancel);
+        move || {
+            cancel.sleep(crate::block_cause::STAGGER_S);
+            Ok(crate::block_cause::tls_hello(
+                &ip,
+                Some(&host),
+                port,
+                crate::block_cause::HELLO_TIMEOUT_S,
+                &cancel,
+                crate::block_cause::TLS_1_3,
+            ))
+        }
+    });
+    let http = run.submit({
+        let ip = ip.to_string();
+        let host = host.to_string();
+        let cancel = Arc::clone(&cancel);
+        move || Ok(timed_http(&host, &ip, &cancel))
+    });
+    let tls12 = run.wait(&tls12)?;
+    let tls13 = run.wait(&tls13)?;
+    let (http_facts, http_ms) = run.wait(&http)?;
+    Ok(ProtocolFacts {
+        host: host.to_string(),
+        ip: ip.to_string(),
+        tls12: Some(tls12),
+        tls13: Some(tls13),
+        http: Some(http_facts),
+        http_ms,
+        cancelled: cancel.cancelled(),
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -310,7 +310,7 @@ pub fn confirm_cut(first_text: &str, again: (FreezeState, String)) -> (FreezeSta
 ///
 /// Если загрузка прошла без обрыва, на том же сервере проверяется отправка:
 /// ограничение работает в обе стороны.
-pub type UploadCheck<'u> = dyn Fn(&str, &str) -> Option<UploadVerdict> + 'static;
+pub type UploadCheck<'u> = dyn Fn(&str, &str) -> Option<UploadVerdict> + 'u;
 
 pub fn check_provider(
     provider: &str,

@@ -346,17 +346,23 @@ pub type OnDoneFn = dyn Fn(u32, u32) + Send + Sync;
 pub type QuicCollect =
     Arc<dyn Fn(&str, &str, &Arc<Run>) -> Result<QuicFacts, TaskError> + Send + Sync>;
 /// python `protocol_probe.collect(host, ip, submit, cancel)` — дороги по адресу.
+/// python `protocol_probe.collect(host, ip, submit, cancel)` — дороги по адресу;
+/// посылки с шагом — через машину прогона (`Run`).
 pub type ProtocolsCollect =
-    Arc<dyn Fn(&str, &str, &SocketCancel) -> Result<ProtocolFacts, TaskError> + Send + Sync>;
-/// python `block_cause.collect(host, result, submit, cancel, ping)` — причины.
-pub type CauseCollect =
-    Arc<dyn Fn(&str, &ProbeResult, &SocketCancel) -> Result<CauseFacts, TaskError> + Send + Sync>;
+    Arc<dyn Fn(&str, &str, &Arc<Run>) -> Result<ProtocolFacts, TaskError> + Send + Sync>;
+/// python `block_cause.collect(host, result, submit, cancel, ping)` — причины;
+/// `ping` — общая для прогона проба пинга.
+pub type CauseCollect = Arc<
+    dyn Fn(&str, &ProbeResult, &Arc<Run>, &PingFn) -> Result<CauseFacts, TaskError> + Send + Sync,
+>;
 /// python `volume_probe.collect(host, ip, path, cancel)` — объём по соединению.
-pub type VolumeCollect =
-    Arc<dyn Fn(&str, &str, &str, &SocketCancel) -> Result<VolumeFacts, TaskError> + Send + Sync>;
+pub type VolumeCollect = Arc<
+    dyn Fn(&str, &str, &str, &Arc<SocketCancel>) -> Result<VolumeFacts, TaskError> + Send + Sync,
+>;
 /// python `cert_owner.collect(host, ip, cancel)` — кто ответил вместо сайта.
+/// None — сертификат получить не удалось (python возвращает None).
 pub type CertCollect =
-    Arc<dyn Fn(&str, &str, &SocketCancel) -> Result<CertNames, TaskError> + Send + Sync>;
+    Arc<dyn Fn(&str, &str, &SocketCancel) -> Result<Option<CertNames>, TaskError> + Send + Sync>;
 
 /// python `check_voice(submit, wait, cancel)` — STUN-серверы.
 pub type VoiceCollect = Arc<dyn Fn(&Arc<Run>) -> Result<Vec<VoiceServer>, TaskError> + Send + Sync>;
@@ -922,7 +928,7 @@ fn probe_host(
             let names = (io.cert_collect)(host, &wrong.ip, &run.probe_cancel)?;
             let from_hosts = probe.hosts_ips.contains(&wrong.ip);
             probe.cert = Some(cert_owner::judge(
-                Some(&names),
+                names.as_ref(),
                 host,
                 &wrong.cert_problem,
                 from_hosts,
@@ -980,8 +986,10 @@ fn start_protocols(
     let collect = Arc::clone(&io.protocols_collect);
     let host = probe.host.clone();
     let ip = result.ip.clone();
-    let cancel = Arc::clone(&run.probe_cancel);
-    Ok(Some(run.submit(move || collect(&host, &ip, &cancel))))
+    Ok(Some(run.submit({
+        let run = Arc::clone(run);
+        move || collect(&host, &ip, &run)
+    })))
 }
 
 /// python `_start_quic` — QUIC по тому же адресу, к которому шёл основной запрос.
@@ -1012,7 +1020,7 @@ fn refine_cause(run: &Arc<Run>, io: &EngineIo, probe: &mut Probe) -> Result<(), 
         return Ok(());
     }
     let result = result.expect("причина уточняется при известном исходе");
-    let facts = (io.cause_collect)(&probe.host, &result, &run.probe_cancel)?;
+    let facts = (io.cause_collect)(&probe.host, &result, run, &io.ping)?;
     // Проверку могли снять, пока шли пробы: по обрывкам вывод не делаем.
     if !run.dns_cancelled() {
         probe.cause = block_cause::judge(&facts);
