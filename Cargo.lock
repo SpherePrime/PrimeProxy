@@ -1007,6 +1007,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "primecore-dns"
+version = "0.1.0"
+dependencies = [
+ "base64 0.22.1",
+ "fastrand",
+ "idna",
+ "primecore-dnswire",
+ "primecore-socketcancel",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "primecore-dnswire"
 version = "0.1.0"
 dependencies = [
