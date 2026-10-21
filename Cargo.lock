@@ -1157,6 +1157,15 @@ name = "primecore-socketcancel"
 version = "0.1.0"
 
 [[package]]
+name = "primecore-telegram"
+version = "0.1.0"
+dependencies = [
+ "fastrand",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "primecore-versions"
 version = "0.1.0"
 dependencies = [
