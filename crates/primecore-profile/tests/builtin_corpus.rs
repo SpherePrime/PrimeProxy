@@ -44,7 +44,10 @@ fn builtin_winws2_corpus_parses() {
     let mut profiles_total = 0_usize;
     let mut failures: Vec<String> = Vec::new();
     for path in &files {
-        let name = path.file_name().and_then(|name| name.to_str()).unwrap_or("?");
+        let name = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("?");
         let text = std::fs::read_to_string(path).unwrap();
         match primecore_profile::parser::parse_preset_text(&text, engine, name) {
             Ok(preset) => {
@@ -78,7 +81,10 @@ fn builtin_winws1_corpus_parses() {
     let engine = engine_of("winws1_builtin");
     let mut failures: Vec<String> = Vec::new();
     for (index, path) in files.iter().enumerate() {
-        let name = path.file_name().and_then(|name| name.to_str()).unwrap_or("?");
+        let name = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("?");
         let text = std::fs::read_to_string(path).unwrap();
         if let Err(error) = primecore_profile::parser::parse_preset_text(&text, engine, name) {
             failures.push(format!("{name}: {error}"));

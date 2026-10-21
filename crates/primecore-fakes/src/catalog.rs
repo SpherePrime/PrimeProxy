@@ -682,7 +682,9 @@ mod shipped_tests {
     /// проходит полную проверку целостности.
     #[test]
     fn shipped_catalog_is_valid() {
-        let path = Path::new(RESOURCES).join("system").join("fakes_catalog.sqlite3");
+        let path = Path::new(RESOURCES)
+            .join("system")
+            .join("fakes_catalog.sqlite3");
         let catalog = read_fakes_catalog(&path)
             .unwrap_or_else(|error| panic!("вшитый реестр фейков не читается: {error}"));
         assert_eq!(catalog.entries.len(), 81);

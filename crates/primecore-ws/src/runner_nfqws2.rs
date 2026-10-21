@@ -388,12 +388,15 @@ fn lua_basename(value: &str) -> &str {
 
 /// Фильтры очереди nfqws2 для правил nftables.
 ///
-/// Каждый фильтр — nftables-выражение после `meta nfproto`, как в эталоне
-/// (`nft_apply_nfqws_in_out`): например
-/// `tcp dport { 443 } ct original packets 1-6`. `None` — направление
-/// не обрабатывается. Исходящие (`*_out`) уходят в post-цепочку,
-/// входящие (`*_in`) — в pre-цепочку (правила «наоборот»,
-/// [`nft_reverse_nfqws_filter`]).
+/// Порты — эталонные `NFQWS2_PORTS_TCP/UDP` (`config.default`: tcp
+/// `80,443`, udp `443`), «первые пакеты» — `NFQWS2_*_PKT_OUT/IN`
+/// (эталонные значения `20/10/5/3`): правило очереди получает
+/// ограничение `ct original packets 1-N` для исходящих и
+/// `ct reply packets 1-N` для входящих ([`nft_reverse_nfqws_filter`],
+/// эталон `nft_first_packets`). `None` — протокол не обрабатывается:
+/// в эталоне пустой порт снимает все правила этого протокола
+/// (`nft_apply_nfqws_in_out`: `[ -n "$2" ] || return`), как и ноль
+/// пакетов (`[ "$3" != 0 ]`).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Nfqws2NftFilters {
     /// Эталон `DISABLE_IPV4`.
@@ -403,81 +406,62 @@ pub struct Nfqws2NftFilters {
     /// Эталон `POSTNAT`/`POSTNAT_ALL`: правила идут в postnat/prenat,
     /// и исходящее правило выставляет метку `0x20000000`.
     pub postnat: bool,
-    /// Эталон `FILTER_TTL_EXPIRED_ICMP` в postnat-режиме: правило
-    /// переносит метку в ct mark (`CONNMARKER`).
+    /// Эталон `FILTER_TTL_EXPIRED_ICMP`: в postnat-режиме правило
+    /// переносит метку в ct mark (`CONNMARKER`), плюс явные
+    /// icmp/icmpv6-правила в `prerouting_hook`.
     pub filter_ttl_expired_icmp: bool,
-    /// Фильтр исходящего TCP.
-    pub tcp_out: Option<String>,
-    /// Фильтр исходящего UDP.
-    pub udp_out: Option<String>,
-    /// Фильтр входящего TCP.
-    pub tcp_in: Option<String>,
-    /// Фильтр входящего UDP.
-    pub udp_in: Option<String>,
+    /// Порты TCP, эталон `NFQWS2_PORTS_TCP`.
+    pub tcp_ports: Option<String>,
+    /// Порты UDP, эталон `NFQWS2_PORTS_UDP`.
+    pub udp_ports: Option<String>,
+    /// Эталон `NFQWS2_TCP_PKT_OUT`.
+    pub tcp_first_packets_out: u32,
+    /// Эталон `NFQWS2_TCP_PKT_IN`.
+    pub tcp_first_packets_in: u32,
+    /// Эталон `NFQWS2_UDP_PKT_OUT`.
+    pub udp_first_packets_out: u32,
+    /// Эталон `NFQWS2_UDP_PKT_IN`.
+    pub udp_first_packets_in: u32,
 }
 
-/// Текст правил nftables для перехвата трафика nfqws2 (`nft -f -`).
+/// Полный текст правил nftables для перехвата трафика nfqws2
+/// (`nft -f -`), воспроизводящий эталон `common/nft.sh`.
 ///
-/// Повторяет структуру эталона `common/nft.sh`: таблица
-/// `inet zapret2`, ifname-сеты `wanif`/`wanif6`, цепочки-хуки
-/// (`postrouting_hook` priority 99, `postnat_hook` 101, `prerouting_hook`
-/// -99, `prenat_hook` -101) с переходом `jump` в служебные цепочки
-/// `postrouting`/`postnat`/`prerouting`/`prenat`, где стоят правила
-/// `queue num N bypass`. Переход из хука пропускает собственные пакеты
-/// nfqws2 (`mark and 0x40000000 == 0`) и только для wan-интерфейсов,
-/// если они заданы. В postnat-режиме перед `queue` добавляется
-/// `meta mark set meta mark or 0x20000000`.
+/// Файл идемпотентен: пустое объявление таблицы гарантирует её
+/// существование, `flush table` снимает прошлые правила, повторное
+/// объявление создаёт свежую структуру. Внутри: ifname-сеты
+/// `wanif`/`wanif6` (заполняются из аргументов, как
+/// `nft_fill_ifsets_overload`), сеты исключений `nozapret`/`nozapret6`
+/// (их наполняет ipset-подсистема, эталон `ZIPSET_EXCLUDE`; здесь
+/// передаются явно), служебные цепочки
+/// `postrouting`/`postnat`/`prerouting`/`prenat` и хуки
+/// (`postrouting_hook` priority 99, `postnat_hook` 101,
+/// `prerouting_hook` -99, `prenat_hook` -101) с переходом `jump`
+/// (`nft_activate_chain4/6`: собственные пакеты nfqws2 пропускаются по
+/// метке `0x40000000`, ifname-фильтр — только при заданных
+/// wan-интерфейсах). В `predefrag`/`predefrag_nfqws` — защита
+/// сгенерированных пакетов от сброса по `INVALID` conntrack
+/// (`notrack`), как в `nft_create_chains`.
 ///
-/// Правила создаются для ipv4 и ipv6 отдельно (`meta nfproto ...`);
-/// отключённая версия IP (`disable_*`) не получает ни хуков, ни правил.
+/// Правила очереди стоят в служебных цепочках
+/// (`queue num N bypass`), фильтр строится из портов и «первых
+/// пакетов» (`nft_apply_nfqws_in_out`); в postnat-режиме исходящее
+/// правило ставит `meta mark set meta mark or 0x20000000`
+/// (`DESYNC_MARK_POSTNAT`) и при `filter_ttl_expired_icmp` добавляет
+/// `CONNMARKER`. Правила создаются для ipv4 и ipv6 отдельно
+/// (`meta nfproto ...`); отключённая версия IP не получает ни хуков,
+/// ни правил очереди.
+///
 /// Текст-план: применение через privd, не напрямую.
 #[must_use]
 pub fn nft_rules_text(
     qnum: u32,
     wan_ifaces4: &[&str],
     wan_ifaces6: &[&str],
+    nozapret4: &[&str],
+    nozapret6: &[&str],
     filters: &Nfqws2NftFilters,
 ) -> String {
-    let mut script = Vec::new();
-
-    script.push(format!("add table inet {NFQWS2_NFT_TABLE}"));
-    script.push(format!(
-        "add set inet {NFQWS2_NFT_TABLE} wanif {{ type ifname; }}"
-    ));
-    script.push(format!(
-        "add set inet {NFQWS2_NFT_TABLE} wanif6 {{ type ifname; }}"
-    ));
-
-    for (chain, priority) in [
-        ("postrouting_hook", "99"),
-        ("postnat_hook", "101"),
-        ("prerouting_hook", "-99"),
-        ("prenat_hook", "-101"),
-    ] {
-        script.push(format!(
-            "add chain inet {NFQWS2_NFT_TABLE} {chain} {{ type filter hook {hook} priority {priority}; }}",
-            hook = chain_hook(chain)
-        ));
-        script.push(format!("flush chain inet {NFQWS2_NFT_TABLE} {chain}"));
-    }
-    for chain in ["postrouting", "postnat", "prerouting", "prenat"] {
-        script.push(format!("add chain inet {NFQWS2_NFT_TABLE} {chain}"));
-        script.push(format!("flush chain inet {NFQWS2_NFT_TABLE} {chain}"));
-    }
-
-    if !filters.disable_ipv4 && !wan_ifaces4.is_empty() {
-        script.push(format!(
-            "add element inet {NFQWS2_NFT_TABLE} wanif {{ {} }}",
-            quoted_comma_list(wan_ifaces4)
-        ));
-    }
-    if !filters.disable_ipv6 && !wan_ifaces6.is_empty() {
-        script.push(format!(
-            "add element inet {NFQWS2_NFT_TABLE} wanif6 {{ {} }}",
-            quoted_comma_list(wan_ifaces6)
-        ));
-    }
-
     let post_chain = if filters.postnat {
         "postnat"
     } else {
@@ -489,96 +473,260 @@ pub fn nft_rules_text(
         "prerouting"
     };
 
-    if !filters.disable_ipv4 {
-        script.push(hook_jump_rule(
-            post_chain,
-            "oifname",
-            wan_ifaces4,
-            "ip",
-            "daddr",
-            "@nozapret",
-        ));
-        script.push(hook_jump_rule(
-            pre_chain,
-            "iifname",
-            wan_ifaces4,
-            "ip",
-            "saddr",
-            "@nozapret",
-        ));
-    }
-    if !filters.disable_ipv6 {
-        script.push(hook_jump_rule(
-            post_chain,
-            "oifname",
-            wan_ifaces6,
-            "ip6",
-            "daddr",
-            "@nozapret6",
-        ));
-        script.push(hook_jump_rule(
-            pre_chain,
-            "iifname",
-            wan_ifaces6,
-            "ip6",
-            "saddr",
-            "@nozapret6",
-        ));
-    }
+    // Служебные цепочки и хуки (эталон nft_create_chains); для правил
+    // каждого блока — текст после ключевого слова `rule <chain>`.
+    let mut chains: Vec<(&str, Vec<String>)> = vec![
+        ("postrouting", Vec::new()),
+        ("postrouting_hook", Vec::new()),
+        ("postnat", Vec::new()),
+        ("postnat_hook", Vec::new()),
+        ("prerouting", Vec::new()),
+        ("prerouting_hook", Vec::new()),
+        ("prenat", Vec::new()),
+        ("prenat_hook", Vec::new()),
+        ("predefrag", Vec::new()),
+        ("predefrag_nfqws", Vec::new()),
+    ];
+    let mut rule = |chain: &str, text: String| {
+        for (name, list) in &mut chains {
+            if *name == chain {
+                list.push(text);
+                return;
+            }
+        }
+    };
 
+    // Защита сгенерированных пакетов (эталон nft_create_chains).
+    rule(
+        "predefrag",
+        format!(
+            "mark and {NFQWS2_DESYNC_MARK} != 0 jump predefrag_nfqws comment \"nfqws generated : avoid drop by INVALID conntrack state\""
+        ),
+    );
+    rule(
+        "predefrag_nfqws",
+        format!("mark and {NFQWS2_DESYNC_MARK_POSTNAT} != 0 notrack comment \"postnat traffic\""),
+    );
+    rule(
+        "predefrag_nfqws",
+        "ip frag-off & 0x1fff != 0 notrack comment \"ipfrag\"".to_string(),
+    );
+    rule(
+        "predefrag_nfqws",
+        "exthdr frag exists notrack comment \"ipfrag\"".to_string(),
+    );
+    rule(
+        "predefrag_nfqws",
+        "tcp flags ! syn,rst,ack notrack comment \"datanoack\"".to_string(),
+    );
+
+    // FILTER_TTL_EXPIRED_ICMP (эталон: причина — untracked пакеты nfqws2).
     let connmarker = if filters.postnat && filters.filter_ttl_expired_icmp {
         Some(format!("ct mark set ct mark or {NFQWS2_DESYNC_MARK}"))
     } else {
         None
     };
-
-    for (filter, chain, direction_in) in [
-        (filters.tcp_out.as_deref(), post_chain, false),
-        (filters.udp_out.as_deref(), post_chain, false),
-        (filters.tcp_in.as_deref(), pre_chain, true),
-        (filters.udp_in.as_deref(), pre_chain, true),
-    ] {
-        let Some(filter) = non_empty_str(filter) else {
-            continue;
-        };
-        for (nfproto, enabled) in [
-            ("ipv4", !filters.disable_ipv4),
-            ("ipv6", !filters.disable_ipv6),
-        ] {
-            if !enabled {
-                continue;
-            }
-            let mut rule = format!("meta nfproto {nfproto} {filter}");
-            if !direction_in && filters.postnat {
-                rule.push_str(&format!(
-                    " meta mark set meta mark or {NFQWS2_DESYNC_MARK_POSTNAT}"
-                ));
-            }
-            if let Some(marker) = &connmarker {
-                if !direction_in {
-                    rule.push(' ');
-                    rule.push_str(marker);
-                }
-            }
-            rule.push_str(&format!(" queue num {qnum} bypass"));
-            script.push(format!(
-                "insert rule inet {NFQWS2_NFT_TABLE} {chain} {rule}"
-            ));
+    if filters.filter_ttl_expired_icmp {
+        if filters.postnat {
+            rule(
+                "prerouting_hook",
+                "icmp type time-exceeded ct state invalid drop".to_string(),
+            );
+        } else {
+            rule(
+                "postrouting_hook",
+                format!(
+                    "mark and {NFQWS2_DESYNC_MARK} != 0 ct mark set ct mark or {NFQWS2_DESYNC_MARK} comment \"nfqws related : prevent ttl expired socket errors\""
+                ),
+            );
+        }
+        if !filters.disable_ipv4 {
+            rule(
+                "prerouting_hook",
+                format!(
+                    "icmp type time-exceeded ct mark and {NFQWS2_DESYNC_MARK} != 0 drop comment \"nfqws related : prevent ttl expired socket errors\""
+                ),
+            );
+        }
+        if !filters.disable_ipv6 {
+            rule(
+                "prerouting_hook",
+                format!(
+                    "icmpv6 type time-exceeded ct mark and {NFQWS2_DESYNC_MARK} != 0 drop comment \"nfqws related : prevent ttl expired socket errors\""
+                ),
+            );
         }
     }
 
-    script.join("\n")
-}
-
-/// Хук-цепочка, в которую добавляется переход к служебной цепочке
-/// (`postrouting`/`postnat` — postrouting_hook, `prerouting`/`prenat` —
-/// prerouting_hook).
-fn chain_hook(chain: &str) -> &'static str {
-    if chain.starts_with("post") {
-        "postrouting"
-    } else {
-        "prerouting"
+    // Переходы из хуков в служебные цепочки (nft_activate_chain4/6).
+    if !filters.disable_ipv4 {
+        rule(
+            "postrouting_hook",
+            hook_jump_rule(
+                post_chain,
+                "oifname",
+                wan_ifaces4,
+                "ip",
+                "daddr",
+                "@nozapret",
+            ),
+        );
+        rule(
+            "prerouting_hook",
+            hook_jump_rule(
+                pre_chain,
+                "iifname",
+                wan_ifaces4,
+                "ip",
+                "saddr",
+                "@nozapret",
+            ),
+        );
     }
+    if !filters.disable_ipv6 {
+        rule(
+            "postrouting_hook",
+            hook_jump_rule(
+                post_chain,
+                "oifname",
+                wan_ifaces6,
+                "ip6",
+                "daddr",
+                "@nozapret6",
+            ),
+        );
+        rule(
+            "prerouting_hook",
+            hook_jump_rule(
+                pre_chain,
+                "iifname",
+                wan_ifaces6,
+                "ip6",
+                "saddr",
+                "@nozapret6",
+            ),
+        );
+    }
+
+    // Правила очереди (nft_apply_nfqws_in_out → nft_fw_nfqws_post/pre):
+    // `meta nfproto <f> <filter> [setmark] [connmarker] queue num N bypass`.
+    for (proto, ports, packets_out, packets_in) in [
+        (
+            "tcp",
+            filters.tcp_ports.as_deref(),
+            filters.tcp_first_packets_out,
+            filters.tcp_first_packets_in,
+        ),
+        (
+            "udp",
+            filters.udp_ports.as_deref(),
+            filters.udp_first_packets_out,
+            filters.udp_first_packets_in,
+        ),
+    ] {
+        let Some(ports) = non_empty_str(ports) else {
+            continue;
+        };
+        for (direction_in, first_packets) in [(false, packets_out), (true, packets_in)] {
+            if first_packets == 0 {
+                continue;
+            }
+            let (dir, ct) = if direction_in {
+                ("sport", "ct reply packets")
+            } else {
+                ("dport", "ct original packets")
+            };
+            let filter = format!("{proto} {dir} {{ {ports} }} {ct} 1-{first_packets}");
+            for (nfproto, enabled) in [
+                ("ipv4", !filters.disable_ipv4),
+                ("ipv6", !filters.disable_ipv6),
+            ] {
+                if !enabled {
+                    continue;
+                }
+                let mut rule_text = format!("meta nfproto {nfproto} {filter}");
+                if !direction_in && filters.postnat {
+                    rule_text.push_str(&format!(
+                        " meta mark set meta mark or {NFQWS2_DESYNC_MARK_POSTNAT}"
+                    ));
+                }
+                if !direction_in {
+                    if let Some(marker) = &connmarker {
+                        rule_text.push(' ');
+                        rule_text.push_str(marker);
+                    }
+                }
+                rule_text.push_str(&format!(" queue num {qnum} bypass"));
+                let chain = if direction_in { pre_chain } else { post_chain };
+                rule(chain, rule_text);
+            }
+        }
+    }
+
+    // Сборка файла: идемпотентный сброс и полное объявление структуры.
+    let mut script = String::from("table inet zapret2 { }\nflush table inet zapret2\n");
+    script.push_str(&format!("table inet {NFQWS2_NFT_TABLE} {{\n"));
+
+    let mut wanif_elements = String::new();
+    if !filters.disable_ipv4 && !wan_ifaces4.is_empty() {
+        wanif_elements = format!(" elements = {{ {} }}", quoted_comma_list(wan_ifaces4));
+    }
+    script.push_str(&format!(
+        "    set wanif {{ type ifname;{wanif_elements} }}\n"
+    ));
+    let mut wanif6_elements = String::new();
+    if !filters.disable_ipv6 && !wan_ifaces6.is_empty() {
+        wanif6_elements = format!(" elements = {{ {} }}", quoted_comma_list(wan_ifaces6));
+    }
+    script.push_str(&format!(
+        "    set wanif6 {{ type ifname;{wanif6_elements} }}\n"
+    ));
+    let mut nozapret_elements = String::new();
+    if !filters.disable_ipv4 && !nozapret4.is_empty() {
+        nozapret_elements = format!(" elements = {{ {} }}", nozapret4.join(", "));
+    }
+    script.push_str(&format!(
+        "    set nozapret {{ type ipv4_addr; flags interval;{nozapret_elements} }}\n"
+    ));
+    let mut nozapret6_elements = String::new();
+    if !filters.disable_ipv6 && !nozapret6.is_empty() {
+        nozapret6_elements = format!(" elements = {{ {} }}", nozapret6.join(", "));
+    }
+    script.push_str(&format!(
+        "    set nozapret6 {{ type ipv6_addr; flags interval;{nozapret6_elements} }}\n"
+    ));
+
+    for (chain, hook, priority) in [
+        ("postrouting", None, ""),
+        ("postrouting_hook", Some("postrouting"), "99"),
+        ("postnat", None, ""),
+        ("postnat_hook", Some("postrouting"), "101"),
+        ("prerouting", None, ""),
+        ("prerouting_hook", Some("prerouting"), "-99"),
+        ("prenat", None, ""),
+        ("prenat_hook", Some("prerouting"), "-101"),
+        ("predefrag", Some("output"), "-401"),
+        ("predefrag_nfqws", None, ""),
+    ] {
+        match hook {
+            Some(hook) => script.push_str(&format!(
+                "    chain {chain} {{ type filter hook {hook} priority {priority};\n"
+            )),
+            None => script.push_str(&format!("    chain {chain} {{\n")),
+        }
+        for text in &chains
+            .iter()
+            .find(|(name, _)| *name == chain)
+            .map(|(_, list)| list.clone())
+            .unwrap_or_default()
+        {
+            script.push_str(&format!("        {text}\n"));
+        }
+        script.push_str("    }\n");
+    }
+
+    script.push_str("}\n");
+    script
 }
 
 /// Переход из цепочки-хука в служебную цепочку (эталон `nft_activate_chain4/6`):
@@ -1072,109 +1220,256 @@ mod tests {
 
     // --- nft_rules_text --------------------------------------------------------
 
+    /// Полные эталонные фильтры (`config.default`).
+    fn default_filters() -> Nfqws2NftFilters {
+        Nfqws2NftFilters {
+            tcp_ports: Some("80,443".to_string()),
+            udp_ports: Some("443".to_string()),
+            tcp_first_packets_out: 20,
+            tcp_first_packets_in: 10,
+            udp_first_packets_out: 5,
+            udp_first_packets_in: 3,
+            ..Nfqws2NftFilters::default()
+        }
+    }
+
     #[test]
     fn nft_rules_text_contains_queue_rules_for_both_families() {
-        let filters = Nfqws2NftFilters {
-            tcp_out: Some("tcp dport { 80, 443 }".to_string()),
-            ..Nfqws2NftFilters::default()
-        };
-        let text = nft_rules_text(NFQWS2_DEFAULT_QNUM, &["eth0"], &["eth1"], &filters);
+        let filters = default_filters();
+        let text = nft_rules_text(
+            NFQWS2_DEFAULT_QNUM,
+            &["eth0"],
+            &["eth1"],
+            &[],
+            &[],
+            &filters,
+        );
 
         assert!(text.contains("table inet zapret2"));
+        // Идемпотентный преамбула-сброс и полное объявление структуры.
+        assert!(text.starts_with(
+            "table inet zapret2 { }\nflush table inet zapret2\ntable inet zapret2 {\n"
+        ));
         assert!(text.contains("queue num 300 bypass"));
-        assert!(text.contains("meta nfproto ipv4 tcp dport { 80, 443 }"));
-        assert!(text.contains("meta nfproto ipv6 tcp dport { 80, 443 }"));
-        assert!(text.contains("postrouting_hook { type filter hook postrouting priority 99; }"));
-        assert!(text.contains("prerouting_hook { type filter hook prerouting priority -99; }"));
         assert!(
-            !text.contains("0x20000000"),
-            "без постната метки нет: {text}"
+            text.contains(
+                "meta nfproto ipv4 tcp dport { 80,443 } ct original packets 1-20 queue num 300 bypass"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains(
+                "meta nfproto ipv6 tcp dport { 80,443 } ct original packets 1-20 queue num 300 bypass"
+            ),
+            "{text}"
+        );
+        // Входящие — реверсированные правила в prerouting.
+        assert!(
+            text.contains(
+                "meta nfproto ipv4 tcp sport { 80,443 } ct reply packets 1-10 queue num 300 bypass"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains(
+                "meta nfproto ipv4 udp dport { 443 } ct original packets 1-5 queue num 300 bypass"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains(
+                "meta nfproto ipv4 udp sport { 443 } ct reply packets 1-3 queue num 300 bypass"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains("chain postrouting_hook { type filter hook postrouting priority 99;"),
+            "{text}"
+        );
+        assert!(
+            text.contains("chain prerouting_hook { type filter hook prerouting priority -99;"),
+            "{text}"
+        );
+        assert!(
+            !text.contains("meta mark set meta mark or 0x20000000"),
+            "без постната метки в правиле очереди нет: {text}"
         );
     }
 
     #[test]
     fn nft_rules_text_postnat_sets_postnat_mark() {
         let filters = Nfqws2NftFilters {
-            tcp_out: Some("tcp dport { 443 }".to_string()),
-            tcp_in: Some("tcp sport { 443 }".to_string()),
+            tcp_ports: Some("443".to_string()),
+            tcp_first_packets_out: 20,
+            tcp_first_packets_in: 10,
             postnat: true,
             ..Nfqws2NftFilters::default()
         };
-        let text = nft_rules_text(300, &["eth0"], &[], &filters);
+        let text = nft_rules_text(300, &["eth0"], &[], &[], &[], &filters);
 
         assert!(
             text.contains(
-                "meta nfproto ipv4 tcp dport { 443 } meta mark set meta mark or 0x20000000 queue num 300 bypass"
+                "meta nfproto ipv4 tcp dport { 443 } ct original packets 1-20 meta mark set meta mark or 0x20000000 queue num 300 bypass"
             ),
             "{text}"
         );
         // Входящее правило без метки и в prenat-цепочке.
-        assert!(text.contains(
-            "insert rule inet zapret2 prenat meta nfproto ipv4 tcp sport { 443 } queue num 300 bypass"
-        ));
-        assert!(text.contains("postnat_hook { type filter hook postrouting priority 101; }"));
-        assert!(text.contains("prenat_hook { type filter hook prerouting priority -101; }"));
+        assert!(
+            text.contains(
+                "meta nfproto ipv4 tcp sport { 443 } ct reply packets 1-10 queue num 300 bypass"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains("chain postnat_hook { type filter hook postrouting priority 101;"),
+            "{text}"
+        );
+        assert!(
+            text.contains("chain prenat_hook { type filter hook prerouting priority -101;"),
+            "{text}"
+        );
     }
 
     #[test]
     fn nft_rules_text_hook_jumps_skip_own_marked_packets() {
         let filters = Nfqws2NftFilters {
-            tcp_out: Some("tcp dport 443".to_string()),
+            tcp_ports: Some("443".to_string()),
+            tcp_first_packets_out: 20,
             ..Nfqws2NftFilters::default()
         };
-        let text = nft_rules_text(300, &["eth0"], &["eth1"], &filters);
+        let text = nft_rules_text(300, &["eth0"], &["eth1"], &[], &[], &filters);
 
-        assert!(text.contains(
-            "meta mark and 0x40000000 == 0 oifname @wanif ip daddr != @nozapret jump postrouting"
-        ));
-        assert!(text.contains(
-            "meta mark and 0x40000000 == 0 iifname @wanif ip saddr != @nozapret jump prerouting"
-        ));
-        assert!(text.contains(
-            "meta mark and 0x40000000 == 0 oifname @wanif6 ip6 daddr != @nozapret6 jump postrouting"
-        ));
-        assert!(text.contains("add element inet zapret2 wanif { \"eth0\" }"));
-        assert!(text.contains("add element inet zapret2 wanif6 { \"eth1\" }"));
+        assert!(
+            text.contains(
+                "meta mark and 0x40000000 == 0 oifname @wanif ip daddr != @nozapret jump postrouting"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains(
+                "meta mark and 0x40000000 == 0 iifname @wanif ip saddr != @nozapret jump prerouting"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains(
+                "meta mark and 0x40000000 == 0 oifname @wanif6 ip6 daddr != @nozapret6 jump postrouting"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains("set wanif { type ifname; elements = { \"eth0\" } }"),
+            "{text}"
+        );
+        assert!(
+            text.contains("set wanif6 { type ifname; elements = { \"eth1\" } }"),
+            "{text}"
+        );
+    }
+
+    #[test]
+    fn nft_rules_text_nozapret_sets_declared_with_elements() {
+        let filters = default_filters();
+        let text = nft_rules_text(
+            300,
+            &[],
+            &[],
+            &["192.168.0.0/16", "10.0.0.0/8"],
+            &["fe80::/10"],
+            &filters,
+        );
+
+        assert!(
+            text.contains(
+                "set nozapret { type ipv4_addr; flags interval; elements = { 192.168.0.0/16, 10.0.0.0/8 } }"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains(
+                "set nozapret6 { type ipv6_addr; flags interval; elements = { fe80::/10 } }"
+            ),
+            "{text}"
+        );
+        // Защита сгенерированных пакетов от INVALID conntrack (predefrag).
+        assert!(text.contains("jump predefrag_nfqws"), "{text}");
+        assert!(text.contains("notrack comment \"ipfrag\""), "{text}");
+        assert!(text.contains("notrack comment \"datanoack\""), "{text}");
     }
 
     #[test]
     fn nft_rules_text_respects_disabled_families_and_missing_filters() {
         let filters = Nfqws2NftFilters {
             disable_ipv6: true,
-            tcp_out: Some("tcp dport 443".to_string()),
+            tcp_ports: Some("443".to_string()),
+            tcp_first_packets_out: 20,
             ..Nfqws2NftFilters::default()
         };
-        let text = nft_rules_text(300, &["eth0"], &["eth1"], &filters);
+        let text = nft_rules_text(300, &["eth0"], &["eth1"], &[], &[], &filters);
 
         assert!(text.contains("meta nfproto ipv4"));
         assert!(!text.contains("meta nfproto ipv6"), "{text}");
-        assert!(!text.contains("wanif6 { \"eth1\" }"));
+        assert!(!text.contains("elements { \"eth1\" }"));
 
+        // Пустые порты и нулевые «первые пакеты» снимают правила очереди,
+        // как в эталоне (`[ -n "$2" ] || return`, `!= 0`).
         let empty = Nfqws2NftFilters::default();
         assert!(
-            !nft_rules_text(300, &["eth0"], &[], &empty).contains("queue num"),
-            "без фильтров правил очереди нет"
+            !nft_rules_text(300, &["eth0"], &[], &[], &[], &empty).contains("queue num"),
+            "без портов правил очереди нет"
         );
+        let no_out = Nfqws2NftFilters {
+            tcp_ports: Some("443".to_string()),
+            tcp_first_packets_out: 0,
+            tcp_first_packets_in: 10,
+            ..Nfqws2NftFilters::default()
+        };
+        let text = nft_rules_text(300, &["eth0"], &[], &[], &[], &no_out);
+        assert!(
+            !text.contains("ct original packets"),
+            "нулевые исходящие пакеты снимают post-правило: {text}"
+        );
+        assert!(text.contains("ct reply packets"), "{text}");
     }
 
     #[test]
     fn nft_rules_text_connmarker_only_in_postnat_mode() {
         let filters = Nfqws2NftFilters {
-            tcp_out: Some("tcp dport 443".to_string()),
+            tcp_ports: Some("443".to_string()),
+            tcp_first_packets_out: 20,
             postnat: true,
             filter_ttl_expired_icmp: true,
             ..Nfqws2NftFilters::default()
         };
-        let text = nft_rules_text(300, &["eth0"], &[], &filters);
-        assert!(text.contains("ct mark set ct mark or 0x40000000"), "{text}");
+        let text = nft_rules_text(300, &["eth0"], &[], &[], &[], &filters);
+        // CONNMARKER стоит в правиле очереди (postnat-режим).
+        assert!(
+            text.contains(
+                "ct original packets 1-20 meta mark set meta mark or 0x20000000 ct mark set ct mark or 0x40000000 queue num"
+            ),
+            "{text}"
+        );
+        assert!(
+            text.contains("icmp type time-exceeded ct state invalid drop"),
+            "{text}"
+        );
 
         let filters = Nfqws2NftFilters {
-            tcp_out: Some("tcp dport 443".to_string()),
+            tcp_ports: Some("443".to_string()),
+            tcp_first_packets_out: 20,
             filter_ttl_expired_icmp: true,
             ..Nfqws2NftFilters::default()
         };
-        let text = nft_rules_text(300, &["eth0"], &[], &filters);
-        assert!(!text.contains("ct mark set"), "{text}");
+        let text = nft_rules_text(300, &["eth0"], &[], &[], &[], &filters);
+        // Без постната: ct-правило в postrouting_hook, но не в правиле очереди.
+        assert!(
+            text.contains("mark and 0x40000000 != 0 ct mark set ct mark or 0x40000000"),
+            "{text}"
+        );
+        assert!(
+            !text.contains("packets 1-20 ct mark set"),
+            "в правиле очереди маркера нет: {text}"
+        );
     }
 
     #[test]
