@@ -1059,6 +1059,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "primecore-log-analyzer"
+version = "0.1.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
 name = "primecore-manifest"
 version = "0.1.0"
 dependencies = [

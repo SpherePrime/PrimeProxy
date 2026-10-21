@@ -1,0 +1,9 @@
+[package]
+name = "primecore-log-analyzer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Порт src/winws_log_analyzer — потоковый разбор debug-лога winws2: профили, пакеты, соединения, фильтры."
+
+[dependencies]
+regex.workspace = true
