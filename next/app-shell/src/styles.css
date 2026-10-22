@@ -354,3 +354,35 @@ body {
   border-radius: 8px; padding: 10px 12px;
   font-family: var(--mono); font-size: 13px; word-break: break-all;
 }
+
+/* --- Разблокировка (hosts) ------------------------------------------------ */
+.host-group { margin-bottom: 14px; }
+.host-group h3 { margin: 0 0 6px; font-size: 16px; }
+.host-domains { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.host-row {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 15px; cursor: pointer; user-select: none;
+}
+.host-row input { width: 17px; height: 17px; accent-color: var(--accent); }
+.stats-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+
+/* --- Анализ лога ---------------------------------------------------------- */
+.log-table { display: flex; flex-direction: column; gap: 4px; }
+.log-row {
+  display: flex; gap: 14px; padding: 9px 12px;
+  background: var(--panel-2); border-radius: 8px; font-size: 14px;
+  font-family: var(--mono); align-items: baseline;
+}
+.log-row .key { color: var(--accent); font-weight: 600; min-width: 220px; }
+.log-cell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- Фейки ------------------------------------------------------------------ */
+.fake-list { display: flex; flex-direction: column; gap: 4px; max-height: 560px; overflow-y: auto; }
+.fake-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 14px; background: var(--panel-2); border-radius: 8px;
+  font-size: 14px;
+}
+.fake-row:hover { background: #2f3d55; }
+.fake-name { font-weight: 600; min-width: 220px; font-family: var(--mono); }
+.fake-hash { color: var(--muted); font-family: var(--mono); font-size: 12px; margin-left: auto; }

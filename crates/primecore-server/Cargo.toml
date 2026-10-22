@@ -20,10 +20,12 @@ primecore-dnswire = { path = "../primecore-dnswire" }
 primecore-socketcancel = { path = "../primecore-socketcancel" }
 primecore-manifest = { path = "../primecore-manifest" }
 primecore-patch = { path = "../primecore-patch" }
+primecore-fakes = { path = "../primecore-fakes" }
+primecore-log-analyzer = { path = "../primecore-log-analyzer" }
+primecore-privilege = { path = "../primecore-privilege" }
 primecore-release = { path = "../primecore-release" }
 primecore-versions = { path = "../primecore-versions" }
 primecore-ws = { path = "../primecore-ws" }
-primecore-privilege = { path = "../primecore-privilege" }
 
 [dev-dependencies]
 reqwest.workspace = true

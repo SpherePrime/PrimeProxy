@@ -17,7 +17,9 @@
 //! - `{"op":"status","pid":N}` → `{"ok":true,"running":bool}`;
 //! - `{"op":"dns_set","servers":["1.1.1.1",…],"ifname":"eth0"}` →
 //!   `resolvectl dns <ifname> <серверы…>`; интерфейс обязателен —
-//!   `resolvectl dns` без имени интерфейса список не меняет.
+//!   `resolvectl dns` без имени интерфейса список не меняет;
+//! - `{"op":"file_write","path":"…","content_b64":"…"}` → записать файл
+//!   от root; при первой перезаписи создаётся бэкап `<path>.primebak`.
 //!
 //! Для совместимости с ранним клиентом (`connect_and_ping`) любая не-JSON
 //! строка отвечает `{"ok":true}` — как старый «пинг».
@@ -85,6 +87,13 @@ pub enum OpRequest {
         /// Имя сетевого интерфейса; `resolvectl dns` без него не работает.
         #[serde(default)]
         ifname: Option<String>,
+    },
+    /// Записать файл от root (с бэкапом при первой перезаписи).
+    FileWrite {
+        /// Абсолютный путь к файлу.
+        path: String,
+        /// Содержимое в base64 (бинарная безопасность через JSON-строку).
+        content_b64: String,
     },
 }
 
@@ -345,6 +354,35 @@ impl<E: CommandExecutor> Ops<E> {
             OpRequest::Kill { pid } => self.op_kill(pid),
             OpRequest::Status { pid } => self.op_status(pid),
             OpRequest::DnsSet { servers, ifname } => self.op_dns_set(ifname.as_deref(), &servers),
+            OpRequest::FileWrite { path, content_b64 } => self.op_file_write(&path, &content_b64),
+        }
+    }
+
+    /// Запись файла от root: при первой перезаписи существующего файла
+    /// создаётся бэкап `<path>.primebak` (повторные записи его не затирают).
+    fn op_file_write(&self, path: &str, content_b64: &str) -> String {
+        use base64::Engine;
+        let content = match base64::engine::general_purpose::STANDARD.decode(content_b64) {
+            Ok(bytes) => bytes,
+            Err(error) => return error_line(format!("content_b64 не декодируется: {error}")),
+        };
+        let target = std::path::Path::new(path);
+        if target.exists() {
+            let backup = std::path::PathBuf::from(format!("{path}.primebak"));
+            if !backup.exists() {
+                if let Err(error) = std::fs::copy(target, &backup) {
+                    return error_line(format!("бэкап {backup:?} не создан: {error}"));
+                }
+            }
+        }
+        if let Some(parent) = target.parent() {
+            if let Err(error) = std::fs::create_dir_all(parent) {
+                return error_line(format!("каталог {parent:?} не создан: {error}"));
+            }
+        }
+        match std::fs::write(target, &content) {
+            Ok(()) => ok_line(json!({ "ok": true, "bytes": content.len() })),
+            Err(error) => error_line(format!("файл {path} не записан: {error}")),
         }
     }
 
@@ -649,6 +687,7 @@ mod tests {
     use super::tests_support::{serve_bounded, tmpdir, FakeExecutor};
     use super::*;
     use crate::client;
+    use base64::Engine as _;
     use serde_json::json;
     use std::os::unix::net::UnixListener;
 
@@ -964,5 +1003,53 @@ mod tests {
             .is_some_and(|error| error.contains("интерфейс")));
         // Команда не запускалась.
         assert!(ops.executor.runs.lock().unwrap().is_empty());
+    }
+
+    #[test]
+    fn file_write_creates_file_and_backup() {
+        let dir = tmpdir("ops-filewrite");
+        let path = dir.join("hosts");
+        std::fs::write(&path, b"old").expect("исходный файл записан");
+        let mut ops = Ops::new(FakeExecutor::new());
+        let content = base64::engine::general_purpose::STANDARD.encode(b"new content".as_slice());
+        let reply = value(
+            &ops.dispatch(
+                json!({"op":"file_write","path":path.to_string_lossy(),"content_b64":content})
+                    .to_string()
+                    .as_str(),
+            ),
+        );
+        assert_eq!(reply["ok"], true, "{reply}");
+        assert_eq!(reply["bytes"], json!(11));
+        assert_eq!(std::fs::read(&path).expect("файл прочитан"), b"new content");
+        // Бэкап создан при первой перезаписи и хранит старое содержимое.
+        let backup = dir.join("hosts.primebak");
+        assert_eq!(std::fs::read(&backup).expect("бэкап прочитан"), b"old");
+        // Вторая запись бэкап не затирает.
+        let second = base64::engine::general_purpose::STANDARD.encode(b"newer".as_slice());
+        let reply = value(
+            &ops.dispatch(
+                json!({"op":"file_write","path":path.to_string_lossy(),"content_b64":second})
+                    .to_string()
+                    .as_str(),
+            ),
+        );
+        assert_eq!(reply["ok"], true, "{reply}");
+        assert_eq!(std::fs::read(&backup).expect("бэкап прочитан"), b"old");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn file_write_rejects_bad_base64() {
+        let mut ops = Ops::new(FakeExecutor::new());
+        let reply =
+            value(&ops.dispatch(r#"{"op":"file_write","path":"/tmp/never","content_b64":"!!!"}"#));
+        assert_eq!(reply["ok"], false, "{reply}");
+        assert!(
+            reply["error"]
+                .as_str()
+                .is_some_and(|e| e.contains("декодиру")),
+            "{reply}"
+        );
     }
 }

@@ -347,3 +347,114 @@ export async function saveTgProxy(
   if (!response.ok) throw await errorFrom(response);
   return response.json();
 }
+
+// ---------------------------------------------------------------------------
+// Разблокировка (файл hosts), анализ лога, каталог фейков.
+// ---------------------------------------------------------------------------
+
+export interface HostsFileResponse {
+  path: string;
+  content: string | null;
+  managed_rows: [string, string][];
+  blocked_count: number;
+  error?: string;
+}
+
+export async function fetchHostsFile(): Promise<HostsFileResponse> {
+  const response = await fetch(`${BASE}/api/hosts/file`);
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+export interface HostsApplyResponse {
+  ok: boolean;
+  path: string;
+  managed_rows: [string, string][];
+  dropped: string[];
+  blocked_count: number;
+}
+
+export async function applyHosts(
+  rows: [string, string][],
+  allowIpv6: boolean,
+): Promise<HostsApplyResponse> {
+  const response = await fetch(`${BASE}/api/hosts/apply`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rows, allow_ipv6: allowIpv6 }),
+  });
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+export interface LogAnalyzeResponse {
+  summary: {
+    lines: number;
+    profiles: { id: number; name: string }[];
+    hostlists: { path: string; hosts: number }[];
+    ipsets: { path: string; subnets: number }[];
+    packets_total: number;
+    connections_total: number;
+    positive_checks_total: number;
+    unparsed_blocks: number;
+    unrecognized_packet_lines: number;
+  };
+  connections: Array<{
+    proto: string;
+    remote_ip: string;
+    remote_port: number;
+    hostname: string;
+    l7proto: string;
+    profiles: string[];
+    packets_total: number;
+    packets_out: number;
+    packets_in: number;
+    verdicts: { kind: string; count: number }[];
+    positive_lists: string[];
+  }>;
+  file_path?: string;
+  file_bytes?: number;
+}
+
+export async function analyzeLogText(content: string): Promise<LogAnalyzeResponse> {
+  const response = await fetch(`${BASE}/api/logs/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content }),
+  });
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+export async function analyzeLogFile(path: string): Promise<LogAnalyzeResponse> {
+  const response = await fetch(`${BASE}/api/logs/analyze_file`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ path }),
+  });
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+export interface FakeInfo {
+  name: string;
+  kind: string;
+  sni: string | null;
+  description: string;
+  source_kind: string;
+  size: number;
+  same_bytes_as: string | null;
+  sort_order: number;
+  sha256?: string;
+}
+
+export interface FakesResponse {
+  fakes: FakeInfo[];
+  total: number;
+}
+
+export async function fetchFakes(): Promise<FakesResponse> {
+  const response = await fetch(`${BASE}/api/fakes`);
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}

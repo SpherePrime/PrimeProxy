@@ -481,6 +481,12 @@ impl WsState {
     fn logs(&self) -> LogSink {
         Arc::clone(&self.inner.logs)
     }
+
+    /// Сокет демона `privd` (для прямых операций смежных модулей).
+    #[must_use]
+    pub fn sock_path(&self) -> &str {
+        &self.inner.sock_path
+    }
 }
 
 /// Каталог ресурсов: `PRIMECORE_RESOURCES`, иначе `resources` относительно

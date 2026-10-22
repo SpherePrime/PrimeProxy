@@ -10,6 +10,9 @@ use std::time::Duration;
 mod check_api;
 mod dns_api;
 mod dns_extra_api;
+mod fakes_api;
+mod hosts_file_api;
+mod log_analyzer_api;
 mod tg_api;
 mod ws_api;
 
@@ -623,6 +626,14 @@ pub(crate) fn router(app: App) -> Router {
         .route("/api/dns/query", post(dns_extra_api::query))
         .route("/api/dns/set", post(dns_extra_api::set))
         .route("/api/tg/proxy", get(tg_api::proxy))
+        .route("/api/hosts/file", get(hosts_file_api::file))
+        .route("/api/hosts/apply", post(hosts_file_api::apply))
+        .route("/api/logs/analyze", post(log_analyzer_api::analyze))
+        .route(
+            "/api/logs/analyze_file",
+            post(log_analyzer_api::analyze_file),
+        )
+        .route("/api/fakes", get(fakes_api::fakes))
         .route("/api/tg/proxy/start", post(tg_api::proxy_start))
         .route("/api/ws/presets", get(ws_api::presets))
         .route("/api/ws/preset", get(ws_api::preset))
