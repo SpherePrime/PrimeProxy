@@ -1,34 +1,250 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   applyHosts,
   fetchHostsFile,
   HostsFileResponse,
   HostsApplyResponse,
 } from "../api";
-import { IconCheck, IconClose, IconRefresh, IconWarning } from "./Icons";
+import {
+  IconCheck,
+  IconChevron,
+  IconClose,
+  IconLock,
+  IconRefresh,
+  IconUnlock,
+  IconWarning,
+} from "./Icons";
 import { PageHeader } from "./PageHeader";
+import "../styles/hosts.css";
 
-// Сервисы страницы: домены 127.0.0.2-блока (как у семейства zapret —
-// запись на зарезервированный локальный адрес уходит мимо DPI).
-interface ServiceGroup {
+// Страница «Разблокировка»: домены сервисов пишутся в файл hosts на
+// зарезервированный локальный адрес 127.0.0.2 (приём семейства zapret:
+// трафик к такому адресу уходит мимо DPI). Пользователь работает целыми
+// сервисами — одна кнопка на сервис, без галок по каждому домену.
+
+interface Service {
+  id: string;
   title: string;
+  note: string;
   domains: string[];
 }
 
-const SERVICES: ServiceGroup[] = [
-  { title: "YouTube", domains: ["youtube.com", "www.youtube.com", "ytimg.com", "googlevideo.com"] },
-  { title: "Discord", domains: ["discord.com", "discord.gg", "discordapp.com", "discordapp.net", "discord.media"] },
-  { title: "ChatGPT", domains: ["chatgpt.com", "openai.com", "oaistatic.com"] },
-  { title: "Instagram", domains: ["instagram.com", "cdninstagram.com"] },
-  { title: "Facebook", domains: ["facebook.com", "fbcdn.net"] },
-  { title: "Twitter/X", domains: ["x.com", "twitter.com", "twimg.com"] },
+interface ServiceCategory {
+  title: string;
+  services: Service[];
+}
+
+const CATEGORIES: ServiceCategory[] = [
+  {
+    title: "Видео",
+    services: [
+      {
+        id: "youtube",
+        title: "YouTube",
+        note: "сайт, приложение, превью и видео",
+        domains: [
+          "youtube.com",
+          "www.youtube.com",
+          "m.youtube.com",
+          "youtu.be",
+          "ytimg.com",
+          "i.ytimg.com",
+          "googlevideo.com",
+        ],
+      },
+      {
+        id: "twitch",
+        title: "Twitch",
+        note: "стримы, чат и превью",
+        domains: ["twitch.tv", "www.twitch.tv"],
+      },
+    ],
+  },
+  {
+    title: "Соцсети",
+    services: [
+      {
+        id: "instagram",
+        title: "Instagram",
+        note: "лента, сторис и картинки",
+        domains: ["instagram.com", "www.instagram.com", "cdninstagram.com"],
+      },
+      {
+        id: "facebook",
+        title: "Facebook",
+        note: "лента, видео и CDN",
+        domains: ["facebook.com", "www.facebook.com", "m.facebook.com", "fbcdn.net"],
+      },
+      {
+        id: "twitter",
+        title: "Twitter/X",
+        note: "лента, картинки и короткие ссылки",
+        domains: ["x.com", "twitter.com", "t.co", "twimg.com"],
+      },
+      {
+        id: "tiktok",
+        title: "TikTok",
+        note: "лента, видео и CDN",
+        domains: ["tiktok.com", "www.tiktok.com", "tiktokcdn.com"],
+      },
+      {
+        id: "linkedin",
+        title: "LinkedIn",
+        note: "лента, профили и картинки",
+        domains: ["linkedin.com", "www.linkedin.com", "licdn.com"],
+      },
+      {
+        id: "reddit",
+        title: "Reddit",
+        note: "лента, обсуждения и медиа",
+        domains: ["reddit.com", "www.reddit.com", "redd.it", "redditstatic.com"],
+      },
+    ],
+  },
+  {
+    title: "ИИ-сервисы",
+    services: [
+      {
+        id: "chatgpt",
+        title: "ChatGPT",
+        note: "чат, API и статика OpenAI",
+        domains: ["chatgpt.com", "openai.com", "platform.openai.com", "oaistatic.com"],
+      },
+      {
+        id: "anthropic",
+        title: "Anthropic (Claude)",
+        note: "Claude и API Anthropic",
+        domains: ["claude.ai", "claude.com", "anthropic.com", "www.anthropic.com"],
+      },
+      {
+        id: "deepseek",
+        title: "DeepSeek",
+        note: "чат и API",
+        domains: ["deepseek.com", "chat.deepseek.com", "www.deepseek.com"],
+      },
+    ],
+  },
+  {
+    title: "Мессенджеры",
+    services: [
+      {
+        id: "discord",
+        title: "Discord",
+        note: "чат, голос и медиа",
+        domains: [
+          "discord.com",
+          "discord.gg",
+          "discordapp.com",
+          "discordapp.net",
+          "discord.media",
+        ],
+      },
+      {
+        id: "telegram",
+        title: "Telegram",
+        note: "мессенджер и веб-клиент",
+        domains: ["telegram.org", "t.me", "web.telegram.org", "telegram.me"],
+      },
+      {
+        id: "whatsapp",
+        title: "WhatsApp",
+        note: "веб-клиент и медиа",
+        domains: ["whatsapp.com", "web.whatsapp.com", "whatsapp.net"],
+      },
+      {
+        id: "signal",
+        title: "Signal",
+        note: "мессенджер и сайт",
+        domains: ["signal.org", "www.signal.org"],
+      },
+    ],
+  },
+  {
+    title: "Игры",
+    services: [
+      {
+        id: "steam",
+        title: "Steam",
+        note: "магазин, сообщество и загрузки",
+        domains: [
+          "store.steampowered.com",
+          "steampowered.com",
+          "steamcommunity.com",
+          "steamstatic.com",
+        ],
+      },
+      {
+        id: "roblox",
+        title: "Roblox",
+        note: "игра, сайт и CDN",
+        domains: ["roblox.com", "www.roblox.com", "rbxcdn.com"],
+      },
+      {
+        id: "epic",
+        title: "Epic Games",
+        note: "магазин и Fortnite",
+        domains: ["epicgames.com", "www.epicgames.com", "fortnite.com"],
+      },
+    ],
+  },
+  {
+    title: "Разное",
+    services: [
+      {
+        id: "spotify",
+        title: "Spotify",
+        note: "музыка, подкасты и CDN",
+        domains: ["spotify.com", "open.spotify.com", "scdn.co"],
+      },
+      {
+        id: "soundcloud",
+        title: "SoundCloud",
+        note: "музыка и CDN",
+        domains: ["soundcloud.com", "sndcdn.com"],
+      },
+      {
+        id: "rutracker",
+        title: "Rutracker",
+        note: "торрент-трекер",
+        domains: ["rutracker.org", "rutracker.net"],
+      },
+      {
+        id: "notion",
+        title: "Notion",
+        note: "заметки и рабочие пространства",
+        domains: ["notion.so", "notion.com"],
+      },
+      {
+        id: "github",
+        title: "GitHub",
+        note: "репозитории, файлы и статика",
+        domains: ["github.com", "githubusercontent.com", "githubassets.com"],
+      },
+      {
+        id: "proton",
+        title: "Proton Mail",
+        note: "почта и вход",
+        domains: ["proton.me", "mail.proton.me", "protonmail.com"],
+      },
+    ],
+  },
 ];
 
+const SERVICES: Service[] = CATEGORIES.flatMap((category) => category.services);
 const BLOCK_ADDRESS = "127.0.0.2";
+
+/** Сколько доменов сервиса уже стоит в блоке (для подписи «частично»). */
+function countIn(set: Set<string>, domains: string[]): number {
+  return domains.reduce((total, domain) => total + (set.has(domain) ? 1 : 0), 0);
+}
 
 export function HostsPage() {
   const [file, setFile] = useState<HostsFileResponse | null>(null);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  // Желаемое содержимое блока: стартует из файла и меняется переключателями.
+  // Иначе «Применить» стирало бы строки, которые пользователь уже добавил.
+  const [desired, setDesired] = useState<Set<string>>(new Set());
+  const [loaded, setLoaded] = useState(false);
+  const [search, setSearch] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +255,8 @@ export function HostsPage() {
     try {
       const data = await fetchHostsFile();
       setFile(data);
+      setDesired(new Set(data.managed_rows.map((row) => row[0])));
+      setLoaded(true);
       setError(null);
     } catch (e) {
       setError(String(e instanceof Error ? e.message : e));
@@ -49,13 +267,64 @@ export function HostsPage() {
     void load();
   }, [load]);
 
-  const toggleDomain = (domain: string) => {
-    setSelected((prev) => {
+  // Текущее содержимое файла: с ним сравниваем желаемое, чтобы показать
+  // честную сводку «что изменится».
+  const current = useMemo(
+    () => new Set((file?.managed_rows ?? []).map((row) => row[0])),
+    [file],
+  );
+
+  const added = useMemo(
+    () => [...desired].filter((domain) => !current.has(domain)),
+    [desired, current],
+  );
+  const removed = useMemo(
+    () => [...current].filter((domain) => !desired.has(domain)),
+    [desired, current],
+  );
+  const dirty = added.length > 0 || removed.length > 0;
+
+  const unlockedCount = SERVICES.filter(
+    (service) => countIn(current, service.domains) === service.domains.length,
+  ).length;
+
+  const query = search.trim().toLowerCase();
+  const visibleCategories = useMemo(
+    () =>
+      CATEGORIES.map((category) => ({
+        ...category,
+        services: category.services.filter(
+          (service) =>
+            query === "" ||
+            service.title.toLowerCase().includes(query) ||
+            service.note.toLowerCase().includes(query) ||
+            service.domains.some((domain) => domain.includes(query)),
+        ),
+      })).filter((category) => category.services.length > 0),
+    [query],
+  );
+
+  const toggleService = (service: Service) => {
+    setDesired((prev) => {
       const next = new Set(prev);
-      if (next.has(domain)) next.delete(domain);
-      else next.add(domain);
+      const allIn = service.domains.every((domain) => next.has(domain));
+      for (const domain of service.domains) {
+        if (allIn) next.delete(domain);
+        else next.add(domain);
+      }
       return next;
     });
+    setNotice(null);
+  };
+
+  const fillAll = () => {
+    setDesired(new Set(SERVICES.flatMap((service) => service.domains)));
+    setNotice(null);
+  };
+
+  const clearAll = () => {
+    setDesired(new Set());
+    setNotice(null);
   };
 
   const apply = async () => {
@@ -63,11 +332,13 @@ export function HostsPage() {
     setError(null);
     setNotice(null);
     try {
-      const rows = Array.from(selected).map((domain): [string, string] => [domain, BLOCK_ADDRESS]);
+      const rows = [...desired].map((domain): [string, string] => [domain, BLOCK_ADDRESS]);
       const result = await applyHosts(rows, true);
       setApplied(result);
       setConfirmOpen(false);
-      setNotice("Блок записан в hosts — бэкап .primebak создан.");
+      setNotice(
+        `Блок записан: ${result.blocked_count} строк, бэкап .primebak создан.`,
+      );
       await load();
     } catch (e) {
       setError(String(e instanceof Error ? e.message : e));
@@ -83,10 +354,10 @@ export function HostsPage() {
         index="02"
         group="Управление"
         title="Разблокировка"
-        description="Запись сервисов в файл hosts на зарезервированный адрес 127.0.0.2 — обход по подмене адреса."
+        description="Сервисы открываются через файл hosts: их домены уходят на зарезервированный адрес 127.0.0.2 и обходят DPI."
         actions={
           <span className="chip tone-neutral">
-            выбрано {selected.size} доменов
+            разблокировано {unlockedCount} из {SERVICES.length}
           </span>
         }
       />
@@ -108,17 +379,19 @@ export function HostsPage() {
         <div className="card-head">
           <div>
             <span className="section-kicker">
-              <b>01</b> Система
+              <b>01</b> Файл hosts
             </span>
-            <h2 className="card-title">Файл hosts</h2>
+            <h2 className="card-title">Блок PrimeProxy в файле hosts</h2>
             <p className="card-note">
-              Управляемый блок PrimeProxy: строки вне его не изменяются.
+              Мы меняем только свой блок в файле — остальные строки hosts
+              остаются нетронутыми. При первой записи рядом появляется копия
+              <code> .primebak</code>.
             </p>
           </div>
           <div className="page-actions">
             {file && (
               <span className="chip tone-accent">
-                {file.blocked_count} записей в блоке
+                {file.blocked_count} строк в блоке
               </span>
             )}
             <button
@@ -126,7 +399,7 @@ export function HostsPage() {
               className="btn ghost icon"
               onClick={() => void load()}
               aria-label="Перечитать файл hosts"
-              title="Перечитать файл hosts"
+              title="Перечитать файл hosts и синхронизировать выбор"
             >
               <IconRefresh />
             </button>
@@ -146,21 +419,31 @@ export function HostsPage() {
                 <span>{file.error}</span>
               </div>
             ) : file.managed_rows.length > 0 ? (
-              <div className="kv-list" aria-label="Записи PrimeProxy в hosts">
-                {file.managed_rows.map((row) => (
-                  <div className="kv-row" key={row[0]}>
-                    <span className="kv-key">{row[0]}</span>
-                    <span className="kv-arrow" aria-hidden="true">
-                      →
-                    </span>
-                    <span className="kv-value">{row[1]}</span>
-                  </div>
-                ))}
-              </div>
+              <details className="hosts-details">
+                <summary>
+                  <span className="hosts-details-arrow" aria-hidden="true">
+                    <IconChevron />
+                  </span>
+                  Показать строки блока ({file.managed_rows.length})
+                </summary>
+                <div className="kv-list" aria-label="Записи PrimeProxy в hosts">
+                  {file.managed_rows.map((row) => (
+                    <div className="kv-row" key={row[0]}>
+                      <span className="kv-key">{row[0]}</span>
+                      <span className="kv-arrow" aria-hidden="true">
+                        →
+                      </span>
+                      <span className="kv-value">{row[1]}</span>
+                    </div>
+                  ))}
+                </div>
+              </details>
             ) : (
               <div className="empty-state">
                 <strong>Блок пуст</strong>
-                <span>В hosts пока нет записей PrimeProxy.</span>
+                <span>
+                  В hosts пока нет записей PrimeProxy — выберите сервисы ниже.
+                </span>
               </div>
             )}
           </>
@@ -180,86 +463,197 @@ export function HostsPage() {
             </span>
             <h2 className="card-title">Что разблокировать</h2>
             <p className="card-note">
-              Отмеченные домены будут направлены на {BLOCK_ADDRESS} — трафик
-              пойдёт мимо DPI.
+              Одна кнопка включает сервис целиком — все его домены сразу. Ниже
+              видно, какие именно адреса уйдут в hosts.
             </p>
           </div>
-          <span className="chip tone-neutral">{selected.size} отмечено</span>
+          <span className="chip tone-neutral">
+            выбрано {SERVICES.filter((s) => countIn(desired, s.domains) > 0).length} из{" "}
+            {SERVICES.length}
+          </span>
         </div>
 
-        {SERVICES.map((service) => {
-          const allOn = service.domains.every((domain) => selected.has(domain));
-          return (
-            <div className="host-group" key={service.title}>
-              <h3>
-                {service.title}
-                <span>{service.domains.length} доменов</span>
-                <button
-                  type="button"
-                  className="btn ghost sm"
-                  aria-label={
-                    allOn
-                      ? `Снять все домены ${service.title}`
-                      : `Выбрать все домены ${service.title}`
-                  }
-                  onClick={() =>
-                    setSelected((prev) => {
-                      const next = new Set(prev);
-                      for (const domain of service.domains) {
-                        if (allOn) next.delete(domain);
-                        else next.add(domain);
-                      }
-                      return next;
-                    })
-                  }
-                >
-                  {allOn ? "Снять" : "Выбрать"}
-                </button>
-              </h3>
-              <div className="host-domains">
-                {service.domains.map((domain) => (
-                  <label className="host-row" key={domain}>
-                    <input
-                      type="checkbox"
-                      checked={selected.has(domain)}
-                      onChange={() => toggleDomain(domain)}
-                    />
-                    <span>{domain}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-
-        <div className="launch-row">
-          <button
-            type="button"
-            className="btn accent"
-            disabled={busy || selected.size === 0}
-            onClick={() => setConfirmOpen(true)}
-          >
-            {busy ? <span className="spinner" /> : <IconCheck />}
-            Применить в hosts ({selected.size})
-          </button>
-          {selected.size > 0 && (
+        <div className="hosts-toolbar">
+          <label className="search-box">
+            <span className="sr-only">Поиск сервиса</span>
+            <input
+              className="input"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Найти сервис или домен…"
+              aria-label="Поиск сервиса"
+            />
+            {search && (
+              <button
+                type="button"
+                className="btn icon sm ghost"
+                onClick={() => setSearch("")}
+                aria-label="Очистить поиск"
+              >
+                <IconClose size={14} />
+              </button>
+            )}
+          </label>
+          <div className="hosts-toolbar-actions">
             <button
               type="button"
-              className="btn ghost"
-              onClick={() => setSelected(new Set())}
+              className="btn ghost sm"
+              onClick={fillAll}
               disabled={busy}
             >
-              Сбросить выбор
+              <IconUnlock size={14} />
+              Разблокировать всё
             </button>
-          )}
+            <button
+              type="button"
+              className="btn ghost sm"
+              onClick={clearAll}
+              disabled={busy}
+            >
+              <IconLock size={14} />
+              Очистить блок
+            </button>
+          </div>
+        </div>
+
+        {visibleCategories.length === 0 ? (
+          <div className="empty-state">
+            <strong>Ничего не найдено</strong>
+            <span>Измените запрос или очистите поиск.</span>
+          </div>
+        ) : (
+          visibleCategories.map((category) => (
+            <div className="hosts-category" key={category.title}>
+              <h3 className="hosts-category-title">{category.title}</h3>
+              <div className="hosts-grid">
+                {category.services.map((service) => {
+                  const inDesired = countIn(desired, service.domains);
+                  const total = service.domains.length;
+                  const allOn = inDesired === total;
+                  const partial = inDesired > 0 && !allOn;
+                  const inFile = countIn(current, service.domains);
+                  return (
+                    <article
+                      className={`svc ${allOn ? "on" : ""} ${partial ? "partial" : ""}`}
+                      key={service.id}
+                    >
+                      <div className="svc-head">
+                        <h4 className="svc-title">{service.title}</h4>
+                        <span
+                          className={`chip ${
+                            allOn ? "tone-ok" : partial ? "tone-warn" : "tone-neutral"
+                          }`}
+                        >
+                          {allOn
+                            ? "разблокирован"
+                            : partial
+                              ? `частично ${inDesired} из ${total}`
+                              : "выключен"}
+                        </span>
+                      </div>
+                      <p className="svc-note">{service.note}</p>
+                      <div className="svc-foot">
+                        <button
+                          type="button"
+                          className={`btn ${allOn ? "ghost" : "accent"} sm`}
+                          aria-pressed={allOn}
+                          onClick={() => toggleService(service)}
+                          disabled={busy}
+                        >
+                          {allOn ? <IconLock size={14} /> : <IconUnlock size={14} />}
+                          {allOn
+                            ? "Вернуть как было"
+                            : partial
+                              ? "Разблокировать полностью"
+                              : "Разблокировать"}
+                        </button>
+                        <span className="svc-count">
+                          {total} домен{total === 1 ? "" : total < 5 ? "а" : "ов"}
+                          {inFile > 0 && inFile !== inDesired
+                            ? ` · в файле ${inFile}`
+                            : ""}
+                        </span>
+                      </div>
+                      <details className="svc-domains">
+                        <summary>
+                          <span className="hosts-details-arrow" aria-hidden="true">
+                            <IconChevron />
+                          </span>
+                          домены
+                        </summary>
+                        <div className="svc-domain-list">
+                          {service.domains.map((domain) => (
+                            <span
+                              className={`svc-domain ${
+                                desired.has(domain) ? "on" : ""
+                              }`}
+                              key={domain}
+                            >
+                              {domain}
+                            </span>
+                          ))}
+                        </div>
+                      </details>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          ))
+        )}
+
+        <div className="hosts-apply">
+          <div className="hosts-apply-summary">
+            {!loaded ? (
+              <span>Читаю текущий файл hosts…</span>
+            ) : dirty ? (
+              <>
+                <strong>
+                  {added.length > 0 ? `+${added.length} доменов` : "без добавлений"}
+                  {" · "}
+                  {removed.length > 0 ? `−${removed.length} доменов` : "без удалений"}
+                </strong>
+                <span>
+                  Итог: {desired.size} строк в блоке PrimeProxy (сейчас {current.size}).
+                </span>
+              </>
+            ) : (
+              <>
+                <strong>Изменений нет</strong>
+                <span>Файл hosts уже соответствует выбору.</span>
+              </>
+            )}
+          </div>
+          <div className="hosts-apply-actions">
+            {dirty && (
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={() => void load()}
+                disabled={busy}
+              >
+                Отменить изменения
+              </button>
+            )}
+            <button
+              type="button"
+              className="btn accent"
+              disabled={busy || !loaded || !dirty}
+              onClick={() => setConfirmOpen(true)}
+            >
+              {busy ? <span className="spinner" /> : <IconCheck />}
+              Применить в hosts
+            </button>
+          </div>
         </div>
 
         {confirmOpen && (
-          <div className="infobar warn with-icon">
+          <div className="infobar warn with-icon" role="alert">
             <IconWarning />
             <span>
-              Изменить hosts? Будет создан бэкап <code>.primebak</code>, старые
-              записи PrimeProxy заменятся.
+              Изменить файл hosts? Будет создан бэкап <code>.primebak</code>,
+              старые записи PrimeProxy заменятся новым набором ({desired.size}{" "}
+              строк).
             </span>
             <div className="actions-row">
               <button
@@ -285,11 +679,14 @@ export function HostsPage() {
 
         {applied && applied.managed_rows.length > 0 && (
           <div className="stats-row" aria-label="Записанные строки">
-            {applied.managed_rows.map((row) => (
-              <span className="chip tone-ok" key={row[0]}>
-                {row[0]} → {row[1]}
+            <span className="chip tone-ok">
+              записано {applied.blocked_count} строк
+            </span>
+            {applied.dropped.length > 0 && (
+              <span className="chip tone-warn">
+                конфликтов снято: {applied.dropped.length}
               </span>
-            ))}
+            )}
           </div>
         )}
       </section>

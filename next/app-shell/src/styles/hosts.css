@@ -1,0 +1,259 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Страница «Разблокировка»: блок PrimeProxy в файле hosts и каталог
+   сервисов, которые включаются одной кнопкой.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ─────────────────────────── Раскрывающиеся блоки ─────────────────────────── */
+
+.hosts-details > summary,
+.svc-domains > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  color: var(--text-mute);
+  font: 10.5px/1 var(--font-mono);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  list-style: none;
+}
+
+.hosts-details > summary::-webkit-details-marker,
+.svc-domains > summary::-webkit-details-marker {
+  display: none;
+}
+
+.hosts-details > summary:hover,
+.svc-domains > summary:hover {
+  color: var(--text-dim);
+}
+
+.hosts-details > summary:focus-visible,
+.svc-domains > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+.hosts-details-arrow {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition:
+    transform var(--t-mid) var(--ease),
+    color var(--t-mid) var(--ease);
+}
+
+details[open] > summary .hosts-details-arrow {
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+/* ─────────────────────────── Панель сервисов ─────────────────────────── */
+
+.hosts-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-4);
+}
+
+.hosts-toolbar .search-box {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.hosts-toolbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hosts-category {
+  margin-bottom: var(--sp-5);
+}
+
+.hosts-category-title {
+  margin: 0 0 var(--sp-3);
+  color: var(--text-mute);
+  font: 500 9.5px/1 var(--font-mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.hosts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--sp-3);
+}
+
+/* ─────────────────────────── Карточка сервиса ─────────────────────────── */
+
+.svc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 14px 14px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  transition:
+    border-color var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease);
+}
+
+/* Включённый сервис отмечается полосой у левой кромки: цвет — не
+   единственный признак, рядом стоит подпись состояния. */
+.svc::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--line-strong);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.svc.on::before {
+  background: var(--accent);
+}
+
+.svc.partial::before {
+  background: var(--warn);
+}
+
+.svc:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+}
+
+.svc.on {
+  border-color: rgba(197, 242, 90, 0.22);
+}
+
+.svc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.svc-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.svc-note {
+  margin: 6px 0 0;
+  color: var(--text-mute);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.svc-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.svc-count {
+  color: var(--text-mute);
+  font: 10px/1.4 var(--font-mono);
+}
+
+.svc-domains {
+  margin-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.svc-domain-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding-bottom: 10px;
+}
+
+.svc-domain {
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
+  background: var(--inset);
+  color: var(--text-mute);
+  font: 10.5px/1.4 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.svc-domain.on {
+  border-color: rgba(197, 242, 90, 0.28);
+  color: var(--accent);
+}
+
+/* ─────────────────────────── Применение ─────────────────────────── */
+
+.hosts-apply {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  margin-top: var(--sp-2);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--line-strong);
+}
+
+.hosts-apply-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.hosts-apply-summary strong {
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.hosts-apply-summary span {
+  color: var(--text-mute);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.hosts-apply-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ─────────────────────────── Узкие экраны ─────────────────────────── */
+
+@media (max-width: 680px) {
+  .hosts-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hosts-toolbar-actions .btn {
+    flex: 1 1 auto;
+  }
+
+  .hosts-apply-actions {
+    width: 100%;
+  }
+
+  .hosts-apply-actions .btn {
+    flex: 1 1 auto;
+  }
+}

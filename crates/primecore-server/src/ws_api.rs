@@ -15,8 +15,8 @@
 //! поднят, start/stop отвечают 409 с приглашением нажать «Разрешить».
 //! В тестах руки подменяются фейком, сокет не трогается.
 
-use std::collections::VecDeque;
 use std::collections::BTreeMap;
+use std::collections::VecDeque;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
@@ -967,16 +967,12 @@ fn start_sync(state: &WsState, request: &StartRequest) -> Result<Value, (StatusC
     plan.args = dedupe_repeated_args(&plan.args);
 
     // Валидация merged-конфигурации: dry-run напрямую, без привилегий.
-    state
-        .inner
-        .executor
-        .dry_run(&plan)
-        .map_err(|failure| {
-            (
-                StatusCode::BAD_REQUEST,
-                Json(json!({ "error": failure.error, "tail": failure.tail })),
-            )
-        })?;
+    state.inner.executor.dry_run(&plan).map_err(|failure| {
+        (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "error": failure.error, "tail": failure.tail })),
+        )
+    })?;
 
     // Мьютекс держим до конца: проверка «уже запущено» и spawn — атомарно.
     let mut controller = state
@@ -1390,7 +1386,12 @@ pub fn preset_description(preset_text: &str) -> String {
 
 /// Цели пресета по ссылкам на списки: `--hostlist=lists/<имя>.txt`
 /// (только hostlist-ссылки; `--ipset` не рассматривается). Порядок — по
-/// каталогу целей; без совпадений — `["Общий"]`.
+/// каталогу целей `TARGET_CATALOG_LABELS`; без совпадений — `["Общий"]`.
+///
+/// Порядок берётся из каталога, а не из текста пресета, потому что UI
+/// группирует пресеты по профилям сервисов: у одного профиля должен быть
+/// один и тот же список целей независимо от того, в каком порядке списки
+/// перечислены в пресете.
 #[must_use]
 pub fn preset_targets(preset_text: &str) -> Vec<String> {
     let mut matched: Vec<&'static str> = Vec::new();
@@ -1428,14 +1429,21 @@ pub fn preset_targets(preset_text: &str) -> Vec<String> {
 }
 
 /// Метки целей в каталоговом порядке.
-const TARGET_CATALOG_LABELS: [&str; 8] = [
-    "Discord",
+const TARGET_CATALOG_LABELS: [&str; 15] = [
     "YouTube",
-    "Google",
+    "Discord",
+    "Telegram",
+    "Instagram",
+    "Facebook",
+    "Twitter/X",
+    "TikTok",
+    "WhatsApp",
     "ChatGPT",
-    "Соцсети Meta",
+    "Anthropic",
+    "Google",
     "Twitch",
     "Игры",
+    "Торренты",
     "Все сайты",
 ];
 
@@ -1448,24 +1456,46 @@ fn list_targets(list_name: &str) -> Vec<&'static str> {
     }
     if name.contains("youtube")
         || name.contains("googlevideo")
+        || name.contains("ytimg")
         || name.contains("ipset-russia-youtube")
     {
         targets.push("YouTube");
     }
-    if name.starts_with("google") {
-        targets.push("Google");
+    if name.contains("telegram") {
+        targets.push("Telegram");
+    }
+    if name.contains("instagram") || name.contains("faceinsta") {
+        targets.push("Instagram");
+    }
+    if name.contains("facebook") {
+        targets.push("Facebook");
+    }
+    if name.contains("twitter") || name.contains("twimg") {
+        targets.push("Twitter/X");
+    }
+    if name.contains("tiktok") {
+        targets.push("TikTok");
+    }
+    if name.contains("whatsapp") {
+        targets.push("WhatsApp");
     }
     if name.contains("chatgpt") || name.contains("openai") {
         targets.push("ChatGPT");
     }
-    if name.contains("instagram") || name.contains("facebook") {
-        targets.push("Соцсети Meta");
+    if name.contains("claude") {
+        targets.push("Anthropic");
+    }
+    if name.starts_with("google") {
+        targets.push("Google");
     }
     if name.contains("twitch") {
         targets.push("Twitch");
     }
-    if name.contains("steam") || name.contains("roblox") {
+    if name.contains("steam") || name.contains("roblox") || name.contains("epicgames") {
         targets.push("Игры");
+    }
+    if name.contains("rutracker") || name.contains("rutor") {
+        targets.push("Торренты");
     }
     if name.contains("russia-blacklist")
         || name.contains("zapret-moe")
@@ -1900,7 +1930,9 @@ mod tests {
                 "{args:?}"
             );
             assert!(
-                !args.iter().any(|arg| arg.as_str().is_some_and(|value| value.starts_with('@'))),
+                !args
+                    .iter()
+                    .any(|arg| arg.as_str().is_some_and(|value| value.starts_with('@'))),
                 "на Windows аргументы идут напрямую, без @файла: {args:?}"
             );
             // Слой перехвата WinDivert — это и есть строки `--wf-*`: без них
@@ -2276,12 +2308,14 @@ mod tests {
     #[test]
     fn windows_executor_spawns_kills_and_reports_status() {
         let executor = WindowsExecutor::new();
-        assert!(executor.ping().is_ok(), "демон привилегий на Windows не нужен");
+        assert!(
+            executor.ping().is_ok(),
+            "демон привилегий на Windows не нужен"
+        );
         assert!(executor.run_nft_script("add table inet t").is_ok());
         assert!(executor.delete_nft_table().is_ok());
 
-        let system_root =
-            std::env::var("SystemRoot").unwrap_or_else(|_| "C:\\Windows".to_string());
+        let system_root = std::env::var("SystemRoot").unwrap_or_else(|_| "C:\\Windows".to_string());
         let plan = Nfqws2LaunchPlan {
             exe: format!("{system_root}\\System32\\cmd.exe"),
             args: vec!["/c".to_string(), "ping -n 30 127.0.0.1 > nul".to_string()],
@@ -2509,8 +2543,8 @@ mod tests {
         assert_eq!(
             preset_targets(text),
             vec![
-                "Discord".to_string(),
                 "YouTube".to_string(),
+                "Discord".to_string(),
                 "Google".to_string(),
                 "Все сайты".to_string()
             ]
@@ -2518,9 +2552,9 @@ mod tests {
         // Дедуп: один и тот же список дважды — одна цель.
         let text = "--hostlist=lists/discord.txt\n--hostlist=lists/discord-images.txt\n";
         assert_eq!(preset_targets(text), vec!["Discord".to_string()]);
-        // Без совпадений — «Общий».
+        // Без совпадений — «Общий» (amazon.txt не входит ни в один профиль).
         assert_eq!(
-            preset_targets("--hostlist=lists/rutor.txt\n"),
+            preset_targets("--hostlist=lists/amazon.txt\n"),
             vec!["Общий"]
         );
         // Только hostlist-ссылки: ipset не рассматривается.
@@ -2533,10 +2567,56 @@ mod tests {
             preset_targets("--hostlist=lists/steam.txt --hostlist=lists/roblox.txt"),
             vec!["Игры"]
         );
-        // Соцсети Meta.
+        // Instagram и Facebook — разные профили, порядок по каталогу.
         assert_eq!(
             preset_targets("--hostlist=lists/instagram.txt\n--hostlist=lists/facebook.txt"),
-            vec!["Соцсети Meta"]
+            vec!["Instagram".to_string(), "Facebook".to_string()]
+        );
+        // Торренты: rutor теперь распознаётся.
+        assert_eq!(
+            preset_targets("--hostlist=lists/rutor.txt\n"),
+            vec!["Торренты"]
+        );
+    }
+
+    #[test]
+    fn preset_targets_maps_new_service_profiles() {
+        // Anthropic (Claude) — новый профиль.
+        assert_eq!(
+            preset_targets("--hostlist=lists/claude.txt"),
+            vec!["Anthropic"]
+        );
+        // Twitter/X: и twitter, и twimg.
+        assert_eq!(
+            preset_targets("--hostlist=lists/twitter.txt --hostlist=lists/twimg.txt"),
+            vec!["Twitter/X"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/tiktok.txt"),
+            vec!["TikTok"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/telegram.txt"),
+            vec!["Telegram"]
+        );
+        // WhatsApp: имя списка отличается от метки.
+        assert_eq!(
+            preset_targets("--hostlist=lists/static-whatsapp-net.txt"),
+            vec!["WhatsApp"]
+        );
+        // Игры: epicgames-fortnite входит в тот же профиль, что steam.
+        assert_eq!(
+            preset_targets("--hostlist=lists/steam.txt --hostlist=lists/epicgames-fortnite.txt"),
+            vec!["Игры"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/rutracker.txt"),
+            vec!["Торренты"]
+        );
+        // YouTube: i-ytimg покрывается проверкой на ytimg.
+        assert_eq!(
+            preset_targets("--hostlist=lists/i-ytimg.txt"),
+            vec!["YouTube"]
         );
     }
 
@@ -2555,6 +2635,20 @@ mod tests {
         );
         assert!(all_targets.iter().any(|t| t == "YouTube"));
         assert!(all_targets.iter().any(|t| t == "Все сайты"));
+        // Новые профили сервисов должны находиться в реальном каталоге.
+        for label in [
+            "Anthropic",
+            "Instagram",
+            "Facebook",
+            "Twitter/X",
+            "TikTok",
+            "Торренты",
+        ] {
+            assert!(
+                all_targets.iter().any(|t| t == label),
+                "нет цели {label} в {all_targets:?}"
+            );
+        }
         // У каждого пресета каталога есть непустой список целей (встроенный
         // каталог подобран под сервисы); fallback «Общий» покрыт
         // синтетическим тестом выше.

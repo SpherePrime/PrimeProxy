@@ -17,12 +17,16 @@ import {
 } from "../api";
 import {
   PresetGroup,
-  PresetGroups,
+  ProfileCard,
+  UniversalBlock,
   buildGroups,
+  groupMatches,
   isEnabled,
+  isUniversal,
+  loadDefaults,
+  loadEnabled,
   saveDefault,
   saveEnabled,
-  isUniversal,
 } from "./PresetGroups";
 import {
   IconClose,
@@ -32,8 +36,8 @@ import {
   IconSearch,
   IconShieldCheck,
   IconStop,
+  IconUnlock,
   IconWarning,
-  IconChevron,
 } from "./Icons";
 import { PageHeader } from "./PageHeader";
 import "../styles/bypass.css";
@@ -49,13 +53,31 @@ const HOSTLIST_MODES: Array<{ key: HostlistMode; title: string }> = [
   { key: "autohostlist", title: "Автосписок" },
 ];
 
+// Режим профилей: «all» — один универсальный пресет на весь трафик,
+// «profiles» — только выбранные сервисы. Режимы не смешиваются, поэтому в
+// запуск уходит ровно то, что видно включённым на экране.
+type ProfileMode = "all" | "profiles";
+
+const PROFILE_MODE_KEY = "pp.mode";
+
+function readProfileMode(): ProfileMode {
+  try {
+    return localStorage.getItem(PROFILE_MODE_KEY) === "profiles"
+      ? "profiles"
+      : "all";
+  } catch (_) {
+    // localStorage недоступен — работаем с режимом по умолчанию
+    return "all";
+  }
+}
+
 const LOG_KEEP = 500; // сколько строк журнала держим в памяти вида
 
 export function BypassPage() {
   const [presets, setPresets] = useState<PresetInfo[]>([]);
   const [search, setSearch] = useState("");
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  const [showAllGroups, setShowAllGroups] = useState(false);
+  const [profileMode, setProfileMode] = useState<ProfileMode>(readProfileMode);
   const [qnum, setQnum] = useState("300");
   const [mode, setMode] = useState<HostlistMode>("none");
   const [starting, setStarting] = useState(false);
@@ -65,14 +87,17 @@ export function BypassPage() {
   const [logLines, setLogLines] = useState<string[]>([]);
   const [dropped, setDropped] = useState<number | null>(null);
 
+  // Состояние движка: обновляется поллингом /api/ws/status.
+  const [status, setStatus] = useState<WsStatus | null>(null);
+
   // Права администратора: состояние с /api/ws/privilege + процесс выдачи.
   const [privilege, setPrivilege] = useState<PrivilegeInfo | null>(null);
   const [granting, setGranting] = useState(false);
   const [awaitingGrant, setAwaitingGrant] = useState(false);
 
   // Группы пресетов: выключенные секции и выбранные пресеты — в localStorage.
-  const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>({});
-  const [defaultMap, setDefaultMap] = useState<Record<string, string>>({});
+  const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>(loadEnabled);
+  const [defaultMap, setDefaultMap] = useState<Record<string, string>>(loadDefaults);
 
   // Детали пресета — best effort: новый контракт их не гарантирует.
   const [detail, setDetail] = useState<WsPresetDetail | null>(null);
@@ -83,9 +108,55 @@ export function BypassPage() {
   const logRef = useRef<HTMLPreElement>(null);
   const stickBottomRef = useRef(true);
 
+  // Группы пресетов по целевым сервисам: одна группа — один профиль.
+  const groups = useMemo(() => buildGroups(presets), [presets]);
+
   const universalGroups = groups.filter((g) => isUniversal(g.target));
   const specificGroups = groups.filter((g) => !isUniversal(g.target));
-  const visibleSpecific = showAllGroups ? specificGroups : [];
+  // Старое ядро может не отдать универсальных целей — тогда режим «Все сайты»
+  // показать нечем и работаем как с точечными профилями. Пока пресеты не
+  // загружены, судить об этом нельзя: иначе режим сбрасывался бы при старте.
+  const hasUniversal = universalGroups.length > 0;
+  const universalKnown = presets.length > 0;
+  const effectiveMode: ProfileMode =
+    universalKnown && !hasUniversal ? "profiles" : profileMode;
+
+  // Выбор режима запоминается: пользователь возвращается к тому же экрану.
+  const chooseProfileMode = useCallback((next: ProfileMode) => {
+    setProfileMode(next);
+    try {
+      localStorage.setItem(PROFILE_MODE_KEY, next);
+    } catch (_) {
+      // localStorage недоступен — режим живёт до перезагрузки
+    }
+  }, []);
+
+  useEffect(() => {
+    if (universalKnown && !hasUniversal && profileMode === "all") {
+      chooseProfileMode("profiles");
+    }
+  }, [universalKnown, hasUniversal, profileMode, chooseProfileMode]);
+
+  // Включённость группы зависит от режима: универсальные работают только в
+  // режиме «Все сайты», точечные — только в режиме профилей.
+  const groupActive = useCallback(
+    (group: PresetGroup): boolean =>
+      isUniversal(group.target)
+        ? effectiveMode === "all"
+        : effectiveMode === "profiles" && isEnabled(group.target, enabledMap),
+    [effectiveMode, enabledMap],
+  );
+
+  const visibleProfiles = specificGroups.filter((group) =>
+    groupMatches(group, search),
+  );
+  const activeProfileCount = specificGroups.filter((group) =>
+    isEnabled(group.target, enabledMap),
+  ).length;
+  const universalPresetCount = universalGroups.reduce(
+    (total, group) => total + group.presets.length,
+    0,
+  );
 
   // --- разовая загрузка пресетов, статуса и состояния прав -----------------
   useEffect(() => {
@@ -171,13 +242,17 @@ export function BypassPage() {
       });
   }, []);
 
-  // Выбранный пресет секции: сохранённый, если он ещё существует, иначе
-  // первый по алфавиту (список секции уже отсортирован).
+  // Выбранный пресет секции: сохранённый, если он ещё существует, иначе —
+  // помеченный автором как основной (так «Ростелеком» не становится
+  // случайным выбором для всего трафика), иначе первый по алфавиту.
   const chosenFor = useCallback(
     (group: PresetGroup): string => {
       const saved = defaultMap[group.target];
       if (saved && group.presets.some((p) => p.name === saved)) return saved;
-      return group.presets[0]?.name ?? "";
+      const main = group.presets.find((preset) =>
+        preset.description.toLowerCase().startsWith("основной пресет"),
+      );
+      return main?.name ?? group.presets[0]?.name ?? "";
     },
     [defaultMap],
   );
@@ -213,11 +288,13 @@ export function BypassPage() {
   }
 
   async function handleStart() {
-    const enabledGroups = groups.filter((group) =>
-      isEnabled(group.target, enabledMap),
-    );
+    const enabledGroups = groups.filter(groupActive);
     if (enabledGroups.length === 0) {
-      setError("Включите хотя бы одну группу");
+      setError(
+        effectiveMode === "all"
+          ? "Универсальный профиль не выбран — проверьте режим «Все сайты»"
+          : "Включите хотя бы один профиль или выберите режим «Все сайты»",
+      );
       return;
     }
     const names = enabledGroups.map(chosenFor).filter(Boolean);
@@ -332,9 +409,8 @@ export function BypassPage() {
       : "нужен запрос";
   const rightsTone = !rightsKnown ? "tone-mute" : rightsGranted ? "tone-ok" : "tone-warn";
 
-  const enabledGroupCount = groups.filter((group) =>
-    isEnabled(group.target, enabledMap),
-  ).length;
+  const universalChosen =
+    universalGroups.length > 0 ? chosenFor(universalGroups[0]) : "";
 
   return (
     <div className="page bypass-page">
@@ -464,14 +540,80 @@ export function BypassPage() {
             <span className="section-kicker">
               <b>02</b> Профили
             </span>
-            <h2 className="card-title">Профили обхода</h2>
+            <h2 className="card-title">Профиль обхода</h2>
             <p className="card-note">
-              Достаточно выбрать один универсальный профиль из группы «Все
-              сайты». Точечные группы можно включить при необходимости.
+              Выберите режим: один универсальный пресет на весь трафик или
+              точечные профили под конкретные сервисы. Режимы не смешиваются —
+              в запуск уходит только то, что включено в активном режиме.
             </p>
           </div>
           <span className="chip tone-neutral">всего {presets.length}</span>
         </div>
+
+        <div className="mode-picker" role="radiogroup" aria-label="Режим профилей">
+          <button
+            type="button"
+            role="radio"
+            aria-checked={effectiveMode === "all"}
+            disabled={!hasUniversal && universalKnown}
+            className={`mode-card ${effectiveMode === "all" ? "active" : ""}`}
+            onClick={() => chooseProfileMode("all")}
+          >
+            <span className="mode-card-head">
+              <span className="mode-card-icon" aria-hidden="true">
+                <IconShieldCheck />
+              </span>
+              <span className="mode-card-title">Все сайты</span>
+            </span>
+            <span className="mode-card-note">
+              Один универсальный пресет на весь трафик: подходит большинству
+              заблокированных сайтов и приложений.
+            </span>
+            <span className="mode-card-state">
+              {effectiveMode === "all"
+                ? universalChosen
+                  ? `запустится: ${universalChosen}`
+                  : "пресет не выбран"
+                : "выключен"}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            role="radio"
+            aria-checked={effectiveMode === "profiles"}
+            className={`mode-card ${effectiveMode === "profiles" ? "active" : ""}`}
+            onClick={() => chooseProfileMode("profiles")}
+          >
+            <span className="mode-card-head">
+              <span className="mode-card-icon" aria-hidden="true">
+                <IconUnlock />
+              </span>
+              <span className="mode-card-title">Точечные профили</span>
+            </span>
+            <span className="mode-card-note">
+              Работают только выбранные сервисы: например, один Anthropic или
+              Instagram — остальной трафик движок не трогает.
+            </span>
+            <span className="mode-card-state">
+              {effectiveMode === "profiles"
+                ? activeProfileCount > 0
+                  ? `включено профилей: ${activeProfileCount}`
+                  : "ничего не включено"
+                : "выключен"}
+            </span>
+          </button>
+        </div>
+
+        {universalKnown && !hasUniversal && (
+          <div className="infobar warn with-icon">
+            <IconWarning />
+            <span>
+              Ядро не сообщило универсальных пресетов — доступны только точечные
+              профили. Обновите ядро PrimeProxy.
+            </span>
+          </div>
+        )}
 
         <label className="search-box">
           <IconSearch size={16} />
@@ -495,84 +637,64 @@ export function BypassPage() {
           )}
         </label>
 
-        {universalGroups.length > 0 && (
-          <div className="profile-section">
-            <div className="profile-section-head">
-              <div>
-                <span className="profile-kicker">Универсальный профиль</span>
-                <p className="profile-sub">
-                  Работает для большинства заблокированных сайтов и приложений
-                </p>
-              </div>
-              <span className="chip tone-accent">рекомендуется</span>
-            </div>
-            <PresetGroups
+        {presets.length === 0 ? (
+          <div className="empty-state">
+            <strong>Пресеты не найдены</strong>
+            <span>
+              Похоже, ядро недоступно. Проверьте локальный API и повторите.
+            </span>
+          </div>
+        ) : effectiveMode === "all" ? (
+          <UniversalBlock
+            groups={universalGroups}
+            search={search}
+            active
+            chosen={(target) => effectiveDefaults[target]}
+            onChoose={choosePreset}
+            onSwitchMode={() => chooseProfileMode("profiles")}
+          />
+        ) : (
+          <>
+            <UniversalBlock
               groups={universalGroups}
               search={search}
-              totalPresets={presets.length}
-              enabled={enabledMap}
-              defaults={effectiveDefaults}
-              onToggle={toggleGroup}
+              active={false}
+              chosen={(target) => effectiveDefaults[target]}
               onChoose={choosePreset}
-              openTarget={openGroup}
-              onOpen={setOpenGroup}
+              onSwitchMode={() => chooseProfileMode("all")}
             />
-          </div>
+
+            {visibleProfiles.length > 0 ? (
+              <div className="pcard-grid">
+                {visibleProfiles.map((group) => (
+                  <ProfileCard
+                    key={group.target}
+                    group={group}
+                    enabled={isEnabled(group.target, enabledMap)}
+                    chosen={effectiveDefaults[group.target]}
+                    search={search}
+                    open={openGroup === group.target}
+                    onToggle={toggleGroup}
+                    onChoose={choosePreset}
+                    onOpen={setOpenGroup}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <strong>Ничего не найдено</strong>
+                <span>Измените запрос или очистите поиск.</span>
+              </div>
+            )}
+          </>
         )}
 
         {groups.length > 0 && (
           <p className="byp-results-line">
-            включено {enabledGroupCount} из {groups.length} групп
+            {effectiveMode === "all"
+              ? `режим «Все сайты» · универсальных пресетов: ${universalPresetCount}`
+              : `режим точечных профилей · включено ${activeProfileCount} из ${specificGroups.length}`}
           </p>
-        )}
-
-        {specificGroups.length > 0 && (
-          <div className="profile-section profile-section--muted">
-            <button
-              type="button"
-              className="profile-toggle"
-              onClick={() => setShowAllGroups((v) => !v)}
-              aria-expanded={showAllGroups}
-            >
-              <span>
-                <strong>Точечная настройка</strong>
-                <span>
-                  {showAllGroups ? "Скрыть" : "Показать"} узкоспецифичные группы (
-                  {specificGroups.length})
-                </span>
-              </span>
-              <span className="profile-toggle-arrow">
-                <IconChevron />
-              </span>
-            </button>
-            {showAllGroups && (
-              <PresetGroups
-                groups={specificGroups}
-                search={search}
-                totalPresets={presets.length}
-                enabled={enabledMap}
-                defaults={effectiveDefaults}
-                onToggle={toggleGroup}
-                onChoose={choosePreset}
-                openTarget={openGroup}
-                onOpen={setOpenGroup}
-              />
-            )}
-          </div>
-        )}
-
-        {universalGroups.length === 0 && (
-          <PresetGroups
-            groups={groups}
-            search={search}
-            totalPresets={presets.length}
-            enabled={enabledMap}
-            defaults={effectiveDefaults}
-            onToggle={toggleGroup}
-            onChoose={choosePreset}
-            openTarget={openGroup}
-            onOpen={setOpenGroup}
-          />
         )}
       </section>
 
