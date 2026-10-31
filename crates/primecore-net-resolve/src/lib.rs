@@ -430,6 +430,18 @@ pub fn connect_tcp_with(
 mod tests {
     use super::*;
 
+    /// Тесты кэша идут параллельно в одном процессе и работают с общим
+    /// статическим кэшем: `clear_cache` одного теста сносил запись другого,
+    /// и на Windows это ловилось как лишний вызов резолвера. Держим замок
+    /// вокруг всех тестов, которые трогают кэш.
+    static CACHE_TEST_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+    fn cache_test_guard() -> std::sync::MutexGuard<'static, ()> {
+        CACHE_TEST_LOCK
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
+
     /// python `_BlackholeDNS` — резолвер, вечно висящий, как мёртвый DNS.
     fn blackhole(_host: &str, _port: Option<u16>, _ipv4_only: bool) -> Result<Vec<String>, String> {
         // Дольше дедлайна теста: как мёртвый DNS, ответ не успевает.
@@ -467,6 +479,7 @@ mod tests {
 
     #[test]
     fn successful_result_is_cached_and_reused() {
+        let _guard = cache_test_guard();
         clear_cache();
         let calls = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
         let calls_in = std::sync::Arc::clone(&calls);
@@ -503,6 +516,7 @@ mod tests {
 
     #[test]
     fn failure_is_cached_for_short_ttl() {
+        let _guard = cache_test_guard();
         clear_cache();
         let calls = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
         let calls_in = std::sync::Arc::clone(&calls);
@@ -531,6 +545,7 @@ mod tests {
 
     #[test]
     fn resolve_ips_splits_and_dedups_families() {
+        let _guard = cache_test_guard();
         clear_cache();
         let resolver =
             |_host: &str, _port: Option<u16>, _ipv4_only: bool| -> Result<Vec<String>, String> {
@@ -553,6 +568,7 @@ mod tests {
 
     #[test]
     fn parallel_callers_share_one_inflight_request() {
+        let _guard = cache_test_guard();
         clear_cache();
         let calls = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
         let calls_in = std::sync::Arc::clone(&calls);
@@ -608,6 +624,7 @@ mod tests {
 
     #[test]
     fn connect_tcp_without_addresses_is_lookup_error() {
+        let _guard = cache_test_guard();
         clear_cache();
         let resolver = |_host: &str,
                         _port: Option<u16>,

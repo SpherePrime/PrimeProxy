@@ -18,12 +18,26 @@ use primecore_privilege::client;
 use crate::ws_api::WsState;
 
 /// Путь к файлу hosts: `PRIMECORE_HOSTS_PATH`, иначе системный.
+///
+/// Платформенный: на unix это `/etc/hosts`, на Windows файл лежит в системном
+/// каталоге (`%SystemRoot%\System32\drivers\etc\hosts`).
 #[must_use]
 pub fn hosts_path() -> String {
-    std::env::var("PRIMECORE_HOSTS_PATH")
+    if let Some(value) = std::env::var("PRIMECORE_HOSTS_PATH")
         .ok()
         .filter(|value| !value.trim().is_empty())
-        .unwrap_or_else(|| "/etc/hosts".to_string())
+    {
+        return value;
+    }
+    if cfg!(windows) {
+        if let Ok(root) = std::env::var("SystemRoot") {
+            if !root.trim().is_empty() {
+                return format!("{root}\\System32\\drivers\\etc\\hosts");
+            }
+        }
+        return "C:\\Windows\\System32\\drivers\\etc\\hosts".to_string();
+    }
+    "/etc/hosts".to_string()
 }
 
 /// Тело запроса применения блока.

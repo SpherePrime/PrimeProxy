@@ -60,9 +60,10 @@ pub fn normcase(path: &str) -> String {
 #[must_use]
 pub fn path_is_abs(path: &str) -> bool {
     if cfg!(windows) {
-        // ntpath.isabs: UNC-путь или диск с корнем.
+        // ntpath.isabs: UNC-путь, диск с корнем либо путь от корня текущего
+        // диска — «/x» и «\x» тоже абсолютны, как в python на Windows.
         let bytes = path.as_bytes();
-        if bytes.starts_with(b"\\\\") {
+        if bytes.first() == Some(&b'\\') || bytes.first() == Some(&b'/') {
             return true;
         }
         if bytes.len() >= 3
@@ -1021,19 +1022,34 @@ mod tests {
 
     #[test]
     fn normpath_collapses_separators_and_dots() {
-        // Сверено с python os.path.normpath (posix, среда тестов).
-        assert_eq!(normpath("C:/Zapret/Dev"), "C:/Zapret/Dev");
-        assert_eq!(normpath("a//b///c"), "a/b/c");
-        assert_eq!(normpath("a/./b"), "a/b");
-        assert_eq!(normpath("../a/./b/../c"), "../a/c");
+        // Сверено с python os.path.normpath на той же системе: на Windows
+        // это ntpath (разделитель «\»), на остальных — posixpath. Поэтому
+        // ожидания строятся по разделителю текущей платформы.
+        let sep = if cfg!(windows) { '\\' } else { '/' };
+        assert_eq!(normpath("C:/Zapret/Dev"), format!("C:{sep}Zapret{sep}Dev"));
+        assert_eq!(normpath("a//b///c"), format!("a{sep}b{sep}c"));
+        assert_eq!(normpath("a/./b"), format!("a{sep}b"));
+        assert_eq!(normpath("../a/./b/../c"), format!("..{sep}a{sep}c"));
         assert_eq!(normpath(""), ".");
-        assert_eq!(normpath("/"), "/");
-        assert_eq!(normpath("//"), "//");
+        if cfg!(windows) {
+            // ntpath: «/» — корень текущего диска, «//» — UNC без имени.
+            assert_eq!(normpath("/"), "\\");
+            assert_eq!(normpath("//"), "\\\\");
+        } else {
+            assert_eq!(normpath("/"), "/");
+            assert_eq!(normpath("//"), "//");
+        }
     }
 
     #[test]
     fn join_paths_appends_relative_tail() {
-        assert_eq!(join_paths("/root", "lists/x.txt"), "/root/lists/x.txt");
+        // os.path.join: разделитель — платформенный, а путь от корня
+        // («/abs») считается абсолютным и на Windows — как в ntpath.
+        let sep = if cfg!(windows) { '\\' } else { '/' };
+        assert_eq!(
+            join_paths("/root", "lists/x.txt"),
+            format!("/root{sep}lists/x.txt")
+        );
         assert_eq!(join_paths("/root", "/abs"), "/abs");
         assert_eq!(join_paths("", "x"), "x");
     }
@@ -1050,10 +1066,15 @@ mod tests {
     #[test]
     fn expected_by_name_matches_lowercase_basenames() {
         let map = expected_by_name(&[r"C:\Zapret\exe\Winws2.EXE", ""]);
-        assert_eq!(
-            map.get("winws2.exe").map(String::as_str),
-            Some(r"C:\Zapret\exe\Winws2.EXE")
-        );
+        // Ключ — имя в нижнем регистре; значение — путь после normcase:
+        // на Windows (как os.path.normcase) он в нижнем регистре и с «\»,
+        // на остальных — как задан.
+        let expected = if cfg!(windows) {
+            r"c:\zapret\exe\winws2.exe"
+        } else {
+            r"C:\Zapret\exe\Winws2.EXE"
+        };
+        assert_eq!(map.get("winws2.exe").map(String::as_str), Some(expected));
         assert_eq!(map.len(), 1);
     }
 

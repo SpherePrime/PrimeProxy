@@ -9,15 +9,21 @@
 //!
 //! Запускается один раз через `pkexec`/`sudo` при первом старте; дальше
 //! демон держит привилегии, повторные sudo-запросы не нужны.
+//!
+//! Платформенный только запуск: на unix `main` принимает соединения
+//! (цикл ниже), на Windows постоянного помощника нет — права повышает
+//! UAC на один процесс, поэтому бинарь собирается, но сразу сообщает об
+//! этом и завершается с кодом 2.
 
-use std::io::{BufRead, Write};
-use std::os::unix::net::UnixListener;
-
-use primecore_privilege::ops::{PrivilegedOps, RealExecutor, RealOps};
-
-const DEFAULT_SOCK_PATH: &str = "/tmp/primecore-privd.sock";
-
+#[cfg(unix)]
 fn main() -> std::io::Result<()> {
+    use std::io::{BufRead, Write};
+    use std::os::unix::net::UnixListener;
+
+    use primecore_privilege::ops::{PrivilegedOps, RealExecutor, RealOps};
+
+    const DEFAULT_SOCK_PATH: &str = "/tmp/primecore-privd.sock";
+
     let sock_path =
         std::env::var("PRIMECORE_PRIV_SOCK").unwrap_or_else(|_| DEFAULT_SOCK_PATH.to_string());
 
@@ -65,4 +71,13 @@ fn main() -> std::io::Result<()> {
         }
     }
     Ok(())
+}
+
+#[cfg(windows)]
+fn main() -> std::io::Result<()> {
+    eprintln!(
+        "privd: демон привилегий не поддерживается на Windows — \
+         права там повышает UAC на один процесс"
+    );
+    std::process::exit(2);
 }

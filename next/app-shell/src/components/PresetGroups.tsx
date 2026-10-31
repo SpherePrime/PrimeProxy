@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { PresetInfo } from "../api";
+import { IconChevron } from "./Icons";
 
 // Группировка пресетов по целевым сервисам (targets из /api/ws/presets):
 // одна секция — один сервис, пресет может входить в несколько секций.
@@ -165,7 +166,9 @@ export function PresetGroups({
                 onClick={() => setOpen(open === group.target ? null : group.target)}
                 aria-expanded={open === group.target}
               >
-                <span className="pgroup-arrow">▶</span>
+                <span className="pgroup-arrow">
+                  <IconChevron />
+                </span>
                 <h3>{group.target}</h3>
                 <span className="preset-count">{presetsLabel(group.presets.length)}</span>
                 <button

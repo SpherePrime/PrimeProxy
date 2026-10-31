@@ -89,16 +89,27 @@ fn udp_timeout_to_silent_server() {
 
 #[test]
 fn udp_timeout_when_port_closed() {
-    // Порт никто не слушает. Несвязанный (unconnected) UDP-сокет не получает
-    // ICMP-отказ — и у python на Linux тоже: молчание. (refused-случай
-    // приходит в recvfrom на Windows как ConnectionResetError — ветка есть,
-    // проверяется вручную, в golden-фикстуре failure_text.)
+    // Порт никто не слушает. Несвязанный (unconnected) UDP-сокет на Linux
+    // ICMP-отказ не получает — и у python там тоже: молчание.
+    //
+    // На Windows тот же ICMP «порт закрыт» приходит в recvfrom как
+    // WSAECONNRESET, и по общему правилу разбора (ConnectionReset →
+    // refused, как у python ConnectionResetError) это уже отказ, а не
+    // тишина. Поведение системное, поэтому проверяем его по платформе.
     let socket = UdpSocket::bind("127.0.0.1:0").unwrap();
     let port = socket.local_addr().unwrap().port();
     drop(socket);
     let result = query_udp("127.0.0.1", "example.com", TYPE_A, 0.5, port, None);
-    assert_eq!(result.status, STATUS_TIMEOUT);
-    assert_eq!(result.failure, "timeout");
+    #[cfg(windows)]
+    {
+        assert_eq!(result.status, STATUS_ERROR, "{}", result.detail);
+        assert_eq!(result.failure, "refused");
+    }
+    #[cfg(not(windows))]
+    {
+        assert_eq!(result.status, STATUS_TIMEOUT);
+        assert_eq!(result.failure, "timeout");
+    }
 }
 
 #[test]
@@ -170,10 +181,14 @@ fn tcp_server_closes_without_answer() {
 
 #[test]
 fn tcp_refused_on_closed_port() {
+    // Срок выше 2 с: Windows замечает отказ закрытого порта
+    // (WSAECONNREFUSED) только после повторной посылки SYN — замерено на
+    // этой машине 2.0–2.1 с. С коротким сроком исход был бы «тишина»;
+    // на Linux RST приходит сразу, и срок роли не играет.
     let socket = std::net::UdpSocket::bind("127.0.0.1:0").unwrap();
     let port = socket.local_addr().unwrap().port();
     drop(socket);
-    let result = query_tcp("127.0.0.1", "example.com", TYPE_A, 0.8, port, None);
+    let result = query_tcp("127.0.0.1", "example.com", TYPE_A, 5.0, port, None);
     assert_eq!(result.status, STATUS_ERROR);
     assert_eq!(result.failure, "refused");
 }

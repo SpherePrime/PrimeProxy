@@ -1089,16 +1089,25 @@ mod tests {
         .expect("план");
 
         assert_eq!(plan.exe, "/opt/zapret2/nfq2/nfqws2");
+        // Пути к стандартным lua нормализуются платформенным normpath:
+        // на Windows разделители «\» и ведущий «\» — как os.path на Windows.
+        let sep = if cfg!(windows) { '\\' } else { '/' };
+        let lua_root = if cfg!(windows) {
+            r"\opt\prime\resources\lua"
+        } else {
+            "/opt/prime/resources/lua"
+        };
+        let lua_arg = |name: &str| format!("--lua-init=@{lua_root}{sep}{name}");
         assert_eq!(
             plan.args,
             vec![
-                "--qnum=300",
-                "--fwmark=0x40000000",
-                "--lua-init=@/opt/prime/resources/lua/zapret-lib.lua",
-                "--lua-init=@/opt/prime/resources/lua/zapret-antidpi.lua",
-                "--lua-init=@/opt/prime/resources/lua/zapret-auto.lua",
-                "--lua-desync=fake:blob=tls1",
-                "--ctrack-disable=0",
+                "--qnum=300".to_string(),
+                "--fwmark=0x40000000".to_string(),
+                lua_arg("zapret-lib.lua"),
+                lua_arg("zapret-antidpi.lua"),
+                lua_arg("zapret-auto.lua"),
+                "--lua-desync=fake:blob=tls1".to_string(),
+                "--ctrack-disable=0".to_string(),
             ]
         );
         assert!(plan.env.is_empty(), "эталон особых env не задаёт");

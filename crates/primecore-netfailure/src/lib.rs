@@ -59,6 +59,12 @@ const ERRNO: &[(i32, &str)] = &[
     // отдельных сетевых видов не добавляет.
 ];
 
+/// Прочие системы (FreeBSD, illumos, …): номера errno не сняты с живого
+/// рантайма, поэтому таблица пуста — разбор идёт по коду Winsock и по
+/// классу ошибки. Так крейт собирается везде, а не только на трёх системах.
+#[cfg(not(any(target_os = "linux", target_os = "macos", target_family = "windows")))]
+const ERRNO: &[(i32, &str)] = &[];
+
 fn lookup(table: &'static [(i32, &'static str)], code: i32) -> Option<&'static str> {
     table
         .iter()

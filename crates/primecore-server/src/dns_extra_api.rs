@@ -499,6 +499,9 @@ options edns0
         assert_eq!(default_ifname_from_proc_route(""), None);
     }
 
+    // Интерфейс по умолчанию определяется по /proc/net/route — это Linux-путь,
+    // поэтому на других системах тест не собирается.
+    #[cfg(unix)]
     #[tokio::test]
     async fn dns_set_uses_detected_interface() {
         let executor = FakeDnsExecutor::new();

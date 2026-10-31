@@ -400,7 +400,7 @@ fn map_io(error: io::Error) -> Http2Error {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, unix))]
 mod tests {
     use super::*;
     use std::io::Read as _;

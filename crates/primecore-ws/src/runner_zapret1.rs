@@ -547,11 +547,36 @@ mod tests {
 
         let resolved = resolve_args_paths(&args, "/root/lists", "/root/bin", None);
 
-        assert_eq!(resolved[0], "--hostlist=/root/lists/x.txt");
-        assert_eq!(resolved[1], "--ipset=/root/lists/y.txt");
+        // Пути собираются платформенным join_paths (как os.path.join в python).
+        assert_eq!(
+            resolved[0],
+            format!(
+                "--hostlist={}",
+                crate::engine::join_paths("/root/lists", "x.txt")
+            )
+        );
+        assert_eq!(
+            resolved[1],
+            format!(
+                "--ipset={}",
+                crate::engine::join_paths("/root/lists", "y.txt")
+            )
+        );
         assert_eq!(resolved[2], "--hostlist=C:\\abs\\h.txt");
-        assert_eq!(resolved[3], "--dpi-desync-fake-tls=/root/bin/fake.bin");
-        assert_eq!(resolved[4], "--dpi-desync-fake-tls=@/root/bin/payload.bin");
+        assert_eq!(
+            resolved[3],
+            format!(
+                "--dpi-desync-fake-tls={}",
+                crate::engine::join_paths("/root/bin", "fake.bin")
+            )
+        );
+        assert_eq!(
+            resolved[4],
+            format!(
+                "--dpi-desync-fake-tls=@{}",
+                crate::engine::join_paths("/root/bin", "payload.bin")
+            )
+        );
         assert_eq!(resolved[5], "--dpi-desync-fake-tls=@0x1603");
         // Путь с разделителем в bin/ не автодобавляется.
         assert_eq!(resolved[6], "--dpi-desync-fake-tls=lists/nested.bin");
@@ -579,7 +604,10 @@ mod tests {
 
         assert_eq!(
             resolved[0],
-            "--wf-raw-part=@/root/windivert.filter/custom.txt"
+            format!(
+                "--wf-raw-part=@{}",
+                crate::engine::join_paths("/root/windivert.filter", "custom.txt")
+            )
         );
         // Windows-абсолютный путь распознаётся и не меняется.
         assert_eq!(resolved[1], "--wf-raw-part=@C:\\abs\\f.txt");
@@ -627,10 +655,19 @@ mod tests {
             "/root/bin",
             None,
         );
-        assert_eq!(
-            text,
-            "--hostlist=/root/lists/x.txt\n--dpi-desync-fake-tls=/root/bin/f.bin\n"
-        );
+        let sep = if cfg!(windows) { '\\' } else { '/' };
+        // На Windows путь содержит «\», и shlex_quote кавычит строку —
+        // ровно как python shlex.quote на Windows.
+        let expected = if cfg!(windows) {
+            format!(
+                "'--hostlist=/root/lists{sep}x.txt'\n'--dpi-desync-fake-tls=/root/bin{sep}f.bin'\n"
+            )
+        } else {
+            format!(
+                "--hostlist=/root/lists{sep}x.txt\n--dpi-desync-fake-tls=/root/bin{sep}f.bin\n"
+            )
+        };
+        assert_eq!(text, expected);
     }
 
     #[test]
@@ -647,7 +684,7 @@ mod tests {
         assert_ne!(first, other_text);
         assert_ne!(first, other_path);
         assert!(first
-            .rsplit('/')
+            .rsplit(['/', '\\'])
             .next()
             .unwrap_or("")
             .starts_with("winws1_at_"));
@@ -658,7 +695,10 @@ mod tests {
     fn startup_output_path_uses_args_digest() {
         let root = tmpdir("out1");
         let path = winws1_startup_output_path(&root, "/p", &["@config.txt".to_string()]);
-        assert!(path.contains("/user/tmp/winws1_startup_output/winws1_startup_"));
+        let sep = if cfg!(windows) { '\\' } else { '/' };
+        assert!(path.contains(&format!(
+            "user{sep}tmp{sep}winws1_startup_output{sep}winws1_startup_"
+        )));
         let other = winws1_startup_output_path(&root, "/p", &["@other.txt".to_string()]);
         assert_ne!(path, other);
         let _ = std::fs::remove_dir_all(&root);
@@ -694,7 +734,10 @@ mod tests {
         let dry_run_path =
             write_winws1_dry_run_at_config(&root, &format!("@{config_path}")).expect("файл");
 
-        assert!(dry_run_path.starts_with(&format!("{root}/user/tmp/winws1_at_config/")));
+        let sep = if cfg!(windows) { '\\' } else { '/' };
+        assert!(dry_run_path.starts_with(&format!(
+            "{root}{sep}user{sep}tmp{sep}winws1_at_config{sep}"
+        )));
         assert!(dry_run_path.contains("winws1_dry_run_"));
         let text = std::fs::read_to_string(&dry_run_path).expect("текст");
         assert_eq!(text, "--wf-tcp=443\n--dry-run\n");
@@ -820,27 +863,32 @@ mod tests {
     #[test]
     fn compile_winws1_preset_artifact_builds_at_config() {
         let root = tmpdir("compile1");
-        std::fs::create_dir_all(format!("{root}/lists")).expect("lists");
-        std::fs::create_dir_all(format!("{root}/bin")).expect("bin");
+        let lists_dir = format!("{root}/lists");
+        let bin_dir = format!("{root}/bin");
+        std::fs::create_dir_all(&lists_dir).expect("lists");
+        std::fs::create_dir_all(&bin_dir).expect("bin");
         let preset_path = format!("{root}/selected.txt");
         std::fs::write(&preset_path, "--wf-tcp=443\n--hostlist=lists/x.txt\n").expect("пресет");
         std::fs::write(format!("{root}/lists/x.txt"), "example.com\n").expect("файл");
 
-        let artifact = compile_winws1_preset_artifact(
-            &preset_path,
-            &root,
-            &format!("{root}/lists"),
-            &format!("{root}/bin"),
-        );
+        let artifact =
+            compile_winws1_preset_artifact(&preset_path, &root, &lists_dir, &bin_dir);
 
         assert!(artifact.validation_ok, "{}", artifact.validation_report);
         assert_eq!(artifact.launch_args.len(), 1);
         assert!(artifact.launch_args[0].starts_with('@'));
         let text = std::fs::read_to_string(&artifact.launch_args[0][1..]).expect("@config");
         assert!(text.contains("--wf-tcp=443"), "{text}");
-        assert!(text.contains("--hostlist="), "{text}");
-        // lists/x.txt разрешён в реальный путь.
-        assert!(text.contains("/lists/x.txt"), "{text}");
+        // lists/x.txt разрешён в реальный путь; разделитель платформенный
+        // (базовый каталог задан строкой теста, поэтому ожидание — тот же
+        // join_paths, что и в коде).
+        assert!(
+            text.contains(&format!(
+                "--hostlist={}",
+                crate::engine::join_paths(&lists_dir, "x.txt")
+            )),
+            "{text}"
+        );
         let _ = std::fs::remove_dir_all(&root);
     }
 }

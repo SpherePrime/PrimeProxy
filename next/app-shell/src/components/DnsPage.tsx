@@ -7,6 +7,7 @@ import {
   Providers,
   ServerCheckResponse,
 } from "../api";
+import { IconCheck, IconClose, IconWarning } from "./Icons";
 
 // Страница «Настройка DNS» — перенос python dns/ui/page.py на React.
 // Структура та же: строка состояния, сетка плиток провайдеров по группам,
@@ -119,7 +120,15 @@ export function DnsPage() {
         {check && (
           <>
             <div className={`verdict ${check.verdict.kind}`}>
-              <b>{check.verdict.kind === "ok" ? "✅" : check.verdict.kind === "warn" ? "⚠" : "✗"}</b>{" "}
+              <b className="verdict-icon">
+                {check.verdict.kind === "ok" ? (
+                  <IconCheck />
+                ) : check.verdict.kind === "warn" ? (
+                  <IconWarning />
+                ) : (
+                  <IconClose />
+                )}
+              </b>{" "}
               {check.verdict.detail}
             </div>
             <ul className="cards">

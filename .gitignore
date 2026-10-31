@@ -13,6 +13,10 @@ venv/
 *.manifest
 *.log
 
+# Фикстура тестов парсера логов winws2: эталонный лог должен лежать в
+# репозитории, иначе тесты этого крейта пропускаются (см. parser.rs).
+!crates/primecore-log-analyzer/tests/*.log
+
 # IDE
 .vscode/
 .idea/

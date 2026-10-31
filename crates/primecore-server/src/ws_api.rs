@@ -16,6 +16,7 @@
 //! В тестах руки подменяются фейком, сокет не трогается.
 
 use std::collections::VecDeque;
+use std::collections::BTreeMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
@@ -26,6 +27,7 @@ use axum::Json;
 use primecore_privilege::{
     client, helper_command, is_valid, load_state, needs_prompt, save_state, PrivilegeState,
 };
+use primecore_ws::runner::launch_args_from_preset_text;
 use primecore_ws::runner_nfqws2::{
     nfqws2_launch_plan, nft_rules_text, strip_windows_only, substitute_hostlist_markers,
     HostlistFilterMode, HostlistSubstitution, Nfqws2LaunchPlan, Nfqws2NftFilters,
@@ -168,10 +170,14 @@ pub trait PrivilegedExecutor: Send + Sync {
     fn kill(&self, pid: u32) -> Result<(), String>;
     /// Жив ли процесс по pid.
     fn is_running(&self, pid: u32) -> Result<bool, String>;
-    /// Проверка пресета без применения правил: запуск nfqws2 с
+    /// Проверка пресета без применения правил: запуск движка с
     /// `--dry-run` вместо `--pidfile`/`--daemon` (это НЕ привилегированная
     /// операция — процесс порождается напрямую из сервера).
-    fn dry_run(&self, exe: &str, args: &[String]) -> Result<(), DryRunFailure>;
+    ///
+    /// Берётся весь план, а не только аргументы: пресет ссылается на файлы
+    /// относительно своей рабочей папки (`lua/…`, `lists/…`, `bin/…`), и без
+    /// `cwd` движок их не находит.
+    fn dry_run(&self, plan: &Nfqws2LaunchPlan) -> Result<(), DryRunFailure>;
 }
 
 /// Ручка запущенного через `privd` демона: только pid — процесс принадлежит
@@ -198,6 +204,7 @@ impl DaemonProcess {
     ///
     /// # Errors
     /// Сокет не отвечает или демон вернул ошибку — текст.
+    #[cfg(unix)]
     pub fn kill(&self) -> Result<(), String> {
         let reply = request_privd(&self.sock, json!({ "op": "kill", "pid": self.pid }))?;
         if reply["ok"] == json!(true) {
@@ -211,6 +218,7 @@ impl DaemonProcess {
     ///
     /// # Errors
     /// Сокет не отвечает или демон вернул ошибку — текст.
+    #[cfg(unix)]
     pub fn is_running(&self) -> Result<bool, String> {
         let reply = request_privd(&self.sock, json!({ "op": "status", "pid": self.pid }))?;
         if reply["ok"] == json!(true) {
@@ -222,10 +230,14 @@ impl DaemonProcess {
 }
 
 /// Руки через демон `privd`: каждый вызов — один запрос по unix-сокету.
+///
+/// Только unix: на Windows демона нет, там [`WindowsExecutor`].
+#[cfg(unix)]
 pub struct PrivdExecutor {
     sock: String,
 }
 
+#[cfg(unix)]
 impl PrivdExecutor {
     #[must_use]
     pub fn new(sock: String) -> Self {
@@ -233,6 +245,7 @@ impl PrivdExecutor {
     }
 }
 
+#[cfg(unix)]
 impl PrivilegedExecutor for PrivdExecutor {
     fn ping(&self) -> Result<(), String> {
         client::connect_and_ping(&self.sock)
@@ -289,12 +302,115 @@ impl PrivilegedExecutor for PrivdExecutor {
         DaemonProcess::new(pid, self.sock.clone()).is_running()
     }
 
-    fn dry_run(&self, exe: &str, args: &[String]) -> Result<(), DryRunFailure> {
-        dry_run_process(exe, args)
+    fn dry_run(&self, plan: &Nfqws2LaunchPlan) -> Result<(), DryRunFailure> {
+        dry_run_process(plan)
+    }
+}
+
+/// Руки обхода на Windows: постоянного демона привилегий там нет, поэтому
+/// движок `winws2` запускается напрямую (права даёт UAC), а nftables не
+/// нужен вовсе — фильтрацию и перехват движок делает сам через WinDivert.
+#[cfg(windows)]
+#[derive(Debug, Default)]
+pub struct WindowsExecutor;
+
+#[cfg(windows)]
+impl WindowsExecutor {
+    #[must_use]
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+#[cfg(windows)]
+impl PrivilegedExecutor for WindowsExecutor {
+    fn ping(&self) -> Result<(), String> {
+        // Демона нет и не требуется: движок — обычный процесс.
+        Ok(())
+    }
+
+    fn run_nft_script(&self, _text: &str) -> Result<(), String> {
+        // nftables на Windows нет: правила пометки пакетов не нужны.
+        Ok(())
+    }
+
+    fn delete_nft_table(&self) -> Result<(), String> {
+        Ok(())
+    }
+
+    fn run_daemon(&self, plan: &Nfqws2LaunchPlan) -> Result<DaemonProcess, String> {
+        let child = std::process::Command::new(&plan.exe)
+            .args(&plan.args)
+            .current_dir(&plan.cwd)
+            .envs(&plan.env)
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .map_err(|error| {
+                // 740 = ERROR_ELEVATION_REQUIRED: у движка в манифесте
+                // требуется повышение прав, а приложение запущено обычно.
+                if error.raw_os_error() == Some(740) {
+                    format!(
+                        "движок {} требует прав администратора: запустите приложение от имени администратора",
+                        plan.exe
+                    )
+                } else {
+                    format!("не удалось запустить {}: {error}", plan.exe)
+                }
+            })?;
+        // Сокета у процесса нет: kill/статус идут через taskkill/tasklist.
+        Ok(DaemonProcess::new(child.id(), String::new()))
+    }
+
+    fn kill(&self, pid: u32) -> Result<(), String> {
+        let output = std::process::Command::new("taskkill")
+            .args(["/PID", &pid.to_string(), "/F"])
+            .stdin(std::process::Stdio::null())
+            .stderr(std::process::Stdio::piped())
+            .output()
+            .map_err(|error| format!("не удалось запустить taskkill: {error}"))?;
+        // Процесс уже умер — это не ошибка (idempotent-убийство).
+        if output.status.success() || !self.is_running(pid)? {
+            return Ok(());
+        }
+        Err(format!(
+            "taskkill {pid}: {}",
+            text_or_no_details(&output.stderr)
+        ))
+    }
+
+    fn is_running(&self, pid: u32) -> Result<bool, String> {
+        let output = std::process::Command::new("tasklist")
+            .args(["/FI", &format!("PID eq {pid}"), "/NH"])
+            .stdin(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .output()
+            .map_err(|error| format!("не удалось запустить tasklist: {error}"))?;
+        let text = String::from_utf8_lossy(&output.stdout);
+        Ok(text.contains(&pid.to_string()))
+    }
+
+    fn dry_run(&self, plan: &Nfqws2LaunchPlan) -> Result<(), DryRunFailure> {
+        dry_run_process(plan)
+    }
+}
+
+/// Текст последней строки вывода одной строкой; пустой — «нет пояснений».
+#[cfg(windows)]
+fn text_or_no_details(bytes: &[u8]) -> String {
+    let trimmed = String::from_utf8_lossy(bytes).trim().to_string();
+    if trimmed.is_empty() {
+        "нет пояснений".to_string()
+    } else {
+        trimmed
     }
 }
 
 /// Один запрос к демону `privd`: строка-запрос → разобранный JSON-ответ.
+///
+/// На Windows демона нет: клиент ответит понятной ошибкой, и вызывающий код
+/// покажет её пользователю (см. [`WindowsExecutor`]).
 ///
 /// # Errors
 /// Сокет не отвечает или ответ не JSON — текст.
@@ -304,6 +420,7 @@ pub(crate) fn request_privd(sock: &str, request: Value) -> Result<Value, String>
 }
 
 /// Поле `error` ответа или запасной текст.
+#[cfg(unix)]
 fn error_text(reply: &Value, fallback: &str) -> String {
     reply["error"]
         .as_str()
@@ -311,13 +428,19 @@ fn error_text(reply: &Value, fallback: &str) -> String {
         .map_or_else(|| fallback.to_string(), str::to_string)
 }
 
-/// Проверка пресета `--dry-run`: прямой запуск nfqws2 (права не нужны)
+/// Проверка пресета `--dry-run`: прямой запуск движка (права не нужны)
 /// с аргументами плана, где `--pidfile…`/`--daemon` заменены на
 /// `--dry-run`. Успех — код возврата 0; иначе хвост stderr в ошибке.
-fn dry_run_process(exe: &str, args: &[String]) -> Result<(), DryRunFailure> {
-    let run_args = dry_run_args(args);
+///
+/// Рабочая папка берётся из плана: пресет ссылается на `lua/…`, `lists/…`,
+/// `bin/…` относительно неё, и при запуске из папки сервера движок падает
+/// с «bad file 'lua/…'».
+fn dry_run_process(plan: &Nfqws2LaunchPlan) -> Result<(), DryRunFailure> {
+    let exe = plan.exe.as_str();
+    let run_args = dry_run_args(&plan.args);
     let mut child = match std::process::Command::new(exe)
         .args(&run_args)
+        .current_dir(&plan.cwd)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
@@ -445,10 +568,20 @@ impl WsState {
     /// демон `privd`.
     #[must_use]
     pub fn production() -> Self {
-        Self::new(
-            resources_dir(),
-            Arc::new(PrivdExecutor::new(privd_sock_path())),
-        )
+        // Платформенные руки обхода: на unix всё идёт через демон `privd`
+        // (nftables + nfqws2), на Windows демона нет — движок запускается
+        // напрямую, права даёт UAC.
+        #[cfg(windows)]
+        {
+            Self::new(resources_dir(), Arc::new(WindowsExecutor::new()))
+        }
+        #[cfg(not(windows))]
+        {
+            Self::new(
+                resources_dir(),
+                Arc::new(PrivdExecutor::new(privd_sock_path())),
+            )
+        }
     }
 
     /// Состояние с явными ресурсами и руками; пути сокета и каталога
@@ -509,13 +642,24 @@ pub fn privd_sock_path() -> String {
         .unwrap_or_else(|| DEFAULT_PRIV_SOCK.to_string())
 }
 
-/// Каталог состояния привилегий: `PRIMECORE_STATE_DIR`, иначе
-/// `$HOME/.local/state/primebypass`, иначе временный каталог.
+/// Каталог состояния: `PRIMECORE_STATE_DIR`, иначе платформенный путь
+/// (`$HOME/.local/state/primebypass` на unix, `%LOCALAPPDATA%\primebypass`
+/// на Windows), иначе временный каталог.
 #[must_use]
 pub fn state_dir_path() -> String {
     if let Ok(dir) = std::env::var("PRIMECORE_STATE_DIR") {
         if !dir.trim().is_empty() {
             return dir;
+        }
+    }
+    // Windows: `HOME` там обычно не задан, и состояние уезжало во временный
+    // каталог. Правильное место — каталог локальных данных пользователя.
+    if cfg!(windows) {
+        if let Some(local) = std::env::var("LOCALAPPDATA")
+            .ok()
+            .filter(|value| !value.trim().is_empty())
+        {
+            return format!("{local}\\primebypass");
         }
     }
     match std::env::var("HOME")
@@ -549,8 +693,10 @@ pub fn has_pkexec() -> bool {
 /// Поиск исполняемого файла по каталогам `PATH`-строки.
 #[must_use]
 pub fn find_in_path(name: &str, path_variable: &str) -> bool {
+    // Разделитель PATH платформенный: на Windows это «;», на остальных «:».
+    let separator = if cfg!(windows) { ';' } else { ':' };
     path_variable
-        .split(':')
+        .split(separator)
         .filter(|dir| !dir.is_empty())
         .any(|dir| Path::new(dir).join(name).is_file())
 }
@@ -585,9 +731,11 @@ pub struct PresetQuery {
 /// {"text":"…","stripped":"…","plan":{"exe":"…","args":[…],"cwd":"…","pidfile":"…"}}
 /// ```
 ///
-/// План строится на stripped-тексте: подстановка листов на этом этапе не
-/// применяется, режим передаётся на старт. Пресеты с остаточными маркерами
-/// плана не получают — фронтенд в этом случае видит 400 с пояснением.
+/// План строится на тексте для движка текущей платформы (см.
+/// [`engine_preset_text`]): на Windows он совпадает с исходным, на unix из
+/// него убраны `--wf-*`. Подстановка листов на этом этапе не применяется,
+/// режим передаётся на старт. Пресеты с остаточными маркерами плана не
+/// получают — фронтенд в этом случае видит 400 с пояснением.
 pub async fn preset(
     State(state): State<WsState>,
     Query(query): Query<PresetQuery>,
@@ -596,22 +744,14 @@ pub async fn preset(
         .map_err(|error| ws_error(StatusCode::BAD_REQUEST, error))?;
     let text =
         std::fs::read_to_string(&path).map_err(|error| preset_not_found(&query.name, error))?;
-    let stripped = strip_windows_only(&text).map_err(|error| {
+    let stripped = engine_preset_text(&text).map_err(|error| {
         ws_error(
             StatusCode::BAD_REQUEST,
             format!("пресет {} не годится: {error}", query.name),
         )
     })?;
-    let exe = nfqws2_exe_path(&state.inner.resources_dir)
-        .map_err(|error| ws_error(StatusCode::BAD_REQUEST, error))?;
-    let plan = nfqws2_launch_plan(
-        &exe,
-        &state.inner.resources_dir,
-        &stripped,
-        DEFAULT_QNUM,
-        FWMARK,
-    )
-    .map_err(|error| ws_error(StatusCode::BAD_REQUEST, format!("план запуска: {error}")))?;
+    let plan = build_engine_plan(&state.inner.resources_dir, &stripped, DEFAULT_QNUM)
+        .map_err(|error| ws_error(StatusCode::BAD_REQUEST, format!("план запуска: {error}")))?;
     Ok(Json(json!({
         "text": text,
         "stripped": stripped,
@@ -795,7 +935,7 @@ fn start_sync(state: &WsState, request: &StartRequest) -> Result<Value, (StatusC
             .map_err(|error| ws_error(StatusCode::BAD_REQUEST, error))?;
         let text = std::fs::read_to_string(&path)
             .map_err(|error| ws_error(StatusCode::BAD_REQUEST, preset_error(name, error)))?;
-        let stripped = strip_windows_only(&text).map_err(|error| {
+        let stripped = engine_preset_text(&text).map_err(|error| {
             ws_error(
                 StatusCode::BAD_REQUEST,
                 format!("пресет {name} не годится: {error}"),
@@ -811,32 +951,26 @@ fn start_sync(state: &WsState, request: &StartRequest) -> Result<Value, (StatusC
         prepared.push(substituted);
     }
 
-    let exe = nfqws2_exe_path(&state.inner.resources_dir)
+    let exe = engine_exe_path(&state.inner.resources_dir)
         .map_err(|error| ws_error(StatusCode::BAD_REQUEST, error))?;
     if !Path::new(&exe).exists() {
         return Err(ws_error(
             StatusCode::BAD_REQUEST,
-            format!("бинарь nfqws2 не найден: {exe}"),
+            format!("движок обхода не найден: {exe}"),
         ));
     }
 
     // Объединённый текст: text1 + "\n--new\n" + text2 (если пресетов >1).
     let merged = merge_preset_texts(&prepared);
-    let mut plan = nfqws2_launch_plan(
-        &exe,
-        &state.inner.resources_dir,
-        &merged,
-        request.qnum,
-        FWMARK,
-    )
-    .map_err(|error| ws_error(StatusCode::BAD_REQUEST, format!("план запуска: {error}")))?;
+    let mut plan = build_engine_plan(&state.inner.resources_dir, &merged, request.qnum)
+        .map_err(|error| ws_error(StatusCode::BAD_REQUEST, format!("план запуска: {error}")))?;
     plan.args = dedupe_repeated_args(&plan.args);
 
     // Валидация merged-конфигурации: dry-run напрямую, без привилегий.
     state
         .inner
         .executor
-        .dry_run(&plan.exe, &plan.args)
+        .dry_run(&plan)
         .map_err(|failure| {
             (
                 StatusCode::BAD_REQUEST,
@@ -948,6 +1082,11 @@ fn stop_sync(state: &WsState) -> Result<Value, (StatusCode, Json<Value>)> {
             let result = state.inner.executor.kill(pid);
             let label = running.names.join(" + ");
             log.lock().expect("журнал не отравлен").push(match &result {
+                // На Windows pid-файла нет (движок запускается напрямую),
+                // поэтому строку не дополняем пустым «pidfile».
+                Ok(()) if running.pidfile.is_empty() => {
+                    format!("останов: пресет «{label}» (PID {pid})")
+                }
                 Ok(()) => format!(
                     "останов: пресет «{label}» (PID {pid}, pidfile {})",
                     running.pidfile
@@ -1003,6 +1142,10 @@ pub async fn status(State(state): State<WsState>) -> Json<Value> {
         "names": running.then(|| record.as_ref().expect("запись есть").0.clone()),
         "qnum": running.then(|| record.as_ref().expect("запись есть").2),
         "root": is_root(),
+        // Интерфейсу нужна платформа: на Windows нет ни polkit, ни qnum —
+        // движок winws2 фильтрует сам через WinDivert.
+        "platform": std::env::consts::OS,
+        "engine": if cfg!(windows) { "winws2" } else { "nfqws2" },
     }))
 }
 
@@ -1057,6 +1200,18 @@ pub async fn privilege(State(state): State<WsState>) -> Json<Value> {
 
 /// Сборка статуса привилегий (блокирующая часть ручки).
 fn privilege_info(sock: &str, state_dir: &str) -> Value {
+    // Windows: постоянного демона привилегий нет — права даёт сам процесс
+    // (запуск от администратора). Поэтому «выдавать» нечего: сообщаем
+    // фактическое состояние повышения и ничего не просим у пользователя,
+    // иначе интерфейс пытался бы поднять несуществующий `privd`.
+    if cfg!(windows) {
+        return json!({
+            "granted": is_root(),
+            "needs_prompt": false,
+            "helper": helper_command(has_pkexec),
+            "sock": sock,
+        });
+    }
     let saved = load_state(Path::new(state_dir)).ok().flatten();
     let now = now_epoch_s();
     let state_valid = saved
@@ -1322,9 +1477,22 @@ fn list_targets(list_name: &str) -> Vec<&'static str> {
     targets
 }
 
-/// Путь к бинарю nfqws2 по архитектуре хоста (`std::env::consts::ARCH`).
-fn nfqws2_exe_path(resources_dir: &str) -> Result<String, String> {
-    let dir = match std::env::consts::ARCH {
+/// Путь к движку обхода в ресурсах для текущей платформы.
+///
+/// На unix это `nfqws2` из `bin-linux/<арх>/`; на Windows — `winws2.exe` из
+/// `bin-windows/<арх>/`. Перехват пакетов движок делает сам (WinDivert),
+/// поэтому отдельного бэкенда перехвата в коде не нужно.
+fn engine_exe_path(resources_dir: &str) -> Result<String, String> {
+    let arch = std::env::consts::ARCH;
+    if cfg!(windows) {
+        let dir = match arch {
+            "x86_64" => "x86_64",
+            "x86" => "x86",
+            other => return Err(format!("нет сборки winws2 для архитектуры {other}")),
+        };
+        return Ok(format!("{resources_dir}/bin-windows/{dir}/winws2.exe"));
+    }
+    let dir = match arch {
         "x86_64" => "linux-x86_64",
         "x86" => "linux-x86",
         "aarch64" => "linux-arm64",
@@ -1333,6 +1501,54 @@ fn nfqws2_exe_path(resources_dir: &str) -> Result<String, String> {
         other => return Err(format!("нет сборки nfqws2 для архитектуры {other}")),
     };
     Ok(format!("{resources_dir}/bin-linux/{dir}/nfqws2"))
+}
+
+/// План запуска движка для текущей платформы.
+///
+/// unix: `nfqws2` с nftables-пометкой (`--qnum`/`--fwmark`) и lua-стратегиями.
+///
+/// Windows: `winws2` с аргументами пресета **напрямую в командной строке**.
+/// Промежуточный at-config (`@файл`) в сборке движка под Cygwin не работает:
+/// проверено на v1.0.6 — прямой вызов аргументов движок принимает, а любой
+/// `@файл` падает с «failed to split command line options from file».
+/// Фильтрацию и перехват движок делает сам через WinDivert, поэтому ни qnum,
+/// ни nft, ни pid-файл не нужны.
+fn build_engine_plan(
+    resources_dir: &str,
+    merged_text: &str,
+    qnum: u32,
+) -> Result<Nfqws2LaunchPlan, String> {
+    let exe = engine_exe_path(resources_dir)?;
+    if cfg!(windows) {
+        let args = launch_args_from_preset_text(merged_text);
+        if args.is_empty() {
+            return Err("пресет не даёт ни одного аргумента".to_string());
+        }
+        return Ok(Nfqws2LaunchPlan {
+            exe,
+            args,
+            env: BTreeMap::new(),
+            cwd: resources_dir.to_string(),
+            pidfile: String::new(),
+        });
+    }
+    nfqws2_launch_plan(&exe, resources_dir, merged_text, qnum, FWMARK)
+}
+
+/// Текст пресета, пригодный для движка текущей платформы.
+///
+/// Windows: текст нужен целиком. Строки `--wf-*` (`--wf-tcp-out`,
+/// `--wf-udp-out`, `--wf-raw-part`) — это и есть слой перехвата WinDivert;
+/// без них winws2 падает с «windivert filter : must specify port or/and
+/// partial raw filter».
+///
+/// unix: `--wf-*` вырезаются, у nfqws2 такого слоя нет.
+fn engine_preset_text(preset_text: &str) -> Result<String, String> {
+    if cfg!(windows) {
+        Ok(preset_text.to_string())
+    } else {
+        strip_windows_only(preset_text)
+    }
 }
 
 /// Режим листов из строки запроса.
@@ -1393,7 +1609,20 @@ pub fn is_root() -> bool {
             .map(|metadata| metadata.uid() == 0)
             .unwrap_or(false)
     }
-    #[cfg(not(unix))]
+    #[cfg(windows)]
+    {
+        // Повышен ли процесс: `whoami /groups` показывает уровень
+        // обязательного контроля, S-1-16-12288 — High (запуск от имени
+        // администратора). SID не переводится, поэтому проверка не зависит
+        // от языка системы.
+        std::process::Command::new("whoami")
+            .arg("/groups")
+            .stdin(std::process::Stdio::null())
+            .output()
+            .map(|output| String::from_utf8_lossy(&output.stdout).contains("S-1-16-12288"))
+            .unwrap_or(false)
+    }
+    #[cfg(not(any(unix, windows)))]
     {
         false
     }
@@ -1407,6 +1636,8 @@ mod tests {
 
     use axum::body::Body;
     use axum::http::{Request, StatusCode};
+    // Привилегии проверяются только там, где есть unix-сокет (см. ниже).
+    #[cfg(unix)]
     use primecore_privilege::ops::PrivilegedOps;
     use serde_json::Value;
     use tower::ServiceExt;
@@ -1535,8 +1766,8 @@ mod tests {
                 .unwrap_or(false))
         }
 
-        fn dry_run(&self, _exe: &str, args: &[String]) -> Result<(), DryRunFailure> {
-            self.dry_runs.lock().unwrap().push(args.to_vec());
+        fn dry_run(&self, plan: &Nfqws2LaunchPlan) -> Result<(), DryRunFailure> {
+            self.dry_runs.lock().unwrap().push(plan.args.clone());
             match &self.fail_dry_run {
                 Some(failure) => Err(failure.clone()),
                 None => Ok(()),
@@ -1552,6 +1783,7 @@ mod tests {
         }
     }
 
+    #[cfg(unix)]
     fn app_with_paths(executor: &Arc<FakeExecutor>, sock: &str, state_dir: &str) -> crate::App {
         let executor: Arc<dyn PrivilegedExecutor> = executor.clone();
         crate::App {
@@ -1652,14 +1884,44 @@ mod tests {
             .as_str()
             .is_some_and(|text| !text.is_empty()));
         let plan = &answer["plan"];
-        assert!(plan["exe"]
-            .as_str()
-            .is_some_and(|exe| exe.ends_with("/nfqws2")));
-        assert_eq!(plan["args"][0], "--qnum=300");
-        assert_eq!(plan["args"][1], "--fwmark=0x40000000");
-        assert!(plan["pidfile"]
-            .as_str()
-            .is_some_and(|p| p.ends_with(".pid")));
+        if cfg!(windows) {
+            // Windows: движок winws2, аргументы пресета идут прямо в командной
+            // строке (qnum/fwmark нужны только nfqws2 с nftables, pid-файла
+            // нет вовсе).
+            assert!(plan["exe"]
+                .as_str()
+                .is_some_and(|exe| exe.ends_with("winws2.exe")));
+            let args = plan["args"].as_array().expect("args");
+            assert!(!args.is_empty(), "{args:?}");
+            assert!(
+                args.iter().any(|arg| arg
+                    .as_str()
+                    .is_some_and(|value| value.starts_with("--lua-desync="))),
+                "{args:?}"
+            );
+            assert!(
+                !args.iter().any(|arg| arg.as_str().is_some_and(|value| value.starts_with('@'))),
+                "на Windows аргументы идут напрямую, без @файла: {args:?}"
+            );
+            // Слой перехвата WinDivert — это и есть строки `--wf-*`: без них
+            // winws2 падает с «windivert filter : must specify port…».
+            assert!(
+                args.iter().any(|arg| arg
+                    .as_str()
+                    .is_some_and(|value| value.starts_with("--wf-tcp-out="))),
+                "на Windows WinDivert-фильтр пресета сохраняется: {args:?}"
+            );
+            assert!(plan["pidfile"].as_str().is_some_and(str::is_empty));
+        } else {
+            assert!(plan["exe"]
+                .as_str()
+                .is_some_and(|exe| exe.ends_with("/nfqws2")));
+            assert_eq!(plan["args"][0], "--qnum=300");
+            assert_eq!(plan["args"][1], "--fwmark=0x40000000");
+            assert!(plan["pidfile"]
+                .as_str()
+                .is_some_and(|p| p.ends_with(".pid")));
+        }
         assert!(plan["cwd"]
             .as_str()
             .is_some_and(|cwd| cwd.ends_with("resources")));
@@ -1779,17 +2041,18 @@ mod tests {
         assert_eq!(answer["pid"], 4242);
         assert_eq!(answer["names"], json!(["Preset.X1", "ALL TCP & UDP v2"]));
 
-        // Объединённый конфиг: маркер --new между пресетами попал в args,
-        // дублей стандартных lua-init нет.
+        // Объединённый конфиг: маркер --new между пресетами попал в аргументы
+        // запуска, дублей lua-init нет (общий `dedupe_repeated_args`).
         let (call_count, has_new, no_lua_dups) = {
             let daemon_calls = executor.daemon_calls.lock().unwrap();
             let has_new =
                 daemon_calls.len() == 1 && daemon_calls[0].iter().any(|arg| arg == "--new");
-            let lua_inits: Vec<&String> = daemon_calls
+            let lua_inits: Vec<String> = daemon_calls
                 .first()
                 .map(|args| {
                     args.iter()
                         .filter(|arg| arg.starts_with("--lua-init=@"))
+                        .cloned()
                         .collect()
                 })
                 .unwrap_or_default();
@@ -1800,7 +2063,7 @@ mod tests {
             (daemon_calls.len(), has_new, no_lua_dups)
         };
         assert_eq!(call_count, 1);
-        assert!(has_new, "маркер --new есть в args демона");
+        assert!(has_new, "маркер --new есть в аргументах запуска");
         assert!(no_lua_dups, "нет дублей lua-init");
 
         // Статус: пресеты через « + », names отдельным полем.
@@ -1994,11 +2257,94 @@ mod tests {
     }
 
     #[test]
-    fn nfqws2_exe_path_maps_known_architectures() {
-        // На хосте тестов архитектура известна; путь обязан указывать на её каталог.
-        let path = nfqws2_exe_path("resources").unwrap();
-        assert!(path.starts_with("resources/bin-linux/"));
-        assert!(path.ends_with("/nfqws2"));
+    fn engine_exe_path_maps_known_architectures() {
+        // На хосте тестов архитектура известна; путь обязан указывать на её
+        // каталог и на движок своей платформы.
+        let path = engine_exe_path("resources").unwrap();
+        if cfg!(windows) {
+            assert!(path.starts_with("resources/bin-windows/"), "{path}");
+            assert!(path.ends_with("/winws2.exe"), "{path}");
+        } else {
+            assert!(path.starts_with("resources/bin-linux/"), "{path}");
+            assert!(path.ends_with("/nfqws2"), "{path}");
+        }
+    }
+
+    /// Windows-руки обхода: демона нет, nft нет, движок — обычный процесс.
+    /// Проверяем на живом процессе, чтобы spawn/kill/статус были настоящими.
+    #[cfg(windows)]
+    #[test]
+    fn windows_executor_spawns_kills_and_reports_status() {
+        let executor = WindowsExecutor::new();
+        assert!(executor.ping().is_ok(), "демон привилегий на Windows не нужен");
+        assert!(executor.run_nft_script("add table inet t").is_ok());
+        assert!(executor.delete_nft_table().is_ok());
+
+        let system_root =
+            std::env::var("SystemRoot").unwrap_or_else(|_| "C:\\Windows".to_string());
+        let plan = Nfqws2LaunchPlan {
+            exe: format!("{system_root}\\System32\\cmd.exe"),
+            args: vec!["/c".to_string(), "ping -n 30 127.0.0.1 > nul".to_string()],
+            env: BTreeMap::new(),
+            cwd: system_root,
+            pidfile: String::new(),
+        };
+        let process = executor.run_daemon(&plan).expect("процесс запущен");
+        let pid = process.pid();
+        assert!(executor.is_running(pid).unwrap(), "процесс должен быть жив");
+
+        executor.kill(pid).expect("процесс завершён");
+        let mut alive = true;
+        for _ in 0..30 {
+            if !executor.is_running(pid).unwrap() {
+                alive = false;
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(100));
+        }
+        assert!(!alive, "процесс должен быть завершён");
+        // Повторное убийство уже мёртвого процесса — не ошибка.
+        executor.kill(pid).expect("повторное убийство не ошибка");
+    }
+
+    /// Windows-план запуска: аргументы пресета идут прямо в командной строке
+    /// (`@файл` в сборке движка под Cygwin не работает — проверено на v1.0.6),
+    /// qnum и pid-файл не участвуют.
+    #[cfg(windows)]
+    #[test]
+    fn windows_plan_passes_preset_args_directly() {
+        let plan = build_engine_plan(
+            "resources",
+            "--wf-tcp=443\n--lua-desync=fake:blob=tls_google\n",
+            DEFAULT_QNUM,
+        )
+        .expect("план собран");
+
+        assert!(plan.exe.ends_with("winws2.exe"), "{}", plan.exe);
+        assert_eq!(plan.cwd, "resources");
+        assert!(plan.pidfile.is_empty(), "pid-файла на Windows нет");
+        assert!(
+            plan.args.iter().any(|arg| arg == "--wf-tcp=443"),
+            "{:?}",
+            plan.args
+        );
+        assert!(
+            plan.args
+                .iter()
+                .any(|arg| arg == "--lua-desync=fake:blob=tls_google"),
+            "{:?}",
+            plan.args
+        );
+        assert!(
+            !plan.args.iter().any(|arg| arg.starts_with("--qnum")),
+            "qnum — только для nfqws2: {:?}",
+            plan.args
+        );
+        assert!(
+            !plan.args.iter().any(|arg| arg.starts_with('@')),
+            "никакого @файла на Windows: {:?}",
+            plan.args
+        );
     }
 
     #[test]
@@ -2097,20 +2443,36 @@ mod tests {
 
     #[test]
     fn find_in_path_scans_directories() {
-        assert!(find_in_path("sh", "/bin:/usr/bin"));
-        assert!(!find_in_path("нет-такого", "/bin"));
-        assert!(!find_in_path("sh", "/нет/такого"));
-        assert!(!find_in_path("sh", ""));
+        // Имена программ и разделитель PATH — платформенные.
+        if cfg!(windows) {
+            let system32 = std::env::var("SystemRoot")
+                .map(|root| format!("{root}\\System32"))
+                .unwrap_or_else(|_| "C:\\Windows\\System32".to_string());
+            assert!(find_in_path("cmd.exe", &system32));
+            assert!(!find_in_path("нет-такого", &system32));
+            assert!(!find_in_path("cmd.exe", "C:\\нет\\такого"));
+            assert!(!find_in_path("cmd.exe", ""));
+        } else {
+            assert!(find_in_path("sh", "/bin:/usr/bin"));
+            assert!(!find_in_path("нет-такого", "/bin"));
+            assert!(!find_in_path("sh", "/нет/такого"));
+            assert!(!find_in_path("sh", ""));
+        }
     }
 
     #[test]
     fn state_dir_path_prefers_env_then_home() {
-        // Функция консервативна: путь всегда оканчивается на primebypass,
-        // когда задан HOME, и на каталог состояния из окружения.
+        // Приоритет: переменная окружения, иначе платформенный каталог
+        // состояния (на unix — от HOME, на Windows — от LOCALAPPDATA).
         let saved = std::env::var("PRIMECORE_STATE_DIR").ok();
         std::env::remove_var("PRIMECORE_STATE_DIR");
         let dir = state_dir_path();
-        if std::env::var("HOME").is_ok_and(|home| !home.trim().is_empty()) {
+        if cfg!(windows) {
+            if std::env::var("LOCALAPPDATA").is_ok_and(|local| !local.trim().is_empty()) {
+                assert!(dir.ends_with("primebypass"), "{dir}");
+                assert!(dir.contains("AppData"), "{dir}");
+            }
+        } else if std::env::var("HOME").is_ok_and(|home| !home.trim().is_empty()) {
             assert!(dir.ends_with(".local/state/primebypass"), "{dir}");
         }
         std::env::set_var("PRIMECORE_STATE_DIR", "/tmp/явный-каталог");
@@ -2202,6 +2564,7 @@ mod tests {
 
     /// Поднимает фейковый privd на tmp-сокете (обслуживает соединения,
     /// пока жив слушатель).
+    #[cfg(unix)]
     fn spawn_fake_privd(sock: std::path::PathBuf) {
         use std::io::{BufRead, BufReader, Write};
         use std::os::unix::net::UnixListener;
@@ -2226,6 +2589,7 @@ mod tests {
         });
     }
 
+    #[cfg(unix)]
     #[tokio::test]
     async fn privilege_endpoint_reports_state_socket_and_helper() {
         let dir = tmpdir("privilege");
@@ -2270,6 +2634,7 @@ mod tests {
         std::fs::remove_dir_all(&dir).expect("убрали tmpdir");
     }
 
+    #[cfg(unix)]
     #[test]
     fn grant_sync_times_out_without_socket() {
         let dir = tmpdir("grant-timeout");
@@ -2296,6 +2661,7 @@ mod tests {
         std::fs::remove_dir_all(&dir).expect("убрали tmpdir");
     }
 
+    #[cfg(unix)]
     #[test]
     fn grant_sync_saves_state_when_socket_appears() {
         let dir = tmpdir("grant-ok");
@@ -2333,6 +2699,7 @@ mod tests {
         std::fs::remove_dir_all(&dir).expect("убрали tmpdir");
     }
 
+    #[cfg(unix)]
     #[test]
     fn grant_sync_fails_fast_when_helper_exits() {
         let dir = tmpdir("grant-fail");
@@ -2358,6 +2725,7 @@ mod tests {
         std::fs::remove_dir_all(&dir).expect("убрали tmpdir");
     }
 
+    #[cfg(unix)]
     #[test]
     fn daemon_process_talks_over_ops_protocol() {
         // Ручка DaemonProcess поверх реального протокола: проверяем на

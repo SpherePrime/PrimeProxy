@@ -111,6 +111,10 @@ export interface WsStatus {
   names?: string[] | null;
   qnum: number | null;
   root: boolean;
+  /** Платформа ядра: `windows`, `linux`, … — от неё зависит текст и поля. */
+  platform?: string;
+  /** Движок обхода: `winws2` на Windows, `nfqws2` на unix. */
+  engine?: string;
 }
 
 export interface WsLogs {
@@ -262,9 +266,15 @@ export async function fetchCheckStatus(): Promise<CheckSitesStatus> {
 // DNS: текущие серверы, проба запроса, установка на интерфейс.
 // ---------------------------------------------------------------------------
 
+export interface DohEntry {
+  server: string;
+  url: string;
+}
+
 export interface DnsCurrent {
   system: Array<{ server: string; kind: string }>;
-  doh: string[];
+  /** Известные DoH-серверы: пара «адрес + шаблон запроса». */
+  doh: DohEntry[];
 }
 
 export async function fetchDnsCurrent(): Promise<DnsCurrent> {

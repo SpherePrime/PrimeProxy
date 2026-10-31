@@ -229,7 +229,11 @@ mod tests {
         atomic_write_text(&target, "first").unwrap();
         atomic_write_text(&target, "second\r\nline").unwrap();
         assert_eq!(std::fs::read_to_string(&target).unwrap(), "second\nline\n");
-        assert!(leftover_tmp_files(root.parent().unwrap()).is_empty());
+        // Временный файл создаётся рядом с целью, поэтому проверяем каталоги,
+        // которыми владеет тест. Системный tmp для этого не годится: на
+        // Windows в нём всегда лежат чужие `*.tmp`, и проверка была бы ложной.
+        assert!(leftover_tmp_files(&root).is_empty());
+        assert!(leftover_tmp_files(&root.join("nested")).is_empty());
         let _ = std::fs::remove_dir_all(&root);
     }
 

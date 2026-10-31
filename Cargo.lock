@@ -1165,6 +1165,7 @@ dependencies = [
 name = "primecore-privilege"
 version = "0.1.0"
 dependencies = [
+ "base64 0.22.1",
  "serde",
  "serde_json",
 ]
@@ -1205,7 +1206,9 @@ dependencies = [
  "bzip2",
  "primecore-dns",
  "primecore-dnswire",
+ "primecore-fakes",
  "primecore-hosts",
+ "primecore-log-analyzer",
  "primecore-manifest",
  "primecore-patch",
  "primecore-privilege",

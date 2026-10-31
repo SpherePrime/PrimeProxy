@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchTgProxy, saveTgProxy, TgProxyConfig } from "../api";
+import { IconCheck, IconClose, IconWarning } from "./Icons";
 
 // Страница «Telegram» — конфиг MTProto-прокси и готовая ссылка подключения
 // tg://proxy. Пока заготовка: эндпоинт /api/tg/proxy/start сохраняет конфиг,
@@ -90,12 +91,25 @@ export function TelegramPage() {
         </p>
       </header>
 
-      <div className="infobar warn">
-        ⚠ Заготовка: запуск локального прокси появится позже, конфиг уже можно
-        сохранить
+      <div className="infobar warn with-icon">
+        <IconWarning />
+        <span>
+          Заготовка: запуск локального прокси появится позже, конфиг уже можно
+          сохранить
+        </span>
       </div>
-      {error && <div className="infobar error">✗ {error}</div>}
-      {okNote && <div className="infobar ok">✓ {okNote}</div>}
+      {error && (
+        <div className="infobar error with-icon">
+          <IconClose />
+          <span>{error}</span>
+        </div>
+      )}
+      {okNote && (
+        <div className="infobar ok with-icon">
+          <IconCheck />
+          <span>{okNote}</span>
+        </div>
+      )}
 
       <section className="card">
         <h2>MTProto-прокси</h2>

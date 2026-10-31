@@ -23,9 +23,11 @@ import {
   saveDefault,
   saveEnabled,
 } from "./PresetGroups";
+import { IconClose, IconPlay, IconStop, IconWarning } from "./Icons";
 
-// Страница «Обход» — управление nfqws2/zapret2: группы пресетов по сервисам,
-// права администратора (polkit, один раз при старте), запуск/останов, журнал.
+// Страница «Обход» — управление движком обхода: группы пресетов по сервисам,
+// права администратора (на unix — polkit один раз при старте, на Windows —
+// запуск от имени администратора), запуск/останов, журнал.
 // Дизайн перенесён с PyQt6-эталона (FluentWindow): карточки со скруглениями,
 // инфобары в духе SemanticNotice, оранжевый акцент #ff9800 для предупреждений.
 
@@ -262,21 +264,35 @@ export function BypassPage() {
   const running = status?.running ?? false;
   const busy = starting || stopping || granting || awaitingGrant;
   const needsPrompt = Boolean(privilege?.needs_prompt && !privilege?.granted);
+  // Платформа ядра: на Windows нет ни polkit, ни nftables, ни qnum —
+  // движок winws2 фильтрует сам через WinDivert, а права даёт UAC.
+  const isWindows = status?.platform === "windows";
+  const engine = status?.engine ?? "nfqws2";
 
   return (
     <div className="page">
       <header className="page-header">
         <h1>Обход</h1>
         <p className="subtitle">
-          Управление nfqws2/zapret2: включите группы сервисов и запустите обход
+          Управление {engine}/zapret2: включите группы сервисов и запустите обход
           блокировок.
         </p>
       </header>
 
-      {(error || pollError) && <div className="infobar error">✗ {error || pollError}</div>}
+      {(error || pollError) && (
+        <div className="infobar error with-icon">
+          <IconClose />
+          <span>{error || pollError}</span>
+        </div>
+      )}
       {status && !status.root && (
-        <div className="infobar warn">
-          ⚠ Нет root-прав: потребуются права через polkit при запуске
+        <div className="infobar warn with-icon">
+          <IconWarning />
+          <span>
+            {isWindows
+              ? "Нет прав администратора: перезапустите приложение от имени администратора — движку winws2 нужен доступ к WinDivert"
+              : "Нет root-прав: потребуются права через polkit при запуске"}
+          </span>
         </div>
       )}
 
@@ -319,26 +335,33 @@ export function BypassPage() {
         {needsPrompt && (
           <div className="infobar warn priv-bar">
             <span>
-              Обходу нужны права администратора. Пароль запросят один раз —
-              дальше без пароля.
+              {isWindows
+                ? "Обходу нужны права администратора: перезапустите приложение от имени администратора."
+                : "Обходу нужны права администратора. Пароль запросят один раз — дальше без пароля."}
             </span>
-            <button className="btn accent" onClick={runGrant} disabled={granting}>
-              {granting ? "Ожидаю подтверждение…" : "Разрешить"}
-            </button>
+            {!isWindows && (
+              <button className="btn accent" onClick={runGrant} disabled={granting}>
+                {granting ? "Ожидаю подтверждение…" : "Разрешить"}
+              </button>
+            )}
           </div>
         )}
         <div className="launch-row">
-          <label className="field">
-            <span className="field-label">qnum</span>
-            <input
-              type="number"
-              min={1}
-              max={65535}
-              value={qnum}
-              onChange={(event) => setQnum(event.target.value)}
-              disabled={busy}
-            />
-          </label>
+          {/* qnum — номер очереди NFQUEUE: он есть только у nfqws2, на
+              Windows движок фильтрует сам через WinDivert. */}
+          {!isWindows && (
+            <label className="field">
+              <span className="field-label">qnum</span>
+              <input
+                type="number"
+                min={1}
+                max={65535}
+                value={qnum}
+                onChange={(event) => setQnum(event.target.value)}
+                disabled={busy}
+              />
+            </label>
+          )}
           <label className="field">
             <span className="field-label">Списки</span>
             <select
@@ -354,7 +377,7 @@ export function BypassPage() {
             </select>
           </label>
           <button className="btn accent" onClick={handleStart} disabled={busy || running}>
-            ▶{" "}
+            <IconPlay />
             {starting
               ? awaitingGrant
                 ? "Ожидаю подтверждение…"
@@ -362,7 +385,8 @@ export function BypassPage() {
               : "Запустить"}
           </button>
           <button className="btn secondary" onClick={handleStop} disabled={busy || !running}>
-            ⏹ {stopping ? "Останавливаю…" : "Остановить"}
+            <IconStop />
+            {stopping ? "Останавливаю…" : "Остановить"}
           </button>
         </div>
         {detail && (

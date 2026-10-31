@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchCheckSites, fetchCheckStatus, SiteCheckResult } from "../api";
+import { IconClose } from "./Icons";
 
 // Домены по умолчанию — типичные маркеры блокировок (видео, мессенджеры, ИИ, игры).
 const DEFAULT_DOMAINS = [
@@ -113,7 +114,12 @@ export function CheckPage() {
       <div className="infobar hint">
         💡 Сравни результаты с включённым и выключенным обходом
       </div>
-      {error && <div className="infobar error">✗ {error}</div>}
+      {error && (
+        <div className="infobar error with-icon">
+          <IconClose />
+          <span>{error}</span>
+        </div>
+      )}
 
       <section className="card">
         <h2>Сайты</h2>

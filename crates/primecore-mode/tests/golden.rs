@@ -132,6 +132,21 @@ fn golden_bools() {
     assert!(!m::is_known_launch_method(Some("winws2_mode")));
 }
 
+/// Сравнение путей по компонентам, а не по строке.
+///
+/// Эталон снят на Linux, где тот же путь записан через `/`; на Windows тот же
+/// компонентный путь печатается через `\`. Совпадение компонентов и значит
+/// «одно и то же место файловой системы», поэтому проверка остаётся строгой
+/// на обеих системах.
+fn assert_same_path(actual: &Path, expected: &str) {
+    let actual_parts: Vec<_> = actual.components().collect();
+    let expected_parts: Vec<_> = Path::new(expected).components().collect();
+    assert_eq!(
+        actual_parts, expected_parts,
+        "путь {actual:?} не совпал с эталоном {expected}"
+    );
+}
+
 #[test]
 fn golden_engine_paths_match_python() {
     let paths = &golden()["paths"].as_object().unwrap();
@@ -151,18 +166,9 @@ fn golden_engine_paths_match_python() {
                 };
                 let p = app.engine_paths(Some(" WINWS2 "));
                 assert_eq!(p.engine, expected["engine"].as_str().unwrap());
-                assert_eq!(
-                    p.user_presets_dir.to_string_lossy(),
-                    expected["user"].as_str().unwrap()
-                );
-                assert_eq!(
-                    p.builtin_presets_dir.to_string_lossy(),
-                    expected["builtin"].as_str().unwrap()
-                );
-                assert_eq!(
-                    p.replaced_presets_dir().to_string_lossy(),
-                    expected["replaced"].as_str().unwrap()
-                );
+                assert_same_path(&p.user_presets_dir, expected["user"].as_str().unwrap());
+                assert_same_path(&p.builtin_presets_dir, expected["builtin"].as_str().unwrap());
+                assert_same_path(&p.replaced_presets_dir(), expected["replaced"].as_str().unwrap());
             }
             "winws1" => {
                 let app = m::AppPaths {
@@ -170,14 +176,8 @@ fn golden_engine_paths_match_python() {
                     local_root: user_root.into(),
                 };
                 let p = app.engine_paths(Some("winws1"));
-                assert_eq!(
-                    p.builtin_presets_dir.to_string_lossy(),
-                    expected["builtin"].as_str().unwrap()
-                );
-                assert_eq!(
-                    p.replaced_presets_dir().to_string_lossy(),
-                    expected["replaced"].as_str().unwrap()
-                );
+                assert_same_path(&p.builtin_presets_dir, expected["builtin"].as_str().unwrap());
+                assert_same_path(&p.replaced_presets_dir(), expected["replaced"].as_str().unwrap());
             }
             "winws2" => {
                 let app = m::AppPaths {
@@ -185,10 +185,7 @@ fn golden_engine_paths_match_python() {
                     local_root: user_root.into(),
                 };
                 let p = app.engine_paths(Some("winws2"));
-                assert_eq!(
-                    p.builtin_presets_dir.to_string_lossy(),
-                    expected["builtin"].as_str().unwrap()
-                );
+                assert_same_path(&p.builtin_presets_dir, expected["builtin"].as_str().unwrap());
             }
             "custom" | "" => {
                 let app = m::AppPaths {
@@ -197,18 +194,9 @@ fn golden_engine_paths_match_python() {
                 };
                 let p = app.engine_paths(Some(label));
                 assert_eq!(p.engine, expected["engine"].as_str().unwrap());
-                assert_eq!(
-                    p.user_presets_dir.to_string_lossy(),
-                    expected["user"].as_str().unwrap()
-                );
-                assert_eq!(
-                    p.builtin_presets_dir.to_string_lossy(),
-                    expected["builtin"].as_str().unwrap()
-                );
-                assert_eq!(
-                    p.replaced_presets_dir().to_string_lossy(),
-                    expected["replaced"].as_str().unwrap()
-                );
+                assert_same_path(&p.user_presets_dir, expected["user"].as_str().unwrap());
+                assert_same_path(&p.builtin_presets_dir, expected["builtin"].as_str().unwrap());
+                assert_same_path(&p.replaced_presets_dir(), expected["replaced"].as_str().unwrap());
             }
             _ => unreachable!("неизвестная метка {label}"),
         }

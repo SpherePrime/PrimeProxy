@@ -78,6 +78,11 @@ pub fn tcp_connect(target: SocketAddr, timeout: f64, cancel: &SocketCancel) -> T
     if cancel.cancelled() {
         return TcpOutcome::Cancelled;
     }
+    // Платформенная тонкость: на Windows отказ закрытого порта
+    // (WSAECONNREFUSED) приходит только после повторной посылки SYN — на
+    // этой машине 2.0–2.1 с, — поэтому срок короче ~2.1 с даёт «тишину»
+    // вместо отказа. На Linux RST приходит сразу. Выбирая срок, помните об
+    // этом: иначе один и тот же код на разных системах даст разные исходы.
     match result {
         Ok(_stream) => TcpOutcome::Connected(ms),
         Err(error) => match error.kind() {

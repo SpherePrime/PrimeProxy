@@ -546,8 +546,6 @@ pub type RealOps = Ops<RealExecutor>;
 #[cfg(test)]
 pub(crate) mod tests_support {
     use super::*;
-    use std::io::{BufRead, BufReader, Write};
-    use std::os::unix::net::UnixListener;
     use std::path::PathBuf;
 
     /// Запись вызова `run`: команда, аргументы, stdin.
@@ -648,13 +646,19 @@ pub(crate) mod tests_support {
         dir
     }
 
-    /// Сервер-нитка: обслуживает до `connections` соединений (каждое —
-    /// сколько угодно строк), потом завершается.
+    /// Сервер-нитка на unix-сокете: обслуживает до `connections`
+    /// соединений (каждое — сколько угодно строк), потом завершается.
+    ///
+    /// Только unix: на Windows unix-сокетов нет, там тесты с настоящим
+    /// сокетом не собираются (см. `#[cfg(unix)]` у самих тестов).
+    #[cfg(unix)]
     pub fn serve_bounded(
-        listener: UnixListener,
+        listener: std::os::unix::net::UnixListener,
         mut ops: Box<dyn PrivilegedOps>,
         connections: usize,
     ) {
+        use std::io::{BufRead, BufReader, Write};
+
         std::thread::spawn(move || {
             for (served, stream) in listener.incoming().enumerate() {
                 if served >= connections {
@@ -684,11 +688,17 @@ pub(crate) mod tests_support {
 
 #[cfg(test)]
 mod tests {
-    use super::tests_support::{serve_bounded, tmpdir, FakeExecutor};
+    use super::tests_support::{tmpdir, FakeExecutor};
     use super::*;
-    use crate::client;
     use base64::Engine as _;
     use serde_json::json;
+
+    // Обмен по настоящему сокету возможен только там, где есть unix-сокеты.
+    #[cfg(unix)]
+    use super::tests_support::serve_bounded;
+    #[cfg(unix)]
+    use crate::client;
+    #[cfg(unix)]
     use std::os::unix::net::UnixListener;
 
     fn value(line: &str) -> Value {
@@ -868,10 +878,12 @@ mod tests {
 
     // ── живой unix-сокет: клиент ↔ фейковые руки ─────────────────────
 
+    #[cfg(unix)]
     struct EchoOps {
         prefix: String,
     }
 
+    #[cfg(unix)]
     impl PrivilegedOps for EchoOps {
         fn handle(&mut self, request: &str) -> String {
             format!(
@@ -882,6 +894,7 @@ mod tests {
         }
     }
 
+    #[cfg(unix)]
     #[test]
     fn request_roundtrip_over_real_socket() {
         let dir = tmpdir("roundtrip");
@@ -909,6 +922,7 @@ mod tests {
         client::connect_and_ping(&sock).expect("пинг прошёл");
     }
 
+    #[cfg(unix)]
     #[test]
     fn request_fails_when_socket_is_absent() {
         let dir = tmpdir("absent");
@@ -918,6 +932,7 @@ mod tests {
         assert!(error.contains("не удалось подключиться"), "{error}");
     }
 
+    #[cfg(unix)]
     #[test]
     fn request_talks_to_real_ops_handler_over_socket() {
         let dir = tmpdir("real-ops");

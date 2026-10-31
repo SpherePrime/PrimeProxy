@@ -151,8 +151,11 @@ mod tests {
     use super::*;
 
     fn temp_preset_path(name: &str) -> std::path::PathBuf {
+        // Каталог свой у каждого теста: тесты идут параллельно в одном
+        // процессе, и общий каталог они бы удаляли друг у друга (на Windows
+        // это ловилось как «файла нет» и пустые поля).
         let dir = std::env::temp_dir().join(format!(
-            "primecore-presets-list-metadata-{}",
+            "primecore-presets-list-metadata-{name}-{}",
             std::process::id()
         ));
         let _ = std::fs::remove_dir_all(&dir);

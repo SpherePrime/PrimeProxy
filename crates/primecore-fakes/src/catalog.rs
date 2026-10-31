@@ -543,8 +543,18 @@ mod tests {
     use super::*;
 
     /// Настоящая база из живой установки Zapret (Faugus/proton prefix).
+    /// Есть только на машине разработчика — в другой среде тест
+    /// пропускается (см. `reads_real_installed_catalog`).
     const REAL_DATABASE: &str =
         "/home/kalinov/Faugus/default/drive_c/Zapret/Dev/system/fakes_catalog.sqlite3";
+
+    /// Вшитый в репозиторий реестр фейков (копия живой установки): он есть
+    /// на любой машине, поэтому проверки, которым не нужна именно живая
+    /// установка, идут по нему.
+    const SHIPPED_DATABASE: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../resources/system/fakes_catalog.sqlite3"
+    );
 
     #[test]
     fn reads_real_installed_catalog() {
@@ -554,8 +564,14 @@ mod tests {
             Ok(catalog) => catalog,
             Err(error) => {
                 // База может отсутствовать в другой среде — тогда тест
-                // считается пройденным только если причина в отсутствии.
-                panic!("база установки не читается: {error}");
+                // пропускается. Но если файл на месте и не читается — это
+                // настоящая поломка, и молчать о ней нельзя.
+                assert!(
+                    !Path::new(REAL_DATABASE).exists(),
+                    "база установки есть, но не читается: {error}"
+                );
+                eprintln!("тест пропущен: нет базы установки {REAL_DATABASE}");
+                return;
             }
         };
         assert_eq!(catalog.entries.len(), 81);
@@ -660,8 +676,10 @@ mod tests {
 
     #[test]
     fn cache_respects_file_signature() {
+        // По вшитому реестру: живой установки на другой машине может не
+        // быть, а кэш проверяется по подписи файла, не по её наличию.
         let cache = FakesCatalogCache::default();
-        let path = Path::new(REAL_DATABASE);
+        let path = Path::new(SHIPPED_DATABASE);
         let first = cache.load(path).unwrap();
         let second = cache.load(path).unwrap();
         assert_eq!(first, second);

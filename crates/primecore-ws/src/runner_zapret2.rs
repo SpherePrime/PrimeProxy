@@ -1083,10 +1083,12 @@ mod tests {
 
         let missing = collect_missing_preset_references(&source, &root, &fs_exists);
 
+        let sep = if cfg!(windows) { '\\' } else { '/' };
         assert_eq!(missing.len(), 1);
-        // Ожидаемый путь — work_dir/tankix.txt (posix normpath в тестах).
+        // Ожидаемый путь — work_dir/tankix.txt; разделитель платформенный
+        // (normpath на Windows даёт «\»).
         assert!(
-            missing[0].expected_path.ends_with("/tankix.txt"),
+            missing[0].expected_path.ends_with(&format!("{sep}tankix.txt")),
             "{}",
             missing[0].expected_path
         );
@@ -1186,9 +1188,13 @@ mod tests {
         assert!(artifact.launch_args[0].starts_with('@'));
         let at_config_path = artifact.launch_args[0][1..].to_string();
         let text = std::fs::read_to_string(&at_config_path).expect("@config");
+        let sep = if cfg!(windows) { '\\' } else { '/' };
+        // В @config относительный путь остаётся как в пресете («/»).
         assert!(text.contains("--hostlist=lists/tankix.txt"), "{text}");
         // Каталог — user/tmp/winws2_at_config внутри work_dir.
-        assert!(at_config_path.starts_with(&format!("{root}/user/tmp/winws2_at_config/")));
+        assert!(at_config_path.starts_with(&format!(
+            "{root}{sep}user{sep}tmp{sep}winws2_at_config{sep}"
+        )));
         assert!(at_config_path.ends_with(".txt"));
         let _ = std::fs::remove_dir_all(&root);
     }
@@ -1251,7 +1257,10 @@ mod tests {
         let dry_run_artifact = artifact_for_dry_run(&artifact, &root);
 
         let dry_run_config = &dry_run_artifact.launch_args[0][1..];
-        assert!(dry_run_config.starts_with(&format!("{root}/user/tmp/winws2_at_config/")));
+        let sep = if cfg!(windows) { '\\' } else { '/' };
+        assert!(dry_run_config.starts_with(&format!(
+            "{root}{sep}user{sep}tmp{sep}winws2_at_config{sep}"
+        )));
         let text = std::fs::read_to_string(dry_run_config).expect("@config");
         assert!(text.contains("--dry-run"), "{text}");
         assert!(text.contains("--wf-dup-check=0"), "{text}");
@@ -1308,7 +1317,7 @@ mod tests {
         assert_ne!(first, other_text);
         assert_ne!(first, other_path);
         assert!(first
-            .rsplit('/')
+            .rsplit(['/', '\\'])
             .next()
             .unwrap_or("")
             .starts_with("winws2_at_"));
@@ -1319,7 +1328,10 @@ mod tests {
     fn startup_output_path_uses_args_digest() {
         let root = tmpdir("output");
         let path = winws2_startup_output_path(&root, "/p", &["@config.txt".to_string()]);
-        assert!(path.contains("/user/tmp/winws2_startup_output/winws2_startup_"));
+        let sep = if cfg!(windows) { '\\' } else { '/' };
+        assert!(path.contains(&format!(
+            "user{sep}tmp{sep}winws2_startup_output{sep}winws2_startup_"
+        )));
         let other = winws2_startup_output_path(&root, "/p", &["@other.txt".to_string()]);
         assert_ne!(path, other);
         let _ = std::fs::remove_dir_all(&root);

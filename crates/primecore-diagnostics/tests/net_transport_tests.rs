@@ -252,10 +252,16 @@ fn tcp_outcomes_on_localhost() {
     accept.join().expect("поток");
 
     // Отказавший порт: адрес сам ответил отказом (RST).
+    //
+    // Срок — как в прогоне (`limits::HTTPS_TIMEOUT`): Windows замечает отказ
+    // закрытого порта (WSAECONNREFUSED) только после повторной посылки SYN —
+    // замерено на этой машине 2.01–2.09 с. С прежним сроком 2.0 с отказ не
+    // успевал прийти, и исход был бы «тишина» вместо отказа; на Linux RST
+    // приходит сразу, поэтому там отказ виден и с коротким сроком.
     let free = free_port();
     let outcome = tcp_connect(
         SocketAddr::new("127.0.0.1".parse().unwrap(), free),
-        2.0,
+        primecore_diagnostics::limits::HTTPS_TIMEOUT,
         &cancel,
     );
     assert_eq!(outcome, TcpOutcome::Refused, "{outcome:?}");
@@ -269,8 +275,19 @@ fn tcp_outcomes_on_localhost() {
         "127.0.0.1",
         &cancel
     ));
+    // Проверка «приняли ли нас» зависит от сети: на машине с VPN/TUN,
+    // который принимает любое соединение, ответ будет «приняли» (замерено
+    // здесь: 192.0.2.1:443 отвечает за 57 мс). Поэтому сверяем не
+    // конкретный исход, а согласованность с прямым подключением к тому же
+    // адресу — это и есть проверяемое свойство.
     let facts = primecore_diagnostics::net_transport::self_check_now(&cancel);
-    assert_eq!(facts.accepted, Some(false), "отказ — норма, тревоги нет");
+    let target = primecore_diagnostics::self_check::try_target().expect("адрес проверки");
+    let direct = tcp_connect(target, 5.0, &cancel);
+    assert_eq!(
+        facts.accepted,
+        Some(matches!(direct, TcpOutcome::Connected(_))),
+        "исход проверки должен совпадать с прямым подключением к тому же адресу"
+    );
 }
 
 fn free_port() -> u16 {

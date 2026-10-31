@@ -5,7 +5,7 @@
 //! бинарнику — PRIMECORE_BIN или соседний target/release. Пока сервер не
 //! ответил на /health, окно не открывается: интерфейс без ядра бесполезен.
 
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
@@ -19,8 +19,16 @@ const repoRoot = path.join(__dirname, "..", "..", "..");
 // Бинарник sidecar: рядом в target/release или из переменной окружения.
 function sidecarPath() {
   if (process.env.PRIMECORE_BIN) return process.env.PRIMECORE_BIN;
-  const candidate = path.join(repoRoot, "target", "release", "primecore-server");
-  return fs.existsSync(candidate) ? candidate : "primecore-server";
+  // Windows: у собранного бинарника расширение .exe, поэтому проверяем оба
+  // имени — иначе оболочка падала на «голое» имя и не находила ядро.
+  const names = process.platform === "win32"
+    ? ["primecore-server.exe", "primecore-server"]
+    : ["primecore-server"];
+  for (const name of names) {
+    const candidate = path.join(repoRoot, "target", "release", name);
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return "primecore-server";
 }
 
 let sidecar = null;
@@ -30,6 +38,9 @@ function startSidecar() {
     cwd: repoRoot,
     env: { ...process.env, PRIMECORE_PORT: String(PORT) },
     stdio: ["ignore", "inherit", "inherit"],
+    // Ядро — консольная программа: без этого Windows открывает ей отдельное
+    // чёрное окно рядом с интерфейсом.
+    windowsHide: true,
   });
   sidecar.on("exit", (code) => console.log(`primecore-server завершён (код ${code})`));
   sidecar.on("error", (error) => console.error(`primecore-server не запущен: ${error.message}`));
@@ -62,8 +73,26 @@ async function createWindow() {
     minWidth: 900,
     minHeight: 640,
     title: "PrimeBypass",
+    // Своя полоса заголовка: рисуем её в интерфейсе (свернуть/развернуть/
+    // закрыть), поэтому системную рамку убираем.
+    frame: false,
+    backgroundColor: "#0f172a",
     webPreferences: { preload: path.join(__dirname, "preload.cjs") },
   });
+
+  // Кнопки заголовка из интерфейса: окно ими управляет главный процесс.
+  ipcMain.on("window:minimize", () => window.minimize());
+  ipcMain.on("window:toggle-maximize", () => {
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+  });
+  ipcMain.on("window:close", () => window.close());
+  const sendState = () =>
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  window.on("maximize", sendState);
+  window.on("unmaximize", sendState);
+  window.webContents.on("did-finish-load", sendState);
+
   // В dev грузим dev-сервер Vite, в сборке — собранные файлы.
   const devUrl = process.env.VITE_URL;
   if (devUrl) {

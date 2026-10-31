@@ -94,12 +94,22 @@ pub fn needs_prompt(state: Option<&PrivilegeState>, now_epoch_s: i64) -> bool {
 /// Команда первого запуска помощника: `["pkexec", helper]`, если в
 /// системе есть `pkexec`, иначе `["sudo", helper]`. Наличие `pkexec`
 /// проверяет замыкание (проверка PATH — платформенный слой).
+#[cfg(unix)]
 pub fn helper_command<F: FnOnce() -> bool>(has_pkexec: F) -> Vec<String> {
     if has_pkexec() {
         vec!["pkexec".to_string(), HELPER_NAME.to_string()]
     } else {
         vec!["sudo".to_string(), HELPER_NAME.to_string()]
     }
+}
+
+/// Команда запуска помощника на Windows: постоянного `privd` там нет —
+/// права повышает UAC на один процесс, — поэтому возвращается только имя
+/// помощника, а замыкание о `pkexec` не используется (в unix-версии оно
+/// выбирает между `pkexec` и `sudo`).
+#[cfg(windows)]
+pub fn helper_command<F: FnOnce() -> bool>(_has_pkexec: F) -> Vec<String> {
+    vec![HELPER_NAME.to_string()]
 }
 
 #[cfg(test)]
@@ -169,6 +179,7 @@ mod tests {
         std::fs::remove_dir_all(&dir).unwrap();
     }
 
+    #[cfg(unix)]
     #[test]
     fn helper_command_chooses_elevator() {
         assert_eq!(
@@ -179,5 +190,14 @@ mod tests {
             helper_command(|| false),
             vec!["sudo".to_string(), "privd".to_string()]
         );
+    }
+
+    /// На Windows повышение прав даёт UAC, постоянного помощника нет:
+    /// команда — только имя помощника, независимо от наличия `pkexec`.
+    #[cfg(windows)]
+    #[test]
+    fn helper_command_is_helper_only() {
+        assert_eq!(helper_command(|| true), vec!["privd".to_string()]);
+        assert_eq!(helper_command(|| false), vec!["privd".to_string()]);
     }
 }

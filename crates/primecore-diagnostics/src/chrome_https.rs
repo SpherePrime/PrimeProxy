@@ -1385,6 +1385,14 @@ mod tests {
         exchange.error_code = E_COULDNT_CONNECT;
         let result = classify(&exchange, &token, started, "10.0.0.1");
         assert_eq!(result.connect_fail, "other");
+        // Отказ адреса (RST) на этапе подключения: «refused» — вид сбоя берётся
+        // из таблицы кодов системы (Windows 10061, Linux 111), а не из текста
+        // ошибки, поэтому разбор одинаков на обеих системах.
+        exchange.os_failure = "refused";
+        let result = classify(&exchange, &token, started, "10.0.0.1");
+        assert_eq!(result.kind, KIND_CONNECT);
+        assert_eq!(result.connect_fail, "refused");
+        exchange.os_failure = "";
 
         // Проверка сертификата: kind cert + человеческая причина.
         exchange.error_code = E_PEER_VERIFY;
@@ -1720,6 +1728,15 @@ mod tests {
     #[test]
     fn chrome_get_connect_refused() {
         // Сокет ещё не открыт: адрес сам отказал.
+        //
+        // Срок подключения — как в прогоне (`limits::HTTPS_TIMEOUT`), короче его
+        // отказ не виден: Windows отдаёт отказ (WSAECONNREFUSED, 10061) только
+        // через ~2 с после начала попытки — замерено на этой машине 2.01–2.03 с,
+        // и для закрытого только что порта, и для порта, который никогда не
+        // слушался. С прежним сроком 2.0 с отказ не успевал прийти:
+        // `connect_timeout` возвращал «тишину» (TimedOut без кода системы) — то
+        // же, что молчащий адрес, и это уже не отказ. На Linux RST приходит
+        // сразу, поэтому там отказ виден и с коротким сроком.
         let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("сокет слушается");
         let port = listener.local_addr().expect("адрес").port();
         drop(listener);
@@ -1727,7 +1744,7 @@ mod tests {
             "example.test",
             "127.0.0.1",
             "/probe",
-            2.0,
+            crate::limits::HTTPS_TIMEOUT,
             port,
             0,
             1.0,

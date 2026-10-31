@@ -1,12 +1,29 @@
-//! Клиент unix-сокета демон-помощника `privd`.
+//! Клиент сокета демон-помощника `privd`.
 //!
 //! Протокол: одна строка-запрос (JSON или старый `ping`), одна строка
 //! ответа. Используется сервером для привилегированных операций и для
 //! проверок, что повышение прошло и сокет отвечает.
+//!
+//! Сам протокол (строка-запрос, строка-ответ, разбор JSON) общий для всех
+//! платформ и живёт здесь. Платформенный только транспорт: на unix это
+//! unix-сокет (`client_unix.rs`), на Windows постоянного помощника нет —
+//! клиент отвечает понятной ошибкой (`client_windows.rs`).
 
 use std::io::{BufRead, Write};
-use std::os::unix::net::UnixStream;
 use std::time::Duration;
+
+#[cfg(unix)]
+#[path = "client_unix.rs"]
+mod transport;
+
+#[cfg(windows)]
+#[path = "client_windows.rs"]
+mod transport;
+
+/// Соединение с демоном: чтение и запись. Конкретный тип даёт
+/// платформенный транспорт, а протокол ниже работает с трейтом и о
+/// платформе ничего не знает.
+pub(crate) trait Transport: std::io::Read + Write {}
 
 /// Таймаут чтения ответа: на случай зависшего демона соединение не должно
 /// блокировать клиента навсегда.
@@ -32,12 +49,18 @@ pub(crate) fn request_with_timeout(
     request_line: &str,
     timeout: Duration,
 ) -> Result<String, String> {
-    let stream = UnixStream::connect(sock_path)
-        .map_err(|e| format!("primecore-privilege: не удалось подключиться к {sock_path}: {e}"))?;
-    stream
-        .set_read_timeout(Some(timeout))
-        .map_err(|e| format!("primecore-privilege: не удалось задать таймаут сокета: {e}"))?;
+    let stream = transport::connect(sock_path, timeout)?;
+    exchange_over(stream, request_line)
+}
 
+/// Общая часть протокола: у уже подключённого потока отправить одну
+/// строку-запрос и прочитать одну строку-ответ. Платформенный транспорт
+/// отдаёт соединение, поэтому разбор ответа одинаков везде: и на unix, и
+/// на будущем Windows-транспорте (например, named pipe).
+fn exchange_over<S: std::io::Read + Write>(
+    stream: S,
+    request_line: &str,
+) -> Result<String, String> {
     let mut stream = stream;
     writeln!(stream, "{request_line}")
         .map_err(|e| format!("primecore-privilege: не удалось отправить запрос: {e}"))?;
@@ -69,7 +92,7 @@ pub fn connect_and_ping(sock_path: &str) -> Result<(), String> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, unix))]
 mod tests {
     use super::*;
     use crate::ops::tests_support::{serve_bounded, tmpdir, FakeExecutor};
@@ -166,5 +189,24 @@ mod tests {
         assert_eq!(parsed["ok"], true);
         assert_eq!(parsed["running"], false);
         std::fs::remove_dir_all(&dir).expect("убрали tmpdir");
+    }
+}
+
+/// На Windows демона привилегий нет, поэтому проверяем именно понятную
+/// ошибку: сервер на Windows должен получить текст, а не панику.
+#[cfg(all(test, windows))]
+mod windows_tests {
+    use super::*;
+
+    #[test]
+    fn request_explains_that_daemon_is_unsupported() {
+        let error = request("C:/tmp/нет-такого.sock", "ping").expect_err("демона нет");
+        assert!(error.contains("не поддерживается на Windows"), "{error}");
+    }
+
+    #[test]
+    fn connect_and_ping_reports_the_same_reason() {
+        let error = connect_and_ping("C:/tmp/нет-такого.sock").expect_err("демона нет");
+        assert!(error.contains("не поддерживается на Windows"), "{error}");
     }
 }

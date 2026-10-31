@@ -8,6 +8,7 @@ import {
   setDns,
 } from "../api";
 import { DnsPage } from "./DnsPage";
+import { IconClose } from "./Icons";
 
 // Фиксированные серверы для пробы — всегда доступны в списке выбора
 // наряду с системными из /api/dns/current.
@@ -51,7 +52,12 @@ function CurrentDnsCard() {
   return (
     <section className="card">
       <h2>Текущие DNS</h2>
-      {error && <div className="infobar error">✗ {error}</div>}
+      {error && (
+        <div className="infobar error with-icon">
+          <IconClose />
+          <span>{error}</span>
+        </div>
+      )}
       {current && (
         <>
           {current.system.length > 0 ? (
@@ -68,7 +74,10 @@ function CurrentDnsCard() {
           )}
           <div className="chip-row">
             {current.doh.length > 0 ? (
-              current.doh.map((url) => (
+              // Сервер отдаёт пары «адрес + шаблон DoH», и один и тот же
+              // шаблон повторяется для нескольких адресов: показываем
+              // уникальные шаблоны, иначе получается стена чипов.
+              [...new Set(current.doh.map((entry) => entry.url))].map((url) => (
                 <span className="chip static chip-ok" key={url}>
                   {url}
                 </span>
@@ -134,7 +143,12 @@ function DnsQueryCard() {
   return (
     <section className="card">
       <h2>Проверка DNS-сервера</h2>
-      {error && <div className="infobar error">✗ {error}</div>}
+      {error && (
+        <div className="infobar error with-icon">
+          <IconClose />
+          <span>{error}</span>
+        </div>
+      )}
       <div className="form-grid">
         <label className="field">
           <span className="field-label">Домен</span>
@@ -165,7 +179,10 @@ function DnsQueryCard() {
       </div>
 
       {result && !result.ok && (
-        <div className="infobar error">✗ {result.error ?? "Запрос не удался"}</div>
+        <div className="infobar error with-icon">
+          <IconClose />
+          <span>{result.error ?? "Запрос не удался"}</span>
+        </div>
       )}
       {result?.ok && (
         <div className="status-line">
@@ -235,7 +252,12 @@ function DnsSetCard() {
           Нет прав: на вкладке Обход нажми Разрешить
         </div>
       )}
-      {error && <div className="infobar error">✗ {error}</div>}
+      {error && (
+        <div className="infobar error with-icon">
+          <IconClose />
+          <span>{error}</span>
+        </div>
+      )}
       <div className="form-grid">
         <label className="field">
           <span className="field-label">Интерфейс</span>

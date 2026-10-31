@@ -51,44 +51,135 @@ fn winerror_table_matches_python() {
     }
 }
 
+/// Коды из golden-списка, снятые на Linux-рантайме (`errno_values`): на
+/// Windows сетевые виды приходят кодами Winsock, и эти числа там ничего не
+/// значат.
+fn is_linux_errno_code(code: i64) -> bool {
+    matches!(code, 110 | 111 | 104 | 103 | 32 | 100 | 101 | 113)
+}
+
 #[test]
 fn classify_code_matches_python() {
     for entry in golden()["classify_code"].as_array().unwrap() {
         let code = entry[0].as_i64().unwrap();
         let expected = entry[1].as_str().unwrap();
+        // Список снят на Linux-рантайме и смешивает коды Winsock (одинаковые
+        // на всех системах) с errno-значениями Linux. На Windows errno-таблица
+        // пуста — сетевые виды там приходят кодами Winsock, — поэтому
+        // errno-часть списка проверяется только на Linux (см. тест
+        // `linux_errno_codes_are_unknown_on_windows`).
+        if !cfg!(target_os = "linux") && is_linux_errno_code(code) {
+            continue;
+        }
         assert_eq!(classify_code(code), expected, "classify_code({code})");
+    }
+}
+
+/// На Windows сетевые виды приходят кодами Winsock (таблица `winerror`),
+/// а linux-errno в этой системе ничего не значит: «код ни о чём».
+#[cfg(target_family = "windows")]
+#[test]
+fn linux_errno_codes_are_unknown_on_windows() {
+    for code in [110, 111, 104, 103, 32, 100, 101, 113] {
+        assert_eq!(classify_code(code), "", "classify_code({code})");
     }
 }
 
 #[test]
 fn classify_os_error_matches_python_classes() {
-    use std::io::Error;
-    // python ConnectionRefusedError → refused
+    use std::io::{Error, ErrorKind};
+    // Классы исключений python → те же виды сбоя. Ошибка без кода системы
+    // (`Error::new`) разбирается по классу одинаково на всех платформах.
     assert_eq!(
-        classify_os_error(&Error::from_raw_os_error(111)),
+        classify_os_error(&Error::new(ErrorKind::ConnectionRefused, "проба")),
         FAILURE_REFUSED
     );
-    // python ConnectionResetError → reset
     assert_eq!(
-        classify_os_error(&Error::from_raw_os_error(104)),
+        classify_os_error(&Error::new(ErrorKind::ConnectionReset, "проба")),
         FAILURE_RESET
     );
-    // python BrokenPipeError → reset
     assert_eq!(
-        classify_os_error(&Error::from_raw_os_error(32)),
+        classify_os_error(&Error::new(ErrorKind::BrokenPipe, "проба")),
         FAILURE_RESET
     );
-    // python TimeoutError (errno ETIMEDOUT) → timeout
     assert_eq!(
-        classify_os_error(&Error::from_raw_os_error(110)),
+        classify_os_error(&Error::new(ErrorKind::TimedOut, "проба")),
         FAILURE_TIMEOUT
     );
-    // unreachable
-    assert_eq!(
-        classify_os_error(&Error::from_raw_os_error(113)),
-        FAILURE_UNREACHABLE
-    );
-    // Winsock-код без errno-эквивалента (linux): classify_code по таблице
+
+    // Коды системы: на Linux это errno (значения сняты с Linux-рантайма).
+    #[cfg(target_os = "linux")]
+    {
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(111)),
+            FAILURE_REFUSED
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(104)),
+            FAILURE_RESET
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(32)),
+            FAILURE_RESET
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(110)),
+            FAILURE_TIMEOUT
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(113)),
+            FAILURE_UNREACHABLE
+        );
+    }
+
+    // На macOS те же виды, но свои номера errno (таблица крейта).
+    #[cfg(target_os = "macos")]
+    {
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(61)),
+            FAILURE_REFUSED
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(54)),
+            FAILURE_RESET
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(60)),
+            FAILURE_TIMEOUT
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(65)),
+            FAILURE_UNREACHABLE
+        );
+    }
+
+    // На Windows коды системы — это коды Winsock.
+    #[cfg(target_family = "windows")]
+    {
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(10061)),
+            FAILURE_REFUSED
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(10054)),
+            FAILURE_RESET
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(10053)),
+            FAILURE_RESET
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(10060)),
+            FAILURE_TIMEOUT
+        );
+        assert_eq!(
+            classify_os_error(&Error::from_raw_os_error(10065)),
+            FAILURE_UNREACHABLE
+        );
+    }
+
+    // Winsock-коды разбираются одинаково на всех системах: таблица WINERROR
+    // от платформы не зависит.
     assert_eq!(classify_code(10060), FAILURE_TIMEOUT);
     assert_eq!(classify_code(10061), FAILURE_REFUSED);
     assert_eq!(classify_code(10054), FAILURE_RESET);

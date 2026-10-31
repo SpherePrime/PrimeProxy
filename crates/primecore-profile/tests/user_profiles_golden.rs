@@ -4,11 +4,10 @@ use primecore_profile::user_profiles::{
 };
 
 fn temp_root(tag: &str) -> std::path::PathBuf {
-    let base = std::env::temp_dir().join(format!(
-        "primeup-{tag}-{}-{}",
-        std::process::id(),
-        primecore_profile::identity::generate_profile_uid(),
-    ));
+    // Уникальность даёт uid профиля (`uid:<hex>`), но двоеточие в имени
+    // каталога на Windows недопустимо — для каталога его заменяем.
+    let unique = primecore_profile::identity::generate_profile_uid().replace(':', "_");
+    let base = std::env::temp_dir().join(format!("primeup-{tag}-{}-{unique}", std::process::id()));
     std::fs::create_dir_all(&base).unwrap();
     base
 }
