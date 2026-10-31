@@ -1,0 +1,552 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Страница «Обход»: карточка состояния движка, группы профилей,
+   параметры запуска и журнал.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ─────────────────────────── Состояние движка ─────────────────────────── */
+
+.engine-card {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 18px;
+  padding: 0;
+  border-color: var(--line-strong);
+  border-radius: var(--r-xl);
+  background:
+    linear-gradient(180deg, rgba(197, 242, 90, 0.045), transparent 42%),
+    var(--surface-1);
+}
+
+.engine-card[data-state="running"] {
+  border-color: rgba(197, 242, 90, 0.3);
+}
+
+.engine-card[data-state="busy"] {
+  border-color: rgba(240, 189, 99, 0.24);
+}
+
+.engine-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: 18px 26px 0;
+}
+
+.engine-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-mute);
+  font: 500 9.5px/1 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.engine-body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  padding: 16px 26px 24px;
+  flex-wrap: wrap;
+}
+
+.engine-state {
+  min-width: 0;
+}
+
+.engine-state-word {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4.4vw, 54px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.engine-card[data-state="running"] .engine-state-word {
+  color: var(--accent);
+}
+
+.engine-card[data-state="busy"] .engine-state-word {
+  color: var(--warn);
+}
+
+.engine-state-note {
+  max-width: 54ch;
+  margin: 9px 0 0;
+  color: var(--text-mute);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.engine-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.engine-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid var(--line);
+}
+
+.engine-meta > div {
+  min-width: 0;
+  padding: 14px 26px;
+  border-right: 1px solid var(--line);
+}
+
+.engine-meta > div:last-child {
+  border-right: 0;
+}
+
+.engine-meta dt {
+  color: var(--text-mute);
+  font: 500 9px/1 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.engine-meta dd {
+  margin: 7px 0 0;
+  color: var(--text);
+  font: 500 11.5px/1.4 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.engine-meta dd.tone-ok {
+  color: var(--ok);
+}
+
+.engine-meta dd.tone-warn {
+  color: var(--warn);
+}
+
+.engine-meta dd.tone-mute {
+  color: var(--text-mute);
+}
+
+/* Сигнатурная «линия сигнала»: сегменты кодируют состояние движка.
+   Ожидание — тусклые штрихи, работа — ровное свечение, запуск — бегущий
+   сегмент, ошибка — красная линия. */
+.signal {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  background: var(--inset);
+  color: var(--text-mute);
+}
+
+.signal::before {
+  content: "";
+  position: absolute;
+  inset: 1px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    currentColor 0 10px,
+    transparent 10px 16px
+  );
+  opacity: 0.22;
+}
+
+.signal::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  left: 0;
+  width: 30%;
+  opacity: 0;
+}
+
+.engine-card[data-state="busy"] .signal {
+  color: var(--accent);
+}
+
+.engine-card[data-state="busy"] .signal::after {
+  width: 28%;
+  opacity: 1;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    currentColor 35%,
+    currentColor 65%,
+    transparent
+  );
+  animation: signal-sweep 1.6s linear infinite;
+}
+
+.engine-card[data-state="running"] .signal {
+  color: var(--accent);
+}
+
+.engine-card[data-state="running"] .signal::before {
+  opacity: 0.62;
+}
+
+.engine-card[data-state="running"] .signal::after {
+  width: 100%;
+  opacity: 0.16;
+  background: currentColor;
+  animation: signal-breathe 3.2s var(--ease) infinite;
+}
+
+.engine-card[data-state="fail"] .signal {
+  color: var(--fail);
+}
+
+/* ─────────────────────────── Группы профилей ─────────────────────────── */
+
+.byp-results-line {
+  margin: 0 0 var(--sp-3);
+  color: var(--text-mute);
+  font: 10.5px/1 var(--font-mono);
+  letter-spacing: 0.04em;
+}
+
+.pgroup-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+}
+
+.pgroup {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  transition:
+    border-color var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease);
+}
+
+/* Включённая группа отмечается полосой у левой кромки. */
+.pgroup::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 0;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--line-strong);
+  transition: background var(--t-fast) var(--ease);
+}
+
+.pgroup.on::before {
+  background: var(--accent);
+}
+
+.pgroup:hover,
+.pgroup.open {
+  border-color: var(--line-strong);
+  background: var(--surface-3);
+}
+
+.pgroup-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding-right: 12px;
+}
+
+.pgroup-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  padding: 0 0 0 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.pgroup-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: var(--r-sm) 0 0 var(--r-sm);
+}
+
+.pgroup-arrow {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--text-mute);
+  transition:
+    transform var(--t-mid) var(--ease),
+    color var(--t-mid) var(--ease);
+}
+
+.pgroup.open .pgroup-arrow {
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+.pgroup-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-dim);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pgroup.on .pgroup-name {
+  color: var(--text);
+}
+
+.pgroup .preset-count {
+  color: var(--text-mute);
+  font: 9.5px/1 var(--font-mono);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.pgroup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 6px;
+  border-top: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.pgroup-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 9px;
+  border: 1px solid transparent;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  transition:
+    background var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease);
+}
+
+.pgroup-item:hover {
+  background: var(--surface-hover);
+}
+
+.pgroup-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.pgroup-item.selected {
+  border-color: rgba(197, 242, 90, 0.2);
+  background: var(--accent-soft);
+}
+
+.pgroup-pick {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  color: var(--accent-ink);
+}
+
+.pgroup-item.selected .pgroup-pick {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.pgroup-item-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.preset-name {
+  color: var(--text);
+  font: 500 11.5px/1.35 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.pgroup-item.selected .preset-name {
+  color: var(--accent);
+}
+
+.preset-desc {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--text-mute);
+  font-size: 11.5px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─────────────────────────── Переключатель группы ─────────────────────────── */
+
+.switch {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--inset);
+  transition:
+    background var(--t-mid) var(--ease),
+    border-color var(--t-mid) var(--ease);
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-mute);
+  transition:
+    transform var(--t-mid) var(--ease),
+    background var(--t-mid) var(--ease);
+}
+
+.switch:hover {
+  border-color: var(--text-mute);
+}
+
+.switch.on {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.switch.on::after {
+  background: var(--accent-ink);
+  transform: translateX(16px);
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────── Параметры запуска ─────────────────────────── */
+
+.byp-options-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding-bottom: 11px;
+  color: var(--text-mute);
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.byp-options-hint svg {
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────── Узкие экраны ─────────────────────────── */
+
+@media (max-width: 900px) {
+  .engine-meta {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .engine-meta > div {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .engine-meta > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .engine-meta > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .engine-body {
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--sp-4);
+  }
+
+  .engine-actions .btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 680px) {
+  .engine-card {
+    border-radius: var(--r-lg);
+  }
+
+  .engine-top {
+    padding: 16px 16px 0;
+  }
+
+  .engine-body {
+    padding: 12px 16px 18px;
+  }
+
+  .engine-state-word {
+    font-size: 36px;
+  }
+
+  .engine-meta > div {
+    padding: 12px 16px;
+  }
+
+  .pgroup-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .byp-options-hint {
+    padding-bottom: 0;
+  }
+}
+
+/* ─────────────────────────── Движение сигнала ─────────────────────────── */
+
+@keyframes signal-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(360%);
+  }
+}
+
+@keyframes signal-breathe {
+  0%,
+  100% {
+    opacity: 0.08;
+  }
+  50% {
+    opacity: 0.24;
+  }
+}

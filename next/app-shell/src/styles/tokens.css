@@ -1,0 +1,106 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Токены оформления: «сигнальная консоль».
+   Приборная панель сетевого инженера: графит, одна сигнальная лаймовая
+   краска «можно», кость вместо белого, волосяные линии вместо теней.
+   Акцент один и означает разрешение/движение — как зелёный сигнал светофора.
+
+   Все имена переменных — публичный контракт: страницы используют их
+   напрямую, менять имена нельзя.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Локальные шрифты: работают без сети, в том числе в Electron и Android.
+   Jura — дисплейный голос (широкий технический гротеск с кириллицей),
+   Geist Mono — все технические значения: адреса, PID, команды, хеши.
+   Основной текст — системный Segoe UI: он нативно выглядит в Windows. */
+@font-face {
+  font-family: "Jura";
+  src: url("../assets/fonts/Jura-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../assets/fonts/GeistMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("../assets/fonts/GeistMono-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Поверхности: фон приложения → карточка → вложенный блок → поле ввода. */
+  --bg: #0a0d09;
+  --surface-1: #10140f;
+  --surface-2: #161b14;
+  --surface-3: #1d231a;
+  --surface-hover: #242c20;
+  --inset: #070906;
+
+  /* Линии: обычная, усиленная, акцентная. */
+  --line: rgba(230, 238, 218, 0.085);
+  --line-strong: rgba(230, 238, 218, 0.17);
+  --line-accent: rgba(197, 242, 90, 0.34);
+
+  /* Текст: основной, приглушённый, служебный (все ≥ 4.5:1 к --surface-2). */
+  --text: #e9eddf;
+  --text-dim: #adb7a2;
+  --text-mute: #8b9680;
+
+  /* Сигнальный акцент: «можно». --accent-ink — текст поверх акцента. */
+  --accent: #c5f25a;
+  --accent-2: #9fdc38;
+  --accent-ink: #101505;
+  --accent-soft: rgba(197, 242, 90, 0.1);
+
+  /* Статусы: мягкая заливка того же тона + читаемый цвет текста. */
+  --ok: #83e6b0;
+  --ok-soft: rgba(131, 230, 176, 0.12);
+  --warn: #f0bd63;
+  --warn-soft: rgba(240, 189, 99, 0.12);
+  --fail: #ff827a;
+  --fail-soft: rgba(255, 130, 122, 0.12);
+
+  /* Форма: приборные скругления, без «мыла». */
+  --r-xs: 4px;
+  --r-sm: 7px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
+  --r-pill: 999px;
+
+  /* Ритм. */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 40px;
+
+  /* Шрифты. */
+  --font-ui: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Roboto", sans-serif;
+  --font-display: "Jura", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Cascadia Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+
+  /* Тени: только для отрыва окон и углублений, не для украшения. */
+  --shadow-1: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --shadow-2: 0 24px 48px -32px rgba(0, 0, 0, 0.9);
+
+  /* Движение: микро, обычное, вход страницы. */
+  --t-fast: 120ms;
+  --t-mid: 220ms;
+  --t-slow: 380ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}

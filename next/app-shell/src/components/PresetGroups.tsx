@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import { PresetInfo } from "../api";
-import { IconChevron } from "./Icons";
+import { IconCheck, IconChevron } from "./Icons";
 
 // Группировка пресетов по целевым сервисам (targets из /api/ws/presets):
 // одна секция — один сервис, пресет может входить в несколько секций.
 // Порядок секций фиксированный, неизвестные цели уходят в конец по алфавиту.
 export const GROUP_ORDER = [
+  "Все сайты",
+  "Общий",
   "YouTube",
   "Discord",
   "ChatGPT",
@@ -13,12 +15,10 @@ export const GROUP_ORDER = [
   "Соцсети Meta",
   "Twitch",
   "Игры",
-  "Все сайты",
-  "Общий",
 ] as const;
 
 // Секции, включённые по умолчанию при первом запуске.
-const DEFAULT_ON = new Set<string>(["Все сайты", "Discord", "YouTube"]);
+const DEFAULT_ON = new Set<string>(["Все сайты"]);
 
 export interface PresetGroup {
   target: string;
@@ -66,6 +66,10 @@ export function isEnabled(target: string, saved: Record<string, boolean>): boole
   const stored = saved[target];
   if (stored === undefined) return DEFAULT_ON.has(target);
   return stored;
+}
+
+export function isUniversal(target: string): boolean {
+  return target === "Все сайты" || target === "Общий";
 }
 
 export function saveEnabled(target: string, value: boolean): void {
@@ -142,74 +146,92 @@ export function PresetGroups({
 
   if (totalPresets === 0) {
     return (
-      <div className="preset-empty">Пресеты не найдены — сервер недоступен?</div>
+      <div className="empty-state">
+        <strong>Пресеты не найдены</strong>
+        <span>Похоже, ядро недоступно. Проверьте локальный API и повторите.</span>
+      </div>
     );
   }
 
   if (visible.length === 0) {
-    return <div className="preset-empty">Ничего не найдено по запросу.</div>;
+    return (
+      <div className="empty-state">
+        <strong>Ничего не найдено</strong>
+        <span>Измените запрос или очистите поиск.</span>
+      </div>
+    );
   }
 
   return (
-    <>
-      <div className="pgroup-grid">
-        {visible.map((group) => {
-          const on = isEnabled(group.target, enabled);
-          return (
-            <section
-              className={`pgroup ${open === group.target ? "open" : ""}`}
-              key={group.target}
-            >
+    <div className="pgroup-grid">
+      {visible.map((group) => {
+        const on = isEnabled(group.target, enabled);
+        const isOpen = open === group.target;
+        return (
+          <section
+            className={`pgroup ${on ? "on" : ""} ${isOpen ? "open" : ""} ${
+              isUniversal(group.target) ? "pgroup--universal" : ""
+            }`}
+            key={group.target}
+          >
+            <div className="pgroup-head">
               <button
                 type="button"
-                className="pgroup-head"
-                onClick={() => setOpen(open === group.target ? null : group.target)}
-                aria-expanded={open === group.target}
+                className="pgroup-toggle"
+                onClick={() => setOpen(isOpen ? null : group.target)}
+                aria-expanded={isOpen}
               >
-                <span className="pgroup-arrow">
+                <span className="pgroup-arrow" aria-hidden="true">
                   <IconChevron />
                 </span>
-                <h3>{group.target}</h3>
-                <span className="preset-count">{presetsLabel(group.presets.length)}</span>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={on}
-                  aria-label={`Группа ${group.target}`}
-                  className={`switch ${on ? "on" : ""}`}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onToggle(group.target);
-                  }}
-                />
+                <span className="pgroup-name">{group.target}</span>
+                {isUniversal(group.target) && (
+                  <span className="pgroup-badge">Универсальный</span>
+                )}
+                <span className="preset-count">
+                  {presetsLabel(group.presets.length)}
+                </span>
               </button>
-              {open === group.target && (
-                <div className="pgroup-list">
-                  {group.presets.map((preset) => {
-                    const isDefault = defaults[group.target] === preset.name;
-                    return (
-                      <button
-                        key={preset.name}
-                        className={`pgroup-item ${isDefault ? "selected" : ""}`}
-                        onClick={() => onChoose(group.target, preset.name)}
-                        title={preset.description}
-                      >
-                        <span className="pgroup-item-main">
-                          <span className="preset-name">{preset.name}</span>
-                          {isDefault && <span className="badge def">по умолчанию</span>}
-                        </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={on}
+                aria-label={`Группа ${group.target}`}
+                className={`switch ${on ? "on" : ""}`}
+                onClick={() => onToggle(group.target)}
+              />
+            </div>
+
+            {isOpen && (
+              <div className="pgroup-list" aria-label={group.target}>
+                {group.presets.map((preset) => {
+                  const isDefault = defaults[group.target] === preset.name;
+                  return (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      aria-pressed={isDefault}
+                      className={`pgroup-item ${isDefault ? "selected" : ""}`}
+                      onClick={() => onChoose(group.target, preset.name)}
+                      title={preset.description}
+                    >
+                      <span className="pgroup-pick" aria-hidden="true">
+                        {isDefault && <IconCheck size={10} />}
+                      </span>
+                      <span className="pgroup-item-body">
+                        <span className="preset-name">{preset.name}</span>
                         {preset.description.trim() !== "" && (
                           <span className="preset-desc">{preset.description}</span>
                         )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
-          );
-        })}
-      </div>
-    </>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        );
+      })}
+    </div>
   );
 }

@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { fetchTgProxy, saveTgProxy, TgProxyConfig } from "../api";
-import { IconCheck, IconClose, IconWarning } from "./Icons";
+import {
+  IconCheck,
+  IconClose,
+  IconCopy,
+  IconSend,
+  IconWarning,
+} from "./Icons";
+import { PageHeader } from "./PageHeader";
 
 // Страница «Telegram» — конфиг MTProto-прокси и готовая ссылка подключения
 // tg://proxy. Пока заготовка: эндпоинт /api/tg/proxy/start сохраняет конфиг,
@@ -83,36 +90,51 @@ export function TelegramPage() {
 
   return (
     <div className="page">
-      <header className="page-header">
-        <h1>Telegram</h1>
-        <p className="subtitle">
-          MTProto-прокси для Telegram: конфигурация и готовая ссылка
-          подключения.
-        </p>
-      </header>
+      <PageHeader
+        index="06"
+        group="Сеть"
+        title="Telegram"
+        description="MTProto-прокси для Telegram: конфигурация и готовая ссылка подключения."
+        actions={
+          <span className={`chip ${saved ? "tone-ok" : "tone-neutral"}`}>
+            {saved ? "конфиг сохранён" : "не настроен"}
+          </span>
+        }
+      />
 
       <div className="infobar warn with-icon">
         <IconWarning />
         <span>
           Заготовка: запуск локального прокси появится позже, конфиг уже можно
-          сохранить
+          сохранить.
         </span>
       </div>
       {error && (
-        <div className="infobar error with-icon">
+        <div className="infobar error with-icon" role="alert">
           <IconClose />
           <span>{error}</span>
         </div>
       )}
       {okNote && (
-        <div className="infobar ok with-icon">
+        <div className="infobar ok with-icon" role="status">
           <IconCheck />
           <span>{okNote}</span>
         </div>
       )}
 
       <section className="card">
-        <h2>MTProto-прокси</h2>
+        <div className="card-head">
+          <div>
+            <span className="section-kicker">
+              <b>01</b> Конфигурация
+            </span>
+            <h2 className="card-title">MTProto-прокси</h2>
+            <p className="card-note">
+              Параметры сервера, к которому Telegram будет подключаться.
+            </p>
+          </div>
+        </div>
+
         {config && (
           <div className="status-line config-line">
             <span className="eyebrow">Текущий конфиг</span>
@@ -127,14 +149,16 @@ export function TelegramPage() {
             )}
           </div>
         )}
+
         <div className="form-grid">
-          <label className="field">
+          <label className="field grow">
             <span className="field-label">Host</span>
             <input
               value={host}
               onChange={(event) => setHost(event.target.value)}
               placeholder="например, proxy.example.com"
               disabled={saving}
+              spellCheck={false}
             />
           </label>
           <label className="field">
@@ -149,34 +173,62 @@ export function TelegramPage() {
               disabled={saving}
             />
           </label>
-          <label className="field">
+          <label className="field grow">
             <span className="field-label">Secret</span>
             <input
+              type="password"
               value={secret}
               onChange={(event) => setSecret(event.target.value)}
               placeholder="hex-строка или ee…"
               disabled={saving}
+              autoComplete="off"
+              spellCheck={false}
             />
           </label>
-          <button className="btn accent" onClick={save} disabled={saving}>
+          <button
+            type="button"
+            className="btn accent"
+            onClick={save}
+            disabled={saving}
+          >
+            {saving ? <span className="spinner" /> : <IconCheck />}
             {saving ? "Сохраняю…" : "Сохранить конфиг"}
           </button>
         </div>
       </section>
 
       <section className="card">
-        <h2>Ссылка для Telegram</h2>
+        <div className="card-head">
+          <div>
+            <span className="section-kicker">
+              <b>02</b> Подключение
+            </span>
+            <h2 className="card-title">Ссылка для Telegram</h2>
+            <p className="card-note">
+              Откройте ссылку на устройстве — Telegram предложит добавить прокси.
+            </p>
+          </div>
+        </div>
+
         {!saved ? (
-          <p className="preset-empty">Сначала сохрани конфиг</p>
+          <div className="empty-state">
+            <IconSend />
+            <strong>Сначала сохраните конфиг</strong>
+            <span>Ссылка появится после сохранения host, порта и secret.</span>
+          </div>
         ) : !linkReady ? (
-          <p className="preset-empty">
-            Конфиг сохранён, но secret не известен странице — заполните поле
-            Secret выше, и ссылка появится здесь.
-          </p>
+          <div className="empty-state">
+            <strong>Не хватает secret</strong>
+            <span>
+              Конфиг сохранён, но secret не известен странице — заполните поле
+              Secret выше.
+            </span>
+          </div>
         ) : (
           <div className="code-row">
             <code>{proxyLink}</code>
-            <button className="btn secondary" onClick={copyLink}>
+            <button type="button" className="btn secondary" onClick={copyLink}>
+              {copied ? <IconCheck /> : <IconCopy />}
               {copied ? "Скопировано" : "Скопировать"}
             </button>
           </div>

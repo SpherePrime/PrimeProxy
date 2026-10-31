@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
+import { API } from "./api";
 import { DnsToolsPage } from "./components/DnsToolsPage";
 import { BypassPage } from "./components/BypassPage";
 import { CheckPage } from "./components/CheckPage";
@@ -19,52 +20,94 @@ import {
 } from "./components/Icons";
 import "./styles.css";
 
-// Боковая навигация: слева фиксированная панель с пунктами «иконка + подпись»,
-// активный пункт подсвечен. Иконки — свои SVG (см. Icons.tsx), без эмодзи:
-// они одинаково выглядят на любой системе и наследуют цвет текста.
-// Маршрутизатор не нужен — страницы грузятся только по одной, достаточно useState.
+// Боковая навигация: слева «патч-панель» из групп инструментов.
+// Маршрутизатор не нужен — страницы грузятся только по одной, достаточно
+// useState. Номер пункта совпадает с номером в шапке страницы.
 type PageId = "bypass" | "hosts" | "check" | "logs" | "dns" | "telegram" | "fakes";
 
-const NAV_ITEMS: Array<{
+interface NavItem {
   id: PageId;
+  index: string;
   icon: (props: { size?: number }) => React.JSX.Element;
   title: string;
-}> = [
-  { id: "bypass", icon: IconShield, title: "Обход" },
-  { id: "hosts", icon: IconUnlock, title: "Разблокировка" },
-  { id: "check", icon: IconSearch, title: "Проверка" },
-  { id: "logs", icon: IconChart, title: "Анализ лога" },
-  { id: "dns", icon: IconGlobe, title: "DNS" },
-  { id: "telegram", icon: IconSend, title: "Telegram" },
-  { id: "fakes", icon: IconLayers, title: "Фейки" },
+}
+
+const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
+  {
+    label: "Управление",
+    items: [
+      { id: "bypass", index: "01", icon: IconShield, title: "Обход" },
+      { id: "hosts", index: "02", icon: IconUnlock, title: "Разблокировка" },
+    ],
+  },
+  {
+    label: "Диагностика",
+    items: [
+      { id: "check", index: "03", icon: IconSearch, title: "Проверка" },
+      { id: "logs", index: "04", icon: IconChart, title: "Анализ лога" },
+    ],
+  },
+  {
+    label: "Сеть",
+    items: [
+      { id: "dns", index: "05", icon: IconGlobe, title: "DNS" },
+      { id: "telegram", index: "06", icon: IconSend, title: "Telegram" },
+    ],
+  },
+  {
+    label: "Библиотека",
+    items: [{ id: "fakes", index: "07", icon: IconLayers, title: "Фейки" }],
+  },
 ];
+
+// Адрес ядра без схемы — так его удобнее читать в узкой панели.
+const ENGINE_ADDRESS = API.replace(/^https?:\/\//, "");
 
 function App() {
   const [page, setPage] = useState<PageId>("bypass");
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main">
+        К содержимому
+      </a>
       <TitleBar title="PrimeBypass" />
       <div className="app-body">
-        <nav className="nav" aria-label="Основная навигация">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                className={`nav-item ${page === item.id ? "active" : ""}`}
-                onClick={() => setPage(item.id)}
-                aria-current={page === item.id ? "page" : undefined}
-              >
-                <span className="nav-icon" aria-hidden="true">
-                  <Icon size={18} />
-                </span>
-                <span>{item.title}</span>
-              </button>
-            );
-          })}
-        </nav>
-        <main className="content">
+        <aside className="sidebar">
+          <nav className="nav" aria-label="Основная навигация">
+            {NAV_GROUPS.map((group) => (
+              <div className="nav-group" key={group.label}>
+                <span className="nav-group-label">{group.label}</span>
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const current = page === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`nav-item ${current ? "active" : ""}`}
+                      onClick={() => setPage(item.id)}
+                      aria-current={current ? "page" : undefined}
+                      title={item.title}
+                    >
+                      <span className="nav-icon" aria-hidden="true">
+                        <Icon size={18} />
+                      </span>
+                      <span className="nav-label">{item.title}</span>
+                      <span className="nav-num">{item.index}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </nav>
+          <div className="side-foot">
+            <span className="side-foot-label">Ядро</span>
+            <code className="side-foot-value">{ENGINE_ADDRESS}</code>
+            <span className="side-foot-note">локальный HTTP API</span>
+          </div>
+        </aside>
+        <main className="content" id="main" tabIndex={-1}>
           {page === "bypass" && <BypassPage />}
           {page === "hosts" && <HostsPage />}
           {page === "check" && <CheckPage />}

@@ -8,7 +8,8 @@ import {
   setDns,
 } from "../api";
 import { DnsPage } from "./DnsPage";
-import { IconClose } from "./Icons";
+import { IconCheck, IconClose, IconGlobe, IconWarning } from "./Icons";
+import { PageHeader } from "./PageHeader";
 
 // Фиксированные серверы для пробы — всегда доступны в списке выбора
 // наряду с системными из /api/dns/current.
@@ -16,17 +17,16 @@ const FALLBACK_SERVERS = ["1.1.1.1", "8.8.8.8", "9.9.9.9"];
 
 // Страница «DNS»: инструменты поверх каталога провайдеров — текущие серверы,
 // проба запроса и установка на интерфейс. Сам каталог (DnsPage) рендерится
-// ниже без изменений.
+// ниже, но живёт внутри той же страницы.
 export function DnsToolsPage() {
   return (
     <div className="page">
-      <header className="page-header">
-        <h1>DNS</h1>
-        <p className="subtitle">
-          Инструменты DNS и каталог провайдеров: текущие серверы, проба
-          запроса, установка на интерфейс.
-        </p>
-      </header>
+      <PageHeader
+        index="05"
+        group="Сеть"
+        title="DNS"
+        description="Текущие серверы, пробный запрос и установка DNS на интерфейс — плюс каталог провайдеров."
+      />
 
       <CurrentDnsCard />
       <DnsQueryCard />
@@ -51,44 +51,78 @@ function CurrentDnsCard() {
 
   return (
     <section className="card">
-      <h2>Текущие DNS</h2>
+      <div className="card-head">
+        <div>
+          <span className="section-kicker">
+            <b>01</b> Система
+          </span>
+          <h2 className="card-title">Текущие DNS</h2>
+          <p className="card-note">
+            Серверы, которые система использует прямо сейчас, и активные
+            DoH-шаблоны.
+          </p>
+        </div>
+        {current && (
+          <span className="chip tone-neutral">
+            {current.system.length} серверов
+          </span>
+        )}
+      </div>
+
       {error && (
-        <div className="infobar error with-icon">
+        <div className="infobar error with-icon" role="alert">
           <IconClose />
           <span>{error}</span>
         </div>
       )}
-      {current && (
+
+      {current ? (
         <>
           {current.system.length > 0 ? (
-            <div className="chip-row">
-              {current.system.map((entry) => (
-                <span className="chip static" key={entry.server}>
-                  {entry.server}
-                  <span className="chip-note">{entry.kind}</span>
-                </span>
-              ))}
+            <div className="status-line">
+              <span className="eyebrow">Системные</span>
+              <div className="chip-row">
+                {current.system.map((entry) => (
+                  <span className="chip static" key={entry.server}>
+                    {entry.server}
+                    <span className="chip-note">{entry.kind}</span>
+                  </span>
+                ))}
+              </div>
             </div>
           ) : (
-            <p className="preset-empty">Системные серверы не найдены.</p>
+            <div className="empty-state">
+              <strong>Системные серверы не найдены</strong>
+              <span>Похоже, DNS настраивается автоматически.</span>
+            </div>
           )}
-          <div className="chip-row">
+
+          <div className="status-line">
+            <span className="eyebrow">DoH</span>
             {current.doh.length > 0 ? (
               // Сервер отдаёт пары «адрес + шаблон DoH», и один и тот же
               // шаблон повторяется для нескольких адресов: показываем
               // уникальные шаблоны, иначе получается стена чипов.
-              [...new Set(current.doh.map((entry) => entry.url))].map((url) => (
-                <span className="chip static chip-ok" key={url}>
-                  {url}
-                </span>
-              ))
+              <div className="chip-row">
+                {[...new Set(current.doh.map((entry) => entry.url))].map((url) => (
+                  <span className="chip static tone-ok" key={url}>
+                    {url}
+                  </span>
+                ))}
+              </div>
             ) : (
               <span className="site-ms">DoH не используется</span>
             )}
           </div>
         </>
+      ) : (
+        !error && (
+          <div className="empty-state" role="status">
+            <span className="spinner" />
+            <span>Читаю системные настройки…</span>
+          </div>
+        )
       )}
-      {!current && !error && <p className="preset-empty">Загрузка…</p>}
     </section>
   );
 }
@@ -142,13 +176,25 @@ function DnsQueryCard() {
 
   return (
     <section className="card">
-      <h2>Проверка DNS-сервера</h2>
+      <div className="card-head">
+        <div>
+          <span className="section-kicker">
+            <b>02</b> Проба
+          </span>
+          <h2 className="card-title">Проверка DNS-сервера</h2>
+          <p className="card-note">
+            Запрос одного домена через выбранный сервер: ответ и задержка.
+          </p>
+        </div>
+      </div>
+
       {error && (
-        <div className="infobar error with-icon">
+        <div className="infobar error with-icon" role="alert">
           <IconClose />
           <span>{error}</span>
         </div>
       )}
+
       <div className="form-grid">
         <label className="field">
           <span className="field-label">Домен</span>
@@ -157,6 +203,7 @@ function DnsQueryCard() {
             onChange={(event) => setDomain(event.target.value)}
             placeholder="example.com"
             disabled={checking}
+            spellCheck={false}
           />
         </label>
         <label className="field">
@@ -173,13 +220,14 @@ function DnsQueryCard() {
             ))}
           </select>
         </label>
-        <button className="btn accent" onClick={run} disabled={checking}>
+        <button type="button" className="btn accent" onClick={run} disabled={checking}>
+          {checking ? <span className="spinner" /> : <IconGlobe />}
           {checking ? "Проверяю…" : "Проверить"}
         </button>
       </div>
 
       {result && !result.ok && (
-        <div className="infobar error with-icon">
+        <div className="infobar error with-icon" role="alert">
           <IconClose />
           <span>{result.error ?? "Запрос не удался"}</span>
         </div>
@@ -188,11 +236,15 @@ function DnsQueryCard() {
         <div className="status-line">
           <span className="eyebrow">Ответ</span>
           <div className="chip-row">
-            {(result.addresses ?? []).map((address) => (
-              <span className="chip static" key={address}>
-                {address}
-              </span>
-            ))}
+            {(result.addresses ?? []).length > 0 ? (
+              (result.addresses ?? []).map((address) => (
+                <span className="chip static" key={address}>
+                  {address}
+                </span>
+              ))
+            ) : (
+              <span className="site-ms">Нет адресов в ответе</span>
+            )}
           </div>
           {typeof result.ms === "number" && (
             <span className="site-ms">{result.ms} мс</span>
@@ -245,19 +297,38 @@ function DnsSetCard() {
 
   return (
     <section className="card">
-      <h2>Установить DNS</h2>
-      {done && <div className="infobar ok">✓ DNS установлен</div>}
+      <div className="card-head">
+        <div>
+          <span className="section-kicker">
+            <b>03</b> Установка
+          </span>
+          <h2 className="card-title">Установить DNS</h2>
+          <p className="card-note">
+            Два сервера на указанный сетевой интерфейс. Для записи нужны права
+            администратора.
+          </p>
+        </div>
+      </div>
+
+      {done && (
+        <div className="infobar ok with-icon" role="status">
+          <IconCheck />
+          <span>DNS установлен</span>
+        </div>
+      )}
       {noRights && (
-        <div className="infobar warn">
-          Нет прав: на вкладке Обход нажми Разрешить
+        <div className="infobar warn with-icon">
+          <IconWarning />
+          <span>Нет прав: на вкладке «Обход» нажмите «Разрешить».</span>
         </div>
       )}
       {error && (
-        <div className="infobar error with-icon">
+        <div className="infobar error with-icon" role="alert">
           <IconClose />
           <span>{error}</span>
         </div>
       )}
+
       <div className="form-grid">
         <label className="field">
           <span className="field-label">Интерфейс</span>
@@ -266,6 +337,7 @@ function DnsSetCard() {
             onChange={(event) => setIfname(event.target.value)}
             placeholder="eth0"
             disabled={saving}
+            spellCheck={false}
           />
         </label>
         <label className="field">
@@ -275,6 +347,7 @@ function DnsSetCard() {
             onChange={(event) => setServer1(event.target.value)}
             placeholder="1.1.1.1"
             disabled={saving}
+            spellCheck={false}
           />
         </label>
         <label className="field">
@@ -284,9 +357,11 @@ function DnsSetCard() {
             onChange={(event) => setServer2(event.target.value)}
             placeholder="8.8.8.8"
             disabled={saving}
+            spellCheck={false}
           />
         </label>
-        <button className="btn accent" onClick={apply} disabled={saving}>
+        <button type="button" className="btn accent" onClick={apply} disabled={saving}>
+          {saving ? <span className="spinner" /> : <IconCheck />}
           {saving ? "Применяю…" : "Установить"}
         </button>
       </div>

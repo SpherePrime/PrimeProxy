@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { fetchFakes, FakeInfo } from "../api";
+import { IconClose, IconLayers, IconSearch } from "./Icons";
+import { PageHeader } from "./PageHeader";
 
 // Размер в человекочитаемом виде (КБ/Б).
 function sizeLabel(bytes: number): string {
@@ -52,32 +54,62 @@ export function FakesPage() {
 
   return (
     <div className="page">
-      <div className="page-header">
-        <h1>Фейки</h1>
-        <p className="subtitle">
-          Фейки — заготовки пакетов для стратегий DESYNC, используются
-          пресетами автоматически (каталог fakes_catalog.sqlite3).
-        </p>
-      </div>
+      <PageHeader
+        index="07"
+        group="Библиотека"
+        title="Фейки"
+        description="Заготовки пакетов для стратегий DESYNC — каталог fakes_catalog.sqlite3."
+        actions={
+          <span className="chip tone-neutral">
+            {visible.length} из {fakes.length}
+          </span>
+        }
+      />
 
-      {error && <div className="infobar error">{error}</div>}
-
-      <div className="card">
-        <div className="card-head">
-          <h2>Каталог</h2>
-          <span className="preset-count">{visible.length} из {fakes.length}</span>
+      {error && (
+        <div className="infobar error with-icon" role="alert">
+          <IconClose />
+          <span>{error}</span>
         </div>
-        <div className="launch-row" style={{ marginBottom: 12 }}>
-          <div className="field" style={{ flex: 1 }}>
-            <span className="field-label">Поиск</span>
+      )}
+
+      <section className="card">
+        <div className="card-head">
+          <div>
+            <span className="section-kicker">
+              <b>01</b> Каталог
+            </span>
+            <h2 className="card-title">Фейки DESYNC</h2>
+            <p className="card-note">
+              Используются пресетами автоматически; здесь — для справки и
+              отладки стратегий.
+            </p>
+          </div>
+        </div>
+
+        <div className="launch-row">
+          <label className="search-box">
+            <IconSearch size={16} />
+            <span className="sr-only">Поиск фейка</span>
             <input
+              className="input"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="имя или описание фейка"
-              style={{ width: "100%" }}
+              placeholder="Имя или описание фейка…"
+              aria-label="Поиск фейка"
             />
-          </div>
-          <div className="field">
+            {search && (
+              <button
+                type="button"
+                className="btn icon sm ghost"
+                onClick={() => setSearch("")}
+                aria-label="Очистить поиск"
+              >
+                <IconClose size={14} />
+              </button>
+            )}
+          </label>
+          <label className="field">
             <span className="field-label">Тип</span>
             <select value={kind} onChange={(e) => setKind(e.target.value)}>
               <option value="все">все</option>
@@ -87,31 +119,57 @@ export function FakesPage() {
                 </option>
               ))}
             </select>
-          </div>
+          </label>
         </div>
 
         {loading ? (
-          <div className="preset-empty">Загружаю каталог…</div>
+          <div className="empty-state" role="status">
+            <span className="spinner" />
+            <span>Загружаю каталог…</span>
+          </div>
+        ) : fakes.length === 0 ? (
+          <div className="empty-state">
+            <IconLayers />
+            <strong>Каталог пуст</strong>
+            <span>Проверьте, что база fakes_catalog.sqlite3 доступна ядру.</span>
+          </div>
         ) : visible.length === 0 ? (
-          <div className="preset-empty">Ничего не найдено.</div>
+          <div className="empty-state">
+            <strong>Ничего не найдено</strong>
+            <span>Измените запрос или выберите другой тип.</span>
+          </div>
         ) : (
-          <div className="fake-list">
-            {visible.map((fake) => (
-              <div className="fake-row" key={fake.name} title={fake.sha256 ?? ""}>
-                <span className="fake-name">{fake.name}</span>
-                <span className="chip">{fake.kind}</span>
-                <span className="preset-desc">
-                  {fake.sni ? `SNI: ${fake.sni} · ` : ""}
-                  {sizeLabel(fake.size)}
-                </span>
-                <span className="fake-hash" title={fake.sha256}>
-                  {(fake.sha256 ?? "").slice(0, 12)}
-                </span>
-              </div>
-            ))}
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Имя</th>
+                  <th>Тип</th>
+                  <th>SNI / размер</th>
+                  <th>SHA-256</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.map((fake) => (
+                  <tr key={fake.name} title={fake.sha256 ?? ""}>
+                    <td className="mono cell-strong">{fake.name}</td>
+                    <td>
+                      <span className="chip static">{fake.kind}</span>
+                    </td>
+                    <td className="cell-nowrap">
+                      {fake.sni ? <span className="mono">{fake.sni}</span> : "—"}
+                      <span className="fake-size">{sizeLabel(fake.size)}</span>
+                    </td>
+                    <td className="mono" title={fake.sha256}>
+                      {(fake.sha256 ?? "").slice(0, 16) || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

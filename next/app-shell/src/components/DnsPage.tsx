@@ -9,10 +9,17 @@ import {
 } from "../api";
 import { IconCheck, IconClose, IconWarning } from "./Icons";
 
-// Страница «Настройка DNS» — перенос python dns/ui/page.py на React.
-// Структура та же: строка состояния, сетка плиток провайдеров по группам,
-// фильтры и панель проверки серверов. Windows-часть (адаптеры) появится,
-// когда на Linux подключится платформенный слой.
+// Каталог DNS-провайдеров — перенос python dns/ui/page.py на React.
+// Это только справочная часть страницы «DNS»: фильтры по статусу и плитки
+// провайдеров. Инструменты (текущие серверы, проба, установка) — выше,
+// в DnsToolsPage.
+
+// Статус провайдера: подпись и тон плитки.
+const STATUS_LABEL: Record<string, string> = {
+  blocked: "блокируется",
+  at_risk: "в зоне риска",
+};
+
 export function DnsPage() {
   const [providers, setProviders] = useState<Providers>({});
   const [filter, setFilter] = useState<string>("all");
@@ -38,6 +45,20 @@ export function DnsPage() {
     return result;
   }, [providers, filter]);
 
+  const totalProviders = useMemo(
+    () =>
+      Object.values(providers).reduce(
+        (sum, group) => sum + Object.keys(group).length,
+        0,
+      ),
+    [providers],
+  );
+
+  const visibleCount = visibleGroups.reduce(
+    (sum, group) => sum + group.tiles.length,
+    0,
+  );
+
   async function runCheck() {
     setChecking(true);
     setError("");
@@ -51,75 +72,130 @@ export function DnsPage() {
   }
 
   return (
-    <div className="page">
-      <header className="page-header">
-        <h1>Настройка DNS</h1>
-        <p className="subtitle">
-          Выберите DNS-сервер — он сразу встанет на отмеченные сетевые адаптеры.
-        </p>
-      </header>
+    <>
+      <section className="card">
+        <div className="card-head">
+          <div>
+            <span className="section-kicker">
+              <b>04</b> Каталог
+            </span>
+            <h2 className="card-title">DNS-провайдеры</h2>
+            <p className="card-note">
+              Статус в вашем регионе и поддержка DoH. Установка сервера — в
+              карточке «Установить DNS» выше.
+            </p>
+          </div>
+          <span className="chip tone-neutral">
+            {visibleCount} из {totalProviders}
+          </span>
+        </div>
 
-      {error && <div className="infobar error">{error}</div>}
+        {error && (
+          <div className="infobar error with-icon" role="alert">
+            <IconClose />
+            <span>{error}</span>
+          </div>
+        )}
 
-      <section className="status-line">
-        <span className="eyebrow">Сейчас на отмеченных адаптерах</span>
-        <span className="status-chip">Автоматически (DHCP)</span>
+        <nav className="filter-bar" aria-label="Фильтр провайдеров">
+          {FILTERS.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              className={filter === item.key ? "chip active" : "chip"}
+              onClick={() => setFilter(item.key)}
+              aria-pressed={filter === item.key}
+            >
+              {item.title}
+            </button>
+          ))}
+        </nav>
+
+        {totalProviders === 0 && !error ? (
+          <div className="empty-state" role="status">
+            <span className="spinner" />
+            <span>Загружаю каталог провайдеров…</span>
+          </div>
+        ) : visibleGroups.length === 0 ? (
+          <div className="empty-state">
+            <strong>Под фильтр ничего не подходит</strong>
+            <span>Выберите другой статус или покажите все серверы.</span>
+          </div>
+        ) : (
+          <div className="provider-groups">
+            {visibleGroups.map(({ group, tiles }) => (
+              <section key={group} className="group">
+                <h2>
+                  {group} · {tiles.length}
+                </h2>
+                <div className="tiles">
+                  {tiles.map(([name, data]) => (
+                    <article
+                      className={`tile ${data.status ? `is-${data.status}` : ""}`}
+                      key={name}
+                      title={data.desc || ""}
+                    >
+                      <div className="tile-head">
+                        <span className="tile-icon" aria-hidden="true">
+                          {name.slice(0, 1)}
+                        </span>
+                        <span className="tile-name">{name}</span>
+                        {data.status && (
+                          <span className={`badge ${data.status}`}>
+                            {STATUS_LABEL[data.status] ?? data.status}
+                          </span>
+                        )}
+                      </div>
+                      <p className="tile-desc">{data.desc}</p>
+                      {data.doh && (
+                        <p className="tile-doh">
+                          <IconCheck size={11} /> DoH
+                        </p>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
       </section>
 
-      <nav className="filter-bar">
-        {FILTERS.map((item) => (
-          <button
-            key={item.key}
-            className={filter === item.key ? "chip active" : "chip"}
-            onClick={() => setFilter(item.key)}
-          >
-            {item.title}
-          </button>
-        ))}
-      </nav>
+      <section className="card">
+        <div className="card-head">
+          <div>
+            <span className="section-kicker">
+              <b>05</b> Сверка
+            </span>
+            <h2 className="card-title">Проверка DNS-серверов</h2>
+            <p className="card-note">
+              Один домен — все известные серверы: кто ответил и насколько быстро.
+            </p>
+          </div>
+        </div>
 
-      <main className="grid-area">
-        {visibleGroups.map(({ group, tiles }) => (
-          <section key={group} className="group">
-            <h2>{group}</h2>
-            <div className="tiles">
-              {tiles.map(([name, data]) => (
-                <article className="tile" key={name} title={data.desc || ""}>
-                  <div className="tile-head">
-                    <span className="tile-icon" style={{ background: data.color || "#334155" }}>
-                      {name.slice(0, 1)}
-                    </span>
-                    <span className="tile-name">{name}</span>
-                    {data.status && (
-                      <span className={`badge ${data.status}`}>
-                        {data.status === "blocked" ? "блокируется" : "в зоне риска"}
-                      </span>
-                    )}
-                  </div>
-                  <p className="tile-desc">{data.desc}</p>
-                  {data.doh && <p className="tile-doh">DoH ✓</p>}
-                </article>
-              ))}
-            </div>
-          </section>
-        ))}
-      </main>
-
-      <section className="check-panel">
-        <h2>Проверка DNS-серверов</h2>
         <div className="check-row">
           <input
             value={domain}
             onChange={(event) => setDomain(event.target.value)}
             placeholder="домен для пробы"
+            aria-label="Домен для проверки DNS-серверов"
+            spellCheck={false}
           />
-          <button onClick={runCheck} disabled={checking}>
+          <button
+            type="button"
+            className="btn accent"
+            onClick={runCheck}
+            disabled={checking}
+          >
+            {checking ? <span className="spinner" /> : <IconCheck />}
             {checking ? "Проверяю…" : "Проверить серверы"}
           </button>
         </div>
+
         {check && (
           <>
-            <div className={`verdict ${check.verdict.kind}`}>
+            <div className={`verdict ${check.verdict.kind}`} role="status">
               <b className="verdict-icon">
                 {check.verdict.kind === "ok" ? (
                   <IconCheck />
@@ -128,16 +204,16 @@ export function DnsPage() {
                 ) : (
                   <IconClose />
                 )}
-              </b>{" "}
+              </b>
               {check.verdict.detail}
             </div>
             <ul className="cards">
               {check.cards.map((card) => (
                 <li key={card.server}>
                   <span className={`card-status ${card.status}`}>{card.status}</span>
-                  <b>{card.server}</b>
-                  {card.note && <span> — {card.note}</span>}
-                  {card.best && <span className="best"> ({card.best})</span>}
+                  <b className="mono">{card.server}</b>
+                  {card.note && <span>— {card.note}</span>}
+                  {card.best && <span className="best">({card.best})</span>}
                 </li>
               ))}
             </ul>
@@ -145,6 +221,6 @@ export function DnsPage() {
           </>
         )}
       </section>
-    </div>
+    </>
   );
 }

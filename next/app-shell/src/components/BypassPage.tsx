@@ -22,14 +22,25 @@ import {
   isEnabled,
   saveDefault,
   saveEnabled,
+  isUniversal,
 } from "./PresetGroups";
-import { IconClose, IconPlay, IconStop, IconWarning } from "./Icons";
+import {
+  IconClose,
+  IconInfo,
+  IconPlay,
+  IconPower,
+  IconSearch,
+  IconShieldCheck,
+  IconStop,
+  IconWarning,
+  IconChevron,
+} from "./Icons";
+import { PageHeader } from "./PageHeader";
+import "../styles/bypass.css";
 
 // Страница «Обход» — управление движком обхода: группы пресетов по сервисам,
 // права администратора (на unix — polkit один раз при старте, на Windows —
 // запуск от имени администратора), запуск/останов, журнал.
-// Дизайн перенесён с PyQt6-эталона (FluentWindow): карточки со скруглениями,
-// инфобары в духе SemanticNotice, оранжевый акцент #ff9800 для предупреждений.
 
 // Режимы списков — подписи как в python-эталоне запуска.
 const HOSTLIST_MODES: Array<{ key: HostlistMode; title: string }> = [
@@ -44,7 +55,7 @@ export function BypassPage() {
   const [presets, setPresets] = useState<PresetInfo[]>([]);
   const [search, setSearch] = useState("");
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  const [status, setStatus] = useState<WsStatus | null>(null);
+  const [showAllGroups, setShowAllGroups] = useState(false);
   const [qnum, setQnum] = useState("300");
   const [mode, setMode] = useState<HostlistMode>("none");
   const [starting, setStarting] = useState(false);
@@ -72,7 +83,9 @@ export function BypassPage() {
   const logRef = useRef<HTMLPreElement>(null);
   const stickBottomRef = useRef(true);
 
-  const groups = useMemo(() => buildGroups(presets), [presets]);
+  const universalGroups = groups.filter((g) => isUniversal(g.target));
+  const specificGroups = groups.filter((g) => !isUniversal(g.target));
+  const visibleSpecific = showAllGroups ? specificGroups : [];
 
   // --- разовая загрузка пресетов, статуса и состояния прав -----------------
   useEffect(() => {
@@ -268,21 +281,80 @@ export function BypassPage() {
   // движок winws2 фильтрует сам через WinDivert, а права даёт UAC.
   const isWindows = status?.platform === "windows";
   const engine = status?.engine ?? "nfqws2";
+  const offline = !status && Boolean(pollError);
+
+  const engineState = offline
+    ? "fail"
+    : running
+      ? "running"
+      : busy
+        ? "busy"
+        : "idle";
+
+  const stateWord = offline
+    ? "Нет связи"
+    : running
+      ? "Запущен"
+      : busy
+        ? granting || awaitingGrant
+          ? "Подтверждение"
+          : "Подготовка"
+        : "Остановлен";
+
+  const stateLabel = offline
+    ? "нет связи"
+    : running
+      ? "работает"
+      : busy
+        ? granting || awaitingGrant
+          ? "права"
+          : "запуск"
+        : "остановлен";
+
+  const stateNote = offline
+    ? "Ядро не отвечает. Проверьте, запущен ли primecore-server и доступен ли локальный API."
+    : running
+      ? "Трафик проходит через выбранные стратегии. Журнал ниже обновляется автоматически."
+      : busy
+        ? "Проверяем права и собираем план запуска — это займёт несколько секунд."
+        : "Движок остановлен. Включите нужные группы ниже и запустите обход.";
+
+  const profileLabel = offline
+    ? "неизвестно"
+    : status?.preset || status?.names?.join(" · ") || "не выбран";
+
+  const rightsGranted = Boolean(privilege?.granted || status?.root);
+  const rightsKnown = Boolean(privilege || status);
+  const rightsLabel = !rightsKnown
+    ? "неизвестно"
+    : rightsGranted
+      ? "подтверждены"
+      : "нужен запрос";
+  const rightsTone = !rightsKnown ? "tone-mute" : rightsGranted ? "tone-ok" : "tone-warn";
+
+  const enabledGroupCount = groups.filter((group) =>
+    isEnabled(group.target, enabledMap),
+  ).length;
 
   return (
-    <div className="page">
-      <header className="page-header">
-        <h1>Обход</h1>
-        <p className="subtitle">
-          Управление {engine}/zapret2: включите группы сервисов и запустите обход
-          блокировок.
-        </p>
-      </header>
+    <div className="page bypass-page">
+      <PageHeader
+        index="01"
+        group="Управление"
+        title="Обход"
+        description="Управление движком обхода блокировок: профили стратегий, параметры запуска и живой журнал."
+      />
 
-      {(error || pollError) && (
-        <div className="infobar error with-icon">
+      {error && (
+        <div className="infobar error with-icon" role="alert">
           <IconClose />
-          <span>{error || pollError}</span>
+          <span>{error}</span>
+        </div>
+      )}
+      {pollError && (
+        <div className="infobar error with-icon" role="alert">
+          <IconWarning />
+          <span>Ядро не отвечает: {pollError}</span>
         </div>
       )}
       {status && !status.root && (
@@ -296,42 +368,229 @@ export function BypassPage() {
         </div>
       )}
 
-      <section className="status-line">
-        <span className="eyebrow">Состояние обхода</span>
-        <span className={`status-chip ${running ? "chip-run" : ""}`}>
-          {running ? `Запущен · PID ${status?.pid ?? "—"}` : "Остановлен"}
-        </span>
-        {privilege?.granted && <span className="status-chip chip-ok">Права получены</span>}
-        {status?.preset && <span className="status-chip">{status.preset}</span>}
+      <section
+        className="card engine-card"
+        data-state={engineState}
+        aria-busy={busy}
+      >
+        <div className="engine-top">
+          <span className="engine-label">
+            <IconPower size={14} /> Движок обхода
+          </span>
+          <span
+            className={`chip ${
+              offline
+                ? "tone-fail"
+                : running
+                  ? "tone-ok"
+                  : busy
+                    ? "tone-warn"
+                    : "tone-neutral"
+            }`}
+          >
+            <span
+              className={`status-dot ${
+                offline
+                  ? "is-fail"
+                  : running
+                    ? "is-ok"
+                    : busy
+                      ? "is-busy"
+                      : "is-idle"
+              }`}
+            />
+            {stateLabel}
+          </span>
+        </div>
+
+        <div className="engine-body">
+          <div className="engine-state">
+            <h2 className="engine-state-word" aria-live="polite">
+              {stateWord}
+            </h2>
+            <p className="engine-state-note">{stateNote}</p>
+          </div>
+          <div className="engine-actions">
+            <button
+              type="button"
+              className="btn accent lg"
+              onClick={handleStart}
+              disabled={busy || running}
+            >
+              {starting ? <span className="spinner" /> : <IconPlay />}
+              {starting
+                ? awaitingGrant
+                  ? "Подтвердите права"
+                  : "Запускаю…"
+                : "Запустить обход"}
+            </button>
+            <button
+              type="button"
+              className="btn danger lg"
+              onClick={handleStop}
+              disabled={busy || !running}
+            >
+              {stopping ? <span className="spinner" /> : <IconStop />}
+              {stopping ? "Останавливаю…" : "Остановить"}
+            </button>
+          </div>
+        </div>
+
+        <dl className="engine-meta">
+          <div>
+            <dt>Движок</dt>
+            <dd>{offline ? "—" : engine}</dd>
+          </div>
+          <div>
+            <dt>PID</dt>
+            <dd>{status?.pid ?? "—"}</dd>
+          </div>
+          <div>
+            <dt>Профиль</dt>
+            <dd>{profileLabel}</dd>
+          </div>
+          <div>
+            <dt>Права</dt>
+            <dd className={rightsTone}>{rightsLabel}</dd>
+          </div>
+        </dl>
+
+        <div className="signal" aria-hidden="true" />
       </section>
 
-      {/* --- Карточка «Пресеты» --- */}
-      <section className="card">
-        <h2>Пресеты</h2>
-        <div className="check-row">
+      <section className="card byp-presets-card">
+        <div className="card-head">
+          <div>
+            <span className="section-kicker">
+              <b>02</b> Профили
+            </span>
+            <h2 className="card-title">Профили обхода</h2>
+            <p className="card-note">
+              Достаточно выбрать один универсальный профиль из группы «Все
+              сайты». Точечные группы можно включить при необходимости.
+            </p>
+          </div>
+          <span className="chip tone-neutral">всего {presets.length}</span>
+        </div>
+
+        <label className="search-box">
+          <IconSearch size={16} />
+          <span className="sr-only">Поиск профиля</span>
           <input
+            className="input"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="поиск по имени или описанию…"
+            placeholder="Найти сервис или стратегию…"
             aria-label="Поиск пресета"
           />
-        </div>
-        <PresetGroups
-          groups={groups}
-          search={search}
-          totalPresets={presets.length}
-          enabled={enabledMap}
-          defaults={effectiveDefaults}
-          onToggle={toggleGroup}
-          onChoose={choosePreset}
-          openTarget={openGroup}
-          onOpen={setOpenGroup}
-        />
+          {search && (
+            <button
+              type="button"
+              className="btn icon sm ghost"
+              onClick={() => setSearch("")}
+              aria-label="Очистить поиск"
+            >
+              <IconClose size={14} />
+            </button>
+          )}
+        </label>
+
+        {universalGroups.length > 0 && (
+          <div className="profile-section">
+            <div className="profile-section-head">
+              <div>
+                <span className="profile-kicker">Универсальный профиль</span>
+                <p className="profile-sub">
+                  Работает для большинства заблокированных сайтов и приложений
+                </p>
+              </div>
+              <span className="chip tone-accent">рекомендуется</span>
+            </div>
+            <PresetGroups
+              groups={universalGroups}
+              search={search}
+              totalPresets={presets.length}
+              enabled={enabledMap}
+              defaults={effectiveDefaults}
+              onToggle={toggleGroup}
+              onChoose={choosePreset}
+              openTarget={openGroup}
+              onOpen={setOpenGroup}
+            />
+          </div>
+        )}
+
+        {groups.length > 0 && (
+          <p className="byp-results-line">
+            включено {enabledGroupCount} из {groups.length} групп
+          </p>
+        )}
+
+        {specificGroups.length > 0 && (
+          <div className="profile-section profile-section--muted">
+            <button
+              type="button"
+              className="profile-toggle"
+              onClick={() => setShowAllGroups((v) => !v)}
+              aria-expanded={showAllGroups}
+            >
+              <span>
+                <strong>Точечная настройка</strong>
+                <span>
+                  {showAllGroups ? "Скрыть" : "Показать"} узкоспецифичные группы (
+                  {specificGroups.length})
+                </span>
+              </span>
+              <span className="profile-toggle-arrow">
+                <IconChevron />
+              </span>
+            </button>
+            {showAllGroups && (
+              <PresetGroups
+                groups={specificGroups}
+                search={search}
+                totalPresets={presets.length}
+                enabled={enabledMap}
+                defaults={effectiveDefaults}
+                onToggle={toggleGroup}
+                onChoose={choosePreset}
+                openTarget={openGroup}
+                onOpen={setOpenGroup}
+              />
+            )}
+          </div>
+        )}
+
+        {universalGroups.length === 0 && (
+          <PresetGroups
+            groups={groups}
+            search={search}
+            totalPresets={presets.length}
+            enabled={enabledMap}
+            defaults={effectiveDefaults}
+            onToggle={toggleGroup}
+            onChoose={choosePreset}
+            openTarget={openGroup}
+            onOpen={setOpenGroup}
+          />
+        )}
       </section>
 
-      {/* --- Карточка «Запуск» --- */}
-      <section className="card">
-        <h2>Запуск</h2>
+      <section className="card byp-options-card">
+        <div className="card-head">
+          <div>
+            <span className="section-kicker">
+              <b>03</b> Запуск
+            </span>
+            <h2 className="card-title">Параметры запуска</h2>
+            <p className="card-note">
+              Настройки применяются только к следующему запуску — текущий
+              процесс они не меняют.
+            </p>
+          </div>
+          {detail && <span className="chip tone-accent">план готов</span>}
+        </div>
+
         {needsPrompt && (
           <div className="infobar warn priv-bar">
             <span>
@@ -340,12 +599,18 @@ export function BypassPage() {
                 : "Обходу нужны права администратора. Пароль запросят один раз — дальше без пароля."}
             </span>
             {!isWindows && (
-              <button className="btn accent" onClick={runGrant} disabled={granting}>
+              <button
+                type="button"
+                className="btn accent"
+                onClick={runGrant}
+                disabled={granting}
+              >
                 {granting ? "Ожидаю подтверждение…" : "Разрешить"}
               </button>
             )}
           </div>
         )}
+
         <div className="launch-row">
           {/* qnum — номер очереди NFQUEUE: он есть только у nfqws2, на
               Windows движок фильтрует сам через WinDivert. */}
@@ -376,19 +641,14 @@ export function BypassPage() {
               ))}
             </select>
           </label>
-          <button className="btn accent" onClick={handleStart} disabled={busy || running}>
-            <IconPlay />
-            {starting
-              ? awaitingGrant
-                ? "Ожидаю подтверждение…"
-                : "Запускаю…"
-              : "Запустить"}
-          </button>
-          <button className="btn secondary" onClick={handleStop} disabled={busy || !running}>
-            <IconStop />
-            {stopping ? "Останавливаю…" : "Остановить"}
-          </button>
+          <span className="byp-options-hint">
+            <IconInfo size={14} />{" "}
+            {isWindows
+              ? "WinDivert управляет фильтрацией автоматически"
+              : "NFQUEUE использует указанный номер очереди"}
+          </span>
         </div>
+
         {detail && (
           <div className="plan-line">
             <span className="field-label">Команда · {detailName}</span>
@@ -399,19 +659,31 @@ export function BypassPage() {
         )}
       </section>
 
-      {/* --- Карточка «Журнал» --- */}
       <section className="card">
         <div className="card-head">
-          <h2>Журнал</h2>
-          <button
-            className="btn ghost"
-            onClick={() => {
-              setLogLines([]);
-              setDropped(null);
-            }}
-          >
-            Очистить вид
-          </button>
+          <div>
+            <span className="section-kicker">
+              <b>04</b> Журнал
+            </span>
+            <h2 className="card-title">Журнал движка</h2>
+            <p className="card-note">
+              Вывод обновляется автоматически; в виде хранятся последние 500
+              строк.
+            </p>
+          </div>
+          <div className="page-actions">
+            <span className="chip tone-neutral">{logLines.length} строк</span>
+            <button
+              type="button"
+              className="btn ghost"
+              onClick={() => {
+                setLogLines([]);
+                setDropped(null);
+              }}
+            >
+              Очистить вид
+            </button>
+          </div>
         </div>
         <pre
           className="log-view"
