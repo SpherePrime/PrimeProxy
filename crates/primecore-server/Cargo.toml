@@ -26,6 +26,12 @@ primecore-privilege = { path = "../primecore-privilege" }
 primecore-release = { path = "../primecore-release" }
 primecore-versions = { path = "../primecore-versions" }
 primecore-ws = { path = "../primecore-ws" }
+primecore-telegram = { path = "../primecore-telegram" }
+# Живой туннель Telegram: SOCKS5 на входе, WSS к фронту на выходе.
+tokio-rustls.workspace = true
+rustls.workspace = true
+webpki-roots.workspace = true
+fastrand.workspace = true
 
 [dev-dependencies]
 reqwest.workspace = true

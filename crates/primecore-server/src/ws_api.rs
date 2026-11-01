@@ -71,7 +71,11 @@ const DEFAULT_PRIV_SOCK: &str = "/tmp/primecore-privd.sock";
 /// Сообщение о не поднятых правах (демон `privd` не отвечает).
 pub(crate) const NO_PRIVILEGE_ERROR: &str = "нет прав: нажмите «Разрешить» — запустится privd";
 /// Сколько пресетов можно объединить в один запуск.
-const MAX_NAMES: usize = 8;
+///
+/// Это не технический предел, а защита от заведомо бессмысленных запросов:
+/// на Windows объединённый пресет уходит в `@config`-файл, поэтому длина
+/// командной строки (32767 символов) набор больше не ограничивает.
+const MAX_NAMES: usize = 64;
 /// Таймаут проверки пресета `--dry-run`.
 const DRY_RUN_TIMEOUT: Duration = Duration::from_secs(15);
 /// Сколько последних строк stderr показывать при неудаче `--dry-run`.
@@ -348,16 +352,9 @@ impl PrivilegedExecutor for WindowsExecutor {
             .stderr(std::process::Stdio::null())
             .spawn()
             .map_err(|error| {
-                // 740 = ERROR_ELEVATION_REQUIRED: у движка в манифесте
-                // требуется повышение прав, а приложение запущено обычно.
-                if error.raw_os_error() == Some(740) {
-                    format!(
-                        "движок {} требует прав администратора: запустите приложение от имени администратора",
-                        plan.exe
-                    )
-                } else {
+                elevation_hint(&plan.exe, &error).unwrap_or_else(|| {
                     format!("не удалось запустить {}: {error}", plan.exe)
-                }
+                })
             })?;
         // Сокета у процесса нет: kill/статус идут через taskkill/tasklist.
         Ok(DaemonProcess::new(child.id(), String::new()))
@@ -407,6 +404,27 @@ fn text_or_no_details(bytes: &[u8]) -> String {
     }
 }
 
+/// Подсказка вместо сырой ошибки, если Windows требует повышения прав.
+///
+/// 740 = `ERROR_ELEVATION_REQUIRED`: у `winws2` в манифесте стоит
+/// «запуск от имени администратора», а приложение открыто обычным способом.
+/// Оболочка сама просит UAC при старте, поэтому помогает перезапуск
+/// приложения с подтверждением запроса Windows.
+#[cfg(windows)]
+fn elevation_hint(exe: &str, error: &std::io::Error) -> Option<String> {
+    (error.raw_os_error() == Some(740)).then(|| {
+        format!(
+            "движок {exe} требует прав администратора: закройте приложение и запустите его снова, подтвердив запрос Windows"
+        )
+    })
+}
+
+/// Повышение прав движку нужно только на Windows.
+#[cfg(not(windows))]
+fn elevation_hint(_exe: &str, _error: &std::io::Error) -> Option<String> {
+    None
+}
+
 /// Один запрос к демону `privd`: строка-запрос → разобранный JSON-ответ.
 ///
 /// На Windows демона нет: клиент ответит понятной ошибкой, и вызывающий код
@@ -437,7 +455,15 @@ fn error_text(reply: &Value, fallback: &str) -> String {
 /// с «bad file 'lua/…'».
 fn dry_run_process(plan: &Nfqws2LaunchPlan) -> Result<(), DryRunFailure> {
     let exe = plan.exe.as_str();
-    let run_args = dry_run_args(&plan.args);
+    let run_args = match dry_run_plan_args(plan) {
+        Ok(args) => args,
+        Err(error) => {
+            return Err(DryRunFailure {
+                error,
+                tail: String::new(),
+            })
+        }
+    };
     let mut child = match std::process::Command::new(exe)
         .args(&run_args)
         .current_dir(&plan.cwd)
@@ -448,8 +474,10 @@ fn dry_run_process(plan: &Nfqws2LaunchPlan) -> Result<(), DryRunFailure> {
     {
         Ok(child) => child,
         Err(error) => {
+            let message = elevation_hint(exe, &error)
+                .unwrap_or_else(|| format!("не удалось запустить {exe}: {error}"));
             return Err(DryRunFailure {
-                error: format!("не удалось запустить {exe}: {error}"),
+                error: message,
                 tail: String::new(),
             })
         }
@@ -509,6 +537,37 @@ pub fn dry_run_args(args: &[String]) -> Vec<String> {
         .cloned()
         .chain(["--dry-run".to_string()])
         .collect()
+}
+
+/// Аргументы проверки для плана целиком.
+///
+/// Windows-план несёт единственный `@config`: дописать `--dry-run` в конец
+/// нельзя — движок принимает `@файл` только как единственный аргумент.
+/// Поэтому рядом создаётся копия конфига с добавленным флагом.
+fn dry_run_plan_args(plan: &Nfqws2LaunchPlan) -> Result<Vec<String>, String> {
+    let [only] = plan.args.as_slice() else {
+        return Ok(dry_run_args(&plan.args));
+    };
+    let Some(config_path) = only.strip_prefix('@') else {
+        return Ok(dry_run_args(&plan.args));
+    };
+    let text = std::fs::read_to_string(config_path)
+        .map_err(|error| format!("@config не прочитан: {error}"))?;
+    let dry_path = dry_run_config_path(config_path);
+    write_file_atomic(Path::new(&dry_path), &format!("{text}--dry-run\n"))?;
+    Ok(vec![format!("@{dry_path}")])
+}
+
+/// Путь копии `@config` для проверки: рядом с исходным, с суффиксом `_dry`.
+fn dry_run_config_path(config_path: &str) -> String {
+    let path = Path::new(config_path);
+    let stem = path
+        .file_stem()
+        .and_then(|value| value.to_str())
+        .unwrap_or("winws2_at");
+    path.with_file_name(format!("{stem}_dry.txt"))
+        .to_string_lossy()
+        .into_owned()
 }
 
 /// Читает поток целиком в строку (поток-читатель для фонового вывода).
@@ -833,13 +892,20 @@ pub fn merge_preset_texts(texts: &[String]) -> String {
 }
 
 /// Убирает точные дубли стандартных аргументов, которые при объединении
-/// пресетов повторяются (`--lua-init=@…`, `--blob=…`): первый экземпляр
-/// остаётся, повторные выбрасываются.
+/// пресетов повторяются (`--lua-init=@…`, `--blob=…`, `--wf-…`): первый
+/// экземпляр остаётся, повторные выбрасываются.
+///
+/// `--wf-*` — слой перехвата WinDivert, и каждый пресет объявляет его заново.
+/// Повторённый фильтр движок отвергает с «windivert: error opening filter:
+/// The parameter is incorrect», поэтому набор из нескольких профилей без
+/// этой чистки не запускается.
 fn dedupe_repeated_args(args: &[String]) -> Vec<String> {
     let mut seen: Vec<&str> = Vec::new();
     let mut result = Vec::with_capacity(args.len());
     for arg in args {
-        let repeatable = arg.starts_with("--lua-init=@") || arg.starts_with("--blob=");
+        let repeatable = arg.starts_with("--lua-init=@")
+            || arg.starts_with("--blob=")
+            || arg.starts_with("--wf-");
         if repeatable {
             if seen.contains(&arg.as_str()) {
                 continue;
@@ -1632,11 +1698,14 @@ fn engine_exe_path(resources_dir: &str) -> Result<String, String> {
 /// unix: `nfqws2` с nftables-пометкой (`--qnum`/`--fwmark`) и lua-стратегиями.
 ///
 /// Windows: `winws2` с аргументами пресета **напрямую в командной строке**.
-/// Промежуточный at-config (`@файл`) в сборке движка под Cygwin не работает:
-/// проверено на v1.0.6 — прямой вызов аргументов движок принимает, а любой
-/// `@файл` падает с «failed to split command line options from file».
-/// Фильтрацию и перехват движок делает сам через WinDivert, поэтому ни qnum,
-/// ни nft, ни pid-файл не нужны.
+/// Windows: опции движка уходят в `@config`-файл, а не в командную строку.
+///
+/// `winws2` умеет читать опции из файла (`@<config_file>`), но тогда этот
+/// аргумент должен быть единственным. Через файл объединённый пресет не
+/// упирается в предел командной строки Windows (32767 символов), из-за
+/// которого падали и большие одиночные пресеты («os error 206»), и наборы
+/// из нескольких профилей. Фильтрацию и перехват движок делает сам через
+/// WinDivert, поэтому ни qnum, ни nft, ни pid-файл не нужны.
 fn build_engine_plan(
     resources_dir: &str,
     merged_text: &str,
@@ -1644,19 +1713,72 @@ fn build_engine_plan(
 ) -> Result<Nfqws2LaunchPlan, String> {
     let exe = engine_exe_path(resources_dir)?;
     if cfg!(windows) {
-        let args = launch_args_from_preset_text(merged_text);
+        // Повторяющиеся `--lua-init=@…` и `--blob=…` из разных пресетов
+        // движок отвергает как дубли имён, поэтому чистим их до записи.
+        let args = dedupe_repeated_args(&launch_args_from_preset_text(merged_text));
         if args.is_empty() {
             return Err("пресет не даёт ни одного аргумента".to_string());
         }
+        let config_path = write_at_config(&args)?;
         return Ok(Nfqws2LaunchPlan {
             exe,
-            args,
+            args: vec![format!("@{config_path}")],
             env: BTreeMap::new(),
             cwd: resources_dir.to_string(),
             pidfile: String::new(),
         });
     }
     nfqws2_launch_plan(&exe, resources_dir, merged_text, qnum, FWMARK)
+}
+
+/// Запись файла без окна «пустого файла».
+///
+/// Готовый файл с тем же содержимым не трогаем, а первую запись делаем через
+/// временный файл и переименование: `fs::write` сначала обнуляет файл, и
+/// параллельный запуск (или сам движок) успел бы прочитать пустоту.
+fn write_file_atomic(path: &Path, text: &str) -> Result<(), String> {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    static SEQUENCE: AtomicUsize = AtomicUsize::new(0);
+
+    if let Ok(existing) = std::fs::read_to_string(path) {
+        if existing == text {
+            return Ok(());
+        }
+    }
+    let name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .unwrap_or("at_config");
+    let sequence = SEQUENCE.fetch_add(1, Ordering::Relaxed);
+    let temp = path.with_file_name(format!("{name}.{}.{sequence}.tmp", std::process::id()));
+    std::fs::write(&temp, text).map_err(|error| format!("временный файл не записан: {error}"))?;
+    std::fs::rename(&temp, path).map_err(|error| format!("файл не подменён: {error}"))?;
+    Ok(())
+}
+
+/// Запись `@config`-файла `winws2`: по одному аргументу на строку, каждый
+/// экранирован как в шелле.
+///
+/// Каталог — временный: он доступен на запись всегда, а каталог ресурсов в
+/// собранном приложении может быть только для чтения. Имя файла берётся от
+/// содержимого, поэтому одинаковый набор пресетов переиспользует один файл.
+#[cfg(windows)]
+fn write_at_config(args: &[String]) -> Result<String, String> {
+    use primecore_ws::runner_zapret2::shlex_quote;
+    use sha2::{Digest, Sha256};
+
+    let text: String = args
+        .iter()
+        .map(|arg| format!("{}\n", shlex_quote(arg)))
+        .collect();
+    let digest = format!("{:x}", Sha256::digest(text.as_bytes()));
+    let dir = std::env::temp_dir().join("primecore-at-config");
+    std::fs::create_dir_all(&dir)
+        .map_err(|error| format!("каталог @config не создан: {error}"))?;
+    let path = dir.join(format!("winws2_at_{}.txt", &digest[..20]));
+    write_file_atomic(&path, &text)?;
+    Ok(path.to_string_lossy().into_owned())
 }
 
 /// Текст пресета, пригодный для движка текущей платформы.
@@ -2009,33 +2131,24 @@ mod tests {
             .is_some_and(|text| !text.is_empty()));
         let plan = &answer["plan"];
         if cfg!(windows) {
-            // Windows: движок winws2, аргументы пресета идут прямо в командной
-            // строке (qnum/fwmark нужны только nfqws2 с nftables, pid-файла
-            // нет вовсе).
+            // Windows: движок winws2, опции пресета уходят в @config-файл
+            // (qnum/fwmark нужны только nfqws2 с nftables, pid-файла нет).
             assert!(plan["exe"]
                 .as_str()
                 .is_some_and(|exe| exe.ends_with("winws2.exe")));
             let args = plan["args"].as_array().expect("args");
-            assert!(!args.is_empty(), "{args:?}");
-            assert!(
-                args.iter().any(|arg| arg
-                    .as_str()
-                    .is_some_and(|value| value.starts_with("--lua-desync="))),
-                "{args:?}"
-            );
-            assert!(
-                !args
-                    .iter()
-                    .any(|arg| arg.as_str().is_some_and(|value| value.starts_with('@'))),
-                "на Windows аргументы идут напрямую, без @файла: {args:?}"
-            );
+            assert_eq!(args.len(), 1, "движок принимает @файл только один: {args:?}");
+            let config_text = args[0]
+                .as_str()
+                .and_then(|value| value.strip_prefix('@'))
+                .and_then(|path| std::fs::read_to_string(path).ok())
+                .expect("@config читается");
+            assert!(config_text.contains("--lua-desync="), "{config_text}");
             // Слой перехвата WinDivert — это и есть строки `--wf-*`: без них
             // winws2 падает с «windivert filter : must specify port…».
             assert!(
-                args.iter().any(|arg| arg
-                    .as_str()
-                    .is_some_and(|value| value.starts_with("--wf-tcp-out="))),
-                "на Windows WinDivert-фильтр пресета сохраняется: {args:?}"
+                config_text.contains("--wf-tcp-out="),
+                "на Windows WinDivert-фильтр пресета сохраняется: {config_text}"
             );
             assert!(plan["pidfile"].as_str().is_some_and(str::is_empty));
         } else {
@@ -2167,29 +2280,35 @@ mod tests {
         assert_eq!(answer["pid"], 4242);
         assert_eq!(answer["names"], json!(["Preset.X1", "ALL TCP & UDP v2"]));
 
-        // Объединённый конфиг: маркер --new между пресетами попал в аргументы
-        // запуска, дублей lua-init нет (общий `dedupe_repeated_args`).
-        let (call_count, has_new, no_lua_dups) = {
+        // Объединённый конфиг: маркер --new между пресетами попал в запуск,
+        // дублей lua-init нет (общий `dedupe_repeated_args`). На Windows
+        // аргументы — единственный `@config`, поэтому текст читаем из файла.
+        let (call_count, launch_text, no_lua_dups) = {
             let daemon_calls = executor.daemon_calls.lock().unwrap();
-            let has_new =
-                daemon_calls.len() == 1 && daemon_calls[0].iter().any(|arg| arg == "--new");
-            let lua_inits: Vec<String> = daemon_calls
-                .first()
-                .map(|args| {
-                    args.iter()
-                        .filter(|arg| arg.starts_with("--lua-init=@"))
-                        .cloned()
-                        .collect()
-                })
-                .unwrap_or_default();
+            let args = daemon_calls.first().cloned().unwrap_or_default();
+            let launch_text = match args.as_slice() {
+                [only] => only
+                    .strip_prefix('@')
+                    .and_then(|path| std::fs::read_to_string(path).ok())
+                    .unwrap_or_default(),
+                _ => args.join("\n"),
+            };
+            let lua_inits: Vec<String> = launch_text
+                .lines()
+                .map(str::trim)
+                .filter(|line| line.starts_with("--lua-init=@"))
+                .map(str::to_string)
+                .collect();
             let mut unique = lua_inits.clone();
             unique.sort_unstable();
             unique.dedup();
-            let no_lua_dups = lua_inits.len() == unique.len();
-            (daemon_calls.len(), has_new, no_lua_dups)
+            (daemon_calls.len(), launch_text, lua_inits.len() == unique.len())
         };
         assert_eq!(call_count, 1);
-        assert!(has_new, "маркер --new есть в аргументах запуска");
+        assert!(
+            launch_text.contains("--new"),
+            "маркер --new есть в конфиге запуска: {launch_text}"
+        );
         assert!(no_lua_dups, "нет дублей lua-init");
 
         // Статус: пресеты через « + », names отдельным полем.
@@ -2219,7 +2338,9 @@ mod tests {
         .await;
         assert_eq!(status, StatusCode::BAD_REQUEST);
 
-        // Девять пресетов — 400.
+        // Девять пресетов по числу больше не отсекаются: набор уходит в
+        // @config-файл, а не в командную строку. Имена несуществующих
+        // пресетов дают другую ошибку — важно, что это не отказ по числу.
         let names = (1..=9)
             .map(|index| format!("Preset.X{index}"))
             .collect::<Vec<_>>();
@@ -2227,7 +2348,24 @@ mod tests {
             serde_json::to_string(&serde_json::json!({"names": names, "qnum": 300})).expect("JSON");
         let (status, answer) = post_json(crate::router(app.clone()), "/api/ws/start", &body).await;
         assert_eq!(status, StatusCode::BAD_REQUEST);
-        assert!(answer["error"].as_str().is_some_and(|e| e.contains("8")));
+        assert!(
+            !answer["error"]
+                .as_str()
+                .is_some_and(|error| error.contains("должно быть от")),
+            "девять пресетов не должны отсекаться по числу: {answer}"
+        );
+
+        // Больше MAX_NAMES — 400 с понятным текстом.
+        let names = (1..=MAX_NAMES + 1)
+            .map(|index| format!("Preset.X{index}"))
+            .collect::<Vec<_>>();
+        let body =
+            serde_json::to_string(&serde_json::json!({"names": names, "qnum": 300})).expect("JSON");
+        let (status, answer) = post_json(crate::router(app.clone()), "/api/ws/start", &body).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert!(answer["error"]
+            .as_str()
+            .is_some_and(|error| error.contains(&MAX_NAMES.to_string())));
     }
 
     #[tokio::test]
@@ -2435,12 +2573,30 @@ mod tests {
         executor.kill(pid).expect("повторное убийство не ошибка");
     }
 
-    /// Windows-план запуска: аргументы пресета идут прямо в командной строке
-    /// (`@файл` в сборке движка под Cygwin не работает — проверено на v1.0.6),
-    /// qnum и pid-файл не участвуют.
+    /// Ошибка 740 (`ERROR_ELEVATION_REQUIRED`) объясняется словами, а не сырым
+    /// текстом Windows: движку нужны права, а просит их оболочка при старте.
     #[cfg(windows)]
     #[test]
-    fn windows_plan_passes_preset_args_directly() {
+    fn elevation_error_gets_actionable_hint() {
+        let denied = std::io::Error::from_raw_os_error(740);
+        let hint = elevation_hint("resources/bin-windows/x86_64/winws2.exe", &denied)
+            .expect("подсказка о правах");
+        assert!(hint.contains("winws2.exe"), "{hint}");
+        assert!(hint.contains("администратора"), "{hint}");
+
+        let missing = std::io::Error::from_raw_os_error(2);
+        assert!(
+            elevation_hint("winws2.exe", &missing).is_none(),
+            "обычная ошибка остаётся как есть"
+        );
+    }
+
+    /// Windows-план запуска: опции пресета уходят в единственный `@config`
+    /// (`@файл` движок принимает только как единственный аргумент), qnum и
+    /// pid-файл не участвуют.
+    #[cfg(windows)]
+    #[test]
+    fn windows_plan_keeps_preset_args_in_at_config() {
         let plan = build_engine_plan(
             "resources",
             "--wf-tcp=443\n--lua-desync=fake:blob=tls_google\n",
@@ -2451,27 +2607,19 @@ mod tests {
         assert!(plan.exe.ends_with("winws2.exe"), "{}", plan.exe);
         assert_eq!(plan.cwd, "resources");
         assert!(plan.pidfile.is_empty(), "pid-файла на Windows нет");
+        assert_eq!(plan.args.len(), 1, "один аргумент: {:?}", plan.args);
+        let config_text = plan.args[0]
+            .strip_prefix('@')
+            .and_then(|path| std::fs::read_to_string(path).ok())
+            .expect("@config читается");
+        assert!(config_text.contains("--wf-tcp=443"), "{config_text}");
         assert!(
-            plan.args.iter().any(|arg| arg == "--wf-tcp=443"),
-            "{:?}",
-            plan.args
+            config_text.contains("--lua-desync=fake:blob=tls_google"),
+            "{config_text}"
         );
         assert!(
-            plan.args
-                .iter()
-                .any(|arg| arg == "--lua-desync=fake:blob=tls_google"),
-            "{:?}",
-            plan.args
-        );
-        assert!(
-            !plan.args.iter().any(|arg| arg.starts_with("--qnum")),
-            "qnum — только для nfqws2: {:?}",
-            plan.args
-        );
-        assert!(
-            !plan.args.iter().any(|arg| arg.starts_with('@')),
-            "никакого @файла на Windows: {:?}",
-            plan.args
+            !config_text.contains("--qnum"),
+            "qnum — только для nfqws2: {config_text}"
         );
     }
 
@@ -2517,6 +2665,30 @@ mod tests {
         assert_eq!(dedupe_repeated_args(&args), args);
     }
 
+    /// Слой WinDivert объявляет каждый пресет, поэтому одинаковые `--wf-*`
+    /// схлопываются — иначе движок падает с «windivert: error opening
+    /// filter». Разные значения фильтра сохраняются.
+    #[test]
+    fn dedupe_repeated_args_collapses_windivert_filters() {
+        let args = vec![
+            "--wf-tcp-out=80,443-65535".to_string(),
+            "--wf-tcp-out=80,443-65535".to_string(),
+            "--wf-udp-out=443-65535".to_string(),
+            "--wf-udp-out=80,443".to_string(),
+            "--wf-raw-part=@windivert.filter/windivert_part.stun.txt".to_string(),
+            "--wf-raw-part=@windivert.filter/windivert_part.stun.txt".to_string(),
+        ];
+        assert_eq!(
+            dedupe_repeated_args(&args),
+            vec![
+                "--wf-tcp-out=80,443-65535".to_string(),
+                "--wf-udp-out=443-65535".to_string(),
+                "--wf-udp-out=80,443".to_string(),
+                "--wf-raw-part=@windivert.filter/windivert_part.stun.txt".to_string(),
+            ]
+        );
+    }
+
     #[test]
     fn dry_run_tail_takes_last_lines() {
         let text = "1\n2\n3\n4\n5";
@@ -2560,9 +2732,20 @@ mod tests {
         };
         assert!(resolve_names(&empty).is_err());
 
-        let too_many = StartRequest {
+        // Девять пресетов уходят в @config-файл, а не в командную строку,
+        // поэтому по числу они больше не отсекаются.
+        let nine = StartRequest {
             name: None,
             names: Some((1..=9).map(|i| format!("p{i}")).collect()),
+            qnum: 300,
+            hostlist_mode: "none".to_string(),
+        };
+        assert_eq!(resolve_names(&nine).unwrap().len(), 9);
+
+        // Больше MAX_NAMES — ошибка.
+        let too_many = StartRequest {
+            name: None,
+            names: Some((1..=MAX_NAMES + 1).map(|i| format!("p{i}")).collect()),
             qnum: 300,
             hostlist_mode: "none".to_string(),
         };
@@ -2629,6 +2812,62 @@ mod tests {
         );
     }
 
+    /// `@config`-план: флаг проверки дописывается в копию файла, а не в
+    /// аргументы — движок принимает `@файл` только единственным аргументом.
+    #[test]
+    fn dry_run_plan_args_rewrite_at_config() {
+        let plain = Nfqws2LaunchPlan {
+            exe: "winws2.exe".to_string(),
+            args: vec!["--qnum=300".to_string()],
+            env: BTreeMap::new(),
+            cwd: ".".to_string(),
+            pidfile: String::new(),
+        };
+        assert_eq!(
+            dry_run_plan_args(&plain).expect("аргументы"),
+            vec!["--qnum=300".to_string(), "--dry-run".to_string()]
+        );
+
+        let dir = std::env::temp_dir().join("primecore-dry-run-test");
+        std::fs::create_dir_all(&dir).expect("каталог");
+        let config = dir.join("winws2_at_test.txt");
+        std::fs::write(&config, "--qnum=300\n").expect("@config");
+        let at_config = Nfqws2LaunchPlan {
+            exe: "winws2.exe".to_string(),
+            args: vec![format!("@{}", config.display())],
+            env: BTreeMap::new(),
+            cwd: ".".to_string(),
+            pidfile: String::new(),
+        };
+
+        let args = dry_run_plan_args(&at_config).expect("аргументы");
+        assert_eq!(args.len(), 1, "движок принимает @файл только один: {args:?}");
+        let dry_path = args[0].strip_prefix('@').expect("@ в аргументе");
+        assert!(dry_path.ends_with("winws2_at_test_dry.txt"), "{dry_path}");
+        assert_eq!(
+            std::fs::read_to_string(dry_path).expect("текст"),
+            "--qnum=300\n--dry-run\n"
+        );
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// Windows-план несёт единственный `@config`, а сам конфиг содержит
+    /// аргументы пресета и экранирован как в шелле.
+    #[cfg(windows)]
+    #[test]
+    fn windows_plan_uses_single_at_config() {
+        let resources = repo_resources();
+        let merged = "--wf-tcp=80,443\n--name=youtube.com (QUIC)\n";
+        let plan = build_engine_plan(&resources, merged, DEFAULT_QNUM).expect("план");
+
+        assert_eq!(plan.args.len(), 1, "ожидается один аргумент: {:?}", plan.args);
+        let path = plan.args[0].strip_prefix('@').expect("@ в аргументе");
+        let text = std::fs::read_to_string(path).expect("@config читается");
+        assert!(text.contains("--wf-tcp=80,443"), "{text}");
+        // Аргумент с пробелом и скобками обязан быть в кавычках.
+        assert!(text.contains("'--name=youtube.com (QUIC)'"), "{text}");
+    }
+
     // ── цели пресетов ────────────────────────────────────────────────
 
     #[test]
@@ -2656,10 +2895,10 @@ mod tests {
             preset_targets("--ipset=lists/ipset-discord.txt\n"),
             vec!["Общий"]
         );
-        // Игры: steam и roblox.
+        // Игры: у каждой площадки свой профиль.
         assert_eq!(
             preset_targets("--hostlist=lists/steam.txt --hostlist=lists/roblox.txt"),
-            vec!["Игры"]
+            vec!["Steam".to_string(), "Roblox".to_string()]
         );
         // Instagram и Facebook — разные профили, порядок по каталогу.
         assert_eq!(
@@ -2698,10 +2937,10 @@ mod tests {
             preset_targets("--hostlist=lists/static-whatsapp-net.txt"),
             vec!["WhatsApp"]
         );
-        // Игры: epicgames-fortnite входит в тот же профиль, что steam.
+        // Игры: epicgames-fortnite — отдельный профиль от steam.
         assert_eq!(
             preset_targets("--hostlist=lists/steam.txt --hostlist=lists/epicgames-fortnite.txt"),
-            vec!["Игры"]
+            vec!["Steam".to_string(), "Epic Games".to_string()]
         );
         assert_eq!(
             preset_targets("--hostlist=lists/rutracker.txt"),
@@ -2791,6 +3030,19 @@ mod tests {
             preset_targets("--hostlist=lists/apple.txt"),
             vec!["Apple"]
         );
+        // Google разделён: служебный бэкенд — отдельный профиль.
+        assert_eq!(
+            preset_targets("--hostlist=lists/google.txt"),
+            vec!["Google"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/google-backend.txt"),
+            vec!["Google бэкенд"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/roblox.txt"),
+            vec!["Roblox"]
+        );
         // Личные списки пользователя — один профиль «Мои сайты».
         assert_eq!(
             preset_targets("--hostlist=lists/other.txt --hostlist=lists/myhostlist.txt"),
@@ -2839,6 +3091,10 @@ mod tests {
             "Apple",
             "Notion",
             "Мои сайты",
+            "Steam",
+            "Roblox",
+            "Epic Games",
+            "Google бэкенд",
         ] {
             assert!(
                 all_targets.iter().any(|t| t == label),

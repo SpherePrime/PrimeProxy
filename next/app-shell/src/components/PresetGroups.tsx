@@ -25,13 +25,16 @@ export const GROUP_ORDER = [
   "Anthropic",
   "Gemini",
   "DeepSeek",
-  "Игры",
+  "Steam",
+  "Roblox",
+  "Epic Games",
   "Riot/Valorant",
   "Ubisoft",
   "itch.io",
   "Microsoft Store",
   "SoundCloud",
   "Google",
+  "Google бэкенд",
   "Cloudflare",
   "Amazon",
   "Apple",
@@ -60,12 +63,28 @@ const PROFILE_CATEGORIES: Array<{ title: string; targets: string[] }> = [
   },
   {
     title: "Игры",
-    targets: ["Игры", "Riot/Valorant", "Ubisoft", "itch.io", "Microsoft Store"],
+    targets: [
+      "Steam",
+      "Roblox",
+      "Epic Games",
+      "Riot/Valorant",
+      "Ubisoft",
+      "itch.io",
+      "Microsoft Store",
+    ],
   },
   { title: "Медиа", targets: ["SoundCloud"] },
   {
     title: "Инфраструктура",
-    targets: ["Google", "Cloudflare", "Amazon", "Apple", "GitHub", "Speedtest"],
+    targets: [
+      "Google",
+      "Google бэкенд",
+      "Cloudflare",
+      "Amazon",
+      "Apple",
+      "GitHub",
+      "Speedtest",
+    ],
   },
   {
     title: "Разное",
@@ -95,13 +114,16 @@ const TARGET_DESCRIPTIONS: Record<string, string> = {
   Anthropic: "Claude и API Anthropic",
   Gemini: "Gemini и сервисы Google AI",
   DeepSeek: "чат и API DeepSeek",
-  Игры: "Steam, Roblox, Epic Games и Fortnite",
+  Steam: "магазин, сообщество и загрузки Steam",
+  Roblox: "игра, сайт и CDN Roblox",
+  "Epic Games": "магазин Epic и Fortnite",
   "Riot/Valorant": "Riot Games, League of Legends и Valorant",
   Ubisoft: "магазин и лаунчер Ubisoft",
   "itch.io": "магазин инди-игр",
   "Microsoft Store": "магазин и загрузки Microsoft",
   SoundCloud: "музыка и CDN",
-  Google: "поиск, бэкенд и сервисы Google",
+  Google: "поиск и сайты Google",
+  "Google бэкенд": "служебные домены Google, от которых зависят чужие сайты",
   Cloudflare: "инфраструктура Cloudflare и CloudFront",
   Amazon: "магазин и облако AWS",
   Apple: "сервисы Apple",
@@ -118,6 +140,48 @@ const TARGET_DESCRIPTIONS: Record<string, string> = {
 /** Человеческое описание профиля; пустая строка — если сервис неизвестен. */
 export function targetDescription(target: string): string {
   return TARGET_DESCRIPTIONS[target] ?? "";
+}
+
+// Точка входа для автоподбора: по одному домену на профиль. Если домен не
+// открывается напрямую, значит сервис блокируется и профиль нужно включить.
+const TARGET_PROBES: Record<string, string> = {
+  YouTube: "www.youtube.com",
+  Twitch: "www.twitch.tv",
+  Instagram: "www.instagram.com",
+  Facebook: "www.facebook.com",
+  "Twitter/X": "x.com",
+  TikTok: "www.tiktok.com",
+  LinkedIn: "www.linkedin.com",
+  Discord: "discord.com",
+  Telegram: "telegram.org",
+  WhatsApp: "web.whatsapp.com",
+  ChatGPT: "chatgpt.com",
+  Anthropic: "claude.ai",
+  Gemini: "gemini.google.com",
+  DeepSeek: "chat.deepseek.com",
+  Steam: "store.steampowered.com",
+  Roblox: "www.roblox.com",
+  "Epic Games": "www.epicgames.com",
+  "Riot/Valorant": "www.riotgames.com",
+  Ubisoft: "www.ubisoft.com",
+  "itch.io": "itch.io",
+  "Microsoft Store": "apps.microsoft.com",
+  SoundCloud: "soundcloud.com",
+  Google: "www.google.com",
+  Cloudflare: "www.cloudflare.com",
+  Amazon: "www.amazon.com",
+  Apple: "www.apple.com",
+  GitHub: "github.com",
+  Speedtest: "www.speedtest.net",
+  Торренты: "rutracker.org",
+  Obsidian: "obsidian.md",
+  Notion: "www.notion.so",
+  Fandom: "www.fandom.com",
+};
+
+/** Домен для проверки профиля; пустая строка — профиль не проверяется. */
+export function targetProbe(target: string): string {
+  return TARGET_PROBES[target] ?? "";
 }
 
 export interface PresetGroup {
@@ -348,6 +412,8 @@ export function PresetList({ target, presets, chosen, onChoose }: PresetListProp
 }
 
 interface ProfileCardProps {
+  /** Номер карточки внутри категории — бирюзовая моно-подпись в углу. */
+  index: number;
   group: PresetGroup;
   enabled: boolean;
   chosen: string | undefined;
@@ -363,6 +429,7 @@ interface ProfileCardProps {
  * и переключатель. Список пресетов раскрывается внутри карточки.
  */
 export function ProfileCard({
+  index,
   group,
   enabled,
   chosen,
@@ -376,6 +443,9 @@ export function ProfileCard({
   const description = targetDescription(group.target);
   return (
     <article className={`pcard ${enabled ? "on" : ""} ${open ? "open" : ""}`}>
+      <span className="card-index" aria-hidden="true">
+        {String(index).padStart(2, "0")}
+      </span>
       <div className="pcard-top">
         <ServiceBadge name={group.target} size={38} />
         <button
@@ -406,10 +476,22 @@ export function ProfileCard({
               : "пресет не выбран"
             : "выключен"}
         </span>
+      </div>
+
+      {/* Подпись-переход в духе карточек сайта: раскрывает список пресетов
+          сервиса. Тот же переключатель, что и в шапке карточки. */}
+      <button
+        type="button"
+        className="byp-foot"
+        aria-expanded={open}
+        aria-label={`${open ? "Свернуть" : "Показать"} пресеты профиля ${group.target}`}
+        onClick={() => onOpen(open ? null : group.target)}
+      >
+        <span>{open ? "Свернуть" : "Подробнее"}</span>
         <span className="pcard-arrow" aria-hidden="true">
           <IconChevron />
         </span>
-      </div>
+      </button>
 
       {open && (
         <div className="pcard-body">
@@ -463,7 +545,9 @@ export function UniversalBlock({
     <div className={`universal-card ${active ? "on" : "off"}`}>
       <div className="universal-head">
         <div className="universal-title">
-          <span className="universal-kicker">Универсальный профиль</span>
+          <span className="section-tag">
+            <b>универсальный</b> профиль
+          </span>
           <h3>Один пресет для всего трафика</h3>
           <p>
             Работает для большинства заблокированных сайтов и приложений: движок

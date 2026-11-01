@@ -3,6 +3,8 @@ import {
   fetchPresets,
   fetchPreset,
   fetchPrivilege,
+  fetchCheckSites,
+  fetchCheckStatus,
   fetchWsLogs,
   fetchWsStatus,
   grantPrivilege,
@@ -11,6 +13,7 @@ import {
   HostlistMode,
   PresetInfo,
   PrivilegeInfo,
+  SiteCheckResult,
   WsPresetDetail,
   WsStartError,
   WsStatus,
@@ -28,19 +31,26 @@ import {
   loadEnabled,
   saveDefault,
   saveEnabled,
+  targetProbe,
 } from "./PresetGroups";
 import {
+  IconArrowRight,
   IconClose,
+  IconGauge,
   IconInfo,
+  IconBolt,
+  IconLayers,
   IconPlay,
   IconPower,
   IconSearch,
   IconShieldCheck,
   IconStop,
+  IconTerminal,
   IconUnlock,
   IconWarning,
 } from "./Icons";
-import { PageHeader } from "./PageHeader";
+import { HelpTip } from "./HelpTip";
+import { Reveal } from "./Reveal";
 import "../styles/bypass.css";
 
 // Страница «Обход» — управление движком обхода: группы пресетов по сервисам,
@@ -72,6 +82,9 @@ function readProfileMode(): ProfileMode {
   }
 }
 
+// Сколько секунд ждём автоподбор: сервер опрашивает домены в фоне.
+const AUTO_PICK_POLLS = 120;
+
 const LOG_KEEP = 500; // сколько строк журнала держим в памяти вида
 
 export function BypassPage() {
@@ -79,6 +92,13 @@ export function BypassPage() {
   const [search, setSearch] = useState("");
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [profileMode, setProfileMode] = useState<ProfileMode>(readProfileMode);
+
+  // Автоподбор: проверяем доступность сервисов и включаем только то, что
+  // реально заблокировано.
+  const [autoRunning, setAutoRunning] = useState(false);
+  const [autoProgress, setAutoProgress] = useState({ done: 0, total: 0 });
+  const [autoNote, setAutoNote] = useState("");
+  const [autoStart, setAutoStart] = useState(true);
   const [qnum, setQnum] = useState("300");
   const [mode, setMode] = useState<HostlistMode>("none");
   const [starting, setStarting] = useState(false);
@@ -288,21 +308,9 @@ export function BypassPage() {
     }
   }
 
-  async function handleStart() {
-    const enabledGroups = groups.filter(groupActive);
-    if (enabledGroups.length === 0) {
-      setError(
-        effectiveMode === "all"
-          ? "Универсальный профиль не выбран — проверьте режим «Все сайты»"
-          : "Включите хотя бы один профиль или выберите режим «Все сайты»",
-      );
-      return;
-    }
-    const names = enabledGroups.map(chosenFor).filter(Boolean);
-    if (names.length === 0) {
-      setError("Не удалось определить пресеты для запуска");
-      return;
-    }
+  // Запуск с готовым списком пресетов: автоподбор стартует сразу после
+  // проверки, не дожидаясь перерисовки состояния групп.
+  async function startWithNames(names: string[]) {
     const port = Math.floor(Number(qnum));
     if (!Number.isFinite(port) || port <= 0 || port > 65535) {
       setError("qnum должен быть числом от 1 до 65535");
@@ -340,6 +348,101 @@ export function BypassPage() {
     }
   }
 
+  async function handleStart() {
+    const enabledGroups = groups.filter(groupActive);
+    if (enabledGroups.length === 0) {
+      setError(
+        effectiveMode === "all"
+          ? "Универсальный профиль не выбран — проверьте режим «Все сайты»"
+          : "Включите хотя бы один профиль или выберите режим «Все сайты»",
+      );
+      return;
+    }
+    const names = enabledGroups.map(chosenFor).filter(Boolean);
+    if (names.length === 0) {
+      setError("Не удалось определить пресеты для запуска");
+      return;
+    }
+    await startWithNames(names);
+  }
+
+  /**
+   * Автоподбор: проверяем доступность сервисов напрямую из сети, включаем
+   * профили только для заблокированных и выключаем лишние. Так пользователю
+   * достаточно одной кнопки — что обходить, решает проверка.
+   */
+  async function runAutoPick() {
+    const probes = specificGroups
+      .map((group) => ({ target: group.target, domain: targetProbe(group.target) }))
+      .filter((item) => item.domain !== "");
+    if (probes.length === 0) {
+      setError("Нет сервисов для проверки");
+      return;
+    }
+    setAutoRunning(true);
+    setError("");
+    setAutoNote("");
+    setAutoProgress({ done: 0, total: probes.length });
+    try {
+      await fetchCheckSites(probes.map((item) => item.domain));
+      let results: SiteCheckResult[] = [];
+      let done = false;
+      for (let attempt = 0; attempt < AUTO_PICK_POLLS && !done; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const status = await fetchCheckStatus();
+        results = status.results ?? [];
+        setAutoProgress({ done: results.length, total: probes.length });
+        done = status.done;
+      }
+      if (!done) {
+        setError(`Проверка не завершилась за ${AUTO_PICK_POLLS} с`);
+        return;
+      }
+
+      const blocked = new Set(
+        results.filter((item) => item.status !== "ok").map((item) => item.domain),
+      );
+      const picked = probes
+        .filter((item) => blocked.has(item.domain))
+        .map((item) => item.target);
+
+      // Выставляем ровно то, что заблокировано: всё лишнее выключается.
+      const nextEnabled: Record<string, boolean> = {};
+      for (const group of specificGroups) {
+        nextEnabled[group.target] = picked.includes(group.target);
+      }
+      setEnabledMap(nextEnabled);
+      for (const [target, value] of Object.entries(nextEnabled)) {
+        saveEnabled(target, value);
+      }
+      chooseProfileMode("profiles");
+
+      if (picked.length === 0) {
+        setAutoNote(
+          "Ничего не заблокировано — обход не нужен, все профили выключены.",
+        );
+        return;
+      }
+
+      const names = picked
+        .map((target) => {
+          const group = groups.find((item) => item.target === target);
+          return group ? chosenFor(group) : "";
+        })
+        .filter(Boolean);
+      setAutoNote(
+        `Заблокировано сервисов: ${picked.length} — включены профили: ${picked.join(", ")}.`,
+      );
+      if (autoStart && names.length > 0) {
+        await startWithNames(names);
+      }
+    } catch (e) {
+      setError(String((e as Error).message));
+    } finally {
+      setAutoRunning(false);
+    }
+  }
+
   async function handleStop() {
     setStopping(true);
     setError("");
@@ -357,8 +460,11 @@ export function BypassPage() {
   const needsPrompt = Boolean(privilege?.needs_prompt && !privilege?.granted);
   // Платформа ядра: на Windows нет ни polkit, ни nftables, ни qnum —
   // движок winws2 фильтрует сам через WinDivert, а права даёт UAC.
-  const isWindows = status?.platform === "windows";
-  const engine = status?.engine ?? "nfqws2";
+  // Пока статус не пришёл, платформу не угадываем: иначе на долю секунды
+  // показывались бы чужие поля (qnum и NFQUEUE).
+  const platformKnown = Boolean(status);
+  const isWindows = status ? status.platform === "windows" : true;
+  const engine = status?.engine ?? "—";
   const offline = !status && Boolean(pollError);
 
   const engineState = offline
@@ -415,12 +521,36 @@ export function BypassPage() {
 
   return (
     <div className="page bypass-page">
-      <PageHeader
-        index="01"
-        group="Управление"
-        title="Обход"
-        description="Управление движком обхода блокировок: профили стратегий, параметры запуска и живой журнал."
-      />
+      {/* Шапка страницы в духе сайта студии: служебный моно-надзаголовок,
+          крупный дисплейный заголовок с курсивным акцентом Playfair и лид,
+          а под ними — строка живых фактов о ядре. */}
+      <header className="byp-hero">
+        <span className="byp-hero__eyebrow">
+          <b>01 /</b> Управление · движок обхода
+        </span>
+        <h1 className="byp-hero__title">
+          Обход <em>блокировок</em>
+        </h1>
+        <p className="byp-hero__lead">
+          Управление движком обхода блокировок: профили стратегий, параметры
+          запуска и живой журнал.
+        </p>
+        <div className="byp-hero__meta">
+          <span className="byp-hero__facts">
+            {offline ? "ядро недоступно" : `движок ${engine}`} ·{" "}
+            {platformKnown
+              ? isWindows
+                ? "windows"
+                : "linux"
+              : "платформа неизвестна"}{" "}
+            · прав: {rightsLabel} · профилей: {specificGroups.length}
+          </span>
+          <span className={`byp-hero__live ${offline ? "is-off" : ""}`}>
+            <i aria-hidden="true" />
+            {offline ? "ядро не отвечает" : "ядро на связи"}
+          </span>
+        </div>
+      </header>
 
       {error && (
         <div className="infobar error with-icon" role="alert">
@@ -439,55 +569,582 @@ export function BypassPage() {
           <IconWarning />
           <span>
             {isWindows
-              ? "Нет прав администратора: перезапустите приложение от имени администратора — движку winws2 нужен доступ к WinDivert"
+              ? "Нет прав администратора: движку winws2 нужен доступ к WinDivert. Закройте приложение и откройте его снова — оно само запросит права."
               : "Нет root-прав: потребуются права через polkit при запуске"}
           </span>
         </div>
       )}
 
-      <section
-        className="card engine-card"
-        data-state={engineState}
-        aria-busy={busy}
-      >
-        <div className="engine-top">
-          <span className="engine-label">
-            <IconPower size={14} /> Движок обхода
+      <Reveal className="byp-reveal">
+        <section
+          className="card engine-card"
+          data-state={engineState}
+          aria-busy={busy}
+        >
+          <div className="engine-top">
+            <span className="section-tag">
+              <b>01 /</b>
+              <IconPower size={13} /> Движок обхода
+            </span>
+            <span
+              className={`chip ${
+                offline
+                  ? "tone-fail"
+                  : running
+                    ? "tone-ok"
+                    : busy
+                      ? "tone-warn"
+                      : "tone-neutral"
+              }`}
+            >
+              <span
+                className={`status-dot ${
+                  offline
+                    ? "is-fail"
+                    : running
+                      ? "is-ok"
+                      : busy
+                        ? "is-busy"
+                        : "is-idle"
+                }`}
+              />
+              {stateLabel}
+            </span>
+          </div>
+
+          <div className="engine-body">
+            <div className="engine-state">
+              <h2 className="engine-state-word" aria-live="polite">
+                {stateWord}
+              </h2>
+              <p className="engine-state-note">{stateNote}</p>
+            </div>
+            <div className="engine-actions">
+              <button
+                type="button"
+                className="btn accent lg"
+                onClick={handleStart}
+                disabled={busy || running}
+              >
+                {starting ? <span className="spinner" /> : <IconPlay />}
+                {starting
+                  ? awaitingGrant
+                    ? "Подтвердите права"
+                    : "Запускаю…"
+                  : "Запустить обход"}
+              </button>
+              <button
+                type="button"
+                className="btn danger lg"
+                onClick={handleStop}
+                disabled={busy || !running}
+              >
+                {stopping ? <span className="spinner" /> : <IconStop />}
+                {stopping ? "Останавливаю…" : "Остановить"}
+              </button>
+            </div>
+          </div>
+
+          <dl className="engine-meta">
+            <div>
+              <dt>Движок</dt>
+              <dd>{offline ? "—" : engine}</dd>
+            </div>
+            <div>
+              <dt>PID</dt>
+              <dd>{status?.pid ?? "—"}</dd>
+            </div>
+            <div>
+              <dt>Профиль</dt>
+              <dd>{profileLabel}</dd>
+            </div>
+            <div>
+              <dt>Права</dt>
+              <dd className={rightsTone}>{rightsLabel}</dd>
+            </div>
+          </dl>
+
+          {/* Подпись-переход в духе карточек сайта: «Подробнее ↗» ведёт
+              к журналу движка. */}
+          <a className="byp-foot" href="#byp-log">
+            <span>Журнал движка</span>
+            <IconArrowRight size={13} />
+          </a>
+
+          <div className="signal" aria-hidden="true" />
+        </section>
+      </Reveal>
+
+      {/* Сводка: только настоящие счётчики страницы — каталог пресетов,
+          сервисные профили, включённое и журнал. */}
+      <Reveal className="byp-reveal">
+        <section className="stats-band byp-stats" aria-label="Сводка по обходу">
+          <span className="stats-band__watermark">
+            PrimeBypass — обход блокировок — профили и пресеты
+          </span>
+          <div className="stats-band__grid">
+            <div className="stat">
+              <b>{presets.length}</b>
+              <span>пресетов в каталоге ядра</span>
+            </div>
+            <div className="stat">
+              <b>{specificGroups.length}</b>
+              <span>сервисных профилей</span>
+            </div>
+            <div className="stat">
+              <b>{activeProfileCount}</b>
+              <span>профилей включено</span>
+            </div>
+            <div className="stat">
+              <b>{logLines.length}</b>
+              <span>строк в журнале</span>
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      {/* Бегущая строка с настоящими профилями каталога — лента сайта.
+          Для читающих с экрана она декоративна: тот же список есть ниже. */}
+      {specificGroups.length > 0 && (
+        <div className="marquee byp-marquee" aria-hidden="true">
+          <div className="marquee__track">
+            {[...specificGroups, ...specificGroups].map((group, index) => (
+              <span
+                key={`${group.target}-${index}`}
+                className={`marquee__item ${
+                  index % 2 === 1 ? "marquee__item--ghost" : ""
+                }`}
+              >
+                {group.target}
+                <span>✳</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Reveal className="byp-reveal">
+        <section className="card byp-presets-card">
+          <span className="card-index" aria-hidden="true">
+            02
+          </span>
+          <div className="card-head">
+            <div>
+              <span className="section-tag">
+                <b>02 /</b> Профили
+              </span>
+              <h2 className="card-title">
+                Профиль <em>обхода</em>
+                <HelpTip label="что такое профиль обхода">
+                  Профиль — это набор правил, которые движок применяет к трафику
+                  выбранного сервиса. В режиме «Все сайты» работает один
+                  универсальный пресет, в режиме профилей — только включённые
+                  сервисы.
+                </HelpTip>
+              </h2>
+              <p className="card-note">
+                Выберите режим: один универсальный пресет на весь трафик или
+                точечные профили под конкретные сервисы. Режимы не смешиваются —
+                в запуск уходит только то, что включено в активном режиме.
+              </p>
+            </div>
+            <span className="chip tone-neutral">всего {presets.length}</span>
+          </div>
+
+          <div className="autopick">
+            <div className="autopick-text">
+              <span className="autopick-title">
+                Автоподбор профиля
+                <HelpTip label="как работает автоподбор">
+                  Программа сама проверит сервисы напрямую из сети, включит
+                  профили только для заблокированных и выключит всё лишнее.
+                  Занимает до двух минут; ничего в системе не меняется, пока вы не
+                  запустите обход.
+                </HelpTip>
+              </span>
+              <span className="autopick-note">
+                {autoRunning
+                  ? `Проверяю сервисы: ${autoProgress.done} из ${autoProgress.total}…`
+                  : autoNote ||
+                    "Одна кнопка: проверить, что заблокировано, и выставить нужные профили."}
+              </span>
+            </div>
+            <label className="autopick-toggle">
+              <input
+                type="checkbox"
+                checked={autoStart}
+                onChange={(event) => setAutoStart(event.target.checked)}
+                disabled={autoRunning}
+              />
+              <span>сразу запустить обход</span>
+            </label>
+            <button
+              type="button"
+              className="btn accent"
+              onClick={() => void runAutoPick()}
+              disabled={autoRunning || starting || stopping}
+            >
+              {autoRunning ? <span className="spinner" /> : <IconBolt />}
+              {autoRunning ? "Проверяю…" : "Подобрать автоматически"}
+            </button>
+          </div>
+
+          <div className="mode-picker" role="radiogroup" aria-label="Режим профилей">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={effectiveMode === "all"}
+              disabled={!hasUniversal && universalKnown}
+              className={`mode-card ${effectiveMode === "all" ? "active" : ""}`}
+              onClick={() => chooseProfileMode("all")}
+            >
+              <span className="card-index" aria-hidden="true">
+                01
+              </span>
+              <span className="mode-card-head">
+                <span className="mode-card-icon" aria-hidden="true">
+                  <IconShieldCheck />
+                </span>
+                <span className="mode-card-title">Все сайты</span>
+              </span>
+              <span className="mode-card-note">
+                Один универсальный пресет на весь трафик: подходит большинству
+                заблокированных сайтов и приложений.
+              </span>
+              <span className="mode-card-state">
+                {effectiveMode === "all"
+                  ? universalChosen
+                    ? `запустится: ${universalChosen}`
+                    : "пресет не выбран"
+                  : "выключен"}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              role="radio"
+              aria-checked={effectiveMode === "profiles"}
+              className={`mode-card ${effectiveMode === "profiles" ? "active" : ""}`}
+              onClick={() => chooseProfileMode("profiles")}
+            >
+              <span className="card-index" aria-hidden="true">
+                02
+              </span>
+              <span className="mode-card-head">
+                <span className="mode-card-icon" aria-hidden="true">
+                  <IconUnlock />
+                </span>
+                <span className="mode-card-title">Точечные профили</span>
+              </span>
+              <span className="mode-card-note">
+                Работают только выбранные сервисы: например, один Anthropic или
+                Instagram — остальной трафик движок не трогает.
+              </span>
+              <span className="mode-card-state">
+                {effectiveMode === "profiles"
+                  ? activeProfileCount > 0
+                    ? `включено профилей: ${activeProfileCount}`
+                    : "ничего не включено"
+                  : "выключен"}
+              </span>
+            </button>
+          </div>
+
+          {universalKnown && !hasUniversal && (
+            <div className="infobar warn with-icon">
+              <IconWarning />
+              <span>
+                Ядро не сообщило универсальных пресетов — доступны только точечные
+                профили. Обновите ядро PrimeProxy.
+              </span>
+            </div>
+          )}
+
+          <label className="search-box">
+            <IconSearch size={16} />
+            <span className="sr-only">Поиск профиля</span>
+            <input
+              className="input"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Найти сервис или стратегию…"
+              aria-label="Поиск пресета"
+            />
+            {search && (
+              <button
+                type="button"
+                className="btn icon sm ghost"
+                onClick={() => setSearch("")}
+                aria-label="Очистить поиск"
+              >
+                <IconClose size={14} />
+              </button>
+            )}
+          </label>
+
+          {presets.length === 0 ? (
+            <div className="empty-state">
+              <strong>Пресеты не найдены</strong>
+              <span>
+                Похоже, ядро недоступно. Проверьте локальный API и повторите.
+              </span>
+            </div>
+          ) : effectiveMode === "all" ? (
+            <UniversalBlock
+              groups={universalGroups}
+              search={search}
+              active
+              chosen={(target) => effectiveDefaults[target]}
+              onChoose={choosePreset}
+              onSwitchMode={() => chooseProfileMode("profiles")}
+            />
+          ) : (
+            <>
+              <UniversalBlock
+                groups={universalGroups}
+                search={search}
+                active={false}
+                chosen={(target) => effectiveDefaults[target]}
+                onChoose={choosePreset}
+                onSwitchMode={() => chooseProfileMode("all")}
+              />
+
+              {visibleProfiles.length > 0 ? (
+                categorizeProfiles(visibleProfiles).map((category) => (
+                  <div className="pcard-category" key={category.title}>
+                    <h3 className="pcard-category-title">
+                      {category.title}
+                      <span className="pcard-category-count">
+                        {category.groups.length}
+                      </span>
+                    </h3>
+                    <div className="pcard-grid">
+                      {category.groups.map((group, index) => (
+                        <Reveal
+                          key={group.target}
+                          variant="pop"
+                          delay={index * 60}
+                          className="byp-reveal-card"
+                        >
+                          <ProfileCard
+                            index={index + 1}
+                            group={group}
+                            enabled={isEnabled(group.target, enabledMap)}
+                            chosen={effectiveDefaults[group.target]}
+                            search={search}
+                            open={openGroup === group.target}
+                            onToggle={toggleGroup}
+                            onChoose={choosePreset}
+                            onOpen={setOpenGroup}
+                          />
+                        </Reveal>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="empty-state">
+                  <strong>Ничего не найдено</strong>
+                  <span>Измените запрос или очистите поиск.</span>
+                </div>
+              )}
+            </>
+          )}
+
+          {groups.length > 0 && (
+            <p className="byp-results-line">
+              {effectiveMode === "all"
+                ? `режим «Все сайты» · универсальных пресетов: ${universalPresetCount}`
+                : `режим точечных профилей · включено ${activeProfileCount} из ${specificGroups.length}`}
+            </p>
+          )}
+        </section>
+      </Reveal>
+
+      <Reveal className="byp-reveal">
+        <section className="card byp-options-card">
+          <span className="card-index" aria-hidden="true">
+            03
+          </span>
+          <div className="card-head">
+            <div>
+              <span className="section-tag">
+                <b>03 /</b> Запуск
+              </span>
+              <h2 className="card-title">Параметры <em>запуска</em></h2>
+              <p className="card-note">
+                Настройки применяются только к следующему запуску — текущий
+                процесс они не меняют.
+              </p>
+            </div>
+            {detail && <span className="chip tone-accent">план готов</span>}
+          </div>
+
+          {needsPrompt && (
+            <div className="infobar warn priv-bar">
+              <span>
+                {isWindows
+                  ? "Обходу нужны права администратора: закройте приложение и откройте его снова — оно само запросит права."
+                  : "Обходу нужны права администратора. Пароль запросят один раз — дальше без пароля."}
+              </span>
+              {platformKnown && !isWindows && (
+                <button
+                  type="button"
+                  className="btn accent"
+                  onClick={runGrant}
+                  disabled={granting}
+                >
+                  {granting ? "Ожидаю подтверждение…" : "Разрешить"}
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="launch-row">
+            {/* qnum — номер очереди NFQUEUE: он есть только у nfqws2, на
+                Windows движок фильтрует сам через WinDivert. */}
+            {platformKnown && !isWindows && (
+              <label className="field">
+                <span className="field-label">qnum</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={65535}
+                  value={qnum}
+                  onChange={(event) => setQnum(event.target.value)}
+                  disabled={busy}
+                />
+              </label>
+            )}
+            <label className="field">
+              <span className="field-label">Списки</span>
+              <select
+                value={mode}
+                onChange={(event) => setMode(event.target.value as HostlistMode)}
+                disabled={busy}
+              >
+                {HOSTLIST_MODES.map((item) => (
+                  <option key={item.key} value={item.key}>
+                    {item.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <span className="byp-options-hint">
+              <IconInfo size={14} />{" "}
+              {isWindows
+                ? "WinDivert управляет фильтрацией автоматически"
+                : "NFQUEUE использует указанный номер очереди"}
+            </span>
+          </div>
+
+          {detail && (
+            <div className="plan-line">
+              <span className="field-label">Команда · {detailName}</span>
+              <code>
+                {detail.plan.exe} {detail.plan.args.join(" ")}
+              </code>
+            </div>
+          )}
+        </section>
+      </Reveal>
+
+      <Reveal className="byp-reveal">
+        <section className="card byp-log-card" id="byp-log">
+          <span className="card-index" aria-hidden="true">
+            04
+          </span>
+          <div className="card-head">
+            <div>
+              <span className="section-tag">
+                <b>04 /</b> Журнал
+              </span>
+              <h2 className="card-title">
+                Журнал <em>движка</em>
+              </h2>
+              <p className="card-note">
+                Вывод обновляется автоматически; в виде хранятся последние 500
+                строк.
+              </p>
+            </div>
+            <div className="page-actions">
+              <span className="chip tone-neutral">{logLines.length} строк</span>
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={() => {
+                  setLogLines([]);
+                  setDropped(null);
+                }}
+              >
+                Очистить вид
+              </button>
+            </div>
+          </div>
+
+          {/* Журнал — терминальный блок: полоса с подписью и прокручиваемый
+              вывод. Прокрутка и автоскролл остаются на самом <pre>. */}
+          <div className="term byp-term">
+            <div className="term__bar byp-term__bar">
+              <IconTerminal size={13} />
+              <span>вывод движка</span>
+              <span className="byp-term__state">
+                {running ? "идёт запись" : offline ? "нет связи" : "ожидание"}
+              </span>
+            </div>
+            <pre
+              className="log-view term__body byp-term__view"
+              ref={logRef}
+              onScroll={(event) => {
+                const el = event.currentTarget;
+                stickBottomRef.current =
+                  el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
+              }}
+            >
+              {logLines.length > 0
+                ? logLines.join("\n")
+                : "Журнал пуст — запустите обход, чтобы увидеть вывод."}
+            </pre>
+          </div>
+          {dropped !== null && (
+            <div className="log-note">Пропущено старых строк: {dropped}</div>
+          )}
+        </section>
+      </Reveal>
+
+      {/* Завершающий призыв к действию — как блок CTA на сайте: то же
+          запускающее действие, что и в карточке движка, но под рукой после
+          выбора профилей. */}
+      <Reveal className="byp-reveal">
+        <section className="cta-block byp-cta" aria-labelledby="byp-cta-title">
+          <span
+            className="cta-block__glyph cta-block__glyph--1"
+            aria-hidden="true"
+          >
+            ✳
           </span>
           <span
-            className={`chip ${
-              offline
-                ? "tone-fail"
-                : running
-                  ? "tone-ok"
-                  : busy
-                    ? "tone-warn"
-                    : "tone-neutral"
-            }`}
+            className="cta-block__glyph cta-block__glyph--2"
+            aria-hidden="true"
           >
-            <span
-              className={`status-dot ${
-                offline
-                  ? "is-fail"
-                  : running
-                    ? "is-ok"
-                    : busy
-                      ? "is-busy"
-                      : "is-idle"
-              }`}
-            />
-            {stateLabel}
+            ✦
           </span>
-        </div>
-
-        <div className="engine-body">
-          <div className="engine-state">
-            <h2 className="engine-state-word" aria-live="polite">
-              {stateWord}
-            </h2>
-            <p className="engine-state-note">{stateNote}</p>
-          </div>
-          <div className="engine-actions">
+          <span className="section-tag">
+            <b>05 /</b> Запуск
+          </span>
+          <h2 id="byp-cta-title">
+            Готово — <em>запускайте</em>
+          </h2>
+          <p>
+            {effectiveMode === "all"
+              ? universalChosen
+                ? `В движок уйдёт универсальный пресет: ${universalChosen}.`
+                : "Универсальный пресет ещё не выбран — откройте профили выше."
+              : activeProfileCount > 0
+                ? `В движок уйдут включённые профили: ${activeProfileCount} из ${specificGroups.length}.`
+                : "Ни один точечный профиль не включён — включите нужные сервисы выше."}
+          </p>
+          <div className="cta-block__actions">
             <button
               type="button"
               className="btn accent lg"
@@ -511,325 +1168,8 @@ export function BypassPage() {
               {stopping ? "Останавливаю…" : "Остановить"}
             </button>
           </div>
-        </div>
-
-        <dl className="engine-meta">
-          <div>
-            <dt>Движок</dt>
-            <dd>{offline ? "—" : engine}</dd>
-          </div>
-          <div>
-            <dt>PID</dt>
-            <dd>{status?.pid ?? "—"}</dd>
-          </div>
-          <div>
-            <dt>Профиль</dt>
-            <dd>{profileLabel}</dd>
-          </div>
-          <div>
-            <dt>Права</dt>
-            <dd className={rightsTone}>{rightsLabel}</dd>
-          </div>
-        </dl>
-
-        <div className="signal" aria-hidden="true" />
-      </section>
-
-      <section className="card byp-presets-card">
-        <div className="card-head">
-          <div>
-            <span className="section-kicker">
-              <b>02</b> Профили
-            </span>
-            <h2 className="card-title">Профиль обхода</h2>
-            <p className="card-note">
-              Выберите режим: один универсальный пресет на весь трафик или
-              точечные профили под конкретные сервисы. Режимы не смешиваются —
-              в запуск уходит только то, что включено в активном режиме.
-            </p>
-          </div>
-          <span className="chip tone-neutral">всего {presets.length}</span>
-        </div>
-
-        <div className="mode-picker" role="radiogroup" aria-label="Режим профилей">
-          <button
-            type="button"
-            role="radio"
-            aria-checked={effectiveMode === "all"}
-            disabled={!hasUniversal && universalKnown}
-            className={`mode-card ${effectiveMode === "all" ? "active" : ""}`}
-            onClick={() => chooseProfileMode("all")}
-          >
-            <span className="mode-card-head">
-              <span className="mode-card-icon" aria-hidden="true">
-                <IconShieldCheck />
-              </span>
-              <span className="mode-card-title">Все сайты</span>
-            </span>
-            <span className="mode-card-note">
-              Один универсальный пресет на весь трафик: подходит большинству
-              заблокированных сайтов и приложений.
-            </span>
-            <span className="mode-card-state">
-              {effectiveMode === "all"
-                ? universalChosen
-                  ? `запустится: ${universalChosen}`
-                  : "пресет не выбран"
-                : "выключен"}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            role="radio"
-            aria-checked={effectiveMode === "profiles"}
-            className={`mode-card ${effectiveMode === "profiles" ? "active" : ""}`}
-            onClick={() => chooseProfileMode("profiles")}
-          >
-            <span className="mode-card-head">
-              <span className="mode-card-icon" aria-hidden="true">
-                <IconUnlock />
-              </span>
-              <span className="mode-card-title">Точечные профили</span>
-            </span>
-            <span className="mode-card-note">
-              Работают только выбранные сервисы: например, один Anthropic или
-              Instagram — остальной трафик движок не трогает.
-            </span>
-            <span className="mode-card-state">
-              {effectiveMode === "profiles"
-                ? activeProfileCount > 0
-                  ? `включено профилей: ${activeProfileCount}`
-                  : "ничего не включено"
-                : "выключен"}
-            </span>
-          </button>
-        </div>
-
-        {universalKnown && !hasUniversal && (
-          <div className="infobar warn with-icon">
-            <IconWarning />
-            <span>
-              Ядро не сообщило универсальных пресетов — доступны только точечные
-              профили. Обновите ядро PrimeProxy.
-            </span>
-          </div>
-        )}
-
-        <label className="search-box">
-          <IconSearch size={16} />
-          <span className="sr-only">Поиск профиля</span>
-          <input
-            className="input"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Найти сервис или стратегию…"
-            aria-label="Поиск пресета"
-          />
-          {search && (
-            <button
-              type="button"
-              className="btn icon sm ghost"
-              onClick={() => setSearch("")}
-              aria-label="Очистить поиск"
-            >
-              <IconClose size={14} />
-            </button>
-          )}
-        </label>
-
-        {presets.length === 0 ? (
-          <div className="empty-state">
-            <strong>Пресеты не найдены</strong>
-            <span>
-              Похоже, ядро недоступно. Проверьте локальный API и повторите.
-            </span>
-          </div>
-        ) : effectiveMode === "all" ? (
-          <UniversalBlock
-            groups={universalGroups}
-            search={search}
-            active
-            chosen={(target) => effectiveDefaults[target]}
-            onChoose={choosePreset}
-            onSwitchMode={() => chooseProfileMode("profiles")}
-          />
-        ) : (
-          <>
-            <UniversalBlock
-              groups={universalGroups}
-              search={search}
-              active={false}
-              chosen={(target) => effectiveDefaults[target]}
-              onChoose={choosePreset}
-              onSwitchMode={() => chooseProfileMode("all")}
-            />
-
-            {visibleProfiles.length > 0 ? (
-              categorizeProfiles(visibleProfiles).map((category) => (
-                <div className="pcard-category" key={category.title}>
-                  <h3 className="pcard-category-title">{category.title}</h3>
-                  <div className="pcard-grid">
-                    {category.groups.map((group) => (
-                      <ProfileCard
-                        key={group.target}
-                        group={group}
-                        enabled={isEnabled(group.target, enabledMap)}
-                        chosen={effectiveDefaults[group.target]}
-                        search={search}
-                        open={openGroup === group.target}
-                        onToggle={toggleGroup}
-                        onChoose={choosePreset}
-                        onOpen={setOpenGroup}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="empty-state">
-                <strong>Ничего не найдено</strong>
-                <span>Измените запрос или очистите поиск.</span>
-              </div>
-            )}
-          </>
-        )}
-
-        {groups.length > 0 && (
-          <p className="byp-results-line">
-            {effectiveMode === "all"
-              ? `режим «Все сайты» · универсальных пресетов: ${universalPresetCount}`
-              : `режим точечных профилей · включено ${activeProfileCount} из ${specificGroups.length}`}
-          </p>
-        )}
-      </section>
-
-      <section className="card byp-options-card">
-        <div className="card-head">
-          <div>
-            <span className="section-kicker">
-              <b>03</b> Запуск
-            </span>
-            <h2 className="card-title">Параметры запуска</h2>
-            <p className="card-note">
-              Настройки применяются только к следующему запуску — текущий
-              процесс они не меняют.
-            </p>
-          </div>
-          {detail && <span className="chip tone-accent">план готов</span>}
-        </div>
-
-        {needsPrompt && (
-          <div className="infobar warn priv-bar">
-            <span>
-              {isWindows
-                ? "Обходу нужны права администратора: перезапустите приложение от имени администратора."
-                : "Обходу нужны права администратора. Пароль запросят один раз — дальше без пароля."}
-            </span>
-            {!isWindows && (
-              <button
-                type="button"
-                className="btn accent"
-                onClick={runGrant}
-                disabled={granting}
-              >
-                {granting ? "Ожидаю подтверждение…" : "Разрешить"}
-              </button>
-            )}
-          </div>
-        )}
-
-        <div className="launch-row">
-          {/* qnum — номер очереди NFQUEUE: он есть только у nfqws2, на
-              Windows движок фильтрует сам через WinDivert. */}
-          {!isWindows && (
-            <label className="field">
-              <span className="field-label">qnum</span>
-              <input
-                type="number"
-                min={1}
-                max={65535}
-                value={qnum}
-                onChange={(event) => setQnum(event.target.value)}
-                disabled={busy}
-              />
-            </label>
-          )}
-          <label className="field">
-            <span className="field-label">Списки</span>
-            <select
-              value={mode}
-              onChange={(event) => setMode(event.target.value as HostlistMode)}
-              disabled={busy}
-            >
-              {HOSTLIST_MODES.map((item) => (
-                <option key={item.key} value={item.key}>
-                  {item.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          <span className="byp-options-hint">
-            <IconInfo size={14} />{" "}
-            {isWindows
-              ? "WinDivert управляет фильтрацией автоматически"
-              : "NFQUEUE использует указанный номер очереди"}
-          </span>
-        </div>
-
-        {detail && (
-          <div className="plan-line">
-            <span className="field-label">Команда · {detailName}</span>
-            <code>
-              {detail.plan.exe} {detail.plan.args.join(" ")}
-            </code>
-          </div>
-        )}
-      </section>
-
-      <section className="card">
-        <div className="card-head">
-          <div>
-            <span className="section-kicker">
-              <b>04</b> Журнал
-            </span>
-            <h2 className="card-title">Журнал движка</h2>
-            <p className="card-note">
-              Вывод обновляется автоматически; в виде хранятся последние 500
-              строк.
-            </p>
-          </div>
-          <div className="page-actions">
-            <span className="chip tone-neutral">{logLines.length} строк</span>
-            <button
-              type="button"
-              className="btn ghost"
-              onClick={() => {
-                setLogLines([]);
-                setDropped(null);
-              }}
-            >
-              Очистить вид
-            </button>
-          </div>
-        </div>
-        <pre
-          className="log-view"
-          ref={logRef}
-          onScroll={(event) => {
-            const el = event.currentTarget;
-            stickBottomRef.current =
-              el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
-          }}
-        >
-          {logLines.length > 0
-            ? logLines.join("\n")
-            : "Журнал пуст — запустите обход, чтобы увидеть вывод."}
-        </pre>
-        {dropped !== null && (
-          <div className="log-note">Пропущено старых строк: {dropped}</div>
-        )}
-      </section>
+        </section>
+      </Reveal>
     </div>
   );
 }

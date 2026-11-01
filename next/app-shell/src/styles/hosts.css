@@ -1,7 +1,156 @@
 /* ─────────────────────────────────────────────────────────────────────────
    Страница «Разблокировка»: блок PrimeProxy в файле hosts и каталог
    сервисов, которые включаются одной кнопкой.
+
+   Язык SpherePrime: одна светлая «бумажная» секция с жёсткой смещённой
+   тенью, лаймовая полоса счётчиков, терминальный блок для строк файла и
+   каталог карточек с моно-номерами в углу.
    ───────────────────────────────────────────────────────────────────────── */
+
+/* ─────────────────────────── Светлый блок «бумага» ─────────────────────────── */
+
+/* Подпись языка SpherePrime: одна светлая секция на тёмной странице
+   с жёсткой смещённой тенью. Класс идёт вместе с .card, поэтому в селекторе
+   два класса: так правило не зависит от порядка подключения файлов. */
+.card.card--paper {
+  border-color: var(--paper-line);
+  background: var(--paper);
+  color: var(--paper-ink);
+  box-shadow: var(--shadow-hard);
+}
+
+.card.card--paper:hover {
+  border-color: var(--paper-ink);
+  box-shadow: var(--shadow-hard);
+}
+
+.card.card--paper::before {
+  background: var(--paper-ink);
+}
+
+.card--paper .card-title,
+.card--paper .empty-state strong {
+  color: var(--paper-ink);
+}
+
+.card--paper .card-note,
+.card--paper .field-label,
+.card--paper .empty-state,
+.card--paper .hosts-details > summary {
+  color: var(--paper-dim);
+}
+
+/* Курсивный акцент в заголовке бумажного блока — фиолетовый, как в светлой
+   секции сайта: на бумаге лайм не читается. */
+.card--paper .card-title em {
+  color: #4e37e9;
+}
+
+.card--paper .section-kicker,
+.card--paper .section-tag {
+  color: var(--paper-dim);
+}
+
+.card--paper .section-kicker b,
+.card--paper .section-tag b {
+  color: #4e37e9;
+}
+
+.card--paper .plan-line {
+  border-top-color: var(--paper-line);
+}
+
+.card--paper .plan-line code {
+  border-color: var(--paper-line);
+  background: rgba(21, 23, 27, 0.06);
+  color: var(--paper-ink);
+}
+
+.card--paper .chip {
+  border-color: var(--paper-line);
+  background: rgba(21, 23, 27, 0.05);
+  color: var(--paper-dim);
+}
+
+.card--paper .chip.tone-accent {
+  border-color: rgba(78, 55, 233, 0.3);
+  background: rgba(78, 55, 233, 0.1);
+  color: #4e37e9;
+}
+
+.card--paper .btn.ghost {
+  color: var(--paper-dim);
+}
+
+.card--paper .btn.ghost:hover:not(:disabled) {
+  border-color: var(--paper-line);
+  background: rgba(21, 23, 27, 0.07);
+  color: var(--paper-ink);
+}
+
+.card--paper .btn.accent {
+  border-color: var(--paper-ink);
+  background: var(--paper-ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+
+.card--paper .btn.accent:hover:not(:disabled) {
+  border-color: #4e37e9;
+  background: #4e37e9;
+  color: var(--paper);
+}
+
+.card--paper .spinner {
+  border-color: var(--paper-ink);
+  border-right-color: transparent;
+}
+
+.card--paper .help-btn {
+  border-color: rgba(21, 23, 27, 0.3);
+  background: transparent;
+  color: var(--paper-ink);
+}
+
+.card--paper .help-btn:hover {
+  border-color: var(--paper-ink);
+  color: var(--paper-ink);
+}
+
+.card--paper .empty-state {
+  border-color: var(--paper-line);
+  background: rgba(21, 23, 27, 0.03);
+}
+
+/* Терминал на бумаге: инвертируем фон и краски, чтобы блок остался
+   частью светлой секции, а не «дыркой» в ней. */
+.card--paper .term {
+  border-color: var(--paper-line);
+  background: rgba(21, 23, 27, 0.05);
+  color: var(--paper-ink);
+}
+
+.card--paper .term__bar {
+  border-bottom-color: var(--paper-line);
+  color: var(--paper-dim);
+}
+
+/* ─────────────────────────── Тикер разблокированного ─────────────────────────── */
+
+/* Бегущая строка с названиями сервисов, которые уже стоят в блоке файла.
+   Числа не выдумываем: содержимое берётся из состояния страницы. */
+.hosts-ticker {
+  margin-bottom: var(--sp-5);
+}
+
+.hosts-ticker .marquee__item {
+  font-size: clamp(1rem, 1.7vw, 1.5rem);
+}
+
+.hosts-ticker .marquee__item i {
+  color: var(--cyan);
+  font-style: normal;
+}
 
 /* ─────────────────────────── Раскрывающиеся блоки ─────────────────────────── */
 
@@ -49,6 +198,49 @@ details[open] > summary .hosts-details-arrow {
   transform: rotate(90deg);
 }
 
+/* ─────────────────────────── Терминал со строками блока ─────────────────────────── */
+
+/* Строки hosts читаются как вывод консоли: «домен → адрес» построчно. */
+.hosts-term {
+  margin-bottom: var(--sp-2);
+}
+
+.hosts-term .term__body {
+  max-height: 260px;
+  font-size: 11.5px;
+  line-height: 1.8;
+}
+
+.hosts-term__line {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.hosts-term__key {
+  color: var(--text);
+}
+
+.hosts-term__arrow {
+  color: var(--text-mute);
+}
+
+.hosts-term__value {
+  color: var(--accent);
+}
+
+.card--paper .hosts-term__key {
+  color: var(--paper-ink);
+}
+
+.card--paper .hosts-term__arrow {
+  color: var(--paper-dim);
+}
+
+.card--paper .hosts-term__value {
+  color: #4e37e9;
+}
+
 /* ─────────────────────────── Панель сервисов ─────────────────────────── */
 
 .hosts-toolbar {
@@ -76,11 +268,21 @@ details[open] > summary .hosts-details-arrow {
 }
 
 .hosts-category-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0 0 var(--sp-3);
   color: var(--text-mute);
-  font: 500 9.5px/1 var(--font-mono);
-  letter-spacing: 0.15em;
+  font: 400 9.5px/1 var(--font-mono);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+}
+
+.hosts-category-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
 }
 
 .hosts-grid {
@@ -96,13 +298,14 @@ details[open] > summary .hosts-details-arrow {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 14px 14px 6px;
+  padding: 16px 16px 8px;
   border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  background: var(--surface-2);
+  border-radius: var(--r-lg);
+  background: linear-gradient(145deg, rgba(30, 33, 44, 0.95), rgba(13, 14, 20, 0.95));
   transition:
-    border-color var(--t-fast) var(--ease),
-    background var(--t-fast) var(--ease);
+    transform var(--t-slow) var(--ease),
+    border-color var(--t-slow) var(--ease),
+    box-shadow var(--t-slow) var(--ease);
 }
 
 /* Включённый сервис отмечается полосой у левой кромки: цвет — не
@@ -110,17 +313,18 @@ details[open] > summary .hosts-details-arrow {
 .svc::before {
   content: "";
   position: absolute;
-  top: 12px;
-  bottom: 12px;
+  top: 14px;
+  bottom: 14px;
   left: 0;
   width: 2px;
   border-radius: 0 2px 2px 0;
   background: var(--line-strong);
-  transition: background var(--t-fast) var(--ease);
+  transition: background var(--t-mid) var(--ease);
 }
 
 .svc.on::before {
   background: var(--accent);
+  box-shadow: 0 0 14px var(--accent);
 }
 
 .svc.partial::before {
@@ -128,12 +332,17 @@ details[open] > summary .hosts-details-arrow {
 }
 
 .svc:hover {
-  border-color: var(--line-strong);
-  background: var(--surface-3);
+  transform: translateY(-4px);
+  border-color: rgba(245, 243, 237, 0.4);
+  box-shadow: var(--shadow-2);
+}
+
+.svc:hover .svc-badge {
+  scale: 1.08;
 }
 
 .svc.on {
-  border-color: rgba(197, 242, 90, 0.22);
+  border-color: rgba(217, 255, 89, 0.34);
 }
 
 .svc-head {
@@ -151,19 +360,26 @@ details[open] > summary .hosts-details-arrow {
   flex-shrink: 0;
 }
 
+/* Моно-номер карточки в углу — как нумерация карточек на сайте. */
+.svc-head-text .card-index {
+  display: block;
+  margin-bottom: 3px;
+}
+
 .svc-title {
   margin: 0;
   color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.05em;
 }
 
 .svc-note {
-  margin: 4px 0 0;
+  margin: 5px 0 0;
   color: var(--text-mute);
   font-size: 12px;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .svc-foot {
@@ -194,56 +410,30 @@ details[open] > summary .hosts-details-arrow {
 }
 
 .svc-domain {
-  padding: 3px 7px;
+  padding: 4px 9px;
   border: 1px solid var(--line);
-  border-radius: var(--r-xs);
-  background: var(--inset);
+  border-radius: var(--r-pill);
+  background: rgba(245, 243, 237, 0.035);
   color: var(--text-mute);
-  font: 10.5px/1.4 var(--font-mono);
+  font: 400 10.5px/1.4 var(--font-mono);
   overflow-wrap: anywhere;
 }
 
 .svc-domain.on {
-  border-color: rgba(197, 242, 90, 0.28);
+  border-color: rgba(217, 255, 89, 0.3);
   color: var(--accent);
 }
 
 /* ─────────────────────────── Применение ─────────────────────────── */
 
+/* Призыв к действию страницы: сводка изменений и две кнопки. Поверхность и
+   типографику даёт общий .cta-block, здесь только отступ от каталога. */
 .hosts-apply {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-4);
-  flex-wrap: wrap;
-  margin-top: var(--sp-2);
-  padding-top: var(--sp-4);
-  border-top: 1px solid var(--line-strong);
+  margin-top: var(--sp-5);
 }
 
-.hosts-apply-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-}
-
-.hosts-apply-summary strong {
-  color: var(--text);
-  font-size: 13.5px;
-  font-weight: 600;
-}
-
-.hosts-apply-summary span {
-  color: var(--text-mute);
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.hosts-apply-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.hosts-apply h2 {
+  margin-top: 0;
 }
 
 /* ─────────────────────────── Узкие экраны ─────────────────────────── */
@@ -257,11 +447,11 @@ details[open] > summary .hosts-details-arrow {
     flex: 1 1 auto;
   }
 
-  .hosts-apply-actions {
+  .hosts-apply .cta-block__actions {
     width: 100%;
   }
 
-  .hosts-apply-actions .btn {
+  .hosts-apply .cta-block__actions .btn {
     flex: 1 1 auto;
   }
 }

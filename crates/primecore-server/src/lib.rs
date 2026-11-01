@@ -14,6 +14,7 @@ mod fakes_api;
 mod hosts_file_api;
 mod log_analyzer_api;
 mod tg_api;
+mod tg_tunnel;
 mod ws_api;
 
 use axum::extract::rejection::JsonRejection;
@@ -635,6 +636,8 @@ pub(crate) fn router(app: App) -> Router {
         )
         .route("/api/fakes", get(fakes_api::fakes))
         .route("/api/tg/proxy/start", post(tg_api::proxy_start))
+        .route("/api/tg/proxy/stop", post(tg_api::proxy_stop))
+        .route("/api/tg/proxy/worker", get(tg_api::proxy_worker))
         .route("/api/ws/presets", get(ws_api::presets))
         .route("/api/ws/preset", get(ws_api::preset))
         .route("/api/ws/start", post(ws_api::start))

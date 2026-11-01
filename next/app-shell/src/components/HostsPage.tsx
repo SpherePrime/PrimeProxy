@@ -9,12 +9,14 @@ import {
   IconCheck,
   IconChevron,
   IconClose,
+  IconFile,
   IconLock,
   IconRefresh,
   IconUnlock,
   IconWarning,
 } from "./Icons";
 import { ServiceBadge } from "./ServiceBadge";
+import { HelpTip } from "./HelpTip";
 import { PageHeader } from "./PageHeader";
 import "../styles/hosts.css";
 
@@ -428,9 +430,12 @@ export function HostsPage() {
   );
   const dirty = added.length > 0 || removed.length > 0;
 
-  const unlockedCount = SERVICES.filter(
+  // Сервисы, которые уже целиком стоят в блоке hosts: их названия идут
+  // в бегущую строку, а количество — в шапку и в полосу счётчиков.
+  const unlockedNames = SERVICES.filter(
     (service) => countIn(current, service.domains) === service.domains.length,
-  ).length;
+  ).map((service) => service.title);
+  const unlockedCount = unlockedNames.length;
 
   const query = search.trim().toLowerCase();
   const visibleCategories = useMemo(
@@ -447,6 +452,20 @@ export function HostsPage() {
       })).filter((category) => category.services.length > 0),
     [query],
   );
+
+  // Сквозная нумерация карточек каталога: моно-номер в углу карточки,
+  // как нумерация карточек в языке SpherePrime.
+  const serviceIndex = useMemo(() => {
+    const map = new Map<string, number>();
+    let n = 0;
+    for (const category of visibleCategories) {
+      for (const service of category.services) {
+        n += 1;
+        map.set(service.id, n);
+      }
+    }
+    return map;
+  }, [visibleCategories]);
 
   const toggleService = (service: Service) => {
     setDesired((prev) => {
@@ -519,20 +538,46 @@ export function HostsPage() {
         </div>
       )}
 
-      <section className="card">
+      {/* Бегущая строка с сервисами, которые уже стоят в блоке файла.
+          Содержимое — реальное состояние hosts, ничего выдуманного. */}
+      {unlockedNames.length > 0 && (
+        <div className="marquee hosts-ticker" aria-hidden="true">
+          <div className="marquee__track">
+            {[0, 1].map((pass) =>
+              unlockedNames.map((name) => (
+                <span className="marquee__item" key={`${pass}-${name}`}>
+                  {name}
+                  <i>разблокирован</i>
+                </span>
+              )),
+            )}
+          </div>
+        </div>
+      )}
+
+      <section className="card card--paper">
         <div className="card-head">
           <div>
-            <span className="section-kicker">
-              <b>01</b> Файл hosts
+            <span className="section-tag">
+              <b>01 /</b> Файл hosts
             </span>
-            <h2 className="card-title">Блок PrimeProxy в файле hosts</h2>
+            <h2 className="card-title">
+              Блок PrimeProxy в файле <em>hosts</em>
+              <HelpTip label="что такое блок в hosts">
+                hosts — системный файл, который сопоставляет домены и адреса.
+                Мы пишем туда свой блок: домены сервисов указывают на
+                127.0.0.2 — служебный локальный адрес. Остальные строки файла
+                не трогаем, а перед первой записью рядом появляется копия
+                .primebak.
+              </HelpTip>
+            </h2>
             <p className="card-note">
               Мы меняем только свой блок в файле — остальные строки hosts
               остаются нетронутыми. При первой записи рядом появляется копия
               <code> .primebak</code>.
             </p>
           </div>
-          <div className="page-actions">
+          <div className="actions-row">
             {file && (
               <span className="chip tone-accent">
                 {file.blocked_count} строк в блоке
@@ -570,16 +615,23 @@ export function HostsPage() {
                   </span>
                   Показать строки блока ({file.managed_rows.length})
                 </summary>
-                <div className="kv-list" aria-label="Записи PrimeProxy в hosts">
-                  {file.managed_rows.map((row) => (
-                    <div className="kv-row" key={row[0]}>
-                      <span className="kv-key">{row[0]}</span>
-                      <span className="kv-arrow" aria-hidden="true">
-                        →
+                <div className="term hosts-term">
+                  <span className="term__bar">
+                    <IconFile size={12} /> блок PrimeProxy ·{" "}
+                    {file.managed_rows.length} строк
+                  </span>
+                  <pre
+                    className="term__body"
+                    aria-label="Записи PrimeProxy в файле hosts"
+                  >
+                    {file.managed_rows.map((row) => (
+                      <span className="hosts-term__line" key={row[0]}>
+                        <span className="hosts-term__key">{row[0]}</span>
+                        <span className="hosts-term__arrow">{"  →  "}</span>
+                        <span className="hosts-term__value">{row[1]}</span>
                       </span>
-                      <span className="kv-value">{row[1]}</span>
-                    </div>
-                  ))}
+                    ))}
+                  </pre>
                 </div>
               </details>
             ) : (
@@ -599,13 +651,43 @@ export function HostsPage() {
         )}
       </section>
 
+      {/* Полоса счётчиков: все числа — реальное состояние страницы. */}
+      <div className="stats-band">
+        <div className="stats-band__grid">
+          <div className="stat">
+            <b>{unlockedCount}</b>
+            <span>сервисов разблокировано</span>
+          </div>
+          <div className="stat">
+            <b>{current.size}</b>
+            <span>строк в блоке hosts</span>
+          </div>
+          <div className="stat">
+            <b>{added.length}</b>
+            <span>доменов добавится</span>
+          </div>
+          <div className="stat">
+            <b>{removed.length}</b>
+            <span>доменов уйдёт</span>
+          </div>
+        </div>
+      </div>
+
       <section className="card">
         <div className="card-head">
           <div>
-            <span className="section-kicker">
-              <b>02</b> Сервисы
+            <span className="section-tag">
+              <b>02 /</b> Сервисы
             </span>
-            <h2 className="card-title">Что разблокировать</h2>
+            <h2 className="card-title">
+              Что <em>разблокировать</em>
+              <HelpTip label="как работает разблокировка">
+                Одна кнопка включает сервис целиком — все его домены сразу.
+                Выбор подтягивается из текущего файла, поэтому «Применить»
+                заменяет только блок PrimeProxy и не теряет то, что уже
+                добавлено. Изменения вступят в силу сразу после записи.
+              </HelpTip>
+            </h2>
             <p className="card-note">
               Одна кнопка включает сервис целиком — все его домены сразу. Ниже
               видно, какие именно адреса уйдут в hosts.
@@ -684,6 +766,9 @@ export function HostsPage() {
                       <div className="svc-head">
                         <ServiceBadge name={service.title} size={32} />
                         <div className="svc-head-text">
+                          <span className="card-index">
+                            {String(serviceIndex.get(service.id) ?? 0).padStart(2, "0")}
+                          </span>
                           <h4 className="svc-title">{service.title}</h4>
                           <p className="svc-note">{service.note}</p>
                         </div>
@@ -749,29 +834,34 @@ export function HostsPage() {
           ))
         )}
 
-        <div className="hosts-apply">
-          <div className="hosts-apply-summary">
-            {!loaded ? (
-              <span>Читаю текущий файл hosts…</span>
-            ) : dirty ? (
-              <>
-                <strong>
-                  {added.length > 0 ? `+${added.length} доменов` : "без добавлений"}
-                  {" · "}
-                  {removed.length > 0 ? `−${removed.length} доменов` : "без удалений"}
-                </strong>
-                <span>
-                  Итог: {desired.size} строк в блоке PrimeProxy (сейчас {current.size}).
-                </span>
-              </>
-            ) : (
-              <>
-                <strong>Изменений нет</strong>
-                <span>Файл hosts уже соответствует выбору.</span>
-              </>
-            )}
-          </div>
-          <div className="hosts-apply-actions">
+        <div className="cta-block hosts-apply">
+          <span className="cta-block__glyph cta-block__glyph--1" aria-hidden="true">
+            ↗
+          </span>
+          {!loaded ? (
+            <>
+              <h2>Читаю файл hosts</h2>
+              <p>Секунду — сверяю выбор с текущим содержимым блока.</p>
+            </>
+          ) : dirty ? (
+            <>
+              <h2>
+                Применить <em>изменения</em> в hosts
+              </h2>
+              <p>
+                {added.length > 0 ? `+${added.length} доменов` : "без добавлений"}
+                {" · "}
+                {removed.length > 0 ? `−${removed.length} доменов` : "без удалений"}
+                {` · итог: ${desired.size} строк в блоке (сейчас ${current.size})`}
+              </p>
+            </>
+          ) : (
+            <>
+              <h2>Изменений нет</h2>
+              <p>Файл hosts уже соответствует выбору — записывать нечего.</p>
+            </>
+          )}
+          <div className="cta-block__actions">
             {dirty && (
               <button
                 type="button"

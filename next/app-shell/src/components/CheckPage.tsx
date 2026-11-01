@@ -1,19 +1,78 @@
 import { useEffect, useState } from "react";
 import { fetchCheckSites, fetchCheckStatus, SiteCheckResult } from "../api";
 import { IconClose, IconInfo, IconSearch } from "./Icons";
+import { HelpTip } from "./HelpTip";
 import { PageHeader } from "./PageHeader";
 
-// Домены по умолчанию — типичные маркеры блокировок (видео, мессенджеры, ИИ, игры).
-const DEFAULT_DOMAINS = [
-  "www.youtube.com",
-  "discord.com",
-  "gateway.discord.gg",
-  "chatgpt.com",
-  "www.google.com",
-  "www.twitch.tv",
-  "instagram.com",
-  "store.steampowered.com",
+// Домены проверки по категориям: по одной точке входа на сервис. Список
+// повторяет профили обхода — после проверки видно, что именно включать.
+interface CheckGroup {
+  title: string;
+  domains: string[];
+}
+
+const CHECK_GROUPS: CheckGroup[] = [
+  {
+    title: "Видео и стримы",
+    domains: ["www.youtube.com", "youtu.be", "www.twitch.tv", "www.netflix.com"],
+  },
+  {
+    title: "Соцсети",
+    domains: [
+      "instagram.com",
+      "www.facebook.com",
+      "x.com",
+      "www.tiktok.com",
+      "www.linkedin.com",
+      "www.reddit.com",
+    ],
+  },
+  {
+    title: "ИИ-сервисы",
+    domains: [
+      "chatgpt.com",
+      "claude.ai",
+      "gemini.google.com",
+      "chat.deepseek.com",
+      "www.perplexity.ai",
+    ],
+  },
+  {
+    title: "Мессенджеры",
+    domains: [
+      "discord.com",
+      "gateway.discord.gg",
+      "telegram.org",
+      "web.whatsapp.com",
+      "signal.org",
+    ],
+  },
+  {
+    title: "Игры",
+    domains: [
+      "store.steampowered.com",
+      "www.roblox.com",
+      "www.epicgames.com",
+      "www.riotgames.com",
+    ],
+  },
+  {
+    title: "Инфраструктура",
+    domains: [
+      "www.google.com",
+      "www.cloudflare.com",
+      "github.com",
+      "www.speedtest.net",
+      "www.apple.com",
+    ],
+  },
+  {
+    title: "Разное",
+    domains: ["soundcloud.com", "rutracker.org", "www.notion.so", "open.spotify.com"],
+  },
 ];
+
+const ALL_DOMAINS = CHECK_GROUPS.flatMap((group) => group.domains);
 
 // Подписи и тона статусов из контракта /api/check/sites/status.
 const STATUS_LABELS: Record<string, string> = {
@@ -36,7 +95,7 @@ const MAX_POLLS = 120;
 // поллим статус раз в секунду, пока не придёт done.
 export function CheckPage() {
   const [checked, setChecked] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(DEFAULT_DOMAINS.map((domain) => [domain, true])),
+    Object.fromEntries(ALL_DOMAINS.map((domain) => [domain, true])),
   );
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -81,8 +140,17 @@ export function CheckPage() {
     setChecked((prev) => ({ ...prev, [domain]: !prev[domain] }));
   }
 
+  function toggleGroup(group: CheckGroup) {
+    const allOn = group.domains.every((domain) => checked[domain]);
+    setChecked((prev) => {
+      const next = { ...prev };
+      for (const domain of group.domains) next[domain] = !allOn;
+      return next;
+    });
+  }
+
   async function runCheck() {
-    const domains = DEFAULT_DOMAINS.filter((domain) => checked[domain]);
+    const domains = ALL_DOMAINS.filter((domain) => checked[domain]);
     if (domains.length === 0) {
       setError("Отметьте хотя бы один домен");
       return;
@@ -100,7 +168,7 @@ export function CheckPage() {
     }
   }
 
-  const selectedCount = DEFAULT_DOMAINS.filter((domain) => checked[domain]).length;
+  const selectedCount = ALL_DOMAINS.filter((domain) => checked[domain]).length;
   const okCount = results.filter((r) => r.status === "ok").length;
   const blockedCount = results.filter((r) => r.status === "blocked").length;
   const slowCount = results.filter((r) => r.status === "slow").length;
@@ -111,10 +179,10 @@ export function CheckPage() {
         index="03"
         group="Диагностика"
         title="Проверка"
-        description="Доступность популярных сервисов: какие домены проходят, а какие блокируются."
+        description="Доступность сервисов напрямую из сети: видно, что открывается, а что блокируется."
         actions={
           <span className="chip tone-neutral">
-            выбрано {selectedCount} из {DEFAULT_DOMAINS.length}
+            выбрано {selectedCount} из {ALL_DOMAINS.length}
           </span>
         }
       />
@@ -122,8 +190,8 @@ export function CheckPage() {
       <div className="infobar hint with-icon">
         <IconInfo />
         <span>
-          Сравните результаты с включённым и выключенным обходом — так видно,
-          что именно меняет движок.
+          Проверка идёт напрямую, без обхода: сначала запустите её с выключенным
+          движком, затем с включённым — так видно, что именно меняет обход.
         </span>
       </div>
       {error && (
@@ -139,7 +207,14 @@ export function CheckPage() {
             <span className="section-kicker">
               <b>01</b> Домены
             </span>
-            <h2 className="card-title">Что проверяем</h2>
+            <h2 className="card-title">
+              Что проверяем{" "}
+              <HelpTip label="что делает проверка">
+                Каждый домен открывается напрямую из вашей сети. «Заблокирован»
+                — соединение не проходит или подменяется, «Медленно» — отвечает
+                дольше обычного. Проверка ничего не меняет в системе.
+              </HelpTip>
+            </h2>
             <p className="card-note">
               Отметьте сервисы — запрос уйдёт через локальную сеть и вернёт
               время ответа.
@@ -150,31 +225,49 @@ export function CheckPage() {
             className="btn ghost"
             onClick={() =>
               setChecked((prev) => {
-                const allOn = DEFAULT_DOMAINS.every((domain) => prev[domain]);
+                const allOn = ALL_DOMAINS.every((domain) => prev[domain]);
                 return Object.fromEntries(
-                  DEFAULT_DOMAINS.map((domain) => [domain, !allOn]),
+                  ALL_DOMAINS.map((domain) => [domain, !allOn]),
                 );
               })
             }
             disabled={running}
           >
-            {selectedCount === DEFAULT_DOMAINS.length ? "Снять все" : "Выбрать все"}
+            {selectedCount === ALL_DOMAINS.length ? "Снять все" : "Выбрать все"}
           </button>
         </div>
 
-        <div className="site-checks">
-          {DEFAULT_DOMAINS.map((domain) => (
-            <label className="site-check" key={domain}>
-              <input
-                type="checkbox"
-                checked={Boolean(checked[domain])}
-                onChange={() => toggle(domain)}
-                disabled={running}
-              />
-              <span className="mono">{domain}</span>
-            </label>
-          ))}
-        </div>
+        {CHECK_GROUPS.map((group) => {
+          const allOn = group.domains.every((domain) => checked[domain]);
+          return (
+            <div className="check-group" key={group.title}>
+              <div className="check-group-head">
+                <h3 className="check-group-title">{group.title}</h3>
+                <button
+                  type="button"
+                  className="btn ghost sm"
+                  onClick={() => toggleGroup(group)}
+                  disabled={running}
+                >
+                  {allOn ? "Снять" : "Выбрать"}
+                </button>
+              </div>
+              <div className="site-checks">
+                {group.domains.map((domain) => (
+                  <label className="site-check" key={domain}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(checked[domain])}
+                      onChange={() => toggle(domain)}
+                      disabled={running}
+                    />
+                    <span className="mono">{domain}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          );
+        })}
 
         <div className="actions-row">
           <button
@@ -201,6 +294,12 @@ export function CheckPage() {
               <b>02</b> Результат
             </span>
             <h2 className="card-title">Доступность доменов</h2>
+            {blockedCount > 0 && (
+              <p className="card-note">
+                Заблокировано {blockedCount} — эти сервисы нужно включить в
+                профилях обхода.
+              </p>
+            )}
           </div>
           {results.length > 0 && (
             <span className="chip tone-neutral">готово {results.length}</span>

@@ -22,7 +22,7 @@ export function PageHeader({
   actions,
 }: PageHeaderProps) {
   return (
-    <header className="page-header">
+    <header className="page-header" data-index={index}>
       <div className="page-heading">
         <div className="page-kicker">
           <span className="page-index">{index}</span>

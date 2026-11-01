@@ -5,8 +5,8 @@
 //! бинарнику — PRIMECORE_BIN или соседний target/release. Пока сервер не
 //! ответил на /health, окно не открывается: интерфейс без ядра бесполезен.
 
-const { app, BrowserWindow, ipcMain } = require("electron");
-const { spawn } = require("child_process");
+const { app, BrowserWindow, dialog, ipcMain } = require("electron");
+const { spawn, execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
@@ -31,6 +31,70 @@ function sidecarPath() {
   return "primecore-server";
 }
 
+// ─────────────────────────── Права администратора (Windows) ─────────────
+// Движку обхода (winws2) в манифесте нужен уровень High: без него Windows
+// отказывает в запуске с ошибкой 740, потому что движок ставит драйвер
+// WinDivert. Поэтому оболочка при старте сама показывает запрос UAC и
+// перезапускается повышенной — один запрос на запуск приложения, ровно как
+// pkexec/sudo на Linux (см. README про привилегии).
+//
+// Отказ от запроса приложение не закрывает: проверка, DNS, Telegram и
+// настройки работают и без прав, а запуск обхода честно скажет, чего не
+// хватает. Переменная PB_ELEVATE_TRIED защищает от цикла перезапусков,
+// если определить повышение не удалось.
+
+const HIGH_INTEGRITY_SID = "S-1-16-12288";
+
+// Повышен ли текущий процесс: `whoami /groups` показывает уровень
+// обязательного контроля, S-1-16-12288 — High («от имени администратора»).
+// Тот же признак использует ядро в /api/ws/privilege.
+function isElevated() {
+  if (process.platform !== "win32") return true;
+  try {
+    const groups = execFileSync("whoami", ["/groups"], {
+      encoding: "utf8",
+      windowsHide: true,
+    });
+    return groups.includes(HIGH_INTEGRITY_SID);
+  } catch (error) {
+    console.error(`не удалось определить права: ${error.message}`);
+    return false;
+  }
+}
+
+// Перезапуск себя через UAC. `true` — повышенная копия запущена и текущей
+// нужно выйти; `false` — пользователь отказался или запрос недоступен.
+//
+// Аргументы едут строкой в переменной окружения: PowerShell передаёт её
+// содержимое без изменений, поэтому пути с пробелами и кавычками доезжают
+// так же, как были.
+function relaunchElevated() {
+  const args = process.argv.slice(1).map((value) => `"${value}"`).join(" ");
+  const script = [
+    "$ErrorActionPreference = 'Stop'",
+    "$start = @{ FilePath = $env:PB_ELEVATE_EXE; WorkingDirectory = $env:PB_ELEVATE_CWD; Verb = 'RunAs' }",
+    "if ($env:PB_ELEVATE_ARGS) { $start.ArgumentList = $env:PB_ELEVATE_ARGS }",
+    "Start-Process @start",
+  ].join("; ");
+  try {
+    execFileSync("powershell", ["-NoProfile", "-NonInteractive", "-Command", script], {
+      env: {
+        ...process.env,
+        PB_ELEVATE_TRIED: "1",
+        PB_ELEVATE_EXE: process.execPath,
+        PB_ELEVATE_ARGS: args,
+        PB_ELEVATE_CWD: process.cwd(),
+      },
+      stdio: "ignore",
+      windowsHide: true,
+    });
+    return true;
+  } catch (error) {
+    console.error(`повышение прав не выполнено: ${error.message}`);
+    return false;
+  }
+}
+
 let sidecar = null;
 
 function startSidecar() {
@@ -44,6 +108,23 @@ function startSidecar() {
   });
   sidecar.on("exit", (code) => console.log(`primecore-server завершён (код ${code})`));
   sidecar.on("error", (error) => console.error(`primecore-server не запущен: ${error.message}`));
+}
+
+// Уже поднятое ядро на нашем порту: `true`/`false` — отвечает и сообщает про
+// права, `null` — порт свободен (или отвечает не наше ядро).
+//
+// Проверка нужна перед запуском своего ядра. Второй процесс порт не займёт и
+// молча завершится, а интерфейс станет работать со старым ядром — если у
+// того нет прав, запуск обхода упадёт с 740 и без объяснения.
+async function runningCoreIsElevated() {
+  try {
+    const response = await fetch(`${BASE}/api/ws/privilege`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.granted === true;
+  } catch (_) {
+    return null;
+  }
 }
 
 // Ждём /health: интерфейс стартует только с живым ядром.
@@ -76,7 +157,9 @@ async function createWindow() {
     // Своя полоса заголовка: рисуем её в интерфейсе (свернуть/развернуть/
     // закрыть), поэтому системную рамку убираем.
     frame: false,
-    backgroundColor: "#0f172a",
+    // Тот же тёмный фон, что и `--bg-deep` в tokens.css: окно не мигает
+    // чужим цветом, пока интерфейс ещё не отрисован.
+    backgroundColor: "#050609",
     webPreferences: { preload: path.join(__dirname, "preload.cjs") },
   });
 
@@ -102,8 +185,38 @@ async function createWindow() {
   }
 }
 
-app.whenReady().then(() => {
-  startSidecar();
+app.whenReady().then(async () => {
+  // Windows: права нужны движку обхода, поэтому просим их сразу при старте.
+  const elevated = isElevated();
+  if (!elevated && !process.env.PB_ELEVATE_TRIED) {
+    if (relaunchElevated()) {
+      // Повышенная копия уже поднимается — эта больше не нужна.
+      app.quit();
+      return;
+    }
+    console.warn(
+      "приложение запущено без прав администратора: запуск обхода будет недоступен",
+    );
+  }
+
+  const coreElevated = await runningCoreIsElevated();
+  if (coreElevated === false && elevated) {
+    // Повышенному приложению досталось ядро без прав — движок обхода в нём
+    // не запустится. Говорим об этом прямо, вместо непонятной ошибки 740.
+    dialog.showErrorBox(
+      "Ядро уже запущено без прав администратора",
+      "Порт 7290 занят другим ядром PrimeProxy. Закройте все окна PrimeBypass, "
+        + "завершите оставшийся процесс primecore-server в диспетчере задач и "
+        + "запустите приложение снова — тогда ядро поднимется с нужными правами.",
+    );
+    app.quit();
+    return;
+  }
+
+  // Чужое живое ядро переиспользуем: свой процесс порт всё равно не займёт.
+  if (coreElevated === null) startSidecar();
+  else console.log("ядро уже запущено — используем существующее");
+
   createWindow();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

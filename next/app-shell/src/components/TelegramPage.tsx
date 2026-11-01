@@ -1,90 +1,142 @@
-import { useEffect, useState } from "react";
-import { fetchTgProxy, saveTgProxy, TgProxyConfig } from "../api";
+import { useCallback, useEffect, useState } from "react";
+import {
+  fetchTgProxy,
+  fetchTgWorker,
+  startTgProxy,
+  stopTgProxy,
+  TgProxyStatus,
+  TgWorkerData,
+} from "../api";
 import {
   IconCheck,
   IconClose,
   IconCopy,
-  IconSend,
+  IconExternal,
+  IconPlay,
+  IconPower,
+  IconStop,
   IconWarning,
 } from "./Icons";
+import { HelpTip } from "./HelpTip";
 import { PageHeader } from "./PageHeader";
+import "../styles/telegram.css";
 
-// Страница «Telegram» — конфиг MTProto-прокси и готовая ссылка подключения
-// tg://proxy. Пока заготовка: эндпоинт /api/tg/proxy/start сохраняет конфиг,
-// реальный запуск прокси появится позже.
+// Страница «Telegram» — живой локальный прокси.
+//
+// Принцип tg-ws-proxy: Telegram Desktop подключается к локальному SOCKS5,
+// а поток уходит в WebSocket к фронту Cloudflare, который дотягивает его до
+// дата-центра Telegram. Для провайдера это обычный HTTPS к чужому домену.
+
+const DEFAULT_HOST = "127.0.0.1";
+const DEFAULT_PORT = 1353;
+const POLL_MS = 2000;
+
+/** Байты в человекочитаемый вид. */
+function bytesLabel(value: number): string {
+  if (value >= 1024 * 1024) return `${(value / (1024 * 1024)).toFixed(1)} МБ`;
+  if (value >= 1024) return `${(value / 1024).toFixed(1)} КБ`;
+  return `${value} Б`;
+}
+
 export function TelegramPage() {
-  const [host, setHost] = useState("");
-  const [port, setPort] = useState("");
-  const [secret, setSecret] = useState("");
-  const [config, setConfig] = useState<TgProxyConfig | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState<TgProxyStatus | null>(null);
+  const [host, setHost] = useState(DEFAULT_HOST);
+  const [port, setPort] = useState(String(DEFAULT_PORT));
+  const [domain, setDomain] = useState("");
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [okNote, setOkNote] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [worker, setWorker] = useState<TgWorkerData | null>(null);
 
-  // Текущий конфиг: если прокси уже настроен — подставляем значения в поля.
-  useEffect(() => {
-    fetchTgProxy()
-      .then((data) => {
-        setConfig(data);
-        if (data.configured && data.host) {
-          setHost(data.host);
-          if (data.port) setPort(String(data.port));
-        }
-      })
-      .catch((e) => setError(String(e.message)));
+  const load = useCallback(async () => {
+    try {
+      const data = await fetchTgProxy();
+      setStatus(data);
+      setError("");
+      return data;
+    } catch (e) {
+      setError(String(e instanceof Error ? e.message : e));
+      return null;
+    }
   }, []);
 
-  // Конфиг считается сохранённым, если сервер вернул configured
-  // либо сохранение в этой сессии прошло успешно.
-  const saved = Boolean(config?.configured) || okNote !== "";
-  const linkReady = saved && host.trim() && port.trim() && secret.trim();
-  const proxyLink = linkReady
-    ? `tg://proxy?server=${encodeURIComponent(host.trim())}&port=${port.trim()}&secret=${encodeURIComponent(secret.trim())}`
-    : "";
+  // Первая загрузка: состояние и настройки из сохранённого конфига.
+  useEffect(() => {
+    let alive = true;
+    void load().then((data) => {
+      if (!alive || !data) return;
+      if (data.host) setHost(data.host);
+      if (data.port) setPort(String(data.port));
+      if (data.front && data.front.includes(".")) setDomain(data.front);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [load]);
 
-  async function save() {
-    const hostValue = host.trim();
-    const portValue = Math.floor(Number(port));
-    const secretValue = secret.trim();
-    if (!hostValue) {
-      setError("Укажите host прокси");
-      return;
-    }
-    if (!Number.isFinite(portValue) || portValue <= 0 || portValue > 65535) {
-      setError("Порт должен быть числом от 1 до 65535");
-      return;
-    }
-    if (!secretValue) {
-      setError("Укажите secret прокси");
-      return;
-    }
-    setSaving(true);
+  // Пока страница открыта — обновляем счётчики соединений.
+  useEffect(() => {
+    const timer = window.setInterval(() => void load(), POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [load]);
+
+  const running = status?.running ?? false;
+  const link = status?.link ?? `tg://socks?server=${host}&port=${port}`;
+
+  async function connect() {
+    setBusy(true);
     setError("");
-    setOkNote("");
+    setNotice("");
+    const value = Math.floor(Number(port));
+    if (!Number.isFinite(value) || value < 0 || value > 65535) {
+      setError("Порт должен быть числом от 1 до 65535");
+      setBusy(false);
+      return;
+    }
     try {
-      const result = await saveTgProxy(hostValue, portValue, secretValue);
-      setOkNote(result.note ? `Конфиг сохранён: ${result.note}` : "Конфиг сохранён");
-      // Обновим карточку текущего состояния — best effort.
-      fetchTgProxy()
-        .then(setConfig)
-        .catch(() => {
-          // статус конфига не критичен
-        });
+      await startTgProxy(host.trim() || DEFAULT_HOST, value, domain.trim());
+      setNotice("Прокси поднят — добавьте ссылку в Telegram.");
+      await load();
     } catch (e) {
-      setError(String((e as Error).message));
+      setError(String(e instanceof Error ? e.message : e));
     } finally {
-      setSaving(false);
+      setBusy(false);
     }
   }
 
-  async function copyLink() {
+  async function disconnect() {
+    setBusy(true);
+    setError("");
+    setNotice("");
     try {
-      await navigator.clipboard.writeText(proxyLink);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setError("Не удалось скопировать — выделите ссылку вручную");
+      await stopTgProxy();
+      setNotice("Прокси остановлен.");
+      await load();
+    } catch (e) {
+      setError(String(e instanceof Error ? e.message : e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copy(text: string, what: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setNotice(`${what} скопирован в буфер обмена.`);
+      setError("");
+    } catch (e) {
+      setError(`Не удалось скопировать: ${String((e as Error).message)}`);
+    }
+  }
+
+  async function loadWorker() {
+    setError("");
+    try {
+      const data = await fetchTgWorker();
+      setWorker(data);
+      setNotice("Код воркера готов — скопируйте его в Cloudflare.");
+    } catch (e) {
+      setError(String(e instanceof Error ? e.message : e));
     }
   }
 
@@ -94,71 +146,186 @@ export function TelegramPage() {
         index="06"
         group="Сеть"
         title="Telegram"
-        description="MTProto-прокси для Telegram: конфигурация и готовая ссылка подключения."
+        description="Локальный прокси: Telegram подключается к SOCKS5 на этом компьютере, а поток уходит в WebSocket к фронту Cloudflare — провайдер видит обычный HTTPS."
         actions={
-          <span className={`chip ${saved ? "tone-ok" : "tone-neutral"}`}>
-            {saved ? "конфиг сохранён" : "не настроен"}
+          <span className={`chip ${running ? "tone-ok" : "tone-neutral"}`}>
+            {running ? "подключено" : "отключено"}
           </span>
         }
       />
 
-      <div className="infobar warn with-icon">
-        <IconWarning />
-        <span>
-          Заготовка: запуск локального прокси появится позже, конфиг уже можно
-          сохранить.
-        </span>
-      </div>
       {error && (
         <div className="infobar error with-icon" role="alert">
           <IconClose />
           <span>{error}</span>
         </div>
       )}
-      {okNote && (
+      {notice && (
         <div className="infobar ok with-icon" role="status">
           <IconCheck />
-          <span>{okNote}</span>
+          <span>{notice}</span>
         </div>
       )}
+
+      <section className="card engine-card" data-state={running ? "running" : "idle"}>
+        <div className="engine-top">
+          <span className="engine-label">
+            <IconPower size={14} /> Прокси Telegram
+          </span>
+          <span className={`chip ${running ? "tone-ok" : "tone-neutral"}`}>
+            <span className={`status-dot ${running ? "is-ok" : "is-idle"}`} />
+            {running ? "работает" : "остановлен"}
+          </span>
+        </div>
+
+        <div className="engine-body">
+          <div className="engine-state">
+            <h2 className="engine-state-word" aria-live="polite">
+              {running ? "Подключено" : "Отключено"}
+            </h2>
+            <p className="engine-state-note">
+              {running
+                ? "Добавьте ссылку ниже в Telegram — дальше он ходит через этот компьютер."
+                : "Нажмите «Подключить», затем добавьте ссылку в Telegram: одно нажатие — и трафик идёт через туннель."}
+            </p>
+          </div>
+          <div className="engine-actions">
+            <button
+              type="button"
+              className="btn accent lg"
+              onClick={() => void connect()}
+              disabled={busy || running}
+            >
+              {busy && !running ? <span className="spinner" /> : <IconPlay />}
+              Подключить
+            </button>
+            <button
+              type="button"
+              className="btn danger lg"
+              onClick={() => void disconnect()}
+              disabled={busy || !running}
+            >
+              {busy && running ? <span className="spinner" /> : <IconStop />}
+              Отключить
+            </button>
+          </div>
+        </div>
+
+        <dl className="engine-meta">
+          <div>
+            <dt>Адрес</dt>
+            <dd>
+              {status?.host ?? host}:{status?.port ?? port}
+            </dd>
+          </div>
+          <div>
+            <dt>Фронт</dt>
+            <dd>{status?.last_front || status?.front || "не выбран"}</dd>
+          </div>
+          <div>
+            <dt>Соединения</dt>
+            <dd>
+              {status?.active ?? 0} активных · {status?.connections ?? 0} всего
+            </dd>
+          </div>
+          <div>
+            <dt>Трафик</dt>
+            <dd>
+              ↑ {bytesLabel(status?.bytes_up ?? 0)} · ↓ {bytesLabel(status?.bytes_down ?? 0)}
+            </dd>
+          </div>
+        </dl>
+
+        <div className="signal" aria-hidden="true" />
+      </section>
 
       <section className="card">
         <div className="card-head">
           <div>
             <span className="section-kicker">
-              <b>01</b> Конфигурация
+              <b>01</b> Подключение
             </span>
-            <h2 className="card-title">MTProto-прокси</h2>
+            <h2 className="card-title">
+              Ссылка для Telegram{" "}
+              <HelpTip label="как подключить Telegram">
+                Скопируйте ссылку и откройте её на устройстве — Telegram
+                предложит добавить прокси. Либо впишите адрес вручную:
+                «Настройки → Продвинутые → Тип соединения → Прокси → SOCKS5».
+              </HelpTip>
+            </h2>
             <p className="card-note">
-              Параметры сервера, к которому Telegram будет подключаться.
+              Прокси работает, пока открыто это приложение: движок обхода для
+              Telegram не нужен.
             </p>
           </div>
+          <span className={`chip ${running ? "tone-accent" : "tone-neutral"}`}>
+            {running ? "ссылка готова" : "сначала подключите"}
+          </span>
         </div>
 
-        {config && (
-          <div className="status-line config-line">
-            <span className="eyebrow">Текущий конфиг</span>
-            <span className={`status-chip ${config.configured ? "chip-run" : ""}`}>
-              {config.configured ? "Настроен" : "Не настроен"}
-            </span>
-            {config.configured && config.host && (
-              <span className="status-chip">
-                {config.host}
-                {config.port ? `:${config.port}` : ""}
-              </span>
-            )}
-          </div>
-        )}
+        <p className="plan-line">
+          <span className="field-label">Ссылка</span>
+          <code>{link}</code>
+        </p>
 
-        <div className="form-grid">
-          <label className="field grow">
-            <span className="field-label">Host</span>
+        <div className="actions-row">
+          <button
+            type="button"
+            className="btn accent"
+            onClick={() => void copy(link, "Ссылка")}
+            disabled={!running}
+          >
+            <IconCopy />
+            Скопировать ссылку
+          </button>
+          <a
+            className="btn secondary"
+            href={link}
+            onClick={(event) => {
+              // В Electron переход по tg:// может быть заблокирован —
+              // тогда остаётся скопированная ссылка.
+              event.preventDefault();
+              window.location.href = link;
+            }}
+          >
+            <IconExternal />
+            Открыть в Telegram
+          </a>
+        </div>
+      </section>
+
+      <section className="card">
+        <div className="card-head">
+          <div>
+            <span className="section-kicker">
+              <b>02</b> Настройки
+            </span>
+            <h2 className="card-title">
+              Порт и фронт{" "}
+              <HelpTip label="зачем свой домен">
+                По умолчанию берутся встроенные фронты Cloudflare. Если они
+                перестали отвечать, поднимите свой воркер: скопируйте код и
+                DNS-записи, заведите домен в Cloudflare и впишите его сюда.
+              </HelpTip>
+            </h2>
+            <p className="card-note">
+              Меняются только при следующем подключении — текущий туннель они
+              не трогают.
+            </p>
+          </div>
+          {status?.configured && (
+            <span className="chip tone-neutral">конфиг сохранён</span>
+          )}
+        </div>
+
+        <div className="launch-row">
+          <label className="field">
+            <span className="field-label">Адрес</span>
             <input
               value={host}
               onChange={(event) => setHost(event.target.value)}
-              placeholder="например, proxy.example.com"
-              disabled={saving}
-              spellCheck={false}
+              disabled={busy || running}
+              placeholder={DEFAULT_HOST}
             />
           </label>
           <label className="field">
@@ -169,68 +336,92 @@ export function TelegramPage() {
               max={65535}
               value={port}
               onChange={(event) => setPort(event.target.value)}
-              placeholder="443"
-              disabled={saving}
+              disabled={busy || running}
             />
           </label>
           <label className="field grow">
-            <span className="field-label">Secret</span>
+            <span className="field-label">Свой домен воркера (необязательно)</span>
             <input
-              type="password"
-              value={secret}
-              onChange={(event) => setSecret(event.target.value)}
-              placeholder="hex-строка или ee…"
-              disabled={saving}
-              autoComplete="off"
-              spellCheck={false}
+              value={domain}
+              onChange={(event) => setDomain(event.target.value)}
+              disabled={busy || running}
+              placeholder="например, my-proxy.example.com"
             />
           </label>
-          <button
-            type="button"
-            className="btn accent"
-            onClick={save}
-            disabled={saving}
-          >
-            {saving ? <span className="spinner" /> : <IconCheck />}
-            {saving ? "Сохраняю…" : "Сохранить конфиг"}
-          </button>
         </div>
+
+        <div className="actions-row">
+          <button type="button" className="btn ghost" onClick={() => void loadWorker()}>
+            Код воркера и DNS
+          </button>
+          {worker && (
+            <>
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={() => void copy(worker.code, "Код воркера")}
+              >
+                <IconCopy />
+                Скопировать код
+              </button>
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={() => void copy(worker.dns, "DNS-записи")}
+              >
+                <IconCopy />
+                Скопировать DNS
+              </button>
+            </>
+          )}
+        </div>
+
+        {worker && (
+          <details className="tg-details">
+            <summary>Показать код воркера</summary>
+            <pre className="log-view tg-code">{worker.code}</pre>
+            <p className="card-note">
+              Путь WebSocket: <code>{worker.path}</code> — воркер отвечает на
+              него и туннелирует поток к дата-центру Telegram.
+            </p>
+          </details>
+        )}
       </section>
 
       <section className="card">
         <div className="card-head">
           <div>
             <span className="section-kicker">
-              <b>02</b> Подключение
+              <b>03</b> Как это работает
             </span>
-            <h2 className="card-title">Ссылка для Telegram</h2>
-            <p className="card-note">
-              Откройте ссылку на устройстве — Telegram предложит добавить прокси.
-            </p>
+            <h2 className="card-title">Схема туннеля</h2>
           </div>
         </div>
-
-        {!saved ? (
-          <div className="empty-state">
-            <IconSend />
-            <strong>Сначала сохраните конфиг</strong>
-            <span>Ссылка появится после сохранения host, порта и secret.</span>
-          </div>
-        ) : !linkReady ? (
-          <div className="empty-state">
-            <strong>Не хватает secret</strong>
-            <span>
-              Конфиг сохранён, но secret не известен странице — заполните поле
-              Secret выше.
-            </span>
-          </div>
-        ) : (
-          <div className="code-row">
-            <code>{proxyLink}</code>
-            <button type="button" className="btn secondary" onClick={copyLink}>
-              {copied ? <IconCheck /> : <IconCopy />}
-              {copied ? "Скопировано" : "Скопировать"}
-            </button>
+        <ol className="tg-steps">
+          <li>
+            Telegram Desktop подключается к локальному SOCKS5 на{" "}
+            <code>
+              {status?.host ?? host}:{status?.port ?? port}
+            </code>
+            .
+          </li>
+          <li>
+            Каждое соединение к дата-центру Telegram уходит в WebSocket
+            (wss://) к фронту Cloudflare по пути <code>/apiws</code>.
+          </li>
+          <li>
+            Воркер фронта дотягивает поток до адреса дата-центра и обратно —
+            трафик идёт как обычный HTTPS к чужому домену.
+          </li>
+          <li>
+            Для провайдера это не MTProto: блокировать нечего, а сам Telegram
+            видит обычный прокси.
+          </li>
+        </ol>
+        {status?.last_error && (
+          <div className="infobar warn with-icon">
+            <IconWarning />
+            <span>Последняя ошибка туннеля: {status.last_error}</span>
           </div>
         )}
       </section>

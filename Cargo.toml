@@ -62,6 +62,8 @@ tower = "0.5"
 # ring выбран явно: не требует cmake/NASM при сборке под Windows
 rustls = { version = "0.23", features = ["ring"] }
 webpki-roots = "0.26"
+# Асинхронный TLS для живого туннеля Telegram (SOCKS5 → WSS).
+tokio-rustls = "0.26"
 # Распаковка тела при decode_body (в python это делает libcurl).
 flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
 # Имя сайта в приветствии QUIC — punycode (python encode("idna")).

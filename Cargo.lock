@@ -1204,6 +1204,7 @@ dependencies = [
  "axum",
  "base64 0.22.1",
  "bzip2",
+ "fastrand",
  "primecore-dns",
  "primecore-dnswire",
  "primecore-fakes",
@@ -1214,15 +1215,19 @@ dependencies = [
  "primecore-privilege",
  "primecore-release",
  "primecore-socketcancel",
+ "primecore-telegram",
  "primecore-versions",
  "primecore-ws",
  "reqwest",
+ "rustls",
  "serde",
  "serde_json",
  "sha2",
  "thiserror",
  "tokio",
+ "tokio-rustls",
  "tower",
+ "webpki-roots 0.26.11",
 ]
 
 [[package]]

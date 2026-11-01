@@ -1,18 +1,16 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
-import { API } from "./api";
 import { DnsToolsPage } from "./components/DnsToolsPage";
 import { BypassPage } from "./components/BypassPage";
 import { CheckPage } from "./components/CheckPage";
 import { TelegramPage } from "./components/TelegramPage";
 import { HostsPage } from "./components/HostsPage";
 import { LogAnalyzerPage } from "./components/LogAnalyzerPage";
-import { FakesPage } from "./components/FakesPage";
 import { TitleBar } from "./components/TitleBar";
+import { CoreStatus } from "./components/CoreStatus";
 import {
   IconChart,
   IconGlobe,
-  IconLayers,
   IconSearch,
   IconSend,
   IconShield,
@@ -23,7 +21,7 @@ import "./styles.css";
 // Боковая навигация: слева «патч-панель» из групп инструментов.
 // Маршрутизатор не нужен — страницы грузятся только по одной, достаточно
 // useState. Номер пункта совпадает с номером в шапке страницы.
-type PageId = "bypass" | "hosts" | "check" | "logs" | "dns" | "telegram" | "fakes";
+type PageId = "bypass" | "hosts" | "check" | "logs" | "dns" | "telegram";
 
 interface NavItem {
   id: PageId;
@@ -54,14 +52,7 @@ const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
       { id: "telegram", index: "06", icon: IconSend, title: "Telegram" },
     ],
   },
-  {
-    label: "Библиотека",
-    items: [{ id: "fakes", index: "07", icon: IconLayers, title: "Фейки" }],
-  },
 ];
-
-// Адрес ядра без схемы — так его удобнее читать в узкой панели.
-const ENGINE_ADDRESS = API.replace(/^https?:\/\//, "");
 
 function App() {
   const [page, setPage] = useState<PageId>("bypass");
@@ -71,6 +62,12 @@ function App() {
       <a className="skip-link" href="#main">
         К содержимому
       </a>
+      {/* Атмосфера сайта студии: два дышащих пятна и зерно под всем окном. */}
+      <div className="atmosphere" aria-hidden="true">
+        <span className="atmosphere__orb atmosphere__orb--violet" />
+        <span className="atmosphere__orb atmosphere__orb--cyan" />
+        <span className="atmosphere__grain" />
+      </div>
       <TitleBar title="PrimeBypass" />
       <div className="app-body">
         <aside className="sidebar">
@@ -101,11 +98,7 @@ function App() {
               </div>
             ))}
           </nav>
-          <div className="side-foot">
-            <span className="side-foot-label">Ядро</span>
-            <code className="side-foot-value">{ENGINE_ADDRESS}</code>
-            <span className="side-foot-note">локальный HTTP API</span>
-          </div>
+          <CoreStatus />
         </aside>
         <main className="content" id="main" tabIndex={-1}>
           {page === "bypass" && <BypassPage />}
@@ -114,7 +107,6 @@ function App() {
           {page === "logs" && <LogAnalyzerPage />}
           {page === "dns" && <DnsToolsPage />}
           {page === "telegram" && <TelegramPage />}
-          {page === "fakes" && <FakesPage />}
         </main>
       </div>
     </div>

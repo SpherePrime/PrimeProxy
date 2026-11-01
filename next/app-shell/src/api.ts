@@ -3,6 +3,23 @@ const BASE = import.meta.env.VITE_API || "http://127.0.0.1:7290";
 
 export const API = BASE;
 
+/**
+ * Живо ли ядро: `GET /health`.
+ *
+ * Ответ нужен панели, чтобы показывать настоящее состояние связи, а не
+ * декоративную точку. Таймаут короткий — проверка идёт в фоне по таймеру.
+ */
+export async function fetchHealth(): Promise<boolean> {
+  try {
+    const response = await fetch(`${BASE}/health`, {
+      signal: AbortSignal.timeout(2500),
+    });
+    return response.ok;
+  } catch (_) {
+    return false;
+  }
+}
+
 export interface ProviderData {
   desc?: string;
   icon?: string;
@@ -324,41 +341,68 @@ export async function setDns(servers: string[], ifname: string): Promise<{ ok: b
 }
 
 // ---------------------------------------------------------------------------
-// Telegram: MTProto-прокси (пока заготовка — конфиг и ссылка подключения).
+// ---------------------------------------------------------------------------
+// Telegram: локальный прокси (SOCKS5 → WSS к фронту Cloudflare).
 // ---------------------------------------------------------------------------
 
-export interface TgProxyConfig {
+export interface TgProxyStatus {
   configured: boolean;
-  host: string | null;
-  port: number | null;
+  host: string;
+  port: number;
+  running: boolean;
+  /** Свой домен воркера или пометка про встроенные фронты. */
+  front: string | null;
+  started_at: number | null;
+  connections: number;
+  active: number;
+  bytes_up: number;
+  bytes_down: number;
+  last_front: string;
+  last_error: string;
+  /** Готовая ссылка tg://socks — по ней Telegram подключается в один клик. */
+  link: string;
+  saved_at: number | null;
 }
 
-export async function fetchTgProxy(): Promise<TgProxyConfig> {
+export async function fetchTgProxy(): Promise<TgProxyStatus> {
   const response = await fetch(`${BASE}/api/tg/proxy`);
   if (!response.ok) throw await errorFrom(response);
   return response.json();
 }
 
-export interface TgProxyStartResult {
-  ok: boolean;
-  note?: string;
-}
-
-export async function saveTgProxy(
+export async function startTgProxy(
   host: string,
   port: number,
-  secret: string,
-): Promise<TgProxyStartResult> {
+  domain: string,
+): Promise<TgProxyStatus & { ok: boolean }> {
   const response = await fetch(`${BASE}/api/tg/proxy/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ host, port, secret }),
+    body: JSON.stringify({ host, port, domain }),
   });
   if (!response.ok) throw await errorFrom(response);
   return response.json();
 }
 
-// ---------------------------------------------------------------------------
+export async function stopTgProxy(): Promise<{ ok: boolean; stopped: boolean }> {
+  const response = await fetch(`${BASE}/api/tg/proxy/stop`, { method: "POST" });
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
+export interface TgWorkerData {
+  code: string;
+  dns: string;
+  path: string;
+}
+
+/** Код воркера и DNS-записи для своего домена Cloudflare. */
+export async function fetchTgWorker(): Promise<TgWorkerData> {
+  const response = await fetch(`${BASE}/api/tg/proxy/worker`);
+  if (!response.ok) throw await errorFrom(response);
+  return response.json();
+}
+
 // Разблокировка (файл hosts), анализ лога, каталог фейков.
 // ---------------------------------------------------------------------------
 
@@ -442,29 +486,6 @@ export async function analyzeLogFile(path: string): Promise<LogAnalyzeResponse> 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ path }),
   });
-  if (!response.ok) throw await errorFrom(response);
-  return response.json();
-}
-
-export interface FakeInfo {
-  name: string;
-  kind: string;
-  sni: string | null;
-  description: string;
-  source_kind: string;
-  size: number;
-  same_bytes_as: string | null;
-  sort_order: number;
-  sha256?: string;
-}
-
-export interface FakesResponse {
-  fakes: FakeInfo[];
-  total: number;
-}
-
-export async function fetchFakes(): Promise<FakesResponse> {
-  const response = await fetch(`${BASE}/api/fakes`);
   if (!response.ok) throw await errorFrom(response);
   return response.json();
 }

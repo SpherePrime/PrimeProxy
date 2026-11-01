@@ -225,6 +225,72 @@ pub fn is_busy_retryable(status: i64, headers: &ResponseHead) -> bool {
         .map_or(true, |value| value == "0")
 }
 
+/// Кадр от сервера: сервер маску не ставит, поэтому payload уже готов.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ServerFrame {
+    /// Код операции: `OP_BINARY`, `OP_PING`, `OP_CLOSE` и т. д.
+    pub opcode: u8,
+    /// Полезная нагрузка кадра.
+    pub payload: Vec<u8>,
+    /// Сколько байт буфера занял кадр (включая заголовок).
+    pub consumed: usize,
+}
+
+/// Разбор одного кадра от сервера.
+///
+/// Сетевой слой отдаёт накопленный буфер, а решение о границах кадра —
+/// здесь: `Ok(None)` значит «данных ещё не хватает, читай дальше».
+///
+/// # Errors
+/// Кадр пришёл с маской (так бывает только от клиента), длина больше
+/// [`MAX_FRAME`] или заголовок противоречив.
+pub fn decode_frame(buffer: &[u8]) -> Result<Option<ServerFrame>, WsProtocolError> {
+    if buffer.len() < 2 {
+        return Ok(None);
+    }
+    let opcode = buffer[0] & 0x0F;
+    let masked = buffer[1] & 0x80 != 0;
+    if masked {
+        return Err(WsProtocolError("кадр сервера пришёл с маской".to_string()));
+    }
+    let mut offset = 2;
+    let length = match buffer[1] & 0x7F {
+        126 => {
+            if buffer.len() < offset + 2 {
+                return Ok(None);
+            }
+            let value = u16::from_be_bytes([buffer[offset], buffer[offset + 1]]) as usize;
+            offset += 2;
+            value
+        }
+        127 => {
+            if buffer.len() < offset + 8 {
+                return Ok(None);
+            }
+            let mut raw = [0_u8; 8];
+            raw.copy_from_slice(&buffer[offset..offset + 8]);
+            offset += 8;
+            let value = u64::from_be_bytes(raw);
+            if value > MAX_FRAME as u64 {
+                return Err(WsProtocolError(format!("кадр слишком велик: {value}")));
+            }
+            value as usize
+        }
+        value => value as usize,
+    };
+    if length > MAX_FRAME {
+        return Err(WsProtocolError(format!("кадр слишком велик: {length}")));
+    }
+    if buffer.len() < offset + length {
+        return Ok(None);
+    }
+    Ok(Some(ServerFrame {
+        opcode,
+        payload: buffer[offset..offset + length].to_vec(),
+        consumed: offset + length,
+    }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -329,5 +395,66 @@ mod tests {
         let upgrade_error = WsConnectError::new(STAGE_UPGRADE, "HTTP 503", 503);
         assert!(upgrade_error.tcp_reached());
         assert_eq!(upgrade_error.status_code, 503);
+    }
+
+    #[test]
+    fn decode_frame_reads_short_payload() {
+        // Кадр сервера: FIN + binary, длина 3, без маски.
+        let frame = [0x82_u8, 0x03, 0xAA, 0xBB, 0xCC];
+        let parsed = decode_frame(&frame).expect("кадр разобран").expect("кадр целиком");
+        assert_eq!(parsed.opcode, OP_BINARY);
+        assert_eq!(parsed.payload, vec![0xAA, 0xBB, 0xCC]);
+        assert_eq!(parsed.consumed, frame.len());
+    }
+
+    #[test]
+    fn decode_frame_waits_for_full_payload() {
+        let frame = [0x82_u8, 0x03, 0xAA, 0xBB];
+        assert_eq!(decode_frame(&frame).expect("без ошибки"), None);
+        assert_eq!(decode_frame(&[0x82]).expect("без ошибки"), None);
+        assert_eq!(decode_frame(&[]).expect("без ошибки"), None);
+    }
+
+    #[test]
+    fn decode_frame_reads_extended_lengths() {
+        // 126 → длина в двух байтах.
+        let mut frame = vec![0x82, 126, 0x01, 0x00];
+        frame.extend(std::iter::repeat_n(0x7F, 256));
+        let parsed = decode_frame(&frame)
+            .expect("кадр разобран")
+            .expect("кадр целиком");
+        assert_eq!(parsed.payload.len(), 256);
+        assert_eq!(parsed.consumed, frame.len());
+
+        // 127 → длина в восьми байтах.
+        let mut long = vec![0x82, 127];
+        long.extend_from_slice(&5_u64.to_be_bytes());
+        long.extend_from_slice(b"hello");
+        let parsed = decode_frame(&long)
+            .expect("кадр разобран")
+            .expect("кадр целиком");
+        assert_eq!(parsed.payload, b"hello".to_vec());
+    }
+
+    #[test]
+    fn decode_frame_rejects_masked_and_oversized() {
+        // Маска от сервера — ошибка протокола.
+        let masked = [0x82_u8, 0x83, 1, 2, 3, 4, 0, 0, 0];
+        assert!(decode_frame(&masked).is_err());
+
+        // Слишком большая длина отсекается до чтения тела.
+        let mut huge = vec![0x82, 127];
+        huge.extend_from_slice(&(u64::MAX).to_be_bytes());
+        assert!(decode_frame(&huge).is_err());
+    }
+
+    #[test]
+    fn decode_frame_keeps_control_opcodes() {
+        let ping = [0x89_u8, 0x00];
+        let parsed = decode_frame(&ping)
+            .expect("кадр разобран")
+            .expect("кадр целиком");
+        assert_eq!(parsed.opcode, OP_PING);
+        assert!(parsed.payload.is_empty());
     }
 }
