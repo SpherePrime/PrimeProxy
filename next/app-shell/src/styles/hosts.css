@@ -138,9 +138,17 @@ details[open] > summary .hosts-details-arrow {
 
 .svc-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--sp-2);
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.svc-head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.svc-head .chip {
+  flex-shrink: 0;
 }
 
 .svc-title {
@@ -152,7 +160,7 @@ details[open] > summary .hosts-details-arrow {
 }
 
 .svc-note {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   color: var(--text-mute);
   font-size: 12px;
   line-height: 1.45;

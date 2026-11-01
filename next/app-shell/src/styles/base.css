@@ -1333,6 +1333,25 @@ input[type="checkbox"]:disabled {
   overflow-wrap: anywhere;
 }
 
+/* ─────────────────────────── Значок сервиса ─────────────────────────── */
+
+/* Монограмма сервиса: оттенок приходит из --badge-hue (считает компонент),
+   поэтому значок остаётся частью темы и не требует картинок. */
+.svc-badge {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border: 1px solid hsl(var(--badge-hue) 45% 62% / 0.32);
+  border-radius: var(--r-sm);
+  background: hsl(var(--badge-hue) 45% 62% / 0.14);
+  color: hsl(var(--badge-hue) 52% 74%);
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
 /* ─────────────────────────── Hosts, фейки, код ─────────────────────────── */
 
 .host-group {

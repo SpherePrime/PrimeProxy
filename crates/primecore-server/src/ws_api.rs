@@ -1429,25 +1429,52 @@ pub fn preset_targets(preset_text: &str) -> Vec<String> {
 }
 
 /// Метки целей в каталоговом порядке.
-const TARGET_CATALOG_LABELS: [&str; 15] = [
+///
+/// Порядок задаёт не текст пресета, а этот каталог: интерфейс группирует
+/// пресеты по профилям сервисов, поэтому список должен быть стабильным.
+const TARGET_CATALOG_LABELS: [&str; 36] = [
     "YouTube",
-    "Discord",
-    "Telegram",
+    "Twitch",
     "Instagram",
     "Facebook",
     "Twitter/X",
     "TikTok",
+    "LinkedIn",
+    "Discord",
+    "Telegram",
     "WhatsApp",
     "ChatGPT",
     "Anthropic",
+    "Gemini",
+    "DeepSeek",
+    "Steam",
+    "Roblox",
+    "Epic Games",
+    "Riot/Valorant",
+    "Ubisoft",
+    "itch.io",
+    "Microsoft Store",
+    "SoundCloud",
     "Google",
-    "Twitch",
-    "Игры",
+    "Google бэкенд",
+    "Cloudflare",
+    "Amazon",
+    "Apple",
+    "GitHub",
+    "Speedtest",
     "Торренты",
+    "Obsidian",
+    "Notion",
+    "Fandom",
+    "Vencord",
+    "Мои сайты",
     "Все сайты",
 ];
 
 /// Цели одного списка (в каталоговом порядке; несколько — допустимо).
+///
+/// Сравнение идёт по имени файла списка без `lists/` и `.txt`. Там, где имя
+/// слишком общее (`itch` входит в `twitch`), используется точное равенство.
 fn list_targets(list_name: &str) -> Vec<&'static str> {
     let name = list_name.to_lowercase();
     let mut targets = Vec::new();
@@ -1476,6 +1503,9 @@ fn list_targets(list_name: &str) -> Vec<&'static str> {
     if name.contains("tiktok") {
         targets.push("TikTok");
     }
+    if name.contains("linkedin") {
+        targets.push("LinkedIn");
+    }
     if name.contains("whatsapp") {
         targets.push("WhatsApp");
     }
@@ -1485,17 +1515,81 @@ fn list_targets(list_name: &str) -> Vec<&'static str> {
     if name.contains("claude") {
         targets.push("Anthropic");
     }
-    if name.starts_with("google") {
+    if name.contains("gemini") {
+        targets.push("Gemini");
+    }
+    if name.contains("deepseek") {
+        targets.push("DeepSeek");
+    }
+    // Google разделён: поиск и сайты против служебного бэкенда — разные
+    // списки и разные рецепты.
+    if name.contains("google-backend") {
+        targets.push("Google бэкенд");
+    } else if name.starts_with("google") {
         targets.push("Google");
     }
     if name.contains("twitch") {
         targets.push("Twitch");
     }
-    if name.contains("steam") || name.contains("roblox") || name.contains("epicgames") {
-        targets.push("Игры");
+    // Игры — отдельными профилями: у каждой площадки свои списки и свой
+    // рецепт, объединять их в одну кучу незачем.
+    if name.contains("steam") {
+        targets.push("Steam");
+    }
+    if name.contains("roblox") {
+        targets.push("Roblox");
+    }
+    if name.contains("epicgames") {
+        targets.push("Epic Games");
+    }
+    if name.contains("riot-valorant") {
+        targets.push("Riot/Valorant");
+    }
+    if name.contains("ubisoft") {
+        targets.push("Ubisoft");
+    }
+    if name == "itch" {
+        targets.push("itch.io");
+    }
+    if name.contains("microsoft-store") {
+        targets.push("Microsoft Store");
+    }
+    if name.contains("soundcloud") {
+        targets.push("SoundCloud");
+    }
+    if name.contains("cloudflare") || name.contains("cloudfront") {
+        targets.push("Cloudflare");
+    }
+    if name.contains("amazon") {
+        targets.push("Amazon");
+    }
+    if name.contains("apple") {
+        targets.push("Apple");
+    }
+    if name.contains("github") {
+        targets.push("GitHub");
+    }
+    if name.contains("speedtest") {
+        targets.push("Speedtest");
     }
     if name.contains("rutracker") || name.contains("rutor") {
         targets.push("Торренты");
+    }
+    if name.contains("obsidian") {
+        targets.push("Obsidian");
+    }
+    if name.contains("notion") {
+        targets.push("Notion");
+    }
+    if name.contains("fandom") {
+        targets.push("Fandom");
+    }
+    if name.contains("vencord") {
+        targets.push("Vencord");
+    }
+    // Личные списки пользователя: сюда попадает всё, что он добавил сам.
+    if name == "other" || name == "myhostlist" || name == "mycdnlist" {
+        targets.push("Мои сайты");
     }
     if name.contains("russia-blacklist")
         || name.contains("zapret-moe")
@@ -2552,9 +2646,9 @@ mod tests {
         // Дедуп: один и тот же список дважды — одна цель.
         let text = "--hostlist=lists/discord.txt\n--hostlist=lists/discord-images.txt\n";
         assert_eq!(preset_targets(text), vec!["Discord".to_string()]);
-        // Без совпадений — «Общий» (amazon.txt не входит ни в один профиль).
+        // Без совпадений — «Общий» (tankix.txt не входит ни в один профиль).
         assert_eq!(
-            preset_targets("--hostlist=lists/amazon.txt\n"),
+            preset_targets("--hostlist=lists/tankix.txt\n"),
             vec!["Общий"]
         );
         // Только hostlist-ссылки: ipset не рассматривается.
@@ -2620,6 +2714,90 @@ mod tests {
         );
     }
 
+    #[test]
+    fn preset_targets_maps_extra_profiles() {
+        // Каталог целей растёт: у каждого списка — свой профиль.
+        assert_eq!(
+            preset_targets("--hostlist=lists/github.txt --hostlist=lists/githubusercontent.txt"),
+            vec!["GitHub"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/amazon.txt"),
+            vec!["Amazon"]
+        );
+        // cloudflare и cloudfront — один профиль инфраструктуры.
+        assert_eq!(
+            preset_targets("--hostlist=lists/cloudflare.txt --hostlist=lists/cloudfront.txt"),
+            vec!["Cloudflare"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/microsoft-store.txt"),
+            vec!["Microsoft Store"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/soundcloud.txt"),
+            vec!["SoundCloud"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/ubisoft.txt"),
+            vec!["Ubisoft"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/riot-valorant.txt"),
+            vec!["Riot/Valorant"]
+        );
+        // itch — точное имя: иначе «itch» поймало бы twitch.
+        assert_eq!(
+            preset_targets("--hostlist=lists/itch.txt"),
+            vec!["itch.io"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/twitch.txt"),
+            vec!["Twitch"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/obsidian.txt"),
+            vec!["Obsidian"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/notion.txt"),
+            vec!["Notion"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/speedtest.txt"),
+            vec!["Speedtest"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/fandom.txt"),
+            vec!["Fandom"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/vencord.txt"),
+            vec!["Vencord"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/linkedin.txt"),
+            vec!["LinkedIn"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/gemini.txt"),
+            vec!["Gemini"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/deepseek.txt"),
+            vec!["DeepSeek"]
+        );
+        assert_eq!(
+            preset_targets("--hostlist=lists/apple.txt"),
+            vec!["Apple"]
+        );
+        // Личные списки пользователя — один профиль «Мои сайты».
+        assert_eq!(
+            preset_targets("--hostlist=lists/other.txt --hostlist=lists/myhostlist.txt"),
+            vec!["Мои сайты"]
+        );
+    }
+
     #[tokio::test]
     async fn preset_targets_on_real_corpus() {
         let dir = presets_dir(&repo_resources());
@@ -2643,6 +2821,24 @@ mod tests {
             "Twitter/X",
             "TikTok",
             "Торренты",
+            "LinkedIn",
+            "GitHub",
+            "Amazon",
+            "Cloudflare",
+            "SoundCloud",
+            "Ubisoft",
+            "Riot/Valorant",
+            "itch.io",
+            "Microsoft Store",
+            "Obsidian",
+            "Speedtest",
+            "Fandom",
+            "Vencord",
+            "Gemini",
+            "DeepSeek",
+            "Apple",
+            "Notion",
+            "Мои сайты",
         ] {
             assert!(
                 all_targets.iter().any(|t| t == label),

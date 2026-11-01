@@ -20,6 +20,7 @@ import {
   ProfileCard,
   UniversalBlock,
   buildGroups,
+  categorizeProfiles,
   groupMatches,
   isEnabled,
   isUniversal,
@@ -665,21 +666,26 @@ export function BypassPage() {
             />
 
             {visibleProfiles.length > 0 ? (
-              <div className="pcard-grid">
-                {visibleProfiles.map((group) => (
-                  <ProfileCard
-                    key={group.target}
-                    group={group}
-                    enabled={isEnabled(group.target, enabledMap)}
-                    chosen={effectiveDefaults[group.target]}
-                    search={search}
-                    open={openGroup === group.target}
-                    onToggle={toggleGroup}
-                    onChoose={choosePreset}
-                    onOpen={setOpenGroup}
-                  />
-                ))}
-              </div>
+              categorizeProfiles(visibleProfiles).map((category) => (
+                <div className="pcard-category" key={category.title}>
+                  <h3 className="pcard-category-title">{category.title}</h3>
+                  <div className="pcard-grid">
+                    {category.groups.map((group) => (
+                      <ProfileCard
+                        key={group.target}
+                        group={group}
+                        enabled={isEnabled(group.target, enabledMap)}
+                        chosen={effectiveDefaults[group.target]}
+                        search={search}
+                        open={openGroup === group.target}
+                        onToggle={toggleGroup}
+                        onChoose={choosePreset}
+                        onOpen={setOpenGroup}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))
             ) : (
               <div className="empty-state">
                 <strong>Ничего не найдено</strong>

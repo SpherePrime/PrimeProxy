@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PresetInfo } from "../api";
 import { IconCheck, IconChevron } from "./Icons";
+import { ServiceBadge } from "./ServiceBadge";
 
 // Группировка пресетов по целевым сервисам (targets из /api/ws/presets):
 // одна секция — один сервис, пресет может входить в несколько секций.
@@ -11,20 +12,66 @@ export const GROUP_ORDER = [
   "Все сайты",
   "Общий",
   "YouTube",
-  "Discord",
-  "Telegram",
+  "Twitch",
   "Instagram",
   "Facebook",
   "Twitter/X",
   "TikTok",
+  "LinkedIn",
+  "Discord",
+  "Telegram",
   "WhatsApp",
   "ChatGPT",
   "Anthropic",
-  "Google",
-  "Twitch",
+  "Gemini",
+  "DeepSeek",
   "Игры",
+  "Riot/Valorant",
+  "Ubisoft",
+  "itch.io",
+  "Microsoft Store",
+  "SoundCloud",
+  "Google",
+  "Cloudflare",
+  "Amazon",
+  "Apple",
+  "GitHub",
+  "Speedtest",
   "Торренты",
+  "Obsidian",
+  "Notion",
+  "Fandom",
+  "Vencord",
+  "Мои сайты",
 ] as const;
+
+// Категории точечных профилей: с длинным каталогом плоская сетка читается
+// плохо, а по группам видно, что вообще бывает.
+const PROFILE_CATEGORIES: Array<{ title: string; targets: string[] }> = [
+  { title: "Видео и стримы", targets: ["YouTube", "Twitch"] },
+  {
+    title: "Соцсети",
+    targets: ["Instagram", "Facebook", "Twitter/X", "TikTok", "LinkedIn"],
+  },
+  { title: "Мессенджеры", targets: ["Discord", "Telegram", "WhatsApp"] },
+  {
+    title: "ИИ-сервисы",
+    targets: ["ChatGPT", "Anthropic", "Gemini", "DeepSeek"],
+  },
+  {
+    title: "Игры",
+    targets: ["Игры", "Riot/Valorant", "Ubisoft", "itch.io", "Microsoft Store"],
+  },
+  { title: "Медиа", targets: ["SoundCloud"] },
+  {
+    title: "Инфраструктура",
+    targets: ["Google", "Cloudflare", "Amazon", "Apple", "GitHub", "Speedtest"],
+  },
+  {
+    title: "Разное",
+    targets: ["Торренты", "Obsidian", "Notion", "Fandom", "Vencord", "Мои сайты"],
+  },
+];
 
 // Секции, включённые по умолчанию при первом запуске.
 const DEFAULT_ON = new Set<string>(["Все сайты"]);
@@ -35,19 +82,37 @@ const TARGET_DESCRIPTIONS: Record<string, string> = {
   "Все сайты": "универсальные пресеты: подходят большинству заблокированных сайтов",
   Общий: "пресеты без привязки к конкретному сервису",
   YouTube: "видео, трансляции и превью",
-  Discord: "чат, голос, обновления и медиа",
-  Telegram: "мессенджер, веб-клиент и дата-центры",
+  Twitch: "стримы, чат и превью",
   Instagram: "лента, сторис и CDN картинок",
   Facebook: "лента, видео и CDN",
   "Twitter/X": "лента, картинки и короткие ссылки",
   TikTok: "лента, видео и CDN",
+  LinkedIn: "лента, профили и картинки",
+  Discord: "чат, голос, обновления и медиа",
+  Telegram: "мессенджер, веб-клиент и дата-центры",
   WhatsApp: "веб-клиент и медиа",
   ChatGPT: "чат, API и статика OpenAI",
   Anthropic: "Claude и API Anthropic",
-  Google: "поиск, бэкенд и сервисы Google",
-  Twitch: "стримы, чат и превью",
+  Gemini: "Gemini и сервисы Google AI",
+  DeepSeek: "чат и API DeepSeek",
   Игры: "Steam, Roblox, Epic Games и Fortnite",
+  "Riot/Valorant": "Riot Games, League of Legends и Valorant",
+  Ubisoft: "магазин и лаунчер Ubisoft",
+  "itch.io": "магазин инди-игр",
+  "Microsoft Store": "магазин и загрузки Microsoft",
+  SoundCloud: "музыка и CDN",
+  Google: "поиск, бэкенд и сервисы Google",
+  Cloudflare: "инфраструктура Cloudflare и CloudFront",
+  Amazon: "магазин и облако AWS",
+  Apple: "сервисы Apple",
+  GitHub: "репозитории, файлы и статика",
+  Speedtest: "замеры скорости",
   Торренты: "rutracker и rutor",
+  Obsidian: "заметки и синхронизация",
+  Notion: "заметки и рабочие пространства",
+  Fandom: "вики и фан-порталы",
+  Vencord: "модификация клиента Discord",
+  "Мои сайты": "ваши собственные списки доменов",
 };
 
 /** Человеческое описание профиля; пустая строка — если сервис неизвестен. */
@@ -178,9 +243,47 @@ function filterPresets(presets: PresetInfo[], query: string): PresetInfo[] {
   );
 }
 
+/**
+ * Пресеты группы под запрос. Имя профиля и его описание тоже участвуют в
+ * поиске: иначе «tiktok» ничего не находил — в именах пресетов такого слова нет.
+ */
+export function visiblePresets(group: PresetGroup, search: string): PresetInfo[] {
+  const query = search.trim().toLowerCase();
+  if (query === "") return group.presets;
+  const byTarget =
+    group.target.toLowerCase().includes(query) ||
+    targetDescription(group.target).toLowerCase().includes(query);
+  if (byTarget) return group.presets;
+  return filterPresets(group.presets, query);
+}
+
 /** Есть ли в группе пресеты под запрос — чтобы не показывать пустые карточки. */
 export function groupMatches(group: PresetGroup, search: string): boolean {
-  return filterPresets(group.presets, search.trim().toLowerCase()).length > 0;
+  return visiblePresets(group, search).length > 0;
+}
+
+export interface ProfileCategory {
+  title: string;
+  groups: PresetGroup[];
+}
+
+/**
+ * Раскладка точечных профилей по категориям. Профили, которых нет в списке
+ * категорий (новые цели ядра), попадают в «Другие» — каталог ядра и UI
+ * обновляются независимо.
+ */
+export function categorizeProfiles(groups: PresetGroup[]): ProfileCategory[] {
+  const result: ProfileCategory[] = [];
+  const used = new Set<string>();
+  for (const category of PROFILE_CATEGORIES) {
+    const items = groups.filter((group) => category.targets.includes(group.target));
+    if (items.length === 0) continue;
+    for (const item of items) used.add(item.target);
+    result.push({ title: category.title, groups: items });
+  }
+  const rest = groups.filter((group) => !used.has(group.target));
+  if (rest.length > 0) result.push({ title: "Другие профили", groups: rest });
+  return result;
 }
 
 interface PresetListProps {
@@ -269,12 +372,12 @@ export function ProfileCard({
   onChoose,
   onOpen,
 }: ProfileCardProps) {
-  const query = search.trim().toLowerCase();
-  const visible = filterPresets(group.presets, query);
+  const visible = visiblePresets(group, search);
   const description = targetDescription(group.target);
   return (
     <article className={`pcard ${enabled ? "on" : ""} ${open ? "open" : ""}`}>
       <div className="pcard-top">
+        <ServiceBadge name={group.target} size={38} />
         <button
           type="button"
           className="pcard-open"
@@ -353,7 +456,6 @@ export function UniversalBlock({
   const [openTarget, setOpenTarget] = useState<string | null>(
     groups[0]?.target ?? null,
   );
-  const query = search.trim().toLowerCase();
 
   if (groups.length === 0) return null;
 
@@ -387,7 +489,7 @@ export function UniversalBlock({
 
       {active &&
         groups.map((group) => {
-          const visible = filterPresets(group.presets, query);
+          const visible = visiblePresets(group, search);
           const isOpen = openTarget === group.target;
           return (
             <div className="universal-group" key={group.target}>

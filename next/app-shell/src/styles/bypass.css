@@ -420,6 +420,20 @@
 
 /* ─────────────────────────── Карточки профилей ─────────────────────────── */
 
+/* Каталог профилей длинный, поэтому карточки идут по категориям: так видно
+   состав целиком, а поиск всё равно фильтрует внутри. */
+.pcard-category {
+  margin-bottom: var(--sp-5);
+}
+
+.pcard-category-title {
+  margin: 0 0 var(--sp-3);
+  color: var(--text-mute);
+  font: 500 9.5px/1 var(--font-mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
 .pcard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));

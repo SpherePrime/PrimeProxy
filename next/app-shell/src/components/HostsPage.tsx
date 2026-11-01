@@ -14,6 +14,7 @@ import {
   IconUnlock,
   IconWarning,
 } from "./Icons";
+import { ServiceBadge } from "./ServiceBadge";
 import { PageHeader } from "./PageHeader";
 import "../styles/hosts.css";
 
@@ -58,6 +59,18 @@ const CATEGORIES: ServiceCategory[] = [
         note: "стримы, чат и превью",
         domains: ["twitch.tv", "www.twitch.tv"],
       },
+      {
+        id: "netflix",
+        title: "Netflix",
+        note: "каталог и видео",
+        domains: ["netflix.com", "www.netflix.com", "nflxvideo.net", "nflximg.net"],
+      },
+      {
+        id: "vimeo",
+        title: "Vimeo",
+        note: "видео и плеер",
+        domains: ["vimeo.com", "player.vimeo.com", "vimeocdn.com"],
+      },
     ],
   },
   {
@@ -99,6 +112,18 @@ const CATEGORIES: ServiceCategory[] = [
         note: "лента, обсуждения и медиа",
         domains: ["reddit.com", "www.reddit.com", "redd.it", "redditstatic.com"],
       },
+      {
+        id: "pinterest",
+        title: "Pinterest",
+        note: "лента идей и картинки",
+        domains: ["pinterest.com", "www.pinterest.com", "pinimg.com"],
+      },
+      {
+        id: "snapchat",
+        title: "Snapchat",
+        note: "сообщения и истории",
+        domains: ["snapchat.com", "www.snapchat.com", "sc-cdn.net"],
+      },
     ],
   },
   {
@@ -121,6 +146,24 @@ const CATEGORIES: ServiceCategory[] = [
         title: "DeepSeek",
         note: "чат и API",
         domains: ["deepseek.com", "chat.deepseek.com", "www.deepseek.com"],
+      },
+      {
+        id: "gemini",
+        title: "Gemini",
+        note: "чат Google и DeepMind",
+        domains: ["gemini.google.com", "bard.google.com", "deepmind.google"],
+      },
+      {
+        id: "perplexity",
+        title: "Perplexity",
+        note: "поиск с ИИ",
+        domains: ["perplexity.ai", "www.perplexity.ai"],
+      },
+      {
+        id: "grok",
+        title: "Grok",
+        note: "чат xAI",
+        domains: ["grok.com", "x.ai", "www.x.ai"],
       },
     ],
   },
@@ -157,6 +200,24 @@ const CATEGORIES: ServiceCategory[] = [
         note: "мессенджер и сайт",
         domains: ["signal.org", "www.signal.org"],
       },
+      {
+        id: "viber",
+        title: "Viber",
+        note: "звонки и сообщения",
+        domains: ["viber.com", "www.viber.com", "cdn.viber.com"],
+      },
+      {
+        id: "slack",
+        title: "Slack",
+        note: "рабочие чаты и файлы",
+        domains: ["slack.com", "app.slack.com", "slack-edge.com"],
+      },
+      {
+        id: "zoom",
+        title: "Zoom",
+        note: "встречи и вебинары",
+        domains: ["zoom.us", "www.zoom.us", "zoomgov.com"],
+      },
     ],
   },
   {
@@ -184,6 +245,29 @@ const CATEGORIES: ServiceCategory[] = [
         title: "Epic Games",
         note: "магазин и Fortnite",
         domains: ["epicgames.com", "www.epicgames.com", "fortnite.com"],
+      },
+      {
+        id: "riot",
+        title: "Riot / Valorant",
+        note: "League of Legends и Valorant",
+        domains: [
+          "riotgames.com",
+          "www.riotgames.com",
+          "leagueoflegends.com",
+          "valorant.com",
+        ],
+      },
+      {
+        id: "ubisoft",
+        title: "Ubisoft",
+        note: "магазин и лаунчер",
+        domains: ["ubisoft.com", "www.ubisoft.com", "ubisoftconnect.com"],
+      },
+      {
+        id: "itch",
+        title: "itch.io",
+        note: "магазин инди-игр",
+        domains: ["itch.io", "itch.zone"],
       },
     ],
   },
@@ -225,6 +309,66 @@ const CATEGORIES: ServiceCategory[] = [
         title: "Proton Mail",
         note: "почта и вход",
         domains: ["proton.me", "mail.proton.me", "protonmail.com"],
+      },
+      {
+        id: "amazon",
+        title: "Amazon",
+        note: "магазин и медиа",
+        domains: ["amazon.com", "www.amazon.com", "media-amazon.com"],
+      },
+      {
+        id: "ebay",
+        title: "eBay",
+        note: "магазин и статика",
+        domains: ["ebay.com", "www.ebay.com", "ebaystatic.com"],
+      },
+      {
+        id: "medium",
+        title: "Medium",
+        note: "статьи и картинки",
+        domains: ["medium.com", "cdn.medium.com"],
+      },
+      {
+        id: "patreon",
+        title: "Patreon",
+        note: "подписки авторов",
+        domains: ["patreon.com", "www.patreon.com", "patreonusercontent.com"],
+      },
+      {
+        id: "speedtest",
+        title: "Speedtest",
+        note: "замеры скорости",
+        domains: ["speedtest.net", "www.speedtest.net"],
+      },
+      {
+        id: "coursera",
+        title: "Coursera",
+        note: "курсы и лекции",
+        domains: ["coursera.org", "www.coursera.org"],
+      },
+      {
+        id: "duolingo",
+        title: "Duolingo",
+        note: "языки и упражнения",
+        domains: ["duolingo.com", "www.duolingo.com"],
+      },
+      {
+        id: "bbc",
+        title: "BBC",
+        note: "новости и видео",
+        domains: ["bbc.com", "www.bbc.com", "bbci.co.uk"],
+      },
+      {
+        id: "tor",
+        title: "Tor Project",
+        note: "сайт проекта и загрузки",
+        domains: ["torproject.org", "www.torproject.org"],
+      },
+      {
+        id: "mullvad",
+        title: "Mullvad",
+        note: "VPN-сервис и сайт",
+        domains: ["mullvad.net", "www.mullvad.net"],
       },
     ],
   },
@@ -538,7 +682,11 @@ export function HostsPage() {
                       key={service.id}
                     >
                       <div className="svc-head">
-                        <h4 className="svc-title">{service.title}</h4>
+                        <ServiceBadge name={service.title} size={32} />
+                        <div className="svc-head-text">
+                          <h4 className="svc-title">{service.title}</h4>
+                          <p className="svc-note">{service.note}</p>
+                        </div>
                         <span
                           className={`chip ${
                             allOn ? "tone-ok" : partial ? "tone-warn" : "tone-neutral"
@@ -551,7 +699,6 @@ export function HostsPage() {
                               : "выключен"}
                         </span>
                       </div>
-                      <p className="svc-note">{service.note}</p>
                       <div className="svc-foot">
                         <button
                           type="button"
