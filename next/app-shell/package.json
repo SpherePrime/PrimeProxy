@@ -8,7 +8,9 @@
     "dev": "vite",
     "build": "vite build",
     "electron:dev": "vite build && electron .",
-    "electron:start": "electron ."
+    "electron:start": "electron .",
+    "assets": "electron scripts/brand-assets.cjs",
+    "dist": "vite build && electron-builder --win nsis --x64"
   },
   "devDependencies": {
     "@fontsource-variable/inter": "^5.1.0",
@@ -17,6 +19,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.0",
     "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "typescript": "^5.6.0",
@@ -25,5 +28,69 @@
   "allowScripts": {
     "electron@33.4.11": true,
     "esbuild@0.21.5": true
+  },
+  "author": "SpherePrime",
+  "build": {
+    "appId": "ru.sphereprime.primebypass",
+    "productName": "PrimeBypass",
+    "copyright": "© 2026 SpherePrime",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../../target/release/primecore-server.exe",
+        "to": "primecore-server.exe"
+      },
+      {
+        "from": "../../resources",
+        "to": "resources",
+        "filter": [
+          "**/*",
+          "!bin-linux/**"
+        ]
+      }
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/installerSidebar.bmp",
+      "installerHeader": "build/installerHeader.bmp",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PrimeBypass",
+      "installerLanguages": [
+        "ru_RU"
+      ],
+      "language": "1049",
+      "runAfterFinish": true,
+      "artifactName": "PrimeBypass-Setup-${version}.${ext}",
+      "uninstallDisplayName": "PrimeBypass"
+    }
   }
 }

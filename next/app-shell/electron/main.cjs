@@ -14,11 +14,18 @@ const PORT = Number(process.env.PRIMECORE_PORT || 7290);
 const BASE = `http://127.0.0.1:${PORT}`;
 
 // Репозиторий: electron/ → app-shell; Resources читаются от корня репо.
-const repoRoot = path.join(__dirname, "..", "..", "..");
+// В установленной версии ядро и resources лежат в process.resourcesPath.
+const repoRoot = app.isPackaged
+  ? process.resourcesPath
+  : path.join(__dirname, "..", "..", "..");
 
 // Бинарник sidecar: рядом в target/release или из переменной окружения.
 function sidecarPath() {
   if (process.env.PRIMECORE_BIN) return process.env.PRIMECORE_BIN;
+  if (app.isPackaged) {
+    const bundled = path.join(process.resourcesPath, process.platform === "win32" ? "primecore-server.exe" : "primecore-server");
+    if (fs.existsSync(bundled)) return bundled;
+  }
   // Windows: у собранного бинарника расширение .exe, поэтому проверяем оба
   // имени — иначе оболочка падала на «голое» имя и не находила ядро.
   const names = process.platform === "win32"
