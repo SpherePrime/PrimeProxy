@@ -16,3 +16,56 @@
 .logs-table {
   margin-top: 18px;
 }
+
+.file-drop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  height: 76px;
+  padding: 0 16px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text);
+  text-align: left;
+  transition:
+    border-color var(--t-mid) var(--ease),
+    background var(--t-mid) var(--ease);
+}
+
+.file-drop:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.file-drop__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.file-drop__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.file-drop__text b {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-drop__text small {
+  color: var(--text-mute);
+  font-size: 12px;
+}

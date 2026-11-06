@@ -292,6 +292,7 @@ export interface DnsCurrent {
   system: Array<{ server: string; kind: string }>;
   /** Известные DoH-серверы: пара «адрес + шаблон запроса». */
   doh: DohEntry[];
+  interface?: string | null;
 }
 
 export async function fetchDnsCurrent(): Promise<DnsCurrent> {
@@ -327,11 +328,11 @@ export class DnsSetError extends Error {
   }
 }
 
-export async function setDns(servers: string[], ifname: string): Promise<{ ok: boolean }> {
+export async function setDns(servers: string[], ifname = "", reset = false): Promise<{ ok: boolean }> {
   const response = await fetch(`${BASE}/api/dns/set`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ servers, ifname }),
+    body: JSON.stringify({ servers, ifname: ifname || undefined, reset }),
   });
   if (!response.ok) {
     const cause = await errorFrom(response);

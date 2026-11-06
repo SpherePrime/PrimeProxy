@@ -1,4 +1,6 @@
 import { CHECK_GROUPS } from "../../data/checkDomains";
+import { IconCheck } from "../Icons";
+import { ServiceBadge } from "../ServiceBadge";
 import { Panel } from "../ui/Panel";
 import type { SiteCheckModel } from "./useSiteCheck";
 
@@ -6,7 +8,7 @@ export function DomainPicker({ model }: { model: SiteCheckModel }) {
   return (
     <Panel
       title="Что проверяем"
-      note="Каждый домен открывается напрямую из вашей сети. В системе ничего не меняется."
+      note="Каждый сервис открывается напрямую из вашей сети. В системе ничего не меняется."
       meta={
         <button type="button" className="btn btn--ghost btn--sm" onClick={model.toggleAll} disabled={model.running}>
           {model.allSelected ? "Снять все" : "Выбрать все"}
@@ -15,7 +17,7 @@ export function DomainPicker({ model }: { model: SiteCheckModel }) {
     >
       <div className="categories">
         {CHECK_GROUPS.map((group) => {
-          const allOn = group.domains.every((domain) => model.checked[domain]);
+          const selected = group.services.filter((service) => model.checked[service.domain]).length;
           return (
             <div className="category" key={group.title}>
               <h3 className="category__title">
@@ -24,24 +26,32 @@ export function DomainPicker({ model }: { model: SiteCheckModel }) {
                   className="category__toggle"
                   onClick={() => model.toggleGroup(group)}
                   disabled={model.running}
+                  title="Выбрать или снять всю группу"
                 >
                   {group.title}
                 </button>
-                <span>{allOn ? "все" : group.domains.filter((d) => model.checked[d]).length}</span>
+                <span>
+                  {selected}/{group.services.length}
+                </span>
               </h3>
-              <div className="pills">
-                {group.domains.map((domain) => {
-                  const on = Boolean(model.checked[domain]);
+              <div className="picks">
+                {group.services.map((service) => {
+                  const on = Boolean(model.checked[service.domain]);
                   return (
                     <button
                       type="button"
-                      key={domain}
-                      className={`pill ${on ? "is-on" : ""}`}
+                      key={service.domain}
+                      className={`pick ${on ? "is-on" : ""}`}
                       aria-pressed={on}
-                      onClick={() => model.toggle(domain)}
+                      onClick={() => model.toggle(service.domain)}
                       disabled={model.running}
+                      title={service.domain}
                     >
-                      {domain}
+                      <ServiceBadge name={service.name} size={30} />
+                      <span className="pick__name">{service.name}</span>
+                      <span className="pick__mark" aria-hidden="true">
+                        {on && <IconCheck size={12} />}
+                      </span>
                     </button>
                   );
                 })}

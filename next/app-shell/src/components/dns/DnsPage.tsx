@@ -1,28 +1,29 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DnsCurrent, fetchDnsCurrent } from "../../api";
 import { PageHead } from "../ui/PageHead";
 import { Segmented } from "../ui/Segmented";
-import { CurrentDns } from "./CurrentDns";
+import { DnsChooser } from "./DnsChooser";
 import { DnsProbe } from "./DnsProbe";
-import { DnsSet } from "./DnsSet";
-import { ProviderCatalog } from "./ProviderCatalog";
 import { ServerCheck } from "./ServerCheck";
 import "../../styles/pages/dns.css";
 
-type DnsTab = "overview" | "check" | "catalog";
+type DnsTab = "choose" | "check";
 
 const FALLBACK_SERVERS = ["1.1.1.1", "8.8.8.8", "9.9.9.9"];
 
 export function DnsPage() {
-  const [tab, setTab] = useState<DnsTab>("overview");
+  const [tab, setTab] = useState<DnsTab>("choose");
   const [current, setCurrent] = useState<DnsCurrent | null>(null);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
+  const load = useCallback(() => {
     fetchDnsCurrent()
       .then(setCurrent)
-      .catch((e) => setError(String((e as Error).message)));
+      .catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const system = current?.system.map((entry) => entry.server) ?? [];
   const servers = [...system, ...FALLBACK_SERVERS.filter((server) => !system.includes(server))];
@@ -33,35 +34,30 @@ export function DnsPage() {
         eyebrow="Сеть"
         title={
           <>
-            DNS <em>под контролем</em>
+            DNS <em>в один клик</em>
           </>
         }
-        lead="Что стоит сейчас, как отвечают серверы и кто из провайдеров работает в вашем регионе."
+        lead="Выберите DNS-сервер — он сразу встанет на активное подключение."
         actions={
           <Segmented<DnsTab>
             label="Раздел DNS"
             value={tab}
             onChange={setTab}
             options={[
-              { value: "overview", label: "Обзор" },
-              { value: "check", label: "Сверка" },
-              { value: "catalog", label: "Каталог" },
+              { value: "choose", label: "Выбор" },
+              { value: "check", label: "Проверка" },
             ]}
           />
         }
       />
 
-      {tab === "overview" && (
+      {tab === "choose" && <DnsChooser current={current} onApplied={() => window.setTimeout(load, 800)} />}
+      {tab === "check" && (
         <div className="stack">
-          <CurrentDns current={current} error={error} />
-          <div className="layout layout--even">
-            <DnsProbe servers={servers} />
-            <DnsSet />
-          </div>
+          <DnsProbe servers={servers} />
+          <ServerCheck />
         </div>
       )}
-      {tab === "check" && <ServerCheck />}
-      {tab === "catalog" && <ProviderCatalog />}
     </div>
   );
 }

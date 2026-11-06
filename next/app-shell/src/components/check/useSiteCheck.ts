@@ -50,10 +50,11 @@ export function useSiteCheck() {
   const toggle = (domain: string) => setChecked((prev) => ({ ...prev, [domain]: !prev[domain] }));
 
   const toggleGroup = (group: CheckGroup) => {
-    const allOn = group.domains.every((domain) => checked[domain]);
+    const domains = group.services.map((service) => service.domain);
+    const allOn = domains.every((domain) => checked[domain]);
     setChecked((prev) => {
       const next = { ...prev };
-      for (const domain of group.domains) next[domain] = !allOn;
+      for (const domain of domains) next[domain] = !allOn;
       return next;
     });
   };

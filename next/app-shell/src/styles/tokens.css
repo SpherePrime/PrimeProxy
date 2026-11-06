@@ -46,10 +46,10 @@
   --grid: rgba(255, 255, 255, 0.035);
 
   --r-xs: 8px;
-  --r-sm: 12px;
-  --r-md: 16px;
+  --r-sm: 10px;
+  --r-md: 14px;
   --r-lg: 18px;
-  --r-xl: 26px;
+  --r-xl: 22px;
   --r-pill: 999px;
 
   --sp-1: 4px;

@@ -5,7 +5,7 @@
 //! бинарнику — PRIMECORE_BIN или соседний target/release. Пока сервер не
 //! ответил на /health, окно не открывается: интерфейс без ядра бесполезен.
 
-const { app, BrowserWindow, dialog, ipcMain } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain, shell } = require("electron");
 const { spawn, execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
@@ -146,11 +146,31 @@ ipcMain.handle("app:take-autostart", () => {
   return pending;
 });
 
-ipcMain.handle("app:elevate", async () => {
+ipcMain.handle("files:pick", async (event, options = {}) => {
+  const owner = BrowserWindow.fromWebContents(event.sender);
+  const result = await dialog.showOpenDialog(owner, {
+    title: options.title || "Выбор файла",
+    properties: ["openFile"],
+    filters: options.filters || [{ name: "Все файлы", extensions: ["*"] }],
+  });
+  return result.canceled ? null : result.filePaths[0] || null;
+});
+
+ipcMain.handle("files:open", async (_event, target) => {
+  const error = await shell.openPath(String(target));
+  return error === "" ? { ok: true } : { ok: false, error };
+});
+
+ipcMain.handle("files:reveal", (_event, target) => {
+  shell.showItemInFolder(String(target));
+  return { ok: true };
+});
+
+ipcMain.handle("app:elevate", async (_event, options = {}) => {
   if (process.platform !== "win32") return { ok: false, error: "повышение через UAC есть только в Windows" };
   if (isElevated() && (await runningCoreIsElevated()) !== false) return { ok: true, already: true };
-  if (!relaunchElevated([AUTOSTART_FLAG])) {
-    return { ok: false, error: "Запрос прав отклонён — без них движок обхода не запустится." };
+  if (!relaunchElevated(options.autostart === false ? [] : [AUTOSTART_FLAG])) {
+    return { ok: false, error: "Запрос прав отклонён — без них действие не выполнить." };
   }
   setTimeout(() => app.quit(), 100);
   return { ok: true };

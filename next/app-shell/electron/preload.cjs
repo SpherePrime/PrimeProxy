@@ -14,7 +14,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
     },
   },
   elevation: {
-    request: () => ipcRenderer.invoke("app:elevate"),
+    request: (options) => ipcRenderer.invoke("app:elevate", options),
     takeAutostart: () => ipcRenderer.invoke("app:take-autostart"),
+  },
+  files: {
+    pick: (options) => ipcRenderer.invoke("files:pick", options),
+    open: (target) => ipcRenderer.invoke("files:open", target),
+    reveal: (target) => ipcRenderer.invoke("files:reveal", target),
   },
 });

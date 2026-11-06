@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { SERVICES } from "../../data/hostsServices";
 import { IconLock, IconUnlock } from "../Icons";
 import { EmptyState } from "../ui/EmptyState";
@@ -13,18 +12,17 @@ import "../../styles/pages/hosts.css";
 
 export function HostsPage() {
   const model = useHosts();
-  const [openId, setOpenId] = useState<string | null>(null);
 
   return (
     <div className="page">
       <PageHead
-        eyebrow="Разблокировка · hosts"
+        eyebrow="Разблокировка"
         title={
           <>
             Сервисы <em>в один клик</em>
           </>
         }
-        lead="Домены сервиса уходят в hosts на служебный адрес 127.0.0.2 и проходят мимо DPI. Движок обхода для этого не нужен."
+        lead="Включите сервис тумблером и нажмите «Применить» — он откроется без запуска обхода."
         actions={
           <span className="chip chip--accent">
             разблокировано {model.unlockedCount} из {SERVICES.length}
@@ -73,10 +71,8 @@ export function HostsPage() {
                           service={service}
                           desired={model.desired}
                           current={model.current}
-                          open={openId === service.id}
                           disabled={model.busy}
                           onToggle={model.toggleService}
-                          onOpen={setOpenId}
                         />
                       ))}
                     </div>

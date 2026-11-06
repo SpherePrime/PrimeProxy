@@ -4,7 +4,7 @@
   gap: 10px;
   padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   background: rgba(10, 10, 10, 0.55);
 }
 

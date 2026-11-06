@@ -1013,7 +1013,7 @@
   padding: clamp(22px, 3vw, 34px);
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 28px;
+  border-radius: 24px;
   background:
     radial-gradient(70% 120% at 0% 0%, rgba(255, 106, 53, 0.08), transparent 60%),
     linear-gradient(180deg, rgba(26, 26, 26, 0.94), rgba(16, 16, 16, 0.94));

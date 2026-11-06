@@ -1,4 +1,5 @@
-import { STATUS_LABELS, STATUS_TONE } from "../../data/checkDomains";
+import { serviceName, STATUS_LABELS, STATUS_TONE } from "../../data/checkDomains";
+import { ServiceBadge } from "../ServiceBadge";
 import { IconArrowRight, IconSearch } from "../Icons";
 import { EmptyState } from "../ui/EmptyState";
 import { Panel } from "../ui/Panel";
@@ -49,7 +50,8 @@ export function ResultsPanel({ model, fixableCount, onFix }: ResultsPanelProps) 
           <ul className="results">
             {model.results.map((result) => (
               <li className={`result is-${result.status}`} key={result.domain}>
-                <span className="result__domain">{result.domain}</span>
+                <ServiceBadge name={serviceName(result.domain)} size={26} />
+                <span className="result__domain">{serviceName(result.domain)}</span>
                 {typeof result.ms === "number" && <span className="result__ms">{result.ms} мс</span>}
                 <span className={`chip ${STATUS_TONE[result.status] ?? ""}`}>
                   {STATUS_LABELS[result.status] ?? result.status}
