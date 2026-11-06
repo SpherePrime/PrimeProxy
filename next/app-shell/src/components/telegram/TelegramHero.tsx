@@ -17,7 +17,7 @@ export function TelegramHero({ model }: { model: TgModel }) {
       />
 
       <div className="hero__state">
-        <span className="eyebrow">Прокси Telegram · SOCKS5</span>
+        <span className="eyebrow">Прокси Telegram · MTProto</span>
         <h1 className="hero__word" aria-live="polite">
           {model.running ? (
             <>

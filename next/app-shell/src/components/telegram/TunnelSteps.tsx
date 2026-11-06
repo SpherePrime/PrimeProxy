@@ -6,13 +6,13 @@ export function TunnelSteps({ model }: { model: TgModel }) {
   const address = `${model.status?.host ?? model.host}:${model.status?.port ?? model.port}`;
   const steps = [
     <>
-      Telegram подключается к локальному SOCKS5 на <code>{address}</code>.
+      Telegram подключается к MTProto-прокси на <code>{address}</code> по ссылке с секретом.
     </>,
     <>
-      Каждое соединение уходит в WebSocket к фронту Cloudflare по пути <code>/apiws</code>.
+      Прокси расшифровывает поток и отправляет его в WebSocket к <code>kws.web.telegram.org</code>.
     </>,
-    <>Воркер фронта дотягивает поток до дата-центра Telegram и обратно.</>,
-    <>Провайдер видит обычный HTTPS к чужому домену — блокировать нечего.</>,
+    <>Если прямой путь закрыт — через воркер или CF-прокси, в крайнем случае напрямую по TCP.</>,
+    <>Провайдер видит обычный HTTPS — блокировать нечего.</>,
   ];
 
   return (
@@ -25,7 +25,10 @@ export function TunnelSteps({ model }: { model: TgModel }) {
           </li>
         ))}
       </ol>
-      {model.status?.last_error && <Notice tone="warn">Последняя ошибка туннеля: {model.status.last_error}</Notice>}
+      {model.status?.last_front && (
+        <Notice tone="ok">Последний маршрут: {model.status.last_front}</Notice>
+      )}
+      {model.status?.last_error && <Notice tone="warn">Последняя ошибка: {model.status.last_error}</Notice>}
     </Panel>
   );
 }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { fetchTgProxy, fetchTgWorker, startTgProxy, stopTgProxy, TgProxyStatus, TgWorkerData } from "../../api";
 
 export const DEFAULT_HOST = "127.0.0.1";
-const DEFAULT_PORT = 1353;
+const DEFAULT_PORT = 1443;
 const POLL_MS = 2000;
 
 export function bytesLabel(value: number): string {
@@ -48,7 +48,7 @@ export function useTgProxy() {
   }, [load]);
 
   const running = status?.running ?? false;
-  const link = status?.link ?? `tg://socks?server=${host}&port=${port}`;
+  const link = status?.link ?? "";
 
   async function connect() {
     const value = Math.floor(Number(port));
