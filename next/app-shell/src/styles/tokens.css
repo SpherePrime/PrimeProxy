@@ -1,130 +1,57 @@
-/* ─────────────────────────────────────────────────────────────────────────
-   Токены оформления: язык SpherePrime.
-   Тёмный графит с фиолетовым и бирюзовым свечением, одна лаймовая краска
-   «можно», костяной светлый блок как акцент, крупная типографика Unbounded
-   и моно-микроподписи DM Mono.
-
-   Все имена переменных — публичный контракт: страницы используют их
-   напрямую, менять имена нельзя. Значения и состав набора — можно.
-   ───────────────────────────────────────────────────────────────────────── */
-
-/* Локальные шрифты: работают без сети, в том числе в Electron и Android.
-   Unbounded — дисплейный голос (широкий, с кириллицей), Manrope — текст,
-   DM Mono — все технические значения, Playfair — курсивный акцент в
-   заголовках. Файлы лицензированы под OFL, копии лицензий лежат рядом. */
-@font-face {
-  font-family: "Unbounded";
-  src: url("../assets/fonts/Unbounded-Medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Manrope";
-  src: url("../assets/fonts/Manrope-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Manrope";
-  src: url("../assets/fonts/Manrope-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Manrope";
-  src: url("../assets/fonts/Manrope-ExtraBold.ttf") format("truetype");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "DM Mono";
-  src: url("../assets/fonts/DMMono-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "DM Mono";
-  src: url("../assets/fonts/DMMono-Medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Playfair Display";
-  src: url("../assets/fonts/PlayfairDisplay-Italic.ttf") format("truetype");
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-}
-
 :root {
   color-scheme: dark;
 
-  /* Поверхности: фон приложения → карточка → вложенный блок → поле ввода. */
-  --bg: #090a0d;
-  --bg-deep: #050609;
-  --surface-1: #11131a;
-  --surface-2: #181b24;
-  --surface-3: #1e222c;
-  --surface-hover: #232838;
-  --inset: #06070a;
+  --bg: #101010;
+  --bg-deep: #0c0c0c;
+  --surface-1: #141414;
+  --surface-2: #1b1b1b;
+  --surface-3: #222222;
+  --surface-hover: #282828;
+  --inset: #0a0a0a;
 
-  /* Светлый «бумажный» блок: акцентная секция на тёмной странице. */
-  --paper: #f5f3ed;
-  --paper-ink: #15171b;
-  --paper-dim: #5e6068;
-  --paper-line: rgba(21, 23, 27, 0.16);
+  --paper: #17110d;
+  --paper-ink: #f1efe9;
+  --paper-dim: #b9b6af;
+  --paper-line: rgba(255, 106, 53, 0.3);
 
-  /* Линии: обычная, усиленная, акцентная. */
-  --line: rgba(245, 243, 237, 0.13);
-  --line-strong: rgba(245, 243, 237, 0.25);
-  --line-accent: rgba(217, 255, 89, 0.42);
+  --line: rgba(255, 255, 255, 0.07);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --line-accent: rgba(255, 106, 53, 0.32);
 
-  /* Текст: основной, приглушённый, служебный. */
-  --text: #f5f3ed;
-  --text-dim: #bbbcc4;
-  --text-mute: #777a86;
+  --text: #f1efe9;
+  --text-dim: #b9b6af;
+  --text-mute: #8d8a84;
+  --text-faint: #5f5d59;
 
-  /* Краски: лайм — «можно», фиолет и бирюза — свечение и вторичные метки. */
-  --accent: #d9ff59;
-  --accent-2: #edff9c;
-  --accent-ink: #090a0d;
-  --accent-soft: rgba(217, 255, 89, 0.1);
-  --violet: #9e8cff;
-  --violet-light: #ded8ff;
-  --violet-soft: rgba(158, 140, 255, 0.14);
-  --cyan: #8fe9d5;
-  --cyan-soft: rgba(143, 233, 213, 0.12);
-  --orange: #ff956b;
+  --accent: #ff6a35;
+  --accent-2: #ff8a5c;
+  --accent-deep: #e04d1a;
+  --accent-ink: #17110d;
+  --accent-soft: rgba(255, 106, 53, 0.12);
+  --accent-glow: rgba(255, 106, 53, 0.4);
+  --violet: #ffb38a;
+  --violet-light: #ffd9c4;
+  --violet-soft: rgba(255, 106, 53, 0.08);
+  --cyan: #ff9a5c;
+  --cyan-soft: rgba(255, 154, 92, 0.12);
+  --orange: #ff6a35;
 
-  /* Статусы: мягкая заливка того же тона + читаемый цвет текста. */
-  --ok: #8fe9d5;
-  --ok-soft: rgba(143, 233, 213, 0.12);
-  --warn: #ffc958;
-  --warn-soft: rgba(255, 201, 88, 0.12);
-  --fail: #ff8a70;
-  --fail-soft: rgba(255, 138, 112, 0.12);
+  --ok: #3ddc97;
+  --ok-soft: rgba(61, 220, 151, 0.12);
+  --warn: #f5a524;
+  --warn-soft: rgba(245, 165, 36, 0.12);
+  --fail: #ff5d5d;
+  --fail-soft: rgba(255, 93, 93, 0.12);
 
-  /* Форма: крупные скругления и пилюли, как в языке SpherePrime. */
-  --r-xs: 6px;
-  --r-sm: 11px;
+  --grid: rgba(255, 255, 255, 0.035);
+
+  --r-xs: 8px;
+  --r-sm: 12px;
   --r-md: 16px;
-  --r-lg: 22px;
-  --r-xl: 36px;
+  --r-lg: 18px;
+  --r-xl: 26px;
   --r-pill: 999px;
 
-  /* Ритм. */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -133,21 +60,20 @@
   --sp-6: 32px;
   --sp-7: 40px;
 
-  /* Шрифты. */
-  --font-ui: "Manrope", "Segoe UI", system-ui, sans-serif;
-  --font-display: "Unbounded", "Manrope", "Segoe UI", sans-serif;
-  --font-mono: "DM Mono", "Cascadia Mono", "Consolas", monospace;
-  --font-serif: "Playfair Display", Georgia, serif;
+  --font-ui: "Inter Variable", "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Inter Variable", "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  --font-serif: var(--font-display);
 
-  /* Тени: мягкая для отрыва, жёсткая — подпись светлых блоков. */
-  --shadow-1: inset 0 1px rgba(255, 255, 255, 0.035);
-  --shadow-2: 0 28px 70px rgba(0, 0, 0, 0.32);
-  --shadow-hard: 10px 10px 0 var(--paper-ink);
+  --shadow-1: inset 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-2: 0 40px 90px -40px rgba(0, 0, 0, 0.9);
+  --shadow-accent: 0 18px 50px -18px rgba(255, 106, 53, 0.75);
+  --shadow-hard: 0 30px 80px -40px rgba(255, 106, 53, 0.55);
 
-  /* Движение. */
-  --t-fast: 140ms;
+  --t-fast: 160ms;
   --t-mid: 260ms;
-  --t-slow: 450ms;
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-slow: 500ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }

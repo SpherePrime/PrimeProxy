@@ -1,8 +1,13 @@
-/* ─────────────────────────────────────────────────────────────────────────
-   Оболочка в языке SpherePrime: своя полоса заголовка, боковая навигация
-   и прокручиваемая область контента. Фон — свечение фиолетом и бирюзой
-   плюс сетка, как на сайте студии.
-   ───────────────────────────────────────────────────────────────────────── */
+.app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg);
+}
 
 .skip-link {
   position: fixed;
@@ -10,10 +15,10 @@
   left: 8px;
   z-index: 100;
   padding: 10px 16px;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-sm);
   background: var(--accent);
   color: var(--accent-ink);
-  font-weight: 800;
+  font-weight: 700;
   transform: translateY(-180%);
   transition: transform var(--t-mid) var(--ease);
 }
@@ -22,219 +27,235 @@
   transform: none;
 }
 
-.app-shell {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
   overflow: hidden;
-  isolation: isolate;
-  background: var(--bg-deep);
+  pointer-events: none;
 }
 
-/* Свечение: фиолетовое сверху справа, бирюзовое слева — как на сайте. */
-.app-shell::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(56vw 58vh at 88% -12%, rgba(110, 85, 255, 0.17), transparent 70%),
-    radial-gradient(44vw 50vh at -12% 42%, rgba(143, 233, 213, 0.09), transparent 72%);
-}
-
-/* Сетка: та же, что на сайте, с затуханием вниз. */
-.app-shell::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.3;
+.backdrop__grid {
+  position: absolute;
+  inset: -60px;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.032) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.032) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(to bottom, black, transparent 65%);
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 70% 0%, #000 10%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 70% 0%, #000 10%, transparent 70%);
+  animation: grid-drift 30s linear infinite;
 }
 
-/* Атмосфера: те же два пятна и зерно, что на сайте студии. Пятна медленно
-   дышат, зерно дрожит — фон живёт, но не мешает читать интерфейс. */
-.atmosphere {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.atmosphere__orb {
+.backdrop__glow {
   position: absolute;
+  top: -380px;
+  right: -180px;
+  width: 760px;
+  height: 760px;
   border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.42;
-  will-change: transform;
+  background: radial-gradient(circle, rgba(255, 106, 53, 0.2), transparent 65%);
+  filter: blur(40px);
+  animation: glow-float 18s ease-in-out infinite;
 }
 
-.atmosphere__orb--violet {
-  top: -18rem;
-  right: -10rem;
-  width: 42rem;
-  height: 42rem;
-  background: #6b55ff;
-  animation: drift-a 22s ease-in-out infinite alternate;
+.backdrop__glow--low {
+  top: auto;
+  right: auto;
+  bottom: -460px;
+  left: 10%;
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, rgba(255, 106, 53, 0.08), transparent 65%);
+  animation-duration: 26s;
+  animation-direction: reverse;
 }
 
-.atmosphere__orb--cyan {
-  bottom: -16rem;
-  left: -12rem;
-  width: 34rem;
-  height: 34rem;
-  background: #4cd5bd;
-  opacity: 0.19;
-  animation: drift-b 26s ease-in-out infinite alternate;
-}
-
-.atmosphere__grain {
+.backdrop__cursor {
   position: absolute;
-  inset: -40%;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain 0.25s steps(2) infinite;
+  top: 0;
+  left: 0;
+  width: 520px;
+  height: 520px;
+  margin: -260px 0 0 -260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 106, 53, 0.06), transparent 65%);
+  transform: translate(var(--cx, -999px), var(--cy, -999px));
+  transition: transform 0.25s linear;
 }
 
-@keyframes drift-a {
+@media (hover: none) {
+  .backdrop__cursor {
+    display: none;
+  }
+}
+
+@keyframes grid-drift {
   to {
-    transform: translate3d(-8rem, 8rem, 0) scale(1.12);
+    transform: translate(56px, 56px);
   }
 }
 
-@keyframes drift-b {
-  to {
-    transform: translate3d(9rem, -4rem, 0) scale(0.86);
-  }
-}
-
-@keyframes grain {
-  0% {
-    transform: translate(0, 0);
-  }
-
-  25% {
-    transform: translate(2%, -1%);
-  }
-
+@keyframes glow-float {
   50% {
-    transform: translate(-1%, 2%);
-  }
-
-  75% {
-    transform: translate(1%, 1%);
-  }
-
-  100% {
-    transform: translate(-2%, -1%);
+    transform: translate(-80px, 60px) scale(1.1);
   }
 }
 
-@media (max-width: 720px) {
-  .atmosphere__orb {
-    filter: blur(70px);
-  }
-}
-
-.app-body {
+.topbar {
   position: relative;
-  z-index: 1;
-  display: flex;
-  flex: 1;
-  min-height: 0;
-}
-
-/* ─────────────────────────── Полоса заголовка ─────────────────────────── */
-
-/* Системная рамка окна отключена (frame: false), поэтому перетаскивание
-   и кнопки окна рисуем сами. */
-.titlebar {
-  position: relative;
-  z-index: 2;
-  display: flex;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr);
   align-items: center;
-  justify-content: space-between;
-  height: 46px;
+  gap: 16px;
+  height: 60px;
   flex-shrink: 0;
+  padding-left: 18px;
   border-bottom: 1px solid var(--line);
-  background: rgba(9, 10, 13, 0.82);
+  background: rgba(16, 16, 16, 0.78);
   backdrop-filter: blur(18px) saturate(140%);
   user-select: none;
-}
-
-.titlebar-drag {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  padding-left: 16px;
   -webkit-app-region: drag;
 }
 
-/* Логотип: лаймовая точка с пульсацией — как знак студии. */
-.titlebar-mark {
-  position: relative;
-  width: 9px;
-  height: 9px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 18px var(--accent);
-  animation: logo-pulse 2.7s ease-in-out infinite;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
-.titlebar-title {
+.prime-mark {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  fill: var(--accent);
+  overflow: visible;
+  filter: drop-shadow(0 0 10px rgba(255, 106, 53, 0.45));
+}
+
+.brand__name {
   overflow: hidden;
   color: var(--text);
-  font-family: var(--font-display);
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 500;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.titlebar-title em {
-  color: var(--accent);
-  font-style: normal;
+.brand__name b {
+  font-weight: 800;
 }
 
-.titlebar-sep {
-  width: 1px;
-  height: 12px;
-  flex-shrink: 0;
-  background: var(--line-strong);
+.nav {
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(10, 10, 10, 0.6);
+  -webkit-app-region: no-drag;
 }
 
-.titlebar-sub {
-  overflow: hidden;
+.nav__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
   color: var(--text-mute);
-  font: 400 9.5px/1 var(--font-mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-overflow: ellipsis;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   white-space: nowrap;
+  transition:
+    background var(--t-mid) var(--ease),
+    color var(--t-mid) var(--ease);
 }
 
-.titlebar-buttons {
+.nav__item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+}
+
+.nav__item.is-active {
+  background: var(--text);
+  color: #111111;
+}
+
+.nav__item.is-active svg {
+  color: var(--accent-deep);
+}
+
+.topbar__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  height: 100%;
+  min-width: 0;
+}
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 34px;
+  max-width: 100%;
+  padding: 0 13px 0 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: rgba(10, 10, 10, 0.6);
+  color: var(--text-dim);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    border-color var(--t-mid) var(--ease),
+    background var(--t-mid) var(--ease);
+  -webkit-app-region: no-drag;
+}
+
+.indicator:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.indicator.is-on {
+  border-color: var(--line-accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.indicator.is-on .dot {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 0 12px var(--accent);
+  animation: pulse-dot 1.8s var(--ease) infinite;
+}
+
+.indicator.is-off-core {
+  border-color: rgba(255, 93, 93, 0.3);
+  color: var(--fail);
+}
+
+.indicator__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.window-buttons {
   display: flex;
   height: 100%;
   flex-shrink: 0;
   -webkit-app-region: no-drag;
 }
 
-.titlebar-btn {
+.window-btn {
   display: grid;
   place-items: center;
   width: 46px;
@@ -247,385 +268,88 @@
     color var(--t-fast) var(--ease);
 }
 
-.titlebar-btn:hover {
+.window-btn:hover {
   background: var(--surface-2);
   color: var(--text);
 }
 
-.titlebar-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-}
-
-.titlebar-close:hover {
+.window-btn--close:hover {
   background: var(--fail);
   color: #ffffff;
 }
 
-/* ─────────────────────────── Боковая навигация ─────────────────────────── */
-
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  width: 252px;
-  flex-shrink: 0;
-  overflow: hidden;
-  border-right: 1px solid var(--line);
-  background: rgba(17, 19, 26, 0.72);
-  backdrop-filter: blur(14px);
-}
-
-.nav {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 2px;
-  min-height: 0;
-  padding: 22px 14px 12px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.nav-group {
-  margin-bottom: 18px;
-}
-
-.nav-group-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 8px 10px;
-  color: var(--text-mute);
-  font: 400 9.5px/1 var(--font-mono);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.nav-group-label::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--line);
-}
-
-/* Пункт меню: подпись капсом, как ссылки в шапке сайта, и лаймовая
-   подчёркивающая линия, которая растёт слева направо. */
-.nav-item {
+.app__body {
   position: relative;
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  min-height: 42px;
-  padding: 0 10px;
-  border: 1px solid transparent;
-  border-radius: var(--r-sm);
-  background: transparent;
-  color: var(--text-dim);
-  font: 700 11.5px/1.2 var(--font-ui);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-align: left;
-  transition:
-    background var(--t-fast) var(--ease),
-    border-color var(--t-fast) var(--ease),
-    color var(--t-fast) var(--ease);
-}
-
-.nav-item::after {
-  content: "";
-  position: absolute;
-  right: 10px;
-  bottom: 6px;
-  left: 40px;
-  height: 1px;
-  transform: scaleX(0);
-  transform-origin: left;
-  background: var(--accent);
-  transition: transform var(--t-slow) var(--ease);
-}
-
-.nav-item:hover {
-  background: var(--surface-2);
-  color: var(--text);
-}
-
-.nav-item:hover::after {
-  transform: scaleX(1);
-}
-
-.nav-item:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: -2px;
-}
-
-.nav-item.active {
-  border-color: rgba(217, 255, 89, 0.18);
-  background: var(--accent-soft);
-  color: var(--text);
-}
-
-.nav-item.active::after {
-  transform: scaleX(1);
-}
-
-/* Активный пункт отмечается сигнальной полосой у самой кромки панели. */
-.nav-item.active::before {
-  content: "";
-  position: absolute;
-  top: 10px;
-  bottom: 10px;
-  left: -14px;
-  width: 2px;
-  border-radius: 0 2px 2px 0;
-  background: var(--accent);
-  box-shadow: 0 0 14px var(--accent);
-}
-
-.nav-icon {
-  display: grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  color: var(--text-mute);
-  transition: color var(--t-fast) var(--ease);
-}
-
-.nav-item:hover .nav-icon,
-.nav-item.active .nav-icon {
-  color: var(--accent);
-}
-
-.nav-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.nav-num {
-  color: var(--text-mute);
-  font: 400 9.5px/1 var(--font-mono);
-  letter-spacing: 0.04em;
-}
-
-.nav-item.active .nav-num {
-  color: var(--accent);
-}
-
-/* ─────────────────────────── Состояние ядра ─────────────────────────── */
-
-/* Нижний блок панели: живой индикатор связи с ядром. Точка и подпись
-   меняются вместе — цвет здесь не единственный признак состояния. */
-.side-foot {
-  flex-shrink: 0;
-  margin: 0 14px 14px;
-  padding: 13px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  background: rgba(245, 243, 237, 0.03);
-  transition:
-    border-color var(--t-mid) var(--ease),
-    background var(--t-mid) var(--ease);
-}
-
-.side-foot:hover {
-  border-color: var(--line-strong);
-  background: rgba(245, 243, 237, 0.05);
-}
-
-.side-foot[data-state="online"] {
-  border-color: rgba(143, 233, 213, 0.28);
-}
-
-.side-foot[data-state="offline"] {
-  border-color: rgba(255, 138, 112, 0.32);
-}
-
-.side-foot-label {
+  z-index: 1;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-mute);
-  font: 400 9px/1 var(--font-mono);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
 }
-
-.side-foot[data-state="online"] .side-foot-label {
-  color: var(--ok);
-}
-
-.side-foot[data-state="offline"] .side-foot-label {
-  color: var(--fail);
-}
-
-/* Точка связи: бирюзовая с расходящимся кольцом, серая при проверке,
-   красная без ядра. */
-.side-foot-dot {
-  width: 6px;
-  height: 6px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--text-mute);
-}
-
-.side-foot[data-state="online"] .side-foot-dot {
-  background: var(--cyan);
-  box-shadow: 0 0 0 4px var(--cyan-soft);
-  animation: live-pulse 2s ease-out infinite;
-}
-
-.side-foot[data-state="offline"] .side-foot-dot {
-  background: var(--fail);
-  box-shadow: 0 0 0 4px var(--fail-soft);
-}
-
-.side-foot-value {
-  display: block;
-  margin-top: 9px;
-  color: var(--text);
-  font: 400 12px/1.4 var(--font-mono);
-  overflow-wrap: anywhere;
-}
-
-.side-foot-note {
-  display: block;
-  margin-top: 4px;
-  color: var(--text-mute);
-  font-size: 10.5px;
-  line-height: 1.45;
-}
-
-.side-foot[data-state="offline"] .side-foot-note {
-  color: var(--fail);
-}
-
-/* ─────────────────────────── Контент ─────────────────────────── */
 
 .content {
   flex: 1;
-  min-width: 0;
+  min-height: 0;
   overflow-y: auto;
-  background: transparent;
 }
 
 .content:focus {
   outline: none;
 }
 
-/* ─────────────────────────── Средняя ширина ─────────────────────────── */
-
-/* Панель сжимается до иконок: подписи, группы и служебный блок прячем. */
-@media (max-width: 960px) {
-  .sidebar {
-    width: 72px;
-  }
-
-  .nav {
-    align-items: center;
-    padding: 16px 10px;
-  }
-
-  .nav-group {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    width: 100%;
-    margin-bottom: 12px;
-  }
-
-  .nav-group-label {
+@media (max-width: 1180px) {
+  .nav__label {
     display: none;
   }
 
-  .nav-item {
-    display: flex;
-    justify-content: center;
-    gap: 0;
-    min-height: 44px;
-    padding: 0;
-  }
-
-  .nav-item::after {
-    display: none;
-  }
-
-  .nav-item.active::before {
-    left: -10px;
-  }
-
-  .nav-label,
-  .nav-num {
-    display: none;
-  }
-
-  .side-foot {
-    display: none;
+  .nav__item {
+    padding: 0 11px;
   }
 }
 
-/* ─────────────────────────── Узко: нижняя панель ─────────────────────────── */
-
-@media (max-width: 680px) {
-  .app-body {
-    flex-direction: column-reverse;
+@media (max-width: 760px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .sidebar {
-    width: 100%;
-    border-top: 1px solid var(--line);
-    border-right: 0;
-    background: rgba(9, 10, 13, 0.94);
+  .topbar .nav {
+    display: none;
   }
 
-  .nav {
-    flex-direction: row;
-    align-items: stretch;
-    gap: 2px;
-    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
-    overflow-x: auto;
-    overflow-y: hidden;
+  .indicator__label {
+    display: none;
   }
 
-  .nav-group {
-    display: contents;
+  .indicator {
+    padding: 0 11px;
   }
 
-  .nav-item {
-    flex: 1 1 0;
+  .nav--bottom {
+    display: flex;
+    justify-content: space-around;
+    border-width: 1px 0 0;
+    border-radius: 0;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    background: rgba(16, 16, 16, 0.96);
+  }
+
+  .nav--bottom .nav__item {
+    flex: 1;
     flex-direction: column;
     justify-content: center;
     gap: 4px;
-    min-width: 48px;
-    min-height: 54px;
-    padding: 4px 2px;
-    border: 1px solid transparent;
+    height: 52px;
+    padding: 0;
+    font-size: 10.5px;
   }
 
-  .nav-item.active::before {
-    top: auto;
-    bottom: -6px;
-    left: 50%;
-    width: 16px;
-    height: 2px;
-    transform: translateX(-50%);
+  .nav--bottom .nav__label {
+    display: block;
   }
 }
 
-@keyframes logo-pulse {
-  50% {
-    scale: 1.45;
-    box-shadow: 0 0 28px var(--accent);
-  }
-}
-
-@keyframes live-pulse {
-  70% {
-    box-shadow: 0 0 0 10px rgba(143, 233, 213, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(143, 233, 213, 0);
+@media (min-width: 761px) {
+  .nav--bottom {
+    display: none;
   }
 }

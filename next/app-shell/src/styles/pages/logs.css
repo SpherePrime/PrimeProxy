@@ -1,0 +1,18 @@
+.logs-run {
+  margin-top: 14px;
+}
+
+.logs-stats {
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+.logs-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.logs-table {
+  margin-top: 18px;
+}
