@@ -2,10 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchCheckSites,
   fetchCheckStatus,
-  fetchPreset,
   fetchPresets,
   fetchPrivilege,
-  fetchTgProxy,
   fetchWsLogs,
   fetchWsStatus,
   grantPrivilege,
@@ -13,12 +11,8 @@ import {
   PresetInfo,
   PrivilegeInfo,
   SiteCheckResult,
-  startTgProxy,
   startWs,
-  stopTgProxy,
   stopWs,
-  TgProxyStatus,
-  WsPresetDetail,
   WsStartError,
   WsStatus,
 } from "../../api";
@@ -32,32 +26,23 @@ import {
   PresetGroup,
   ProfileMode,
   readProfileMode,
-  saveDefault,
   saveEnabled,
   saveProfileMode,
   targetProbe,
 } from "./presetCatalog";
-import { readAutoMode, readWithTelegram, saveAutoMode, saveWithTelegram } from "./autoPrefs";
 
 const AUTO_PICK_POLLS = 120;
 const LOG_KEEP = 500;
 const STATUS_POLL_MS = 2000;
 const LOG_POLL_MS = 1500;
 
-export type EngineState = "fail" | "running" | "busy" | "idle";
-
 export function useBypass() {
   const [presets, setPresets] = useState<PresetInfo[]>([]);
   const [search, setSearch] = useState("");
-  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [profileMode, setProfileMode] = useState<ProfileMode>(readProfileMode);
   const [autoRunning, setAutoRunning] = useState(false);
   const [autoProgress, setAutoProgress] = useState({ done: 0, total: 0 });
   const [autoNote, setAutoNote] = useState("");
-  const [autoMode, setAutoModeState] = useState(readAutoMode);
-  const [withTelegram, setWithTelegramState] = useState(readWithTelegram);
-  const [tg, setTg] = useState<TgProxyStatus | null>(null);
-  const [tgBusy, setTgBusy] = useState(false);
   const [qnum, setQnum] = useState("300");
   const [mode, setMode] = useState<HostlistMode>("none");
   const [starting, setStarting] = useState(false);
@@ -71,9 +56,7 @@ export function useBypass() {
   const [granting, setGranting] = useState(false);
   const [awaitingGrant, setAwaitingGrant] = useState(false);
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>(loadEnabled);
-  const [defaultMap, setDefaultMap] = useState<Record<string, string>>(loadDefaults);
-  const [detail, setDetail] = useState<WsPresetDetail | null>(null);
-  const [detailName, setDetailName] = useState("");
+  const [defaultMap] = useState<Record<string, string>>(loadDefaults);
   const logTotalRef = useRef(0);
 
   const groups = useMemo(() => buildGroups(presets), [presets]);
@@ -92,16 +75,8 @@ export function useBypass() {
     if (universalKnown && !hasUniversal && profileMode === "all") chooseProfileMode("profiles");
   }, [universalKnown, hasUniversal, profileMode, chooseProfileMode]);
 
-  const groupActive = useCallback(
-    (group: PresetGroup): boolean =>
-      isUniversal(group.target)
-        ? effectiveMode === "all"
-        : effectiveMode === "profiles" && isEnabled(group.target, enabledMap),
-    [effectiveMode, enabledMap],
-  );
-
   const visibleProfiles = specificGroups.filter((group) => groupMatches(group, search));
-  const activeProfileCount = specificGroups.filter((group) => isEnabled(group.target, enabledMap)).length;
+  const enabledTargets = specificGroups.filter((group) => isEnabled(group.target, enabledMap)).map((g) => g.target);
 
   useEffect(() => {
     let alive = true;
@@ -125,10 +100,7 @@ export function useBypass() {
           setStatus(s);
           setPollError("");
         })
-        .catch((e) => alive && setPollError(String(e.message)))
-        .then(() => fetchTgProxy())
-        .then((data) => alive && data && setTg(data))
-        .catch(() => undefined);
+        .catch((e) => alive && setPollError(String(e.message)));
     const pollLogs = () =>
       fetchWsLogs(logTotalRef.current)
         .then((data) => {
@@ -157,35 +129,27 @@ export function useBypass() {
     });
   }, []);
 
-  const choosePreset = useCallback((target: string, name: string) => {
-    setDefaultMap((prev) => {
-      saveDefault(target, name);
-      return { ...prev, [target]: name };
-    });
-    setDetail(null);
-    setDetailName(name);
-    fetchPreset(name)
-      .then(setDetail)
-      .catch(() => undefined);
-  }, []);
+  const setAllProfiles = useCallback(
+    (value: boolean) => {
+      const next: Record<string, boolean> = {};
+      for (const group of specificGroups) {
+        next[group.target] = value;
+        saveEnabled(group.target, value);
+      }
+      setEnabledMap((prev) => ({ ...prev, ...next }));
+    },
+    [specificGroups],
+  );
 
   const chosenFor = useCallback(
     (group: PresetGroup): string => {
       const saved = defaultMap[group.target];
       if (saved && group.presets.some((p) => p.name === saved)) return saved;
-      const main = group.presets.find((preset) =>
-        preset.description.toLowerCase().startsWith("основной пресет"),
-      );
+      const main = group.presets.find((preset) => preset.description.toLowerCase().startsWith("основной пресет"));
       return main?.name ?? group.presets[0]?.name ?? "";
     },
     [defaultMap],
   );
-
-  const effectiveDefaults = useMemo(() => {
-    const map: Record<string, string | undefined> = {};
-    for (const group of groups) map[group.target] = chosenFor(group);
-    return map;
-  }, [groups, chosenFor]);
 
   const clearLog = useCallback(() => {
     setLogLines([]);
@@ -208,11 +172,11 @@ export function useBypass() {
     }
   }
 
-  async function startWithNames(names: string[]): Promise<boolean> {
+  async function startWithNames(names: string[]) {
     const port = Math.floor(Number(qnum));
     if (!Number.isFinite(port) || port <= 0 || port > 65535) {
       setError("qnum должен быть числом от 1 до 65535");
-      return false;
+      return;
     }
     setStarting(true);
     setError("");
@@ -221,11 +185,10 @@ export function useBypass() {
         setAwaitingGrant(true);
         const granted = await runGrant();
         setAwaitingGrant(false);
-        if (!granted) return false;
+        if (!granted) return;
       }
       await startWs(names, port, mode);
       setStatus(await fetchWsStatus());
-      return true;
     } catch (e) {
       const err = e as WsStartError;
       setError(String(err.message));
@@ -236,87 +199,28 @@ export function useBypass() {
           .map((line) => `[dry-run] ${line}`);
         if (lines.length > 0) setLogLines((prev) => [...prev, ...lines].slice(-LOG_KEEP));
       }
-      return false;
     } finally {
       setStarting(false);
       setAwaitingGrant(false);
     }
   }
 
-  async function start(): Promise<boolean> {
-    const enabledGroups = groups.filter(groupActive);
-    if (enabledGroups.length === 0) {
+  async function start() {
+    const activeGroups =
+      effectiveMode === "all"
+        ? universalGroups.slice(0, 1)
+        : specificGroups.filter((group) => isEnabled(group.target, enabledMap));
+    if (activeGroups.length === 0) {
       setError(
         effectiveMode === "all"
-          ? "Универсальный профиль не выбран — проверьте режим «Все сайты»"
-          : "Включите хотя бы один профиль или выберите режим «Все сайты»",
+          ? "Ядро не отдало универсальный пресет — выберите «Точечно»"
+          : "Выберите хотя бы один сервис или переключитесь на «Все сайты»",
       );
-      return false;
+      return;
     }
-    const names = enabledGroups.map(chosenFor).filter(Boolean);
-    if (names.length === 0) {
-      setError("Не удалось определить пресеты для запуска");
-      return false;
-    }
-    return startWithNames(names);
+    const names = [...new Set(activeGroups.map(chosenFor).filter(Boolean))];
+    await startWithNames(names);
   }
-
-  async function startTelegram() {
-    setTgBusy(true);
-    try {
-      const config = await fetchTgProxy();
-      if (config.running) {
-        setTg(config);
-        return;
-      }
-      const front = config.front && config.front.includes(".") ? config.front : "";
-      await startTgProxy(config.host || "127.0.0.1", config.port || 1353, front);
-      setTg(await fetchTgProxy());
-    } catch (e) {
-      setError(`Прокси Telegram не поднялся: ${String((e as Error).message)}`);
-    } finally {
-      setTgBusy(false);
-    }
-  }
-
-  async function stopTelegram() {
-    setTgBusy(true);
-    try {
-      await stopTgProxy();
-      setTg(await fetchTgProxy());
-    } catch (e) {
-      setError(String((e as Error).message));
-    } finally {
-      setTgBusy(false);
-    }
-  }
-
-  async function powerOn() {
-    setAutoNote("");
-    if (autoMode) {
-      const picked = await runAutoPick(false);
-      if (picked === null) await start();
-      else if (picked.length > 0) await startWithNames(picked);
-    } else {
-      await start();
-    }
-    if (withTelegram) await startTelegram();
-  }
-
-  async function powerOff() {
-    if (running) await stop();
-    if (tg?.running) await stopTelegram();
-  }
-
-  const setAutoMode = (value: boolean) => {
-    setAutoModeState(value);
-    saveAutoMode(value);
-  };
-
-  const setWithTelegram = (value: boolean) => {
-    setWithTelegramState(value);
-    saveWithTelegram(value);
-  };
 
   async function stop() {
     setStopping(true);
@@ -331,11 +235,11 @@ export function useBypass() {
     }
   }
 
-  async function runAutoPick(startAfter: boolean): Promise<string[] | null> {
+  async function runAutoPick() {
     const probes = specificGroups
       .map((group) => ({ target: group.target, domain: targetProbe(group.target) }))
       .filter((item) => item.domain !== "");
-    if (probes.length === 0) return null;
+    if (probes.length === 0) return;
     setAutoRunning(true);
     setError("");
     setAutoNote("");
@@ -352,32 +256,24 @@ export function useBypass() {
         done = checkStatus.done;
       }
       if (!done) {
-        setAutoNote(`Проверка не уложилась в ${AUTO_PICK_POLLS} с — запускаю текущий режим.`);
-        return null;
+        setError(`Проверка не завершилась за ${AUTO_PICK_POLLS} с`);
+        return;
       }
       const blocked = new Set(results.filter((item) => item.status !== "ok").map((item) => item.domain));
       const picked = probes.filter((item) => blocked.has(item.domain)).map((item) => item.target);
-      const nextEnabled: Record<string, boolean> = {};
-      for (const group of specificGroups) nextEnabled[group.target] = picked.includes(group.target);
-      setEnabledMap(nextEnabled);
-      for (const [target, value] of Object.entries(nextEnabled)) saveEnabled(target, value);
-      chooseProfileMode("profiles");
-      if (picked.length === 0) {
-        setAutoNote("Ничего не заблокировано — движку обходить нечего.");
-        return [];
+      const next: Record<string, boolean> = {};
+      for (const group of specificGroups) {
+        next[group.target] = picked.includes(group.target);
+        saveEnabled(group.target, next[group.target]);
       }
-      const names = picked
-        .map((target) => {
-          const group = groups.find((item) => item.target === target);
-          return group ? chosenFor(group) : "";
-        })
-        .filter(Boolean);
-      setAutoNote(`Заблокировано: ${picked.join(", ")}.`);
-      if (startAfter && names.length > 0) await startWithNames(names);
-      return names;
+      setEnabledMap(next);
+      setAutoNote(
+        picked.length > 0
+          ? `Заблокировано и выбрано: ${picked.join(", ")}.`
+          : "Ничего не заблокировано — выбор снят.",
+      );
     } catch (e) {
-      setAutoNote(`Автоподбор не удался: ${String((e as Error).message)}`);
-      return null;
+      setError(String((e as Error).message));
     } finally {
       setAutoRunning(false);
     }
@@ -389,63 +285,40 @@ export function useBypass() {
   const platformKnown = Boolean(status);
   const isWindows = status ? status.platform === "windows" : true;
   const offline = !status && Boolean(pollError);
-  const engineState: EngineState = offline ? "fail" : running ? "running" : busy ? "busy" : "idle";
   const rightsGranted = Boolean(privilege?.granted || status?.root);
   const rightsKnown = Boolean(privilege || status);
   const universalChosen = universalGroups.length > 0 ? chosenFor(universalGroups[0]) : "";
-  const tgRunning = Boolean(tg?.running);
-  const active = running || tgRunning;
-  const powerBusy = busy || autoRunning || tgBusy;
 
   return {
     presets,
-    groups,
-    universalGroups,
     specificGroups,
     visibleProfiles,
-    activeProfileCount,
+    enabledTargets,
     hasUniversal,
     universalKnown,
     effectiveMode,
     chooseProfileMode,
     search,
     setSearch,
-    openGroup,
-    setOpenGroup,
     enabledMap,
-    effectiveDefaults,
     toggleGroup,
-    choosePreset,
+    setAllProfiles,
     universalChosen,
     autoRunning,
     autoProgress,
     autoNote,
     runAutoPick,
-    autoMode,
-    setAutoMode,
-    withTelegram,
-    setWithTelegram,
-    tg,
-    tgRunning,
-    active,
-    powerBusy,
-    powerOn,
-    powerOff,
     qnum,
     setQnum,
     mode,
     setMode,
-    detail,
-    detailName,
     status,
     running,
     busy,
-    starting,
     stopping,
     granting,
     awaitingGrant,
     offline,
-    engineState,
     platformKnown,
     isWindows,
     needsPrompt,

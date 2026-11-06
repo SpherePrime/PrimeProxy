@@ -40,13 +40,18 @@ export function CurrentDns({ current, error }: CurrentDnsProps) {
           <div className="dns-now__col">
             <span className="field__label">DoH · {dohUrls.length}</span>
             {dohUrls.length > 0 ? (
-              <div className="doh-list">
-                {dohUrls.map((url) => (
-                  <span className="doh" key={url}>
-                    {url.replace(/^https:\/\//, "")}
-                  </span>
-                ))}
-              </div>
+              <ul className="doh-list">
+                {dohUrls.map((url) => {
+                  const [host, ...rest] = url.replace(/^https:\/\//, "").split("/");
+                  return (
+                    <li className="doh" key={url} title={url}>
+                      <span className="doh__dot" aria-hidden="true" />
+                      <span className="doh__host">{host}</span>
+                      <span className="doh__path">/{rest.join("/")}</span>
+                    </li>
+                  );
+                })}
+              </ul>
             ) : (
               <p className="hint">DoH не используется.</p>
             )}

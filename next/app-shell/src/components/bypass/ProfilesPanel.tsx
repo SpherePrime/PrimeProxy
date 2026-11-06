@@ -1,134 +1,118 @@
-import { useState } from "react";
-import { IconChevronDown } from "../Icons";
+import { IconBolt, IconShieldCheck } from "../Icons";
 import { EmptyState } from "../ui/EmptyState";
 import { Notice } from "../ui/Notice";
 import { Panel } from "../ui/Panel";
 import { SearchBox } from "../ui/SearchBox";
 import { Segmented } from "../ui/Segmented";
-import { categorizeProfiles, isEnabled, presetsLabel, ProfileMode, visiblePresets } from "./presetCatalog";
-import { PresetList } from "./PresetList";
+import { categorizeProfiles, isEnabled, ProfileMode } from "./presetCatalog";
 import { ProfileTile } from "./ProfileTile";
 import type { BypassModel } from "./useBypass";
 
-function UniversalList({ model }: { model: BypassModel }) {
-  const [openTarget, setOpenTarget] = useState<string | null>(model.universalGroups[0]?.target ?? null);
-
+function AllSitesCard({ model }: { model: BypassModel }) {
   return (
-    <div className="universal">
-      {model.universalGroups.map((group) => {
-        const visible = visiblePresets(group, model.search);
-        const isOpen = openTarget === group.target;
-        return (
-          <div className={`universal__group ${isOpen ? "is-open" : ""}`} key={group.target}>
-            <button
-              type="button"
-              className="universal__toggle"
-              aria-expanded={isOpen}
-              onClick={() => setOpenTarget(isOpen ? null : group.target)}
-            >
-              <span className="universal__name">{group.target}</span>
-              <span className="universal__chosen">{model.effectiveDefaults[group.target]}</span>
-              <span className="chip">{presetsLabel(group.presets.length)}</span>
-              <span className="tile__chevron" aria-hidden="true">
-                <IconChevronDown size={14} />
-              </span>
-            </button>
-            {isOpen &&
-              (visible.length > 0 ? (
-                <PresetList
-                  target={group.target}
-                  presets={visible}
-                  chosen={model.effectiveDefaults[group.target]}
-                  onChoose={model.choosePreset}
-                />
-              ) : (
-                <p className="tile__empty">По запросу «{model.search.trim()}» ничего не найдено.</p>
-              ))}
-          </div>
-        );
-      })}
+    <div className="all-sites">
+      <span className="all-sites__icon" aria-hidden="true">
+        <IconShieldCheck size={24} />
+      </span>
+      <div>
+        <h3 className="all-sites__title">Обход для всех сайтов</h3>
+        <p className="all-sites__note">
+          Один универсальный набор стратегий на весь трафик: YouTube, Discord, Telegram, соцсети, ИИ-сервисы
+          и остальное. Ничего настраивать не нужно.
+        </p>
+      </div>
+      {model.universalChosen && <span className="chip chip--accent">готово</span>}
     </div>
   );
 }
 
 function ProfileGrid({ model }: { model: BypassModel }) {
-  if (model.visibleProfiles.length === 0) {
-    return <EmptyState title="Ничего не найдено">Измените запрос или очистите поиск.</EmptyState>;
-  }
+  const locked = model.running || model.busy || model.autoRunning;
+
   return (
-    <div className="categories">
-      {categorizeProfiles(model.visibleProfiles).map((category) => (
-        <div className="category" key={category.title}>
-          <h3 className="category__title">
-            {category.title}
-            <span>{category.groups.length}</span>
-          </h3>
-          <div className="tiles">
-            {category.groups.map((group) => (
-              <ProfileTile
-                key={group.target}
-                group={group}
-                enabled={isEnabled(group.target, model.enabledMap)}
-                chosen={model.effectiveDefaults[group.target]}
-                search={model.search}
-                open={model.openGroup === group.target}
-                onToggle={model.toggleGroup}
-                onChoose={model.choosePreset}
-                onOpen={model.setOpenGroup}
-              />
-            ))}
-          </div>
+    <>
+      <div className="toolbar">
+        <SearchBox value={model.search} onChange={model.setSearch} placeholder="Найти сервис…" />
+        <button
+          type="button"
+          className="btn btn--outline btn--sm"
+          onClick={() => void model.runAutoPick()}
+          disabled={locked || model.offline}
+          title="Проверить сервисы и выбрать только заблокированные"
+        >
+          {model.autoRunning ? <span className="spinner" /> : <IconBolt size={14} />}
+          {model.autoRunning
+            ? `Проверяю ${model.autoProgress.done}/${model.autoProgress.total}`
+            : "Выбрать заблокированные"}
+        </button>
+        <button type="button" className="btn btn--ghost btn--sm" onClick={() => model.setAllProfiles(false)} disabled={locked}>
+          Снять всё
+        </button>
+      </div>
+
+      {model.running && <Notice tone="hint">Чтобы поменять список, выключите обход.</Notice>}
+      {model.autoNote && !model.running && <Notice tone="ok">{model.autoNote}</Notice>}
+
+      {model.visibleProfiles.length === 0 ? (
+        <EmptyState title="Ничего не найдено">Измените запрос или очистите поиск.</EmptyState>
+      ) : (
+        <div className="categories">
+          {categorizeProfiles(model.visibleProfiles).map((category) => (
+            <div className="category" key={category.title}>
+              <h3 className="category__title">
+                {category.title}
+                <span>{category.groups.length}</span>
+              </h3>
+              <div className="tiles">
+                {category.groups.map((group) => (
+                  <ProfileTile
+                    key={group.target}
+                    group={group}
+                    enabled={isEnabled(group.target, model.enabledMap)}
+                    disabled={locked}
+                    onToggle={model.toggleGroup}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      )}
+    </>
   );
 }
 
 export function ProfilesPanel({ model }: { model: BypassModel }) {
-  const universalCount = model.universalGroups.reduce((total, group) => total + group.presets.length, 0);
-
   return (
     <Panel
       title="Что обходить"
       note={
         model.effectiveMode === "all"
-          ? "Один универсальный пресет на весь трафик — подходит большинству сайтов."
-          : "Работают только включённые сервисы, остальной трафик движок не трогает."
+          ? "Обход работает для всего трафика."
+          : "Обход работает только для выбранных сервисов, остальной трафик идёт напрямую."
       }
-      meta={<span className="chip">{model.presets.length} пресетов</span>}
-    >
-      <div className="toolbar">
+      meta={
         <Segmented<ProfileMode>
-          label="Режим профилей"
+          label="Режим обхода"
           value={model.effectiveMode}
           onChange={model.chooseProfileMode}
           options={[
-            {
-              value: "all",
-              label: "Все сайты",
-              count: universalCount,
-              disabled: !model.hasUniversal && model.universalKnown,
-            },
-            { value: "profiles", label: "Точечно", count: model.activeProfileCount },
+            { value: "all", label: "Все сайты", disabled: (!model.hasUniversal && model.universalKnown) || model.running },
+            { value: "profiles", label: "Точечно", count: model.enabledTargets.length, disabled: model.running },
           ]}
         />
-        <SearchBox
-          value={model.search}
-          onChange={model.setSearch}
-          placeholder={model.effectiveMode === "all" ? "Найти пресет…" : "Найти сервис или пресет…"}
-        />
-      </div>
-
+      }
+    >
       {model.universalKnown && !model.hasUniversal && (
-        <Notice tone="warn">Ядро не сообщило универсальных пресетов — доступны только точечные профили.</Notice>
+        <Notice tone="warn">Ядро не сообщило универсальный набор — доступен только точечный режим.</Notice>
       )}
 
       {model.presets.length === 0 ? (
-        <EmptyState title="Пресеты не загружены" loading={!model.pollError}>
+        <EmptyState title="Каталог не загружен" loading={!model.pollError}>
           {model.pollError ? "Ядро недоступно — проверьте локальный API." : "Загружаю каталог ядра…"}
         </EmptyState>
       ) : model.effectiveMode === "all" ? (
-        <UniversalList model={model} />
+        <AllSitesCard model={model} />
       ) : (
         <ProfileGrid model={model} />
       )}

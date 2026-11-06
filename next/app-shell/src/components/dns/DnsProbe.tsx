@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DnsQueryResult, queryDns } from "../../api";
 import { IconGlobe } from "../Icons";
+import { Dropdown } from "../ui/Dropdown";
 import { Notice } from "../ui/Notice";
 import { Panel } from "../ui/Panel";
 
@@ -45,16 +46,17 @@ export function DnsProbe({ servers }: { servers: string[] }) {
             spellCheck={false}
           />
         </label>
-        <label className="field">
+        <div className="field">
           <span className="field__label">Сервер</span>
-          <select className="select" value={chosen} onChange={(event) => setServer(event.target.value)} disabled={checking}>
-            {servers.map((item) => (
-              <option value={item} key={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </label>
+          <Dropdown<string>
+            label="DNS-сервер"
+            value={chosen}
+            options={servers.map((item) => ({ value: item, label: item }))}
+            onChange={setServer}
+            disabled={checking}
+            mono
+          />
+        </div>
         <button type="button" className="btn btn--accent" onClick={() => void run()} disabled={checking}>
           {checking ? <span className="spinner" /> : <IconGlobe size={16} />}
           {checking ? "Запрос…" : "Запросить"}

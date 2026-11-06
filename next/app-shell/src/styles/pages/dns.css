@@ -13,22 +13,57 @@
 
 .doh-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 6px;
-  max-height: 210px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-auto-rows: 38px;
+  gap: 1px;
+  max-height: 236px;
+  margin: 0;
+  padding: 0;
   overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--line);
+  list-style: none;
 }
 
 .doh {
-  overflow: hidden;
-  padding: 7px 10px;
-  border: 1px solid rgba(61, 220, 151, 0.2);
-  border-radius: 8px;
-  background: var(--ok-soft);
-  color: #a6f0cf;
-  font: 500 11px/1.2 var(--font-mono);
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 0 12px;
+  background: #111111;
+  font: 500 12px/1 var(--font-mono);
   white-space: nowrap;
+  transition: background var(--t-fast) var(--ease);
+}
+
+.doh:hover {
+  background: #171717;
+}
+
+.doh__dot {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 8px rgba(61, 220, 151, 0.6);
+}
+
+.doh__host {
+  flex-shrink: 0;
+  max-width: 70%;
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+}
+
+.doh__path {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-faint);
+  text-overflow: ellipsis;
 }
 
 .dns-form {
