@@ -152,7 +152,6 @@ ipcMain.handle("app:elevate", async () => {
   if (!relaunchElevated([AUTOSTART_FLAG])) {
     return { ok: false, error: "Запрос прав отклонён — без них движок обхода не запустится." };
   }
-  if (sidecar) sidecar.kill();
   setTimeout(() => app.quit(), 100);
   return { ok: true };
 });
@@ -241,7 +240,26 @@ app.whenReady().then(async () => {
   });
 });
 
+async function stopEngine() {
+  try {
+    await fetch(`${BASE}/api/ws/stop`, { method: "POST", signal: AbortSignal.timeout(4000) });
+  } catch (_) {
+    return;
+  }
+}
+
+let quitting = false;
+
+app.on("before-quit", (event) => {
+  if (quitting || !sidecar) return;
+  event.preventDefault();
+  quitting = true;
+  stopEngine().finally(() => {
+    if (sidecar) sidecar.kill();
+    app.quit();
+  });
+});
+
 app.on("window-all-closed", () => {
-  if (sidecar) sidecar.kill();
   if (process.platform !== "darwin") app.quit();
 });

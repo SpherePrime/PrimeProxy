@@ -182,6 +182,12 @@ pub trait PrivilegedExecutor: Send + Sync {
     /// относительно своей рабочей папки (`lua/…`, `lists/…`, `bin/…`), и без
     /// `cwd` движок их не находит.
     fn dry_run(&self, plan: &Nfqws2LaunchPlan) -> Result<(), DryRunFailure>;
+    /// Гасит процессы движка, которые ядро не отслеживает (остались после
+    /// аварийного завершения прошлого ядра). Иначе `--dry-run` падает с
+    /// «A copy of winws2 is already running with the same filter».
+    fn stop_strays(&self, _exe: &str) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 /// Ручка запущенного через `privd` демона: только pid — процесс принадлежит
@@ -390,6 +396,32 @@ impl PrivilegedExecutor for WindowsExecutor {
 
     fn dry_run(&self, plan: &Nfqws2LaunchPlan) -> Result<(), DryRunFailure> {
         dry_run_process(plan)
+    }
+
+    fn stop_strays(&self, exe: &str) -> Result<(), String> {
+        let absolute = std::fs::canonicalize(exe)
+            .map_err(|error| format!("путь движка {exe}: {error}"))?;
+        let absolute = absolute.to_string_lossy();
+        let absolute = absolute.strip_prefix(r"\\?\").unwrap_or(&absolute).to_string();
+        let script = "$p = $env:PB_ENGINE_PATH; \
+            $found = @(Get-Process -Name winws2 -ErrorAction SilentlyContinue | \
+            Where-Object { $_.Path -and ($_.Path -ieq $p) }); \
+            $found | Stop-Process -Force -ErrorAction SilentlyContinue; \
+            $found.Count";
+        let system_root = std::env::var("SystemRoot").unwrap_or_else(|_| r"C:\Windows".to_string());
+        let powershell = format!(r"{system_root}\System32\WindowsPowerShell\v1.0\powershell.exe");
+        let output = std::process::Command::new(powershell)
+            .args(["-NoProfile", "-NonInteractive", "-Command", script])
+            .env("PB_ENGINE_PATH", &absolute)
+            .stdin(std::process::Stdio::null())
+            .stderr(std::process::Stdio::piped())
+            .output()
+            .map_err(|error| format!("не удалось проверить старые копии движка: {error}"))?;
+        let stopped: u32 = String::from_utf8_lossy(&output.stdout).trim().parse().unwrap_or(0);
+        if stopped > 0 {
+            std::thread::sleep(Duration::from_millis(500));
+        }
+        Ok(())
     }
 }
 
@@ -1032,15 +1064,9 @@ fn start_sync(state: &WsState, request: &StartRequest) -> Result<Value, (StatusC
         .map_err(|error| ws_error(StatusCode::BAD_REQUEST, format!("план запуска: {error}")))?;
     plan.args = dedupe_repeated_args(&plan.args);
 
-    // Валидация merged-конфигурации: dry-run напрямую, без привилегий.
-    state.inner.executor.dry_run(&plan).map_err(|failure| {
-        (
-            StatusCode::BAD_REQUEST,
-            Json(json!({ "error": failure.error, "tail": failure.tail })),
-        )
-    })?;
-
-    // Мьютекс держим до конца: проверка «уже запущено» и spawn — атомарно.
+    // Мьютекс держим до конца: проверка «уже запущено», dry-run и spawn —
+    // атомарно. Проверка идёт раньше dry-run: иначе работающий движок
+    // давал непонятный отказ dry-run вместо «уже запущено».
     let mut controller = state
         .inner
         .controller
@@ -1062,6 +1088,22 @@ fn start_sync(state: &WsState, request: &StartRequest) -> Result<Value, (StatusC
         }
         *controller = None;
     }
+
+    // Ядро движок не отслеживает — значит, любая живая копия этого же
+    // бинарника осталась от прошлого ядра и заблокирует запуск.
+    state
+        .inner
+        .executor
+        .stop_strays(&plan.exe)
+        .map_err(|error| ws_error(StatusCode::INTERNAL_SERVER_ERROR, error))?;
+
+    // Валидация merged-конфигурации: dry-run напрямую, без привилегий.
+    state.inner.executor.dry_run(&plan).map_err(|failure| {
+        (
+            StatusCode::BAD_REQUEST,
+            Json(json!({ "error": failure.error, "tail": failure.tail })),
+        )
+    })?;
 
     let filters = default_filters();
     let nft = nft_rules_text(request.qnum, &[], &[], &NOZAPRET4, &NOZAPRET6, &filters);
