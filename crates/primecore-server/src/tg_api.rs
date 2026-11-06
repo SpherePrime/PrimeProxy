@@ -97,6 +97,11 @@ pub fn save_config(path: &str, config: &TgProxyConfig) -> Result<(), String> {
 
 /// Запись файла с правами 0600 (Unix); на прочих платформах — обычная запись.
 fn write_private(path: &str, text: &str) -> std::io::Result<()> {
+    if let Some(parent) = std::path::Path::new(path).parent() {
+        if !parent.as_os_str().is_empty() {
+            std::fs::create_dir_all(parent)?;
+        }
+    }
     #[cfg(unix)]
     {
         use std::io::Write;
