@@ -14,6 +14,12 @@ function stateCopy(model: BypassModel) {
   if (model.offline) {
     return { word: <>Нет связи</>, note: "Ядро не отвечает. Проверьте, запущен ли primecore-server." };
   }
+  if (model.elevating) {
+    return {
+      word: <>Подтвердите права…</>,
+      note: "Windows спрашивает разрешение. После «Да» приложение перезапустится и сразу включит обход.",
+    };
+  }
   if (model.busy) {
     return {
       word: <>{model.stopping ? "Выключаю" : model.granting || model.awaitingGrant ? "Подтверждение" : "Запускаю"}…</>,

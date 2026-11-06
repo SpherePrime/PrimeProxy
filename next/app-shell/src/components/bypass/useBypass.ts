@@ -30,6 +30,7 @@ import {
   saveProfileMode,
   targetProbe,
 } from "./presetCatalog";
+import { elevationBridge } from "../../electronBridge";
 
 const AUTO_PICK_POLLS = 120;
 const LOG_KEEP = 500;
@@ -55,6 +56,8 @@ export function useBypass() {
   const [privilege, setPrivilege] = useState<PrivilegeInfo | null>(null);
   const [granting, setGranting] = useState(false);
   const [awaitingGrant, setAwaitingGrant] = useState(false);
+  const [elevating, setElevating] = useState(false);
+  const [autostart, setAutostart] = useState(false);
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>(loadEnabled);
   const [defaultMap] = useState<Record<string, string>>(loadDefaults);
   const logTotalRef = useRef(0);
@@ -205,7 +208,29 @@ export function useBypass() {
     }
   }
 
+  async function requestElevation(): Promise<boolean> {
+    const bridge = elevationBridge();
+    if (!bridge) {
+      setError("Нет прав администратора: запустите ядро от имени администратора.");
+      return false;
+    }
+    setElevating(true);
+    setError("");
+    try {
+      const result = await bridge.request();
+      if (result.ok && result.already) return true;
+      if (!result.ok) setError(result.error ?? "Права не выданы — без них движок не запустится.");
+      return false;
+    } finally {
+      setElevating(false);
+    }
+  }
+
   async function start() {
+    if (status && !status.root && status.platform === "windows") {
+      const ready = await requestElevation();
+      if (!ready) return;
+    }
     const activeGroups =
       effectiveMode === "all"
         ? universalGroups.slice(0, 1)
@@ -279,8 +304,21 @@ export function useBypass() {
     }
   }
 
+  useEffect(() => {
+    elevationBridge()
+      ?.takeAutostart()
+      .then((flag) => flag && setAutostart(true))
+      .catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    if (!autostart || presets.length === 0 || !status) return;
+    setAutostart(false);
+    if (!status.running) void start();
+  });
+
   const running = status?.running ?? false;
-  const busy = starting || stopping || granting || awaitingGrant;
+  const busy = starting || stopping || granting || awaitingGrant || elevating;
   const needsPrompt = Boolean(privilege?.needs_prompt && !privilege?.granted);
   const platformKnown = Boolean(status);
   const isWindows = status ? status.platform === "windows" : true;
@@ -318,6 +356,7 @@ export function useBypass() {
     stopping,
     granting,
     awaitingGrant,
+    elevating,
     offline,
     platformKnown,
     isWindows,

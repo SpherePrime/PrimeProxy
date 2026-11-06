@@ -34,16 +34,15 @@ function sidecarPath() {
 // ─────────────────────────── Права администратора (Windows) ─────────────
 // Движку обхода (winws2) в манифесте нужен уровень High: без него Windows
 // отказывает в запуске с ошибкой 740, потому что движок ставит драйвер
-// WinDivert. Поэтому оболочка при старте сама показывает запрос UAC и
-// перезапускается повышенной — один запрос на запуск приложения, ровно как
-// pkexec/sudo на Linux (см. README про привилегии).
-//
-// Отказ от запроса приложение не закрывает: проверка, DNS, Telegram и
-// настройки работают и без прав, а запуск обхода честно скажет, чего не
-// хватает. Переменная PB_ELEVATE_TRIED защищает от цикла перезапусков,
-// если определить повышение не удалось.
+// WinDivert. Приложение стартует без прав, а UAC показывается в момент
+// включения обхода: оболочка перезапускается повышенной с флагом
+// --pb-autostart, и интерфейс сразу запускает движок. Отказ от запроса
+// ничего не ломает — проверка, DNS и Telegram работают и без прав.
 
 const HIGH_INTEGRITY_SID = "S-1-16-12288";
+const SYSTEM32 = path.join(process.env.SystemRoot || "C:\\Windows", "System32");
+const WHOAMI = path.join(SYSTEM32, "whoami.exe");
+const POWERSHELL = path.join(SYSTEM32, "WindowsPowerShell", "v1.0", "powershell.exe");
 
 // Повышен ли текущий процесс: `whoami /groups` показывает уровень
 // обязательного контроля, S-1-16-12288 — High («от имени администратора»).
@@ -51,7 +50,7 @@ const HIGH_INTEGRITY_SID = "S-1-16-12288";
 function isElevated() {
   if (process.platform !== "win32") return true;
   try {
-    const groups = execFileSync("whoami", ["/groups"], {
+    const groups = execFileSync(WHOAMI, ["/groups"], {
       encoding: "utf8",
       windowsHide: true,
     });
@@ -68,8 +67,11 @@ function isElevated() {
 // Аргументы едут строкой в переменной окружения: PowerShell передаёт её
 // содержимое без изменений, поэтому пути с пробелами и кавычками доезжают
 // так же, как были.
-function relaunchElevated() {
-  const args = process.argv.slice(1).map((value) => `"${value}"`).join(" ");
+const AUTOSTART_FLAG = "--pb-autostart";
+
+function relaunchElevated(extraArgs = []) {
+  const base = process.argv.slice(1).filter((value) => value !== AUTOSTART_FLAG);
+  const args = [...base, ...extraArgs].map((value) => `"${value}"`).join(" ");
   const script = [
     "$ErrorActionPreference = 'Stop'",
     "$start = @{ FilePath = $env:PB_ELEVATE_EXE; WorkingDirectory = $env:PB_ELEVATE_CWD; Verb = 'RunAs' }",
@@ -77,7 +79,7 @@ function relaunchElevated() {
     "Start-Process @start",
   ].join("; ");
   try {
-    execFileSync("powershell", ["-NoProfile", "-NonInteractive", "-Command", script], {
+    execFileSync(POWERSHELL, ["-NoProfile", "-NonInteractive", "-Command", script], {
       env: {
         ...process.env,
         PB_ELEVATE_TRIED: "1",
@@ -126,6 +128,34 @@ async function runningCoreIsElevated() {
     return null;
   }
 }
+
+async function waitCoreRelease() {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const state = await runningCoreIsElevated();
+    if (state !== false) return state;
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  return false;
+}
+
+let autostartPending = process.argv.includes(AUTOSTART_FLAG);
+
+ipcMain.handle("app:take-autostart", () => {
+  const pending = autostartPending;
+  autostartPending = false;
+  return pending;
+});
+
+ipcMain.handle("app:elevate", async () => {
+  if (process.platform !== "win32") return { ok: false, error: "повышение через UAC есть только в Windows" };
+  if (isElevated() && (await runningCoreIsElevated()) !== false) return { ok: true, already: true };
+  if (!relaunchElevated([AUTOSTART_FLAG])) {
+    return { ok: false, error: "Запрос прав отклонён — без них движок обхода не запустится." };
+  }
+  if (sidecar) sidecar.kill();
+  setTimeout(() => app.quit(), 100);
+  return { ok: true };
+});
 
 // Ждём /health: интерфейс стартует только с живым ядром.
 async function waitHealth() {
@@ -186,20 +216,8 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  // Windows: права нужны движку обхода, поэтому просим их сразу при старте.
   const elevated = isElevated();
-  if (!elevated && !process.env.PB_ELEVATE_TRIED) {
-    if (relaunchElevated()) {
-      // Повышенная копия уже поднимается — эта больше не нужна.
-      app.quit();
-      return;
-    }
-    console.warn(
-      "приложение запущено без прав администратора: запуск обхода будет недоступен",
-    );
-  }
-
-  const coreElevated = await runningCoreIsElevated();
+  const coreElevated = elevated ? await waitCoreRelease() : await runningCoreIsElevated();
   if (coreElevated === false && elevated) {
     // Повышенному приложению досталось ядро без прав — движок обхода в нём
     // не запустится. Говорим об этом прямо, вместо непонятной ошибки 740.

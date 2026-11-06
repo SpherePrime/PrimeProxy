@@ -14,11 +14,11 @@ export function BypassPage() {
       <div className="notices">
         {model.error && <Notice tone="error">{model.error}</Notice>}
         {model.pollError && <Notice tone="error">Ядро не отвечает: {model.pollError}</Notice>}
-        {model.status && !model.status.root && (
-          <Notice tone="warn">
+        {model.status && !model.status.root && !model.running && (
+          <Notice tone="hint">
             {model.isWindows
-              ? "Нет прав администратора: движку нужен доступ к WinDivert. Перезапустите приложение — оно само запросит права."
-              : "Нет root-прав: при запуске понадобится подтверждение через polkit."}
+              ? "При включении Windows спросит права администратора — они нужны драйверу WinDivert."
+              : "При включении система спросит пароль администратора (polkit)."}
           </Notice>
         )}
       </div>

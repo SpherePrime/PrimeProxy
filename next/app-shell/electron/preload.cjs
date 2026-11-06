@@ -13,4 +13,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
       ipcRenderer.on("window:state", (_event, state) => callback(state));
     },
   },
+  elevation: {
+    request: () => ipcRenderer.invoke("app:elevate"),
+    takeAutostart: () => ipcRenderer.invoke("app:take-autostart"),
+  },
 });
