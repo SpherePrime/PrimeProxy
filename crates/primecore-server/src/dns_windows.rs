@@ -1,9 +1,3 @@
-//! DNS на Windows: чтение текущих серверов активного подключения и их смена
-//! через командлеты `NetTCPIP`/`DnsClient` (`Set-DnsClientServerAddress`).
-//!
-//! Активное подключение — интерфейс в состоянии Up с IPv4-шлюзом по
-//! умолчанию: именно через него уходят DNS-запросы.
-
 use crate::dns_extra_api::DnsSetExecutor;
 use crate::win_tools::powershell;
 
@@ -22,9 +16,6 @@ const SET_DNS_SCRIPT: &str = "$ErrorActionPreference = 'Stop'; \
     }; \
     Clear-DnsClientCache";
 
-/// Пара «интерфейс → сервер» активных подключений. Интерфейс без своих
-/// серверов попадает в список с пустым сервером: так видно, что DNS
-/// выдаётся автоматически.
 #[must_use]
 pub fn active_dns() -> Vec<(String, String)> {
     let Ok(output) = powershell(ACTIVE_DNS_SCRIPT)
@@ -37,7 +28,6 @@ pub fn active_dns() -> Vec<(String, String)> {
     parse_active_dns(&String::from_utf8_lossy(&output.stdout))
 }
 
-/// Разбор вывода `ACTIVE_DNS_SCRIPT`: строки `alias\tserver`.
 #[must_use]
 pub fn parse_active_dns(text: &str) -> Vec<(String, String)> {
     text.lines()
@@ -49,13 +39,11 @@ pub fn parse_active_dns(text: &str) -> Vec<(String, String)> {
         .collect()
 }
 
-/// Интерфейс, через который идёт интернет: первый активный с шлюзом.
 #[must_use]
 pub fn default_interface() -> Option<String> {
     active_dns().into_iter().map(|(alias, _)| alias).next()
 }
 
-/// Руки смены DNS на Windows: нужен процесс с правами администратора.
 #[derive(Debug, Default)]
 pub struct WindowsDnsExecutor;
 

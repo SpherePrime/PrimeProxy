@@ -14,7 +14,7 @@ mod fakes_api;
 mod hosts_file_api;
 mod log_analyzer_api;
 mod tg_api;
-mod tg_tunnel;
+mod tg_mtproto;
 #[cfg(windows)]
 mod dns_windows;
 #[cfg(windows)]

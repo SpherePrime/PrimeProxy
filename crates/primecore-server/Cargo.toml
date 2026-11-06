@@ -32,6 +32,7 @@ tokio-rustls.workspace = true
 rustls.workspace = true
 webpki-roots.workspace = true
 fastrand.workspace = true
+ring = "0.17"
 
 [dev-dependencies]
 reqwest.workspace = true
