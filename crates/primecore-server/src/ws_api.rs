@@ -367,7 +367,7 @@ impl PrivilegedExecutor for WindowsExecutor {
     }
 
     fn kill(&self, pid: u32) -> Result<(), String> {
-        let output = std::process::Command::new("taskkill")
+        let output = crate::win_tools::system_command("taskkill")
             .args(["/PID", &pid.to_string(), "/F"])
             .stdin(std::process::Stdio::null())
             .stderr(std::process::Stdio::piped())
@@ -384,7 +384,7 @@ impl PrivilegedExecutor for WindowsExecutor {
     }
 
     fn is_running(&self, pid: u32) -> Result<bool, String> {
-        let output = std::process::Command::new("tasklist")
+        let output = crate::win_tools::system_command("tasklist")
             .args(["/FI", &format!("PID eq {pid}"), "/NH"])
             .stdin(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
@@ -408,10 +408,7 @@ impl PrivilegedExecutor for WindowsExecutor {
             Where-Object { $_.Path -and ($_.Path -ieq $p) }); \
             $found | Stop-Process -Force -ErrorAction SilentlyContinue; \
             $found.Count";
-        let system_root = std::env::var("SystemRoot").unwrap_or_else(|_| r"C:\Windows".to_string());
-        let powershell = format!(r"{system_root}\System32\WindowsPowerShell\v1.0\powershell.exe");
-        let output = std::process::Command::new(powershell)
-            .args(["-NoProfile", "-NonInteractive", "-Command", script])
+        let output = crate::win_tools::powershell(script)
             .env("PB_ENGINE_PATH", &absolute)
             .stdin(std::process::Stdio::null())
             .stderr(std::process::Stdio::piped())
@@ -464,6 +461,7 @@ fn elevation_hint(_exe: &str, _error: &std::io::Error) -> Option<String> {
 ///
 /// # Errors
 /// Сокет не отвечает или ответ не JSON — текст.
+#[cfg_attr(windows, allow(dead_code))]
 pub(crate) fn request_privd(sock: &str, request: Value) -> Result<Value, String> {
     let reply = client::request(sock, &request.to_string())?;
     serde_json::from_str(&reply).map_err(|error| format!("ответ демона не JSON: {error} ({reply})"))
@@ -1903,7 +1901,7 @@ pub fn is_root() -> bool {
         // обязательного контроля, S-1-16-12288 — High (запуск от имени
         // администратора). SID не переводится, поэтому проверка не зависит
         // от языка системы.
-        std::process::Command::new("whoami")
+        crate::win_tools::system_command("whoami")
             .arg("/groups")
             .stdin(std::process::Stdio::null())
             .output()

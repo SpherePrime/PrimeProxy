@@ -63,11 +63,27 @@ pub async fn current() -> Json<Value> {
             system.push(json!({ "server": server, "kind": kind }));
         }
     }
+    #[allow(unused_mut)]
+    let mut interface: Option<String> = None;
+    #[cfg(windows)]
+    {
+        let pairs = tokio::task::spawn_blocking(crate::dns_windows::active_dns)
+            .await
+            .unwrap_or_default();
+        for (alias, server) in pairs {
+            interface.get_or_insert_with(|| alias.clone());
+            if server.is_empty() || seen.contains(&server) {
+                continue;
+            }
+            seen.push(server.clone());
+            system.push(json!({ "server": server, "kind": alias }));
+        }
+    }
     let doh: Vec<Value> = primecore_dns::providers::doh_templates()
         .into_iter()
         .map(|(server, template)| json!({ "server": server, "url": template }))
         .collect();
-    Json(json!({ "system": system, "doh": doh }))
+    Json(json!({ "system": system, "doh": doh, "interface": interface }))
 }
 
 /// Разбор текста resolv.conf: адреса строк `nameserver <адрес>`. Комментарии
@@ -190,10 +206,12 @@ pub trait DnsSetExecutor: Send + Sync {
 }
 
 /// Руки через демон `privd`: каждый вызов — один запрос по unix-сокету.
+#[cfg_attr(windows, allow(dead_code))]
 pub struct PrivdDnsExecutor {
     sock: String,
 }
 
+#[cfg_attr(windows, allow(dead_code))]
 impl PrivdDnsExecutor {
     #[must_use]
     pub fn new(sock: String) -> Self {
@@ -231,6 +249,9 @@ pub struct DnsSetRequest {
     /// `/proc/net/route`.
     #[serde(default)]
     pub ifname: Option<String>,
+    /// Вернуть автоматическое получение DNS (список серверов не нужен).
+    #[serde(default)]
+    pub reset: bool,
 }
 
 /// Состояние смены DNS: путь сокета `privd` и руки исполнения.
@@ -254,9 +275,16 @@ impl DnsExtraState {
     /// Состояние живого сервера: руки — демон `privd` на его сокете.
     #[must_use]
     pub fn production() -> Self {
-        Self::new(Arc::new(PrivdDnsExecutor::new(
-            crate::ws_api::privd_sock_path(),
-        )))
+        #[cfg(windows)]
+        {
+            Self::new(Arc::new(crate::dns_windows::WindowsDnsExecutor))
+        }
+        #[cfg(not(windows))]
+        {
+            Self::new(Arc::new(PrivdDnsExecutor::new(
+                crate::ws_api::privd_sock_path(),
+            )))
+        }
     }
 
     /// Состояние с явными руками (тесты подставляют фейк).
@@ -271,6 +299,7 @@ impl DnsExtraState {
 /// Имя интерфейса с маршрутом по умолчанию из текста `/proc/net/route`:
 /// строка с адресом назначения `00000000`.
 #[must_use]
+#[cfg_attr(windows, allow(dead_code))]
 pub fn default_ifname_from_proc_route(text: &str) -> Option<String> {
     for line in text.lines().skip(1) {
         let mut cells = line.split('\t');
@@ -281,6 +310,24 @@ pub fn default_ifname_from_proc_route(text: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// Интерфейс с маршрутом в интернет: на Windows — активное подключение
+/// со шлюзом, на Linux — строка маршрута по умолчанию `/proc/net/route`.
+async fn default_interface() -> Option<String> {
+    #[cfg(windows)]
+    {
+        tokio::task::spawn_blocking(crate::dns_windows::default_interface)
+            .await
+            .ok()
+            .flatten()
+    }
+    #[cfg(not(windows))]
+    {
+        std::fs::read_to_string("/proc/net/route")
+            .ok()
+            .and_then(|text| default_ifname_from_proc_route(&text))
+    }
 }
 
 /// Смена DNS: `POST /api/dns/set`.
@@ -297,17 +344,20 @@ pub async fn set(
     body: Result<Json<DnsSetRequest>, axum::extract::rejection::JsonRejection>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
     let Json(request) = body.map_err(bad_json)?;
-    let servers = normalize_servers(&request.servers).ok_or_else(|| {
-        bad_request(
-            "servers",
-            format!("нужны 1..={MAX_SERVERS} DNS-серверов в виде IP-адресов"),
-        )
-    })?;
+    let servers = if request.reset {
+        Vec::new()
+    } else {
+        normalize_servers(&request.servers).ok_or_else(|| {
+            bad_request(
+                "servers",
+                format!("нужны 1..={MAX_SERVERS} DNS-серверов в виде IP-адресов"),
+            )
+        })?
+    };
     let ifname = match request.ifname.as_deref().map(str::trim) {
         Some(ifname) if !ifname.is_empty() => ifname.to_string(),
-        _ => std::fs::read_to_string("/proc/net/route")
-            .ok()
-            .and_then(|text| default_ifname_from_proc_route(&text))
+        _ => default_interface()
+            .await
             .ok_or_else(|| {
                 bad_request(
                     "ifname",
@@ -323,7 +373,14 @@ pub async fn set(
             internal_error("dns_set", format!("фоновая задача не отработала: {error}"))
         })?;
     // Демон не отвечает — править DNS нечем, приглашаем нажать «Разрешить».
-    ping.map_err(|_error| ws_error(StatusCode::CONFLICT, NO_PRIVILEGE_ERROR.to_string()))?;
+    ping.map_err(|error| {
+        let text = if cfg!(windows) {
+            format!("нет прав администратора для смены DNS ({error})")
+        } else {
+            NO_PRIVILEGE_ERROR.to_string()
+        };
+        ws_error(StatusCode::CONFLICT, text)
+    })?;
     let set_ifname = ifname.clone();
     let set_servers = servers.clone();
     let set_executor = Arc::clone(&state.inner.executor);
@@ -336,7 +393,7 @@ pub async fn set(
     applied.map_err(|error| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({ "error": format!("resolvectl: {error}") })),
+            Json(json!({ "error": format!("DNS не установлен: {error}") })),
         )
     })?;
     Ok(Json(

@@ -15,6 +15,10 @@ mod hosts_file_api;
 mod log_analyzer_api;
 mod tg_api;
 mod tg_tunnel;
+#[cfg(windows)]
+mod dns_windows;
+#[cfg(windows)]
+mod win_tools;
 mod ws_api;
 
 use axum::extract::rejection::JsonRejection;
