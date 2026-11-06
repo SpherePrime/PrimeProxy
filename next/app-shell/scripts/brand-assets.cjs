@@ -62,6 +62,23 @@ const pages = {
         <div class="ver">VERSION ${version}</div>
       </div>`,
   },
+  splash: {
+    width: 480,
+    height: 270,
+    html: `<style>${base}body{background:#0d0d0d;color:#f1efe9;position:relative}
+      .grid{position:absolute;inset:0;${grid}background-size:24px 24px;-webkit-mask-image:radial-gradient(ellipse 80% 90% at 85% 0%,#000 15%,transparent 75%)}
+      .glow{position:absolute;width:520px;height:520px;top:-300px;right:-260px;border-radius:50%;background:radial-gradient(circle,rgba(255,106,53,.5),transparent 62%)}
+      .content{position:absolute;inset:0;padding:40px 44px;display:flex;flex-direction:column}
+      .row{display:flex;align-items:center;gap:16px}
+      .name{font-size:34px;font-weight:500;letter-spacing:-.045em}.name b{font-weight:800}
+      .eyebrow{margin-top:auto;display:flex;align-items:center;gap:9px;font:600 10px/1 Consolas,monospace;letter-spacing:.18em;color:#8d8a84;text-transform:uppercase}
+      .eyebrow i{width:6px;height:6px;border-radius:2px;background:#ff6a35;box-shadow:0 0 10px #ff6a35}
+      .bar{margin-top:14px;height:4px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}
+      .bar span{display:block;width:62%;height:100%;border-radius:9px;background:linear-gradient(90deg,#ff9a5c,#ff6a35);box-shadow:0 0 12px #ff6a35}</style>
+      <div class="grid"></div><div class="glow"></div>
+      <div class="content"><div class="row">${mark(50)}<div class="name"><b>Prime</b>Bypass</div></div>
+        <div class="eyebrow"><i></i>Подготовка установки…</div><div class="bar"><span></span></div></div>`,
+  },
   header: {
     width: 150,
     height: 57,
@@ -157,5 +174,8 @@ app.whenReady().then(async () => {
   const header = await render(pages.header);
   writeBmp(header, path.join(outDir, "installerHeader.bmp"));
   fs.writeFileSync(path.join(outDir, "installerHeader.png"), header.toPNG());
+  const splash = await render(pages.splash);
+  writeBmp(splash, path.join(outDir, "splash.bmp"));
+  fs.writeFileSync(path.join(outDir, "splash.png"), splash.toPNG());
   app.quit();
 });

@@ -9,6 +9,7 @@ const { app, BrowserWindow, dialog, ipcMain, shell } = require("electron");
 const { spawn, execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const { installerMode, openInstallerWindow } = require("./installer.cjs");
 
 const PORT = Number(process.env.PRIMECORE_PORT || 7290);
 const BASE = `http://127.0.0.1:${PORT}`;
@@ -242,6 +243,11 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  const setupMode = installerMode();
+  if (setupMode) {
+    openInstallerWindow(setupMode);
+    return;
+  }
   const elevated = isElevated();
   const coreElevated = elevated ? await waitCoreRelease() : await runningCoreIsElevated();
   if (coreElevated === false && elevated) {

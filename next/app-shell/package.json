@@ -10,7 +10,7 @@
     "electron:dev": "vite build && electron .",
     "electron:start": "electron .",
     "assets": "electron scripts/brand-assets.cjs",
-    "dist": "vite build && electron-builder --win nsis --x64"
+    "dist": "vite build && electron-builder --win portable --x64"
   },
   "devDependencies": {
     "@fontsource-variable/inter": "^5.1.0",
@@ -61,7 +61,7 @@
     "win": {
       "target": [
         {
-          "target": "nsis",
+          "target": "portable",
           "arch": [
             "x64"
           ]
@@ -70,27 +70,11 @@
       "icon": "build/icon.ico",
       "requestedExecutionLevel": "asInvoker"
     },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": true,
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico",
-      "installerHeaderIcon": "build/icon.ico",
-      "installerSidebar": "build/installerSidebar.bmp",
-      "uninstallerSidebar": "build/installerSidebar.bmp",
-      "installerHeader": "build/installerHeader.bmp",
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "PrimeBypass",
-      "installerLanguages": [
-        "ru_RU"
-      ],
-      "language": "1049",
-      "runAfterFinish": true,
+    "portable": {
       "artifactName": "PrimeBypass-Setup-${version}.${ext}",
-      "uninstallDisplayName": "PrimeBypass"
+      "splashImage": "build/splash.bmp",
+      "requestExecutionLevel": "user",
+      "unpackDirName": "PrimeBypassSetup"
     }
   }
 }
