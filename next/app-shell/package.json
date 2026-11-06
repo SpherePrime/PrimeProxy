@@ -72,7 +72,6 @@
     },
     "portable": {
       "artifactName": "PrimeBypass-Setup-${version}.${ext}",
-      "splashImage": "build/splash.bmp",
       "requestExecutionLevel": "user",
       "unpackDirName": "PrimeBypassSetup"
     }

@@ -1,7 +1,8 @@
 const { app, BrowserWindow, dialog, ipcMain, shell } = require("electron");
 const { execFile, spawn } = require("child_process");
 const path = require("path");
-const fs = require("fs");
+const fs = require("original-fs");
+const { copyTree, folderSizeKb, removePath } = require("./installer-files.cjs");
 
 const APP_NAME = "PrimeBypass";
 const EXE_NAME = `${APP_NAME}.exe`;
@@ -34,23 +35,6 @@ function run(file, args, env = {}) {
       else resolve(stdout.toString());
     });
   });
-}
-
-function listFiles(root) {
-  const result = [];
-  const walk = (dir) => {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) walk(full);
-      else result.push(full);
-    }
-  };
-  walk(root);
-  return result;
-}
-
-function folderSizeKb(root) {
-  return Math.round(listFiles(root).reduce((total, file) => total + fs.statSync(file).size, 0) / 1024);
 }
 
 async function createShortcut(linkPath, target, workingDir) {
@@ -113,27 +97,11 @@ async function install(window, options) {
   if (path.resolve(source).toLowerCase() === target.toLowerCase()) throw new Error("Приложение уже установлено в эту папку.");
 
   send({ stage: "prepare", percent: 2, label: "Готовлю файлы…" });
-  const files = listFiles(source);
-  fs.mkdirSync(target, { recursive: true });
-
-  let copied = 0;
-  for (const file of files) {
-    const relative = path.relative(source, file);
-    const destination = path.join(target, relative);
-    fs.mkdirSync(path.dirname(destination), { recursive: true });
-    try {
-      await fs.promises.copyFile(file, destination);
-    } catch (error) {
-      if (error.code === "EBUSY" || error.code === "EPERM") {
-        throw new Error("PrimeBypass сейчас запущен. Закройте его и повторите установку.");
-      }
-      throw error;
+  await copyTree(source, target, (copied, total, relative) => {
+    if (copied % 8 === 0 || copied === total) {
+      send({ stage: "copy", percent: 4 + Math.round((copied / total) * 84), label: relative });
     }
-    copied += 1;
-    if (copied % 8 === 0 || copied === files.length) {
-      send({ stage: "copy", percent: 4 + Math.round((copied / files.length) * 84), label: relative });
-    }
-  }
+  });
 
   send({ stage: "shortcuts", percent: 92, label: "Создаю ярлыки…" });
   const exe = path.join(target, EXE_NAME);
@@ -163,7 +131,7 @@ async function uninstall(window, options) {
   const installDir = (await readInstallLocation()) || path.dirname(process.execPath);
   send({ stage: "shortcuts", percent: 25, label: "Удаляю ярлыки…" });
   const links = shortcutPaths();
-  for (const link of [links.desktop, links.startMenu]) fs.rmSync(link, { force: true });
+  for (const link of [links.desktop, links.startMenu]) removePath(link);
 
   send({ stage: "register", percent: 55, label: "Убираю запись из системы…" });
   await run(REG, ["delete", UNINSTALL_KEY, "/f"]).catch(() => undefined);
@@ -171,8 +139,8 @@ async function uninstall(window, options) {
   if (options.removeData) {
     send({ stage: "data", percent: 75, label: "Удаляю настройки…" });
     const dataDir = path.join(process.env.LOCALAPPDATA || "", "primebypass");
-    if (process.env.LOCALAPPDATA) fs.rmSync(dataDir, { recursive: true, force: true });
-    fs.rmSync(app.getPath("userData"), { recursive: true, force: true });
+    if (process.env.LOCALAPPDATA) removePath(dataDir);
+    removePath(app.getPath("userData"));
   }
 
   send({ stage: "done", percent: 100, label: "Готово" });
