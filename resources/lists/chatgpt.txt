@@ -2,3 +2,5 @@ chatgpt.com
 openai.com
 oaistatic.com
 oaiusercontent.com
+perplexity.ai
+www.perplexity.ai

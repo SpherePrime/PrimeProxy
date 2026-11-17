@@ -1,4 +1,6 @@
 facebook.com
+www.facebook.com
+m.facebook.com
 fbcdn.net
 fburl.com
 fbsbx.com

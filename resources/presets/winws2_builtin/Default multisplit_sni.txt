@@ -288,3 +288,28 @@
 --out-range=-n8
 --lua-desync=fake:blob=fake_default_http:repeats=4:ip_autottl=2,3-20:ip6_autottl=2,3-20:tcp_md5
 --lua-desync=multidisorder:pos=host+1
+
+--new
+
+--name=Telegram · сайт и веб (telegram.org)
+--filter-tcp=80,443
+--hostlist=lists/telegram.txt
+--out-range=-d10
+--lua-desync=tls_multisplit_sni:seqovl=652:seqovl_pattern=tls_google
+
+--new
+
+--name=Telegram · приложение (MTProto)
+--filter-tcp=80,443,5222
+--ipset=lists/ipset-telegram.txt
+--hostlist-exclude=lists/telegram.txt
+--out-range=-n8
+--lua-desync=send:repeats=2
+
+--new
+
+--name=ИИ сервисы (ChatGPT, Perplexity, Claude)
+--filter-tcp=80-65535
+--hostlist=lists/chatgpt.txt
+--out-range=-d10
+--lua-desync=tls_multisplit_sni:seqovl=652:seqovl_pattern=tls_google

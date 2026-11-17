@@ -138,6 +138,11 @@ const EXTRA_DOMAIN_TARGETS: Record<string, string> = {
   "youtu.be": "YouTube",
   "instagram.com": "Instagram",
   "gateway.discord.gg": "Discord",
+  "open.spotify.com": "SoundCloud",
+  "www.netflix.com": "Все сайты",
+  "www.reddit.com": "Все сайты",
+  "www.perplexity.ai": "ChatGPT",
+  "signal.org": "Telegram",
 };
 
 const PROFILE_MODE_KEY = "pp.mode";

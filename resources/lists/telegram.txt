@@ -1,4 +1,5 @@
 telegram.org
+www.telegram.org
 t.me
 telegram.me
 telegram.dog

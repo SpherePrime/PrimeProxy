@@ -21,6 +21,12 @@ export function CheckPage({ onNavigate }: { onNavigate: (page: PageId) => void }
   const enableProfiles = () => {
     const allTargets = GROUP_ORDER.filter((target) => !isUniversal(target));
     enableOnlyTargets(fixTargets, [...allTargets]);
+    try {
+      localStorage.setItem("pp.mode", "profiles");
+      localStorage.setItem("pp.restart_needed", "1");
+    } catch {
+      // ignore
+    }
     onNavigate("bypass");
   };
 

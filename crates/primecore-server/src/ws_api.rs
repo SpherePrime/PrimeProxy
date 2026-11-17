@@ -1936,6 +1936,7 @@ mod tests {
     }
 
     /// tmpdir с уникальным именем.
+    #[allow(dead_code)]
     fn tmpdir(name: &str) -> std::path::PathBuf {
         let dir = std::env::temp_dir().join(format!(
             "primecore-server-{name}-{}-{}",

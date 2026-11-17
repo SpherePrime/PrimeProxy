@@ -30,6 +30,14 @@ import {
   saveProfileMode,
   targetProbe,
 } from "./presetCatalog";
+import {
+  getBestProfileForTarget,
+  getTop5Profiles,
+  ProfileScore,
+  reportProfileFailure,
+  setActiveProfileInTop5,
+  updateAllRankingsFromCheckResults,
+} from "./profileRanking";
 import { elevationBridge } from "../../electronBridge";
 
 const AUTO_PICK_POLLS = 120;
@@ -60,6 +68,7 @@ export function useBypass() {
   const [autostart, setAutostart] = useState(false);
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>(loadEnabled);
   const [defaultMap] = useState<Record<string, string>>(loadDefaults);
+  const [rankingVersion, setRankingVersion] = useState(0);
   const logTotalRef = useRef(0);
 
   const groups = useMemo(() => buildGroups(presets), [presets]);
@@ -146,12 +155,69 @@ export function useBypass() {
 
   const chosenFor = useCallback(
     (group: PresetGroup): string => {
-      const saved = defaultMap[group.target];
-      if (saved && group.presets.some((p) => p.name === saved)) return saved;
-      const main = group.presets.find((preset) => preset.description.toLowerCase().startsWith("основной пресет"));
-      return main?.name ?? group.presets[0]?.name ?? "";
+      void rankingVersion;
+      return getBestProfileForTarget(group.target, group.presets);
     },
-    [defaultMap],
+    [rankingVersion],
+  );
+
+  const getTop5 = useCallback(
+    (target: string, groupPresets: PresetInfo[]): ProfileScore[] => {
+      void rankingVersion;
+      return getTop5Profiles(target, groupPresets);
+    },
+    [rankingVersion],
+  );
+
+  const selectPreset = useCallback(
+    (target: string, presetName: string) => {
+      const group = groups.find((g) => g.target === target);
+      if (!group) return;
+      setActiveProfileInTop5(target, presetName, group.presets);
+      setRankingVersion((v) => v + 1);
+    },
+    [groups],
+  );
+
+  const triggerFailover = useCallback(
+    async (target: string) => {
+      const group = groups.find((g) => g.target === target);
+      if (!group || group.presets.length < 2) return;
+      const currentActive = chosenFor(group);
+      const result = reportProfileFailure(target, currentActive, group.presets);
+      if (result) {
+        setRankingVersion((v) => v + 1);
+        setAutoNote(
+          `Сбой профиля «${result.failedProfile}» для ${target}. Автоматически переключено на 2-й лучший: «${result.nextBestProfile}» (задержка: ${result.latencyMs} мс).`,
+        );
+        if (status?.running) {
+          try {
+            await stopWs();
+            await new Promise((r) => setTimeout(r, 400));
+            const activeGroups =
+              effectiveMode === "all"
+                ? (enabledTargets.length > 0
+                    ? [
+                        ...universalGroups.slice(0, 1),
+                        ...specificGroups.filter((g) => isEnabled(g.target, enabledMap)),
+                      ]
+                    : universalGroups.slice(0, 1))
+                : specificGroups.filter((g) => isEnabled(g.target, enabledMap));
+            const newNames = [
+              ...new Set(
+                activeGroups
+                  .map((g) => (g.target === target ? result.nextBestProfile : chosenFor(g)))
+                  .filter(Boolean),
+              ),
+            ];
+            await startWithNames(newNames);
+          } catch (e) {
+            setError(String((e as Error).message));
+          }
+        }
+      }
+    },
+    [groups, chosenFor, status?.running, effectiveMode, enabledTargets, specificGroups, universalGroups, enabledMap],
   );
 
   const clearLog = useCallback(() => {
@@ -201,6 +267,23 @@ export function useBypass() {
           .filter((line) => line.length > 0)
           .map((line) => `[dry-run] ${line}`);
         if (lines.length > 0) setLogLines((prev) => [...prev, ...lines].slice(-LOG_KEEP));
+      }
+      // Автоматический фолбэк при сбое старта: переключаем сбойный профиль на 2-й лучший из Топ-5
+      for (const target of enabledTargets) {
+        const group = specificGroups.find((g) => g.target === target);
+        if (group && group.presets.length > 1) {
+          const current = chosenFor(group);
+          if (names.includes(current) && (err.message.includes(current) || names.length === 1)) {
+            const failover = reportProfileFailure(target, current, group.presets);
+            if (failover) {
+              setRankingVersion((v) => v + 1);
+              setAutoNote(
+                `Профиль «${failover.failedProfile}» дал сбой для ${target}. Автоматически переключено на 2-й лучший: «${failover.nextBestProfile}» (задержка: ${failover.latencyMs} мс). Нажмите «Включить» ещё раз.`,
+              );
+              break;
+            }
+          }
+        }
       }
     } finally {
       setStarting(false);
@@ -284,6 +367,15 @@ export function useBypass() {
         setError(`Проверка не завершилась за ${AUTO_PICK_POLLS} с`);
         return;
       }
+
+      // Обновляем замеры задержки и рейтинги Топ-5 для каждого приложения
+      updateAllRankingsFromCheckResults(
+        results,
+        specificGroups.map((group) => group.target),
+        presets,
+      );
+      setRankingVersion((v) => v + 1);
+
       const blocked = new Set(results.filter((item) => item.status !== "ok").map((item) => item.domain));
       const picked = probes.filter((item) => blocked.has(item.domain)).map((item) => item.target);
       const next: Record<string, boolean> = {};
@@ -292,17 +384,53 @@ export function useBypass() {
         saveEnabled(group.target, next[group.target]);
       }
       setEnabledMap(next);
+      chooseProfileMode("profiles");
       setAutoNote(
         picked.length > 0
-          ? `Заблокировано и выбрано: ${picked.join(", ")}.`
-          : "Ничего не заблокировано — выбор снят.",
+          ? `Автоматически определено: ${results.length - picked.length} сервисов идут напрямую (максимальная скорость), а для ${picked.length} заблокированных (${picked.join(", ")}) включены лучшие профили обхода.`
+          : "Все сервисы работают напрямую без блокировки — обход не требуется.",
       );
+
+      // Если обход уже работал, сразу перезапускаем его с новым оптимизированным набором
+      if (status?.running && picked.length > 0) {
+        try {
+          await stopWs();
+          await new Promise((r) => setTimeout(r, 400));
+          const activeGroups = specificGroups.filter((g) => next[g.target]);
+          const names = [...new Set(activeGroups.map(chosenFor).filter(Boolean))];
+          await startWithNames(names);
+        } catch (e) {
+          setError(String((e as Error).message));
+        }
+      }
     } catch (e) {
       setError(String((e as Error).message));
     } finally {
       setAutoRunning(false);
     }
   }
+
+  useEffect(() => {
+    let restart = false;
+    try {
+      if (localStorage.getItem("pp.restart_needed") === "1") {
+        localStorage.removeItem("pp.restart_needed");
+        restart = true;
+      }
+    } catch {
+      // ignore
+    }
+    if (restart && presets.length > 0 && status) {
+      setEnabledMap(loadEnabled());
+      chooseProfileMode("profiles");
+      setRankingVersion((v) => v + 1);
+      if (status.running) {
+        void stop().then(() => void start());
+      } else {
+        void start();
+      }
+    }
+  });
 
   useEffect(() => {
     elevationBridge()
@@ -342,6 +470,10 @@ export function useBypass() {
     toggleGroup,
     setAllProfiles,
     universalChosen,
+    chosenFor,
+    getTop5,
+    selectPreset,
+    triggerFailover,
     autoRunning,
     autoProgress,
     autoNote,
