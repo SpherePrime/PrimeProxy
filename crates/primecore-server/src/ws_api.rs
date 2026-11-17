@@ -368,7 +368,7 @@ impl PrivilegedExecutor for WindowsExecutor {
 
     fn kill(&self, pid: u32) -> Result<(), String> {
         let output = crate::win_tools::system_command("taskkill")
-            .args(["/PID", &pid.to_string(), "/F"])
+            .args(["/F", "/T", "/PID", &pid.to_string()])
             .stdin(std::process::Stdio::null())
             .stderr(std::process::Stdio::piped())
             .output()
@@ -1930,8 +1930,17 @@ mod tests {
 
     use super::*;
 
-    /// Каталог ресурсов репозитория из каталога крейта (cwd тестов).
+    /// Каталог ресурсов репозитория: проверяем путь от CARGO_MANIFEST_DIR, а затем текущую директорию.
     fn repo_resources() -> String {
+        let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        let candidate = manifest.join("../../resources");
+        if candidate.exists() {
+            return candidate.to_string_lossy().to_string();
+        }
+        let candidate = std::path::Path::new("resources");
+        if candidate.exists() {
+            return candidate.to_string_lossy().to_string();
+        }
         "../../resources".to_string()
     }
 

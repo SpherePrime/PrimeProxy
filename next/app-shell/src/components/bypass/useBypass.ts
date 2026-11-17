@@ -196,12 +196,7 @@ export function useBypass() {
             await new Promise((r) => setTimeout(r, 400));
             const activeGroups =
               effectiveMode === "all"
-                ? (enabledTargets.length > 0
-                    ? [
-                        ...universalGroups.slice(0, 1),
-                        ...specificGroups.filter((g) => isEnabled(g.target, enabledMap)),
-                      ]
-                    : universalGroups.slice(0, 1))
+                ? universalGroups.slice(0, 1)
                 : specificGroups.filter((g) => isEnabled(g.target, enabledMap));
             const newNames = [
               ...new Set(
@@ -430,7 +425,7 @@ export function useBypass() {
         void start();
       }
     }
-  });
+  }, [presets.length, status, chooseProfileMode]);
 
   useEffect(() => {
     elevationBridge()

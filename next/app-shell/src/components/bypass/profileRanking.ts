@@ -487,7 +487,8 @@ export function applyMeasuredLatency(
 
   // Пересортировываем
   const sorted = [...currentTop5].sort((a, b) => a.score - b.score);
-  const defaultName = sorted.find((p) => p.isDefault)?.name || sorted[0].name;
+  if (sorted.length === 0) return [];
+  const defaultName = sorted.find((p) => p.isDefault)?.name || sorted[0]?.name || "";
 
   const refreshed = sorted.map((item, idx) => ({
     ...item,
